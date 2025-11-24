@@ -1,0 +1,162 @@
+﻿@model IEnumerable<GymApp.Models.Usuario>
+
+@{
+    ViewData["Title"] = ViewData["TituloListado"];
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 text-primary"><i class="bi bi-table me-2"></i>@ViewData["TituloListado"]</h5>
+        <a asp-action="Create" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg"></i> Nuevo Usuario
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Usuario</th>
+                        <th>DNI / Identificación</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-initial rounded-circle bg-light text-primary fw-bold d-flex justify-content-center align-items-center me-3" style="width: 40px; height: 40px;">
+                                        @item.NombreCompleto.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">@item.NombreCompleto</div>
+                                        <div class="small text-muted">@item.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@item.Dni</td>
+                            <td><span class="badge bg-secondary bg-opacity-10 text-secondary border">@item.Role.Nombre</span></td>
+                            <td>
+                                @if (item.Estado == true)
+                                {
+                                    <span class="badge bg-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                <!-- Botón Ver QR (Modal) -->
+                                <button type="button" class="btn btn-sm btn-outline-dark me-1" onclick="mostrarQR(@item.UserId, '@item.NombreCompleto')">
+                                    <i class="bi bi-qr-code"></i>
+                                </button>
+
+                                <!-- Botón Editar (Modal) -->
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="cargarModalEditar(@item.UserId)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+
+                                <!-- Botón Eliminar (Alerta) -->
+                                <a asp-action="Delete" asp-route-id="@item.UserId" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL 1: VISUALIZAR QR    -->
+<!-- ========================= -->
+<div class="modal fade" id="modalQR" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold" id="qrModalLabel">Código de Acceso</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center pt-0">
+                <div class="py-3">
+                    <!-- Aquí cargaremos la imagen dinámicamente -->
+                    <img id="imgQR" src="" alt="QR" class="img-fluid border rounded p-2" style="min-width: 200px; min-height: 200px;" />
+                </div>
+                <p class="text-muted small mb-3" id="nombreUsuarioQR">Cargando...</p>
+                <button type="button" class="btn btn-primary w-100 btn-sm" onclick="imprimirQR()">
+                    <i class="bi bi-printer me-2"></i>Imprimir / Descargar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL 2: EDITAR USUARIO   -->
+<!-- ========================= -->
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">Editar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Aquí inyectaremos el Partial View del formulario -->
+            <div id="contenedorFormularioEditar">
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 1. Lógica para Modal QR
+        function mostrarQR(id, nombre) {
+            // Construimos la URL de la imagen
+            var urlImagen = '/Usuarios/ObtenerQR/' + id;
+
+            // Asignamos al SRC de la etiqueta IMG
+            document.getElementById('imgQR').src = urlImagen;
+            document.getElementById('nombreUsuarioQR').innerText = nombre;
+
+            // Abrimos modal
+            var myModal = new bootstrap.Modal(document.getElementById('modalQR'));
+            myModal.show();
+        }
+
+        // 2. Lógica para Modal Editar (AJAX)
+        function cargarModalEditar(id) {
+            var url = '/Usuarios/Edit/' + id;
+            var modalEl = document.getElementById('modalEditar');
+            var myModal = new bootstrap.Modal(modalEl);
+
+            // Mostramos modal primero
+            myModal.show();
+
+            // Cargamos el contenido HTML dentro del div
+            $('#contenedorFormularioEditar').load(url, function(response, status, xhr) {
+                if (status == "error") {
+                    $('#contenedorFormularioEditar').html("<p class='text-danger p-3'>Error al cargar datos: " + xhr.status + "</p>");
+                }
+            });
+        }
+
+        function imprimirQR() {
+            // Función simple para abrir la imagen en nueva pestaña e imprimir
+            var src = document.getElementById('imgQR').src;
+            var win = window.open('');
+            win.document.write('<img src="' + src + '" onload="window.print();window.close()" />');
+            win.focus();
+        }
+    </script>
+}

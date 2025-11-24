@@ -1,0 +1,78 @@
+﻿@model GymApp.Models.Usuario
+
+@{
+    ViewData["Title"] = "Nuevo Registro";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Registrar Nuevo Usuario</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-3">
+                        <!-- Sección Datos Personales -->
+                        <div class="col-12">
+                            <h6 class="text-muted border-bottom pb-2 mb-3">Información Personal</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Dni" class="form-label fw-bold">DNI / Documento <span class="text-danger">*</span></label>
+                            <input asp-for="Dni" class="form-control" placeholder="Ej: 12345678" />
+                            <span asp-validation-for="Dni" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="RoleId" class="form-label fw-bold">Tipo de Usuario</label>
+                            <select asp-for="RoleId" class="form-select" asp-items="ViewBag.RoleId"></select>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="NombreCompleto" class="form-label fw-bold">Nombre Completo <span class="text-danger">*</span></label>
+                            <input asp-for="NombreCompleto" class="form-control" placeholder="Apellidos y Nombres" />
+                            <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Telefono" class="form-label">Teléfono</label>
+                            <input asp-for="Telefono" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">Correo Electrónico</label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                        </div>
+
+                        <!-- Sección Seguridad -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-muted border-bottom pb-2 mb-3">Seguridad</h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Contraseña Inicial <span class="text-danger">*</span></label>
+                            <input name="passwordRaw" type="password" class="form-control" required />
+                            <div class="form-text">Esta contraseña se guardará encriptada.</div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
+                        <a asp-action="Index" class="btn btn-light border me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="bi bi-save me-2"></i>Guardar Registro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

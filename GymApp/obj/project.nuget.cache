@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "j0Qp8DnqtUw=",
+  "dgSpecHash": "y1WSeiKTxaM=",
   "success": true,
   "projectFilePath": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\GymApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
+    "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\6.0.0\\microsoft.bcl.asyncinterfaces.6.0.0.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.3\\microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",
@@ -46,6 +47,7 @@
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\qrcoder\\1.7.0\\qrcoder.1.7.0.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\system.clientmodel\\1.0.0\\system.clientmodel.1.0.0.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\system.codedom\\4.4.0\\system.codedom.4.4.0.nupkg.sha512",
     "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\.nuget\\packages\\system.collections.immutable\\6.0.0\\system.collections.immutable.6.0.0.nupkg.sha512",

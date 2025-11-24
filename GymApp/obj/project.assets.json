@@ -47,6 +47,19 @@
           }
         }
       },
+      "BCrypt.Net-Next/4.0.3": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/BCrypt.Net-Next.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/BCrypt.Net-Next.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -857,7 +870,7 @@
       "Microsoft.Win32.SystemEvents/6.0.0": {
         "type": "package",
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/Microsoft.Win32.SystemEvents.dll": {
             "related": ".xml"
           }
         },
@@ -886,6 +899,22 @@
         },
         "runtime": {
           "lib/netstandard2.0/Mono.TextTemplating.dll": {}
+        }
+      },
+      "QRCoder/1.7.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Drawing.Common": "6.0.0"
+        },
+        "compile": {
+          "lib/net6.0/QRCoder.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/QRCoder.dll": {
+            "related": ".xml"
+          }
         }
       },
       "System.ClientModel/1.0.0": {
@@ -1084,7 +1113,7 @@
           "Microsoft.Win32.SystemEvents": "6.0.0"
         },
         "compile": {
-          "lib/net6.0/_._": {
+          "lib/net6.0/System.Drawing.Common.dll": {
             "related": ".xml"
           }
         },
@@ -1534,6 +1563,37 @@
         "azureicon.png",
         "lib/netstandard2.0/Azure.Identity.dll",
         "lib/netstandard2.0/Azure.Identity.xml"
+      ]
+    },
+    "BCrypt.Net-Next/4.0.3": {
+      "sha512": "W+U9WvmZQgi5cX6FS5GDtDoPzUCV4LkBLkywq/kRZhuDwcbavOzcDAr3LXJFqHUi952Yj3LEYoWW0jbEUQChsA==",
+      "type": "package",
+      "path": "bcrypt.net-next/4.0.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "bcrypt.net-next.4.0.3.nupkg.sha512",
+        "bcrypt.net-next.nuspec",
+        "ico.png",
+        "lib/net20/BCrypt.Net-Next.dll",
+        "lib/net20/BCrypt.Net-Next.xml",
+        "lib/net35/BCrypt.Net-Next.dll",
+        "lib/net35/BCrypt.Net-Next.xml",
+        "lib/net462/BCrypt.Net-Next.dll",
+        "lib/net462/BCrypt.Net-Next.xml",
+        "lib/net472/BCrypt.Net-Next.dll",
+        "lib/net472/BCrypt.Net-Next.xml",
+        "lib/net48/BCrypt.Net-Next.dll",
+        "lib/net48/BCrypt.Net-Next.xml",
+        "lib/net5.0/BCrypt.Net-Next.dll",
+        "lib/net5.0/BCrypt.Net-Next.xml",
+        "lib/net6.0/BCrypt.Net-Next.dll",
+        "lib/net6.0/BCrypt.Net-Next.xml",
+        "lib/netstandard2.0/BCrypt.Net-Next.dll",
+        "lib/netstandard2.0/BCrypt.Net-Next.xml",
+        "lib/netstandard2.1/BCrypt.Net-Next.dll",
+        "lib/netstandard2.1/BCrypt.Net-Next.xml",
+        "readme.md"
       ]
     },
     "Humanizer.Core/2.14.1": {
@@ -2900,6 +2960,33 @@
         "mono.texttemplating.nuspec"
       ]
     },
+    "QRCoder/1.7.0": {
+      "sha512": "6R3hQkayihGIDjp3F1nLRDBWG+nqahGyOY2+fH4Rll16Vad67oaUUfHkOiMWKiJFnGh+PIGDfUos+0R9m54O1g==",
+      "type": "package",
+      "path": "qrcoder/1.7.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net35/QRCoder.dll",
+        "lib/net35/QRCoder.xml",
+        "lib/net40/QRCoder.dll",
+        "lib/net40/QRCoder.xml",
+        "lib/net5.0/QRCoder.dll",
+        "lib/net5.0/QRCoder.xml",
+        "lib/net6.0/QRCoder.dll",
+        "lib/net6.0/QRCoder.xml",
+        "lib/netstandard1.3/QRCoder.dll",
+        "lib/netstandard1.3/QRCoder.xml",
+        "lib/netstandard2.0/QRCoder.dll",
+        "lib/netstandard2.0/QRCoder.xml",
+        "lib/netstandard2.1/QRCoder.dll",
+        "lib/netstandard2.1/QRCoder.xml",
+        "nuget-icon.png",
+        "qrcoder.1.7.0.nupkg.sha512",
+        "qrcoder.nuspec"
+      ]
+    },
     "System.ClientModel/1.0.0": {
       "sha512": "I3CVkvxeqFYjIVEP59DnjbeoGNfo/+SZrCLpRz2v/g0gpCHaEMPtWSY0s9k/7jR1rAsLNg2z2u1JRB76tPjnIw==",
       "type": "package",
@@ -4000,9 +4087,11 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "BCrypt.Net-Next >= 4.0.3",
       "Microsoft.EntityFrameworkCore >= 8.0.22",
       "Microsoft.EntityFrameworkCore.SqlServer >= 8.0.22",
-      "Microsoft.EntityFrameworkCore.Tools >= 8.0.22"
+      "Microsoft.EntityFrameworkCore.Tools >= 8.0.22",
+      "QRCoder >= 1.7.0"
     ]
   },
   "packageFolders": {
@@ -4055,6 +4144,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "BCrypt.Net-Next": {
+            "target": "Package",
+            "version": "[4.0.3, )"
+          },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
             "version": "[8.0.22, )"
@@ -4068,6 +4161,10 @@
             "suppressParent": "All",
             "target": "Package",
             "version": "[8.0.22, )"
+          },
+          "QRCoder": {
+            "target": "Package",
+            "version": "[1.7.0, )"
           }
         },
         "imports": [

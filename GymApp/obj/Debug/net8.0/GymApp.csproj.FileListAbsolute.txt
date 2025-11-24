@@ -144,3 +144,6 @@ C:\Users\krieg.DESKTOP-6U3IQMJ\OneDrive\Escritorio\Dev\_Dev_Web\GymApp\GymApp\Gy
 C:\Users\krieg.DESKTOP-6U3IQMJ\OneDrive\Escritorio\Dev\_Dev_Web\GymApp\GymApp\GymApp\obj\Debug\net8.0\GymApp.pdb
 C:\Users\krieg.DESKTOP-6U3IQMJ\OneDrive\Escritorio\Dev\_Dev_Web\GymApp\GymApp\GymApp\obj\Debug\net8.0\GymApp.genruntimeconfig.cache
 C:\Users\krieg.DESKTOP-6U3IQMJ\OneDrive\Escritorio\Dev\_Dev_Web\GymApp\GymApp\GymApp\obj\Debug\net8.0\ref\GymApp.dll
+C:\Users\krieg.DESKTOP-6U3IQMJ\OneDrive\Escritorio\Dev\_Dev_Web\GymApp\GymApp\GymApp\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Users\krieg.DESKTOP-6U3IQMJ\OneDrive\Escritorio\Dev\_Dev_Web\GymApp\GymApp\GymApp\bin\Debug\net8.0\QRCoder.dll
+C:\Users\krieg.DESKTOP-6U3IQMJ\OneDrive\Escritorio\Dev\_Dev_Web\GymApp\GymApp\GymApp\obj\Debug\net8.0\GymApp.sourcelink.json
