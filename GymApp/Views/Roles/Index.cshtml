@@ -1,0 +1,209 @@
+﻿@model IEnumerable<GymApp.ViewModels.RoleViewModel>
+
+@{
+    ViewData["Title"] = "Gestión de Roles";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bi bi-shield-lock"></i> Gestión de Roles</h2>
+        <!-- Botón para abrir Modal de Crear -->
+        <button type="button" class="btn btn-primary" onclick="abrirModalCrear()">
+            <i class="bi bi-plus-circle"></i> Nuevo Rol
+        </button>
+    </div>
+
+    <!-- Tabla de Roles -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Rol</th>
+                        <th>Descripción</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.Nombre</td>
+                            <td>@item.Descripcion</td>
+                            <td class="text-end">
+                                <!-- Botón Editar -->
+                                <button class="btn btn-sm btn-warning me-2" onclick="abrirModalEditar(@item.RoleId)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <!-- Botón Eliminar -->
+                                <button class="btn btn-sm btn-danger" onclick="eliminarRol(@item.RoleId)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL ÚNICO (CREAR/EDITAR) -->
+<!-- ========================= -->
+<div class="modal fade" id="modalRol" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="tituloModal">Gestión de Rol</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRol">
+                    <!-- Token Antiforgery es vital para seguridad en .NET -->
+                    @Html.AntiForgeryToken()
+
+                    <!-- Campo oculto para ID (se usa en Editar) -->
+                    <input type="hidden" id="RoleId" name="RoleId" value="0" />
+
+                    <div class="mb-3">
+                        <label for="Nombre" class="form-label">Nombre del Rol</label>
+                        <input type="text" class="form-control" id="Nombre" name="Nombre" required autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="Descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="Descripcion" name="Descripcion" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarRol()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- SCRIPTS -->
+<!-- ========================= -->
+@section Scripts {
+    <!-- SweetAlert2 para alertas bonitas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Referencia al Modal de Bootstrap
+        var myModal;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            myModal = new bootstrap.Modal(document.getElementById('modalRol'));
+        });
+
+        // 1. ABRIR MODAL PARA CREAR
+        function abrirModalCrear() {
+            document.getElementById('tituloModal').innerText = "Crear Nuevo Rol";
+            document.getElementById('formRol').reset(); // Limpiar formulario
+            document.getElementById('RoleId').value = "0"; // ID 0 indica creación
+            myModal.show();
+        }
+
+        // 2. ABRIR MODAL PARA EDITAR (Carga datos vía AJAX)
+        function abrirModalEditar(id) {
+            document.getElementById('tituloModal').innerText = "Editar Rol";
+
+            // Petición al servidor para obtener datos del rol
+            fetch(`/Roles/GetRole/${id}`)
+                .then(response => response.json())
+                .then(res => {
+                    if (res.success) {
+                        // Llenar los campos
+                        document.getElementById('RoleId').value = res.data.roleId;
+                        document.getElementById('Nombre').value = res.data.nombre;
+                        document.getElementById('Descripcion').value = res.data.descripcion;
+                        myModal.show();
+                    } else {
+                        Swal.fire('Error', 'No se pudo cargar el rol', 'error');
+                    }
+                });
+        }
+
+        // 3. GUARDAR (Funciona para Crear y Editar)
+        function guardarRol() {
+            const id = document.getElementById('RoleId').value;
+            const nombre = document.getElementById('Nombre').value;
+            const descripcion = document.getElementById('Descripcion').value;
+            // Token de seguridad necesario para POST en .NET Core
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            // Decidir si es Crear o Editar según el ID
+            const url = id == "0" ? '/Roles/Create' : '/Roles/Edit';
+
+            const payload = {
+                RoleId: parseInt(id),
+                Nombre: nombre,
+                Descripcion: descripcion
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    myModal.hide();
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload(); // Recargar página para actualizar tabla
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'Error de conexión', 'error');
+            });
+        }
+
+        // 4. ELIMINAR
+        function eliminarRol(id) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "No podrás revertir esta acción",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Llamada AJAX para eliminar
+                    $.post('/Roles/Delete', { id: id }, function (data) {
+                        if (data.success) {
+                            Swal.fire(
+                                '¡Eliminado!',
+                                data.message,
+                                'success'
+                            ).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            // Aquí mostramos el error de regla de negocio (ej: no borrar Admin)
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+}

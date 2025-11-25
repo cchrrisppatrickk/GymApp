@@ -25,6 +25,13 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 
+
+// Repositorios
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+
+// Servicios
+builder.Services.AddScoped<IRoleService, RoleService>();
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
 var app = builder.Build();
