@@ -1,47 +1,56 @@
-﻿@model IEnumerable<GymApp.Models.Usuario>
+﻿@model IEnumerable<GymApp.ViewModels.UsuarioViewModel>
 
 @{
-    ViewData["Title"] = ViewData["TituloListado"];
+    ViewData["Title"] = "Gestión de Usuarios";
+    var rolesSelectList = ViewBag.Roles as SelectList;
+    var filtroActual = ViewBag.FiltroActual as string;
 }
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 text-primary"><i class="bi bi-table me-2"></i>@ViewData["TituloListado"]</h5>
-        <a asp-action="Create" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus-lg"></i> Nuevo Usuario
-        </a>
+<div class="container-fluid mt-4">
+    <!-- Encabezado y Filtros -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="d-inline-block me-3"><i class="bi bi-people"></i> @ViewData["TituloListado"]</h2>
+            <div class="btn-group" role="group">
+                <a asp-action="Index" asp-route-tipo="Todos" class="btn btn-outline-secondary @(filtroActual == "Todos" ? "active" : "")">Todos</a>
+                <a asp-action="Index" asp-route-tipo="Cliente" class="btn btn-outline-secondary @(filtroActual == "Cliente" ? "active" : "")">Clientes</a>
+                <a asp-action="Index" asp-route-tipo="Personal" class="btn btn-outline-secondary @(filtroActual == "Personal" ? "active" : "")">Personal</a>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalCrear()">
+            <i class="bi bi-person-plus"></i> Nuevo Usuario
+        </button>
     </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+
+    <!-- Tabla -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped mb-0 align-middle">
+                <thead class="table-dark">
                     <tr>
-                        <th class="ps-4">Usuario</th>
-                        <th>DNI / Identificación</th>
+                        <th>Nombre</th>
                         <th>Rol</th>
+                        <th>DNI</th>
+                        <th>Contacto</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-initial rounded-circle bg-light text-primary fw-bold d-flex justify-content-center align-items-center me-3" style="width: 40px; height: 40px;">
-                                        @item.NombreCompleto.Substring(0, 1).ToUpper()
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold text-dark">@item.NombreCompleto</div>
-                                        <div class="small text-muted">@item.Email</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>@item.Dni</td>
-                            <td><span class="badge bg-secondary bg-opacity-10 text-secondary border">@item.Role.Nombre</span></td>
                             <td>
-                                @if (item.Estado == true)
+                                <div class="fw-bold">@item.NombreCompleto</div>
+                            </td>
+                            <td><span class="badge bg-info text-dark">@item.NombreRol</span></td>
+                            <td>@item.Dni</td>
+                            <td>
+                                <small class="d-block"><i class="bi bi-envelope"></i> @item.Email</small>
+                                <small class="d-block"><i class="bi bi-phone"></i> @item.Telefono</small>
+                            </td>
+                            <td>
+                                @if (item.Estado)
                                 {
                                     <span class="badge bg-success">Activo</span>
                                 }
@@ -50,21 +59,19 @@
                                     <span class="badge bg-danger">Inactivo</span>
                                 }
                             </td>
-                            <td>
-                                <!-- Botón Ver QR (Modal) -->
-                                <button type="button" class="btn btn-sm btn-outline-dark me-1" onclick="mostrarQR(@item.UserId, '@item.NombreCompleto')">
+                            <td class="text-end">
+                                <!-- Botón Ver QR -->
+                                <button class="btn btn-sm btn-dark me-1" onclick="verQR(@item.UserId, '@item.NombreCompleto')" title="Ver Código QR">
                                     <i class="bi bi-qr-code"></i>
                                 </button>
-
-                                <!-- Botón Editar (Modal) -->
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="cargarModalEditar(@item.UserId)">
+                                <!-- Botón Editar -->
+                                <button class="btn btn-sm btn-warning me-1" onclick="abrirModalEditar(@item.UserId)">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-
-                                <!-- Botón Eliminar (Alerta) -->
-                                <a asp-action="Delete" asp-route-id="@item.UserId" class="btn btn-sm btn-outline-danger">
+                                <!-- Botón Eliminar -->
+                                <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(@item.UserId)">
                                     <i class="bi bi-trash"></i>
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     }
@@ -75,88 +82,209 @@
 </div>
 
 <!-- ========================= -->
-<!-- MODAL 1: VISUALIZAR QR    -->
+<!-- MODAL DE GESTIÓN (UPSERT) -->
 <!-- ========================= -->
-<div class="modal fade" id="modalQR" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
+<div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h6 class="modal-title fw-bold" id="qrModalLabel">Código de Acceso</h6>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="tituloModal">Usuario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center pt-0">
-                <div class="py-3">
-                    <!-- Aquí cargaremos la imagen dinámicamente -->
-                    <img id="imgQR" src="" alt="QR" class="img-fluid border rounded p-2" style="min-width: 200px; min-height: 200px;" />
-                </div>
-                <p class="text-muted small mb-3" id="nombreUsuarioQR">Cargando...</p>
-                <button type="button" class="btn btn-primary w-100 btn-sm" onclick="imprimirQR()">
-                    <i class="bi bi-printer me-2"></i>Imprimir / Descargar
-                </button>
+            <div class="modal-body">
+                <form id="formUsuario">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="UserId" value="0" />
+
+                    <div class="row">
+                        <!-- Columna Izquierda -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="RoleId" class="form-label">Rol del Usuario</label>
+                                <select id="RoleId" class="form-select" asp-items="rolesSelectList" required>
+                                    <option value="">-- Seleccione Rol --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="NombreCompleto" class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-control" id="NombreCompleto" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="Dni" class="form-label">DNI / Identificación</label>
+                                <input type="text" class="form-control" id="Dni" required />
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="Email" class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="Email" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="Telefono" class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" id="Telefono" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="Password" class="form-label" id="lblPassword">Contraseña</label>
+                                <input type="password" class="form-control" id="Password" placeholder="Solo llenar si desea cambiarla" />
+                                <small class="text-muted" id="helpPassword">Obligatorio para nuevos usuarios.</small>
+                            </div>
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" id="Estado" checked>
+                                <label class="form-check-label" for="Estado">Usuario Activo</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarUsuario()">Guardar Datos</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ========================= -->
-<!-- MODAL 2: EDITAR USUARIO   -->
+<!-- MODAL DE CÓDIGO QR       -->
 <!-- ========================= -->
-<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="modalQR" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm text-center">
         <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title">Editar Usuario</h5>
+            <div class="modal-header">
+                <h5 class="modal-title fs-6" id="qrTitulo">Código QR</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <!-- Aquí inyectaremos el Partial View del formulario -->
-            <div id="contenedorFormularioEditar">
-                <div class="text-center p-4">
-                    <div class="spinner-border text-primary" role="status"></div>
-                </div>
+            <div class="modal-body">
+                <!-- La imagen se carga dinámicamente -->
+                <img id="imgQR" src="" alt="Cargando QR..." class="img-fluid border p-2" />
+                <p class="mt-2 text-muted small">Escanee este código en la entrada</p>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // 1. Lógica para Modal QR
-        function mostrarQR(id, nombre) {
-            // Construimos la URL de la imagen
-            var urlImagen = '/Usuarios/ObtenerQR/' + id;
+        var modalUsuario, modalQR;
 
-            // Asignamos al SRC de la etiqueta IMG
-            document.getElementById('imgQR').src = urlImagen;
-            document.getElementById('nombreUsuarioQR').innerText = nombre;
+        document.addEventListener('DOMContentLoaded', function () {
+            modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
+            modalQR = new bootstrap.Modal(document.getElementById('modalQR'));
+        });
 
-            // Abrimos modal
-            var myModal = new bootstrap.Modal(document.getElementById('modalQR'));
-            myModal.show();
+        // 1. CREAR
+        function abrirModalCrear() {
+            document.getElementById('tituloModal').innerText = "Nuevo Usuario";
+            document.getElementById('formUsuario').reset();
+            document.getElementById('UserId').value = "0";
+
+            // UI para password
+            document.getElementById('Password').setAttribute('required', 'required');
+            document.getElementById('helpPassword').innerText = "Obligatorio para crear el usuario.";
+
+            modalUsuario.show();
         }
 
-        // 2. Lógica para Modal Editar (AJAX)
-        function cargarModalEditar(id) {
-            var url = '/Usuarios/Edit/' + id;
-            var modalEl = document.getElementById('modalEditar');
-            var myModal = new bootstrap.Modal(modalEl);
+        // 2. EDITAR
+        function abrirModalEditar(id) {
+            document.getElementById('tituloModal').innerText = "Editar Usuario";
 
-            // Mostramos modal primero
-            myModal.show();
+            fetch(`/Usuarios/GetUsuario/${id}`)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.success) {
+                        const d = response.data;
+                        document.getElementById('UserId').value = d.userId;
+                        document.getElementById('RoleId').value = d.roleId;
+                        document.getElementById('NombreCompleto').value = d.nombreCompleto;
+                        document.getElementById('Dni').value = d.dni;
+                        document.getElementById('Email').value = d.email;
+                        document.getElementById('Telefono').value = d.telefono;
+                        document.getElementById('Estado').checked = d.estado;
 
-            // Cargamos el contenido HTML dentro del div
-            $('#contenedorFormularioEditar').load(url, function(response, status, xhr) {
-                if (status == "error") {
-                    $('#contenedorFormularioEditar').html("<p class='text-danger p-3'>Error al cargar datos: " + xhr.status + "</p>");
+                        // UI para password (opcional en edit)
+                        document.getElementById('Password').value = ""; // Limpiar
+                        document.getElementById('Password').removeAttribute('required');
+                        document.getElementById('helpPassword').innerText = "Dejar en blanco para mantener la actual.";
+
+                        modalUsuario.show();
+                    } else {
+                        Swal.fire('Error', 'No se pudieron cargar los datos', 'error');
+                    }
+                });
+        }
+
+        // 3. GUARDAR
+        function guardarUsuario() {
+            const id = document.getElementById('UserId').value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const payload = {
+                UserId: parseInt(id),
+                RoleId: parseInt(document.getElementById('RoleId').value),
+                NombreCompleto: document.getElementById('NombreCompleto').value,
+                Dni: document.getElementById('Dni').value,
+                Email: document.getElementById('Email').value,
+                Telefono: document.getElementById('Telefono').value,
+                Password: document.getElementById('Password').value,
+                Estado: document.getElementById('Estado').checked
+            };
+
+            fetch('/Usuarios/Save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    modalUsuario.hide();
+                    Swal.fire('¡Éxito!', data.message, 'success').then(() => location.reload());
+                } else {
+                    let errorMsg = data.message;
+                    // Si hay errores de validación detallados
+                    if(data.errors) errorMsg += "<br>" + data.errors.join("<br>");
+                    Swal.fire('Error', errorMsg, 'error');
                 }
             });
         }
 
-        function imprimirQR() {
-            // Función simple para abrir la imagen en nueva pestaña e imprimir
-            var src = document.getElementById('imgQR').src;
-            var win = window.open('');
-            win.document.write('<img src="' + src + '" onload="window.print();window.close()" />');
-            win.focus();
+        // 4. ELIMINAR
+        function eliminarUsuario(id) {
+            Swal.fire({
+                title: '¿Eliminar usuario?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Usuarios/Delete', { id: id }, function(data) {
+                         if (data.success) {
+                            Swal.fire('Eliminado', data.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // 5. VER QR
+        function verQR(id, nombre) {
+            document.getElementById('qrTitulo').innerText = "QR: " + nombre;
+            // Apuntamos la imagen a la acción del controlador
+            const img = document.getElementById('imgQR');
+            img.src = `/Usuarios/ObtenerQR/${id}?t=${new Date().getTime()}`; // timestamp evita caché
+
+            modalQR.show();
         }
     </script>
 }

@@ -1,19 +1,15 @@
 ﻿using GymApp.Models;
 using GymApp.Services;
-using GymApp.Repositories; // Necesario para obtener los Roles
+using GymApp.Repositories;
+using GymApp.ViewModels; // Importante
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering; // Necesario para SelectList
-using System;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GymApp.Controllers
 {
     public class UsuariosController : Controller
     {
-        // Inyectamos el Servicio (Lógica de Negocio)
         private readonly IUsuarioService _usuarioService;
-
-        // Inyectamos el Repositorio de Roles (Para llenar los DropDownList)
         private readonly IGenericRepository<Role> _rolesRepository;
 
         public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository)
@@ -23,184 +19,172 @@ namespace GymApp.Controllers
         }
 
         // ==========================================
-        // 1. LISTADO (INDEX)
+        // 1. VISTA PRINCIPAL (INDEX)
         // ==========================================
-        public async Task<IActionResult> Index(string tipo = "Cliente") // Por defecto muestra clientes
+        public async Task<IActionResult> Index(string tipo = "Todos")
         {
             var usuarios = await _usuarioService.ObtenerTodosAsync();
 
+            // Filtrado básico para la vista inicial
             if (tipo == "Cliente")
             {
-                // Filtramos donde el Rol sea exactamente "Cliente"
                 usuarios = usuarios.Where(u => u.Role.Nombre == "Cliente");
                 ViewData["TituloListado"] = "Listado de Clientes";
             }
-            else
+            else if (tipo == "Personal")
             {
-                // Filtramos todo lo que NO sea Cliente (Admin, Portero, etc.)
                 usuarios = usuarios.Where(u => u.Role.Nombre != "Cliente");
                 ViewData["TituloListado"] = "Listado de Personal";
             }
+            else
+            {
+                ViewData["TituloListado"] = "Todos los Usuarios";
+            }
 
-            return View(usuarios);
-        }
-
-        // ==========================================
-        // 2. DETALLES (PERFIL)
-        // ==========================================
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var usuario = await _usuarioService.ObtenerPorIdAsync(id.Value);
-            if (usuario == null) return NotFound();
-
-            return View(usuario);
-        }
-
-        // ==========================================
-        // 3. CREAR (CREATE)
-        // ==========================================
-
-        // GET: Muestra el formulario vacío
-        public async Task<IActionResult> Create()
-        {
-            // Cargar la lista de roles para el <select> de la vista
+            // CARGAMOS LOS ROLES AQUÍ para enviarlos a la vista y llenar el <select> del Modal
             var roles = await _rolesRepository.GetAllAsync();
-            ViewData["RoleId"] = new SelectList(roles, "RoleId", "Nombre");
-            return View();
+            ViewBag.Roles = new SelectList(roles, "RoleId", "Nombre");
+            ViewBag.FiltroActual = tipo;
+
+            // Mapeamos a ViewModel para la tabla
+            var listadoViewModels = usuarios.Select(u => new UsuarioViewModel
+            {
+                UserId = u.UserId,
+                NombreCompleto = u.NombreCompleto,
+                Dni = u.Dni,
+                Email = u.Email,
+                Telefono = u.Telefono,
+                NombreRol = u.Role?.Nombre,
+                // CORRECCIÓN AQUÍ: (u.Estado ?? false)
+                // Si u.Estado es nulo, se usará 'false' automáticamente.
+                Estado = u.Estado ?? false,
+                RoleId = u.RoleId
+            }).ToList();
+
+            return View(listadoViewModels);
         }
 
-        // POST: Recibe los datos y llama al servicio
+        // ==========================================
+        // 2. OBTENER UN USUARIO (AJAX)
+        // ==========================================
+        [HttpGet]
+        public async Task<IActionResult> GetUsuario(int id)
+        {
+            var u = await _usuarioService.ObtenerPorIdAsync(id);
+            if (u == null) return NotFound();
+
+            // Retornamos solo lo necesario para el formulario
+            var model = new UsuarioViewModel
+            {
+                UserId = u.UserId,
+                RoleId = u.RoleId,
+                NombreCompleto = u.NombreCompleto,
+                Dni = u.Dni,
+                Email = u.Email,
+                Telefono = u.Telefono,
+                // CORRECCIÓN AQUÍ TAMBIÉN:
+                Estado = u.Estado ?? false,
+            };
+
+            return Json(new { success = true, data = model });
+        }
+
+        // ==========================================
+        // 3. GUARDAR (CREAR / EDITAR)
+        // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("NombreCompleto,Dni,Email,Telefono,RoleId")] Usuario usuario, string passwordRaw)
+        public async Task<IActionResult> Save([FromBody] UsuarioViewModel model)
         {
-            // Validamos que se haya ingresado una contraseña
-            if (string.IsNullOrEmpty(passwordRaw))
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("PasswordHash", "La contraseña es obligatoria para nuevos usuarios.");
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                return Json(new { success = false, message = "Datos inválidos", errors = errors });
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // CASO 1: CREAR (UserId es 0)
+                if (model.UserId == 0)
                 {
-                    // El servicio se encarga de Hashear password, generar QR y validar DNI
-                    await _usuarioService.CrearUsuarioAsync(usuario, passwordRaw);
-                    return RedirectToAction(nameof(Index));
+                    if (string.IsNullOrEmpty(model.Password))
+                        return Json(new { success = false, message = "La contraseña es obligatoria para nuevos usuarios." });
+
+                    var nuevoUsuario = new Usuario
+                    {
+                        RoleId = model.RoleId,
+                        NombreCompleto = model.NombreCompleto,
+                        Dni = model.Dni,
+                        Email = model.Email,
+                        Telefono = model.Telefono,
+                        Estado = true,
+                        FechaRegistro = DateTime.Now
+                    };
+
+                    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, model.Password);
+                    return Json(new { success = true, message = "Usuario creado exitosamente." });
                 }
-                catch (Exception ex)
+                // CASO 2: EDITAR
+                else
                 {
-                    // Capturamos errores de negocio (ej: DNI duplicado)
-                    ModelState.AddModelError(string.Empty, ex.Message);
+                    var usuarioExistente = await _usuarioService.ObtenerPorIdAsync(model.UserId);
+                    if (usuarioExistente == null) return Json(new { success = false, message = "Usuario no encontrado." });
+
+                    usuarioExistente.RoleId = model.RoleId;
+                    usuarioExistente.NombreCompleto = model.NombreCompleto;
+                    usuarioExistente.Dni = model.Dni;
+                    usuarioExistente.Email = model.Email;
+                    usuarioExistente.Telefono = model.Telefono;
+                    usuarioExistente.Estado = model.Estado; // bool a bool? funciona implícitamente, aquí no da error
+
+                    if (!string.IsNullOrEmpty(model.Password))
+                    {
+                        // Lógica de cambio de contraseña
+                    }
+
+                    await _usuarioService.ActualizarUsuarioAsync(usuarioExistente);
+                    return Json(new { success = true, message = "Usuario actualizado correctamente." });
                 }
             }
-
-            // Si falló, recargamos la lista de roles y devolvemos la vista con los errores
-            var roles = await _rolesRepository.GetAllAsync();
-            ViewData["RoleId"] = new SelectList(roles, "RoleId", "Nombre", usuario.RoleId);
-            return View(usuario);
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         // ==========================================
-        // 4. EDITAR (EDIT)
+        // 4. ELIMINAR (AJAX)
         // ==========================================
-
-        // GET: Muestra el formulario con datos existentes
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-            var usuario = await _usuarioService.ObtenerPorIdAsync(id.Value);
-            if (usuario == null) return NotFound();
-
-            var roles = await _rolesRepository.GetAllAsync();
-            ViewData["RoleId"] = new SelectList(roles, "RoleId", "Nombre", usuario.RoleId);
-
-            // IMPORTANTE: Si la petición es AJAX (viene del modal), devolvemos PartialView
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return PartialView("_EditPartial", usuario);
-            }
-
-            return View(usuario);
-        }
-
-        // POST: Guarda los cambios
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,RoleId,NombreCompleto,Dni,Telefono,Email,CodigoQr,FechaRegistro,Estado,PasswordHash")] Usuario usuario)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id != usuario.UserId) return NotFound();
-
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    // NOTA: Aquí no estamos cambiando la contraseña. 
-                    // Eso requeriría una lógica separada para no sobrescribir el Hash con nulo.
-                    await _usuarioService.ActualizarUsuarioAsync(usuario);
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError(string.Empty, "Error al actualizar: " + ex.Message);
-                }
+                var resultado = await _usuarioService.EliminarUsuarioAsync(id);
+                if (!resultado) return Json(new { success = false, message = "No se pudo eliminar el usuario." });
+
+                return Json(new { success = true, message = "Usuario eliminado correctamente." });
             }
-
-            var roles = await _rolesRepository.GetAllAsync();
-            ViewData["RoleId"] = new SelectList(roles, "RoleId", "Nombre", usuario.RoleId);
-            return View(usuario);
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         // ==========================================
-        // 5. ELIMINAR (DELETE)
+        // 5. OBTENER QR (IMAGEN)
         // ==========================================
-
-        // GET: Pregunta "¿Estás seguro?"
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var usuario = await _usuarioService.ObtenerPorIdAsync(id.Value);
-            if (usuario == null) return NotFound();
-
-            return View(usuario);
-        }
-
-        // POST: Confirma y elimina
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            await _usuarioService.EliminarUsuarioAsync(id);
-            return RedirectToAction(nameof(Index));
-        }
-
-        // ==========================================
-        // 6. FUNCIONALIDAD QR
-        // ==========================================
-
-        // GET: Usuarios/ObtenerQR/5
-        // Retorna la imagen PNG del QR
+        [HttpGet]
         public async Task<IActionResult> ObtenerQR(int id)
         {
             var usuario = await _usuarioService.ObtenerPorIdAsync(id);
 
-            // CORRECCIÓN AQUI:
-            // 1. Verificamos si el objeto usuario es nulo
-            // 2. Verificamos si la propiedad CodigoQr es nula ("usuario.CodigoQr == null")
-            // 3. Verificamos si es Guid.Empty (aunque esto es menos probable si es nullable)
             if (usuario == null || usuario.CodigoQr == null || usuario.CodigoQr == Guid.Empty)
             {
                 return NotFound();
             }
 
-            // CORRECCIÓN AQUI:
-            // Usamos .Value para extraer el Guid puro del Guid? (Nullable)
             byte[] imagenBytes = _usuarioService.GenerarImagenQR(usuario.CodigoQr.Value);
-
-            // "image/png" hace que el navegador sepa que es una imagen
             return File(imagenBytes, "image/png");
         }
     }
