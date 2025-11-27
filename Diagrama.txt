@@ -1,3 +1,38 @@
+Aquí tienes el resumen ejecutivo de cómo funciona tu GymApp System hasta la última línea de código que hemos diseñado:
+
+1. Arquitectura ("El Motor")
+Tecnología: C# .NET Core MVC + Entity Framework + SQL Server.
+
+Diseño: Estructura en capas (N-Tier) separando responsabilidades:
+
+Controller: Recibe órdenes (API/Vistas).
+
+Service: Piensa y valida (Lógica de negocio).
+
+Repository: Habla con la Base de Datos.
+
+UX (Experiencia de Usuario): Módulos clave como el Quiosco y los Turnos funcionan como SPA (Single Page Application), es decir, todo ocurre en una misma ventana sin recargas molestas, usando JavaScript y AJAX.
+
+2. Flujo Operativo (Paso a Paso)
+A. Configuración Inicial (El Admin prepara el terreno)
+Antes de abrir, el administrador crea:
+
+Turnos: Define horarios (ej. Mañana: 6am - 2pm). El sistema valida que la hora fin no sea menor a la de inicio.
+
+Planes: Define productos de suscripción (ej. Mensual, Anual) con precio y duración en días.
+
+Inventario: Registra productos físicos (Agua, Proteína) con su stock inicial y precio.
+
+B. Gestión de Socios (El Corazón)
+Registro: Se crea el usuario (Cliente) con DNI y datos personales.
+
+Venta de Membresía: Se selecciona al Cliente + Plan + Turno.
+
+Automático: El sistema calcula la fecha de vencimiento (FechaInicio + DuraciónPlan).
+
+Caja (Cobro): Se registra el pago de esa membresía.
+
+Seguridad: El pago es inmutable (no se borra) y queda registrado quién cobró (auditoría).
 Descripcion de mi APP:
 La aplicación será una única plataforma web. Al acceder, los usuarios verán una vista de presentación del gimnasio con su información general y un botón "Unirse".
 

@@ -1,37 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": [
-        {
-          "DockedHeight": 200,
-          "SelectedChildIndex": 0,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Program.cs",
-              "RelativeDocumentMoniker": "GymApp\\Program.cs",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Program.cs",
-              "RelativeToolTip": "GymApp\\Program.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAABsAAAA0AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-27T02:08:27.311Z",
-              "EditorCaption": ""
-            }
-          ]
-        }
-      ]
+      "DocumentGroups": []
     }
   ]
 }
