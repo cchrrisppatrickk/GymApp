@@ -1,0 +1,225 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Membresías";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa fa-id-card"></i> Membresías</h2>
+        <button class="btn btn-primary btn-lg" onclick="abrirModal()">
+            <i class="fa fa-plus-circle"></i> Nueva Suscripción
+        </button>
+    </div>
+
+    <div class="btn-group mb-3" role="group">
+        <button type="button" class="btn btn-outline-secondary active" onclick="cargarMembresias('todas', this)">Todas</button>
+        <button type="button" class="btn btn-outline-success" onclick="cargarMembresias('activas', this)">Activas</button>
+        <button type="button" class="btn btn-outline-warning" onclick="cargarMembresias('por_vencer', this)">Por Vencer</button>
+        <button type="button" class="btn btn-outline-danger" onclick="cargarMembresias('vencidas', this)">Vencidas</button>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <table class="table table-striped align-middle" id="tablaMembresias">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Plan</th>
+                        <th>Turno</th>
+                        <th>Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Días Rest.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalMembresia" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Nueva Suscripción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formMembresia">
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Buscar Cliente (DNI o Nombre)</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="txtBuscarUsuario" list="listaUsuarios" placeholder="Escribe para buscar..." autocomplete="off">
+                            <datalist id="listaUsuarios"></datalist> <input type="hidden" id="userIdSeleccionado">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Plan</label>
+                            <select class="form-select" id="cboPlan"></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Turno</label>
+                            <select class="form-select" id="cboTurno"></select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Fecha de Inicio</label>
+                        <input type="date" class="form-control" id="txtFechaInicio">
+                        <small class="text-muted">La fecha de vencimiento se calculará automáticamente.</small>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarMembresia()">Registrar y Calcular</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarMembresias('todas');
+            cargarRecursos(); // Carga planes y turnos en los select
+
+            // Establecer fecha de hoy por defecto
+            document.getElementById('txtFechaInicio').valueAsDate = new Date();
+        });
+
+        // 1. CARGAR LISTADO
+        function cargarMembresias(filtro, btn) {
+            // Estilos de botones
+            if(btn) {
+                document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            fetch(`/Membresias/Listar?filtro=${filtro}`)
+                .then(res => res.json())
+                .then(json => {
+                    let html = '';
+                    json.data.forEach(m => {
+                        let badgeClass = 'bg-secondary';
+                        if (m.estado === 'Activa') badgeClass = 'bg-success';
+                        if (m.estado === 'Vencida') badgeClass = 'bg-danger';
+                        if (m.diasRestantes >= 0 && m.diasRestantes <= 5) badgeClass = 'bg-warning text-dark';
+
+                        html += `
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">${m.nombreUsuario}</div>
+                                    <small class="text-muted">DNI: ${m.dni}</small>
+                                </td>
+                                <td>${m.nombrePlan}</td>
+                                <td>${m.nombreTurno}</td>
+                                <td>${m.fechaVencimiento}</td>
+                                <td><span class="badge ${badgeClass}">${m.estado}</span></td>
+                                <td class="fw-bold text-center">${m.diasRestantes}</td>
+                            </tr>
+                        `;
+                    });
+                    document.querySelector("#tablaMembresias tbody").innerHTML = html;
+                });
+        }
+
+        // 2. CARGAR COMBOS (PLANES Y TURNOS)
+        function cargarRecursos() {
+            fetch('/Membresias/ObtenerRecursosCreacion')
+                .then(res => res.json())
+                .then(json => {
+                    // Llenar Planes
+                    let planesHtml = '';
+                    json.planes.forEach(p => {
+                        planesHtml += `<option value="${p.planId}">${p.nombre} (${p.duracionDias} días) - $${p.precioBase}</option>`;
+                    });
+                    document.getElementById('cboPlan').innerHTML = planesHtml;
+
+                    // Llenar Turnos
+                    let turnosHtml = '';
+                    json.turnos.forEach(t => {
+                        turnosHtml += `<option value="${t.turnoId}">${t.nombre} (${t.horaInicio} - ${t.horaFin})</option>`;
+                    });
+                    document.getElementById('cboTurno').innerHTML = turnosHtml;
+                });
+        }
+
+        // 3. LOGICA DE AUTOCOMPLETE (Simple)
+        const inputBuscar = document.getElementById('txtBuscarUsuario');
+        const dataList = document.getElementById('listaUsuarios');
+
+        inputBuscar.addEventListener('input', function() {
+            const val = this.value;
+            if (val.length < 3) return; // Buscar solo si hay 3 letras
+
+            fetch(`/Membresias/BuscarUsuario?q=${val}`)
+                .then(res => res.json())
+                .then(data => {
+                    dataList.innerHTML = '';
+                    data.forEach(item => {
+                        // Creamos la opción para el datalist
+                        const option = document.createElement('option');
+                        option.value = item.text; // Lo que se ve
+                        option.setAttribute('data-id', item.id); // Guardamos el ID
+                        dataList.appendChild(option);
+                    });
+                });
+        });
+
+        // Detectar selección del datalist para capturar el ID
+        inputBuscar.addEventListener('change', function() {
+            const val = this.value;
+            const options = dataList.childNodes;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === val) {
+                    document.getElementById('userIdSeleccionado').value = options[i].getAttribute('data-id');
+                    break;
+                }
+            }
+        });
+
+        // 4. GUARDAR
+        function guardarMembresia() {
+            const userId = document.getElementById('userIdSeleccionado').value;
+            if (!userId) {
+                alert("Debes seleccionar un usuario válido de la lista.");
+                return;
+            }
+
+            const data = {
+                UserId: parseInt(userId),
+                PlanId: parseInt(document.getElementById('cboPlan').value),
+                TurnoId: parseInt(document.getElementById('cboTurno').value),
+                FechaInicio: document.getElementById('txtFechaInicio').value
+            };
+
+            fetch('/Membresias/Crear', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(json => {
+                if (json.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalMembresia'));
+                    modal.hide();
+                    cargarMembresias('activas'); // Recargar vista
+                    alert("Membresía creada con éxito");
+                    // Limpiar formulario...
+                } else {
+                    alert("Error: " + json.message);
+                }
+            });
+        }
+
+        function abrirModal() {
+            const modal = new bootstrap.Modal(document.getElementById('modalMembresia'));
+            modal.show();
+        }
+    </script>
+}

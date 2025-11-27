@@ -1,0 +1,196 @@
+﻿@{
+    ViewData["Title"] = "Caja y Pagos";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa fa-cash-register"></i> Caja</h2>
+        <button class="btn btn-success btn-lg" onclick="abrirModalPago()">
+            <i class="fa fa-money-bill-wave"></i> Registrar Ingreso
+        </button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light fw-bold">Historial de Transacciones</div>
+        <div class="card-body">
+            <table class="table table-hover" id="tablaPagos">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Concepto (Plan)</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Cobrado Por</th>
+                        <th>Recibo</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPago" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Registrar Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">DNI del Cliente</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="txtDniBuscar" placeholder="Ingrese DNI y presione Enter">
+                        <button class="btn btn-outline-secondary" type="button" onclick="buscarDeuda()">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="infoMembresia" class="alert alert-info d-none">
+                    <strong>Cliente:</strong> <span id="lblCliente"></span><br>
+                    <strong>Plan:</strong> <span id="lblPlan"></span><br>
+                    <strong>Estado Actual:</strong> <span id="lblEstado"></span>
+                </div>
+
+                <div id="formPagoDetalle" class="d-none">
+                    <hr>
+                    <div class="mb-3">
+                        <label class="form-label">Monto a Cobrar</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control form-control-lg" id="txtMonto" step="0.01">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Método de Pago</label>
+                        <select class="form-select" id="cboMetodo">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Yape/Plin">Yape / Plin</option>
+                            <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
+                            <option value="Transferencia">Transferencia Bancaria</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnCobrar" onclick="procesarPago()" disabled>Confirmar Cobro</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarHistorial();
+        });
+
+        // Enter en el campo DNI activa la búsqueda
+        document.getElementById("txtDniBuscar").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                buscarDeuda();
+            }
+        });
+
+        function cargarHistorial() {
+            fetch('/Pagos/Listar')
+                .then(res => res.json())
+                .then(json => {
+                    let html = '';
+                    json.data.forEach(p => {
+                        html += `
+                            <tr>
+                                <td>${p.fechaPago}</td>
+                                <td>${p.nombreCliente}</td>
+                                <td>${p.nombrePlan}</td>
+                                <td class="fw-bold text-success">$ ${p.monto.toFixed(2)}</td>
+                                <td>${p.metodoPago}</td>
+                                <td><small>${p.nombreEmpleado}</small></td>
+                                <td>
+                                    <a href="/Pagos/Comprobante/${p.pagoId}" target="_blank" class="btn btn-sm btn-outline-dark">
+                                        <i class="fa fa-print"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    document.querySelector("#tablaPagos tbody").innerHTML = html;
+                });
+        }
+
+        function buscarDeuda() {
+            const dni = document.getElementById("txtDniBuscar").value;
+            if(!dni) return;
+
+            fetch(`/Pagos/BuscarDeuda?dni=${dni}`)
+                .then(res => res.json())
+                .then(json => {
+                    if (json.success) {
+                        const data = json.data;
+                        // Mostrar info
+                        document.getElementById("lblCliente").innerText = data.cliente;
+                        document.getElementById("lblPlan").innerText = data.plan;
+                        document.getElementById("lblEstado").innerText = data.estado;
+
+                        document.getElementById("infoMembresia").classList.remove("d-none");
+                        document.getElementById("formPagoDetalle").classList.remove("d-none");
+                        document.getElementById("btnCobrar").disabled = false;
+                    } else {
+                        alert(json.message);
+                        limpiarModal();
+                    }
+                });
+        }
+
+        function procesarPago() {
+            const data = {
+                DniCliente: document.getElementById("txtDniBuscar").value,
+                Monto: parseFloat(document.getElementById("txtMonto").value),
+                MetodoPago: document.getElementById("cboMetodo").value
+            };
+
+            if(data.Monto <= 0) { alert("El monto debe ser mayor a 0"); return; }
+
+            fetch('/Pagos/Registrar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(json => {
+                if (json.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalPago'));
+                    modal.hide();
+                    cargarHistorial();
+
+                    // Preguntar si quiere imprimir
+                    if(confirm("Pago registrado con éxito. ¿Deseas imprimir el comprobante?")) {
+                        window.open(`/Pagos/Comprobante/${json.pagoId}`, '_blank');
+                    }
+                } else {
+                    alert("Error: " + json.message);
+                }
+            });
+        }
+
+        function abrirModalPago() {
+            limpiarModal();
+            const modal = new bootstrap.Modal(document.getElementById('modalPago'));
+            modal.show();
+        }
+
+        function limpiarModal() {
+            document.getElementById("txtDniBuscar").value = "";
+            document.getElementById("txtMonto").value = "";
+            document.getElementById("infoMembresia").classList.add("d-none");
+            document.getElementById("formPagoDetalle").classList.add("d-none");
+            document.getElementById("btnCobrar").disabled = true;
+        }
+    </script>
+}

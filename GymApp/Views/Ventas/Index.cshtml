@@ -1,0 +1,299 @@
+﻿@{
+    ViewData["Title"] = "Punto de Venta (Quiosco)";
+}
+
+<div class="row h-100 g-0">
+    <div class="col-md-8 p-3" style="background-color: #f8f9fa; overflow-y: auto; height: calc(100vh - 100px);">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-primary"><i class="bi bi-shop"></i> Productos Disponibles</h4>
+            <div class="input-group w-50">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="buscador" class="form-control border-start-0" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-3" id="gridProductos">
+            <div class="text-center w-100 mt-5 text-muted">Cargando inventario...</div>
+        </div>
+    </div>
+
+    <div class="col-md-4 bg-white border-start shadow-sm d-flex flex-column" style="height: calc(100vh - 100px);">
+        <div class="p-3 bg-dark text-white">
+            <h5 class="m-0"><i class="bi bi-cart4"></i> Ticket de Venta</h5>
+        </div>
+
+        <div class="flex-grow-1 p-3 overflow-auto">
+            <table class="table table-sm table-borderless align-middle">
+                <thead>
+                    <tr class="text-muted border-bottom small">
+                        <th>Cant.</th>
+                        <th>Producto</th>
+                        <th class="text-end">Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="listaCarrito">
+                </tbody>
+            </table>
+            <div id="msgCarritoVacio" class="text-center text-muted mt-5">
+                <i class="bi bi-basket fs-1"></i>
+                <p>Carrito vacío</p>
+            </div>
+        </div>
+
+        <div class="p-3 bg-light border-top">
+            <div class="mb-2">
+                <small class="fw-bold text-muted">Cliente (Opcional)</small>
+                <div class="input-group input-group-sm">
+                    <input type="text" id="txtCliente" class="form-control" placeholder="Público General" readonly>
+                    <input type="hidden" id="userId">
+                    <button class="btn btn-outline-secondary" onclick="abrirModalClientes()">
+                        <i class="bi bi-person-plus"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="limpiarCliente()">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <small class="fw-bold text-muted">Método de Pago</small>
+                <select class="form-select form-select-sm" id="cboMetodo">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Yape/Plin">Yape / Plin</option>
+                    <option value="Tarjeta">Tarjeta</option>
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fs-5">Total a Pagar:</span>
+                <span class="fs-2 fw-bold text-primary" id="lblTotal">$ 0.00</span>
+            </div>
+
+            <button class="btn btn-success w-100 py-2 fw-bold" onclick="procesarVenta()" id="btnPagar" disabled>
+                <i class="bi bi-check-circle-fill me-2"></i> CONFIRMAR VENTA
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalClientes" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Asignar Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control mb-3" id="inputBuscarCliente" placeholder="Escribe DNI o Nombre...">
+                <ul class="list-group" id="resultadosClientes"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ESTADO DE LA APLICACIÓN
+        let inventario = [];
+        let carrito = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarInventario();
+        });
+
+        // 1. CARGAR PRODUCTOS DEL BACKEND
+        function cargarInventario() {
+            fetch('/Productos/Listar')
+                .then(res => res.json())
+                .then(json => {
+                    inventario = json.data;
+                    renderizarProductos(inventario);
+                });
+        }
+
+        // 2. RENDERIZAR GRID (Con filtro)
+        function renderizarProductos(lista) {
+            const container = document.getElementById('gridProductos');
+            container.innerHTML = '';
+
+            if (lista.length === 0) {
+                container.innerHTML = '<p class="text-center w-100 text-muted">No se encontraron productos</p>';
+                return;
+            }
+
+            lista.forEach(p => {
+                // Deshabilitar si no hay stock
+                const sinStock = p.stockActual <= 0;
+                const cardClass = sinStock ? 'opacity-50' : '';
+                const btnAction = sinStock ? '' : `onclick="agregarAlCarrito(${p.productoId})"`;
+                const stockLabel = sinStock
+                    ? '<span class="badge bg-danger">Agotado</span>'
+                    : `<span class="badge bg-light text-dark border">${p.stockActual} disp.</span>`;
+
+                const html = `
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm product-card ${cardClass}" style="cursor: pointer; transition: transform 0.2s;" ${btnAction}>
+                            <div class="card-body text-center p-2">
+                                <div class="mb-2 text-primary"><i class="bi bi-box-seam fs-1"></i></div>
+                                <h6 class="card-title text-truncate" title="${p.nombre}">${p.nombre}</h6>
+                                <div class="fw-bold text-success fs-5">$ ${p.precioVenta.toFixed(2)}</div>
+                                <div class="mt-2">${stockLabel}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // 3. LOGICA DEL CARRITO
+        function agregarAlCarrito(id) {
+            const producto = inventario.find(p => p.productoId === id);
+            const enCarrito = carrito.find(item => item.productoId === id);
+
+            if (enCarrito) {
+                if (enCarrito.cantidad < producto.stockActual) {
+                    enCarrito.cantidad++;
+                } else {
+                    alert("No hay más stock disponible");
+                }
+            } else {
+                carrito.push({
+                    productoId: id,
+                    nombre: producto.nombre,
+                    precio: producto.precioVenta,
+                    cantidad: 1,
+                    maxStock: producto.stockActual
+                });
+            }
+            renderizarCarrito();
+        }
+
+        function quitarDelCarrito(id) {
+            carrito = carrito.filter(item => item.productoId !== id);
+            renderizarCarrito();
+        }
+
+        function cambiarCantidad(id, delta) {
+            const item = carrito.find(i => i.productoId === id);
+            if (!item) return;
+
+            const nuevaCant = item.cantidad + delta;
+            if (nuevaCant > 0 && nuevaCant <= item.maxStock) {
+                item.cantidad = nuevaCant;
+            } else if (nuevaCant <= 0) {
+                quitarDelCarrito(id);
+                return;
+            }
+            renderizarCarrito();
+        }
+
+        function renderizarCarrito() {
+            const tbody = document.getElementById('listaCarrito');
+            const msgVacio = document.getElementById('msgCarritoVacio');
+            const lblTotal = document.getElementById('lblTotal');
+            const btnPagar = document.getElementById('btnPagar');
+
+            tbody.innerHTML = '';
+            let total = 0;
+
+            if (carrito.length === 0) {
+                msgVacio.classList.remove('d-none');
+                btnPagar.disabled = true;
+            } else {
+                msgVacio.classList.add('d-none');
+                btnPagar.disabled = false;
+
+                carrito.forEach(item => {
+                    const subtotal = item.cantidad * item.precio;
+                    total += subtotal;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-secondary py-0 px-1" onclick="cambiarCantidad(${item.productoId}, -1)">-</button>
+                                    <button class="btn btn-white border py-0 px-2" disabled>${item.cantidad}</button>
+                                    <button class="btn btn-outline-secondary py-0 px-1" onclick="cambiarCantidad(${item.productoId}, 1)">+</button>
+                                </div>
+                            </td>
+                            <td><small>${item.nombre}</small></td>
+                            <td class="text-end fw-bold">$${subtotal.toFixed(2)}</td>
+                            <td class="text-end"><i class="bi bi-trash text-danger" style="cursor:pointer" onclick="quitarDelCarrito(${item.productoId})"></i></td>
+                        </tr>
+                    `;
+                });
+            }
+            lblTotal.innerText = '$ ' + total.toFixed(2);
+        }
+
+        // 4. BUSCADOR EN TIEMPO REAL
+        function filtrarProductos() {
+            const texto = document.getElementById('buscador').value.toLowerCase();
+            const filtrados = inventario.filter(p => p.nombre.toLowerCase().includes(texto));
+            renderizarProductos(filtrados);
+        }
+
+        // 5. PROCESAR VENTA (FETCH)
+        function procesarVenta() {
+            if(!confirm("¿Confirmar venta?")) return;
+
+            const data = {
+                UserId: document.getElementById('userId').value ? parseInt(document.getElementById('userId').value) : null,
+                MetodoPago: document.getElementById('cboMetodo').value,
+                Items: carrito.map(i => ({ ProductoId: i.productoId, Cantidad: i.cantidad }))
+            };
+
+            fetch('/Ventas/Registrar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.success) {
+                    alert("Venta registrada con éxito. Ticket #" + json.ventaId);
+                    carrito = [];
+                    limpiarCliente();
+                    renderizarCarrito();
+                    cargarInventario(); // Recargar stock
+                } else {
+                    alert("Error: " + json.message);
+                }
+            });
+        }
+
+        // --- EXTRAS: CLIENTES ---
+        // (Reutilizando la lógica de búsqueda que hiciste para Membresías)
+        const modalCli = new bootstrap.Modal(document.getElementById('modalClientes'));
+
+        function abrirModalClientes() { modalCli.show(); }
+
+        document.getElementById('inputBuscarCliente').addEventListener('input', function() {
+            const val = this.value;
+            if(val.length < 3) return;
+            fetch(`/Membresias/BuscarUsuario?q=${val}`)
+                .then(r => r.json())
+                .then(data => {
+                    const ul = document.getElementById('resultadosClientes');
+                    ul.innerHTML = '';
+                    data.forEach(u => {
+                        ul.innerHTML += `<li class="list-group-item list-group-item-action" style="cursor:pointer" onclick="seleccionarCliente(${u.id}, '${u.text}')">${u.text}</li>`;
+                    });
+                });
+        });
+
+        function seleccionarCliente(id, nombre) {
+            document.getElementById('userId').value = id;
+            document.getElementById('txtCliente').value = nombre;
+            modalCli.hide();
+        }
+
+        function limpiarCliente() {
+            document.getElementById('userId').value = '';
+            document.getElementById('txtCliente').value = '';
+        }
+
+    </script>
+}

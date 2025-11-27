@@ -1,0 +1,195 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Planes";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fa fa-tags"></i> Planes de Membresía</h2>
+        <button class="btn btn-success" onclick="abrirModal(0)">
+            <i class="fa fa-plus"></i> Nuevo Plan
+        </button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle" id="tablaPlanes">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Duración (Días)</th>
+                        <th>Precio</th>
+                        <th>Congelamiento</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPlan" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="tituloModal">Gestión de Plan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formPlan">
+                    <input type="hidden" id="PlanId" value="0">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre del Plan</label>
+                        <input type="text" class="form-control" id="Nombre" placeholder="Ej: Mensual Full" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Duración (Días)</label>
+                            <input type="number" class="form-control" id="DuracionDias" min="1" required>
+                            <small class="text-muted">Ej: 30 para mensual</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Precio Base</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="PrecioBase" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="PermiteCongelar">
+                        <label class="form-check-label" for="PermiteCongelar">¿Permite Congelar?</label>
+                        <div class="form-text">Si se activa, el socio podrá pausar su membresía.</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarPlan()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarPlanes();
+        });
+
+        const modalEl = document.getElementById('modalPlan');
+        const modal = new bootstrap.Modal(modalEl);
+
+        function cargarPlanes() {
+            fetch('/Planes/Listar')
+                .then(res => res.json())
+                .then(json => {
+                    let html = '';
+                    json.data.forEach(p => {
+                        // Icono para congelar (Verde si sí, Gris si no)
+                        const iconCongela = p.permiteCongelar
+                            ? '<span class="badge bg-success">Sí</span>'
+                            : '<span class="badge bg-secondary">No</span>';
+
+                        html += `
+                            <tr>
+                                <td class="fw-bold">${p.nombre}</td>
+                                <td>${p.duracionDias} días</td>
+                                <td>$ ${p.precioBase.toFixed(2)}</td>
+                                <td>${iconCongela}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editarPlan(${p.planId})">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarPlan(${p.planId})">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    document.querySelector("#tablaPlanes tbody").innerHTML = html;
+                });
+        }
+
+        function abrirModal(id) {
+            if (id === 0) {
+                document.getElementById('formPlan').reset();
+                document.getElementById('PlanId').value = 0;
+                document.getElementById('PermiteCongelar').checked = false; // Reset checkbox
+                document.getElementById('tituloModal').innerText = "Nuevo Plan";
+                modal.show();
+            }
+        }
+
+        function editarPlan(id) {
+            fetch('/Planes/Obtener?id=' + id)
+                .then(res => res.json())
+                .then(json => {
+                    if(json.success) {
+                        const d = json.data;
+                        document.getElementById('PlanId').value = d.planId;
+                        document.getElementById('Nombre').value = d.nombre;
+                        document.getElementById('DuracionDias').value = d.duracionDias;
+                        document.getElementById('PrecioBase').value = d.precioBase;
+                        // Mapear el bool al checkbox
+                        document.getElementById('PermiteCongelar').checked = d.permiteCongelar === true;
+
+                        document.getElementById('tituloModal').innerText = "Editar Plan";
+                        modal.show();
+                    } else {
+                        alert(json.message);
+                    }
+                });
+        }
+
+        function guardarPlan() {
+            const data = {
+                PlanId: parseInt(document.getElementById('PlanId').value),
+                Nombre: document.getElementById('Nombre').value,
+                DuracionDias: parseInt(document.getElementById('DuracionDias').value),
+                PrecioBase: parseFloat(document.getElementById('PrecioBase').value),
+                // Convertir estado del checkbox a bool
+                PermiteCongelar: document.getElementById('PermiteCongelar').checked
+            };
+
+            // Pequeña validación frontend antes de enviar
+            if(!data.Nombre || data.DuracionDias <= 0 || data.PrecioBase < 0) {
+                alert("Por favor completa los datos correctamente.");
+                return;
+            }
+
+            fetch('/Planes/Guardar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.success) {
+                    modal.hide();
+                    cargarPlanes();
+                    // Opcional: mostrar notificación toast de éxito
+                } else {
+                    alert("Error: " + json.message);
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        function eliminarPlan(id) {
+            if(confirm("¿Seguro que deseas eliminar este plan?")) {
+                fetch('/Planes/Eliminar?id=' + id, { method: 'POST' })
+                .then(res => res.json())
+                .then(json => {
+                    if(json.success) cargarPlanes();
+                    else alert(json.message);
+                });
+            }
+        }
+    </script>
+}

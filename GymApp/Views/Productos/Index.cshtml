@@ -1,0 +1,165 @@
+﻿@{
+    ViewData["Title"] = "Inventario de Productos";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-box-seam"></i> Inventario de Productos</h2>
+        <button class="btn btn-primary" onclick="abrirModal(0)">
+            <i class="bi bi-plus-lg"></i> Nuevo Producto
+        </button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle" id="tablaProductos">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio Venta</th>
+                        <th>Stock Actual</th>
+                        <th>Estado Stock</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalProducto" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="tituloModal">Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formProducto">
+                    <input type="hidden" id="ProductoId" value="0">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre del Producto</label>
+                        <input type="text" class="form-control" id="Nombre" placeholder="Ej: Agua Mineral 500ml" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Precio ($)</label>
+                            <input type="number" class="form-control" id="PrecioVenta" step="0.50" min="0" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Stock Inicial</label>
+                            <input type="number" class="form-control" id="StockActual" min="0" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarProducto()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarProductos();
+        });
+
+        const modalEl = document.getElementById('modalProducto');
+        const modal = new bootstrap.Modal(modalEl);
+
+        function cargarProductos() {
+            fetch('/Productos/Listar')
+                .then(res => res.json())
+                .then(json => {
+                    let html = '';
+                    json.data.forEach(p => {
+                        // Lógica visual para stock bajo (menos de 10)
+                        let stockBadge = '<span class="badge bg-success">Normal</span>';
+                        if(p.stockActual <= 5) stockBadge = '<span class="badge bg-danger">Crítico</span>';
+                        else if(p.stockActual <= 10) stockBadge = '<span class="badge bg-warning text-dark">Bajo</span>';
+
+                        html += `
+                            <tr>
+                                <td class="fw-bold">${p.nombre}</td>
+                                <td>$ ${p.precioVenta.toFixed(2)}</td>
+                                <td>${p.stockActual} u.</td>
+                                <td>${stockBadge}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editar(${p.productoId})"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminar(${p.productoId})"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    document.querySelector("#tablaProductos tbody").innerHTML = html;
+                });
+        }
+
+        function abrirModal(id) {
+            if(id === 0) {
+                document.getElementById('formProducto').reset();
+                document.getElementById('ProductoId').value = 0;
+                document.getElementById('tituloModal').innerText = "Nuevo Producto";
+                modal.show();
+            }
+        }
+
+        function editar(id) {
+            fetch('/Productos/Obtener?id=' + id)
+                .then(res => res.json())
+                .then(json => {
+                    if(json.success) {
+                        const d = json.data;
+                        document.getElementById('ProductoId').value = d.productoId;
+                        document.getElementById('Nombre').value = d.nombre;
+                        document.getElementById('PrecioVenta').value = d.precioVenta;
+                        document.getElementById('StockActual').value = d.stockActual;
+
+                        document.getElementById('tituloModal').innerText = "Editar Producto";
+                        modal.show();
+                    }
+                });
+        }
+
+        function guardarProducto() {
+            const data = {
+                ProductoId: parseInt(document.getElementById('ProductoId').value),
+                Nombre: document.getElementById('Nombre').value,
+                PrecioVenta: parseFloat(document.getElementById('PrecioVenta').value),
+                StockActual: parseInt(document.getElementById('StockActual').value)
+            };
+
+            fetch('/Productos/Guardar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.success) {
+                    modal.hide();
+                    cargarProductos();
+                } else {
+                    alert(json.message);
+                }
+            });
+        }
+
+        function eliminar(id) {
+            if(confirm("¿Seguro que deseas eliminar este producto?")) {
+                fetch('/Productos/Eliminar?id=' + id, { method: 'POST' })
+                .then(res => res.json())
+                .then(json => {
+                    if(json.success) cargarProductos();
+                    else alert(json.message);
+                });
+            }
+        }
+    </script>
+}

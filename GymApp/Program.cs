@@ -2,37 +2,54 @@ using GymApp.Data;
 using GymApp.Repositories;
 using GymApp.Services;
 using Microsoft.EntityFrameworkCore;
+// 1. AGREGAR ESTE NAMESPACE
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
-// Agregar el servicio de DbContext
+// Configuración de BD (Ya la tienes)
 builder.Services.AddDbContext<GymDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
-// 2. Registro del Repositorio Genérico (Sintaxis para Tipos Genéricos Abiertos <>)
-// Esto permite inyectar IGenericRepository<CualquierCosa> sin registrar uno por uno.
+// Inyección de Dependencias (Tus repositorios y servicios actuales)
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-// 3. Registro de Repositorios Específicos
+builder.Services.AddScoped<IPlaneRepository, PlaneRepository>();
+builder.Services.AddScoped<IPlaneService, PlaneService>();
+builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
+builder.Services.AddScoped<ITurnoService, TurnoService>();
+builder.Services.AddScoped<IMembresiaRepository, MembresiaRepository>();
+builder.Services.AddScoped<IMembresiaService, MembresiaService>();
+builder.Services.AddScoped<IPagoRepository, PagoRepository>();
+builder.Services.AddScoped<IPagoService, PagoService>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+// Agrega el de Usuarios si falta
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-
-// Registro de Servicios de Negocio
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
+builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
 
+builder.Services.AddScoped<IVentaRepository, VentaRepository>();
+builder.Services.AddScoped<IVentaService, VentaService>();
 
-// Repositorios
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-
-// Servicios
-builder.Services.AddScoped<IRoleService, RoleService>();
-
-////////////////////////////////////////////////////////////////////////////////////////
+// ============================================================
+// 2. CONFIGURAR AUTENTICACIÓN (COOKIES)
+// ============================================================
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        // Si el usuario no tiene acceso, lo mandamos aquí
+        options.LoginPath = "/Auth/Login";
+        // Si el usuario intenta entrar a algo que su rol no permite
+        options.AccessDeniedPath = "/Auth/AccesoDenegado";
+        // Tiempo de vida de la cookie
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    });
+// ============================================================
 
 var app = builder.Build();
 
@@ -40,7 +57,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -49,7 +65,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// ============================================================
+// 3. ACTIVAR EL MIDDLEWARE (¡IMPORTANTE EL ORDEN!)
+// ============================================================
+app.UseAuthentication(); // <--- Debe ir ANTES de Authorization
 app.UseAuthorization();
+// ============================================================
 
 app.MapControllerRoute(
     name: "default",

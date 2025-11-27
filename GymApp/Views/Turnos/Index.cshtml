@@ -1,0 +1,173 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Turnos";
+}
+
+<div class="container mt-4">
+    <h2>Turnos</h2>
+    <button class="btn btn-primary mb-3" onclick="abrirModal(0)">
+        <i class="fa fa-plus"></i> Nuevo Turno
+    </button>
+
+    <table class="table table-bordered table-hover" id="tablaTurnos">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="modalTurno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tituloModal">Gestión de Turno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formTurno">
+                    <input type="hidden" id="TurnoId" value="0">
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="Nombre" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Hora Inicio</label>
+                            <input type="time" class="form-control" id="HoraInicio" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Hora Fin</label>
+                            <input type="time" class="form-control" id="HoraFin" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarTurno()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Cargar datos al iniciar
+        document.addEventListener("DOMContentLoaded", function() {
+            cargarTurnos();
+        });
+
+        // 1. FUNCIÓN LISTAR (READ)
+        function cargarTurnos() {
+            fetch('/Turnos/ListarTurnos')
+                .then(response => response.json())
+                .then(json => {
+                    let html = '';
+                    json.data.forEach(turno => {
+                        html += `
+                            <tr>
+                                <td>${turno.nombre}</td>
+                                <td>${turno.horaInicio}</td>
+                                <td>${turno.horaFin}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" onclick="editarTurno(${turno.turnoId})">Editar</button>
+                                    <button class="btn btn-sm btn-danger" onclick="eliminarTurno(${turno.turnoId})">Eliminar</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    document.querySelector("#tablaTurnos tbody").innerHTML = html;
+                });
+        }
+
+        // 2. ABRIR MODAL (LIMPIO O CON DATOS)
+        function abrirModal(id) {
+            const modal = new bootstrap.Modal(document.getElementById('modalTurno'));
+
+            if (id === 0) {
+                // Modo Crear: Limpiar campos
+                document.getElementById('TurnoId').value = 0;
+                document.getElementById('formTurno').reset();
+                document.getElementById('tituloModal').innerText = "Nuevo Turno";
+                modal.show();
+            } else {
+                // Modo Editar: No necesitamos llamar al fetch aquí si ya tenemos los datos en la tabla,
+                // pero por seguridad hacemos fetch al backend.
+                // NOTA: Implementar funcion editarTurno abajo
+            }
+        }
+
+        // 3. PREPARAR EDICIÓN
+        function editarTurno(id) {
+            fetch('/Turnos/ObtenerTurno?id=' + id)
+                .then(res => res.json())
+                .then(json => {
+                    if(json.success) {
+                        const t = json.data;
+                        document.getElementById('TurnoId').value = t.turnoId;
+                        document.getElementById('Nombre').value = t.nombre;
+                        document.getElementById('HoraInicio').value = t.horaInicio;
+                        document.getElementById('HoraFin').value = t.horaFin;
+
+                        document.getElementById('tituloModal').innerText = "Editar Turno";
+                        const modal = new bootstrap.Modal(document.getElementById('modalTurno'));
+                        modal.show();
+                    }
+                });
+        }
+
+        // 4. GUARDAR (CREATE / UPDATE)
+        function guardarTurno() {
+            const data = {
+                TurnoId: parseInt(document.getElementById('TurnoId').value),
+                Nombre: document.getElementById('Nombre').value,
+                HoraInicio: document.getElementById('HoraInicio').value, // Formato HH:mm:ss
+                HoraFin: document.getElementById('HoraFin').value
+            };
+
+            fetch('/Turnos/Guardar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.success) {
+                    // Cerrar modal
+                    const modalEl = document.getElementById('modalTurno');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+
+                    // Recargar tabla
+                    cargarTurnos();
+                    alert("Guardado correctamente");
+                } else {
+                    alert("Error: " + json.message);
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        // 5. ELIMINAR (DELETE)
+        function eliminarTurno(id) {
+            if(confirm("¿Estás seguro de eliminar este turno?")) {
+                fetch('/Turnos/Eliminar?id=' + id, { method: 'POST' })
+                .then(res => res.json())
+                .then(json => {
+                    if(json.success) {
+                        cargarTurnos();
+                    } else {
+                        alert("Error al eliminar");
+                    }
+                });
+            }
+        }
+    </script>
+}

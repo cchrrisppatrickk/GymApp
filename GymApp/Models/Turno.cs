@@ -9,9 +9,9 @@ public partial class Turno
 
     public string Nombre { get; set; } = null!;
 
-    public TimeOnly HoraInicio { get; set; }
+    public TimeSpan HoraInicio { get; set; }
 
-    public TimeOnly HoraFin { get; set; }
+    public TimeSpan HoraFin { get; set; }
 
     public string? Descripcion { get; set; }
 

@@ -20,12 +20,32 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
+[C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Auth/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Membresias/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Pagos/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFnb3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Planes/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGxhbmVzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Productos/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdG9zXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Roles/Index.cshtml]
@@ -40,6 +60,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Turnos/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHVybm9zXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Usuarios/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXN1YXJpb3NcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -50,6 +74,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Usuarios/_EditPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXN1YXJpb3NcX0VkaXRQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/Ventas/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmVudGFzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/krieg.DESKTOP-6U3IQMJ/OneDrive/Escritorio/Dev/_Dev_Web/GymApp/GymApp/GymApp/Views/_ViewImports.cshtml]
