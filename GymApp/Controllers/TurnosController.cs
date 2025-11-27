@@ -1,14 +1,16 @@
 ﻿using GymApp.Models;
 using GymApp.Services;
 using GymApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    public class TurnosController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class TurnosController : BaseController
     {
         private readonly ITurnoService _turnoService;
 

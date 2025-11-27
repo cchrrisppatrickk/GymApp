@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GymApp.Data; // Tu namespace de datos
 using GymApp.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GymApp.Controllers
 {
-    public class AccesoController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class AccesoController : BaseController
     {
         private readonly GymDbContext _context;
 

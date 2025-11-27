@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize] // Solo usuarios logueados pueden entrar a caja
-    public class PagosController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class PagosController : BaseController
     {
         private readonly IPagoService _pagoService;
 

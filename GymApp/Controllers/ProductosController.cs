@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize] // Solo personal autorizado gestiona productos
-    public class ProductosController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class ProductosController : BaseController
     {
         private readonly IProductoService _productoService;
 

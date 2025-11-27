@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using GymApp.Models;
+﻿using GymApp.Models;
 using GymApp.Services;
 using GymApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GymApp.Controllers
 {
-    public class RolesController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class RolesController : BaseController
     {
         private readonly IRoleService _roleService;
 

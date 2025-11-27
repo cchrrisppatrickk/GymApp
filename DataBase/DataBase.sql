@@ -6,6 +6,8 @@ USE GymDB;
 
 select * from Roles
 select * from Usuarios
+select * from Turnos
+select * from Planes
 
 -- 2. TABLAS DE CATÁLOGOS Y CONFIGURACIÓN (Sin dependencias)
 

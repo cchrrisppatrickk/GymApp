@@ -38,12 +38,11 @@ public partial class GymDbContext : DbContext
 
     public virtual DbSet<VentasDetalle> VentasDetalles { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Asistencia>(entity =>
         {
-            entity.HasKey(e => e.AsistenciaId).HasName("PK__Asistenc__72710F453E737452");
+            entity.HasKey(e => e.AsistenciaId).HasName("PK__Asistenc__72710F45BCF1F754");
 
             entity.Property(e => e.AsistenciaId).HasColumnName("AsistenciaID");
             entity.Property(e => e.FechaHora)
@@ -60,7 +59,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<Congelamiento>(entity =>
         {
-            entity.HasKey(e => e.CongelamientoId).HasName("PK__Congelam__7EA0385FB92F003F");
+            entity.HasKey(e => e.CongelamientoId).HasName("PK__Congelam__7EA0385F19BB744E");
 
             entity.Property(e => e.CongelamientoId).HasColumnName("CongelamientoID");
             entity.Property(e => e.FechaRegistro)
@@ -83,7 +82,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<Membresia>(entity =>
         {
-            entity.HasKey(e => e.MembresiaId).HasName("PK__Membresi__5AE93077206D2BE0");
+            entity.HasKey(e => e.MembresiaId).HasName("PK__Membresi__5AE93077E54DA72B");
 
             entity.Property(e => e.MembresiaId).HasColumnName("MembresiaID");
             entity.Property(e => e.Estado)
@@ -112,7 +111,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<PagosMembresium>(entity =>
         {
-            entity.HasKey(e => e.PagoId).HasName("PK__PagosMem__F00B615898F749D9");
+            entity.HasKey(e => e.PagoId).HasName("PK__PagosMem__F00B6158311B38C3");
 
             entity.Property(e => e.PagoId).HasColumnName("PagoID");
             entity.Property(e => e.Comprobante).HasMaxLength(50);
@@ -137,7 +136,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<Plane>(entity =>
         {
-            entity.HasKey(e => e.PlanId).HasName("PK__Planes__755C22D72D588B4D");
+            entity.HasKey(e => e.PlanId).HasName("PK__Planes__755C22D705B9717A");
 
             entity.Property(e => e.PlanId).HasColumnName("PlanID");
             entity.Property(e => e.Nombre).HasMaxLength(50);
@@ -147,7 +146,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<Producto>(entity =>
         {
-            entity.HasKey(e => e.ProductoId).HasName("PK__Producto__A430AE83274BFC06");
+            entity.HasKey(e => e.ProductoId).HasName("PK__Producto__A430AE8332EF0CBE");
 
             entity.Property(e => e.ProductoId).HasColumnName("ProductoID");
             entity.Property(e => e.CodigoBarras).HasMaxLength(50);
@@ -158,7 +157,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3A60E816FE");
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE3A3DD5BCEC");
 
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.Descripcion).HasMaxLength(100);
@@ -167,7 +166,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<Turno>(entity =>
         {
-            entity.HasKey(e => e.TurnoId).HasName("PK__Turnos__AD3E2EB4ACAFB857");
+            entity.HasKey(e => e.TurnoId).HasName("PK__Turnos__AD3E2EB4525CD753");
 
             entity.Property(e => e.TurnoId).HasColumnName("TurnoID");
             entity.Property(e => e.Descripcion).HasMaxLength(100);
@@ -178,9 +177,11 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<Usuario>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Usuarios__1788CCAC684C406A");
+            entity.HasKey(e => e.UserId).HasName("PK__Usuarios__1788CCAC4B489B9E");
 
-            entity.HasIndex(e => e.Dni, "UQ__Usuarios__C035B8DD4B7A1375").IsUnique();
+            entity.HasIndex(e => e.NombreUsuario, "UQ__Usuarios__6B0F5AE0CD2C9641").IsUnique();
+
+            entity.HasIndex(e => e.Dni, "UQ__Usuarios__C035B8DD0987E607").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.CodigoQr)
@@ -195,6 +196,7 @@ public partial class GymDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.NombreCompleto).HasMaxLength(100);
+            entity.Property(e => e.NombreUsuario).HasMaxLength(50);
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.Telefono).HasMaxLength(20);
@@ -207,7 +209,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<VentasCabecera>(entity =>
         {
-            entity.HasKey(e => e.VentaId).HasName("PK__VentasCa__5B41514CC4C29BEC");
+            entity.HasKey(e => e.VentaId).HasName("PK__VentasCa__5B41514C8D1A3F13");
 
             entity.ToTable("VentasCabecera");
 
@@ -232,7 +234,7 @@ public partial class GymDbContext : DbContext
 
         modelBuilder.Entity<VentasDetalle>(entity =>
         {
-            entity.HasKey(e => e.DetalleId).HasName("PK__VentasDe__6E19D6FAB5C4624B");
+            entity.HasKey(e => e.DetalleId).HasName("PK__VentasDe__6E19D6FA5417EEF0");
 
             entity.ToTable("VentasDetalle");
 

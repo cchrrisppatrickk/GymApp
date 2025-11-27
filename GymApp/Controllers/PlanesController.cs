@@ -1,12 +1,14 @@
 ﻿using GymApp.Models;
 using GymApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    public class PlanesController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class PlanesController : BaseController
     {
         private readonly IPlaneService _planeService;
 

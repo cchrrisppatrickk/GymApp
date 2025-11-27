@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize]
-    public class VentasController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class VentasController : BaseController
     {
         private readonly IVentaService _ventaService;
 

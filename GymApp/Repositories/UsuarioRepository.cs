@@ -50,5 +50,17 @@ namespace GymApp.Repositories
                                  // Aquí podrías incluir también .Include(u => u.Membresias) si quisieras
                                  .FirstOrDefaultAsync(u => u.UserId == id);
         }
+
+        public async Task<Usuario> ObtenerPorNombreUsuarioAsync(string nombreUsuario)
+        {
+            return await _context.Usuarios
+                                 .Include(u => u.Role)
+                                 .FirstOrDefaultAsync(u => u.NombreUsuario == nombreUsuario);
+        }
+
+        public async Task<bool> ExisteNombreUsuarioAsync(string nombreUsuario)
+        {
+            return await _context.Usuarios.AnyAsync(u => u.NombreUsuario == nombreUsuario);
+        }
     }
 }

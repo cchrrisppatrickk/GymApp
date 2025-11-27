@@ -28,26 +28,41 @@ namespace GymApp.Services
             return await _usuarioRepository.ObtenerConDetallesAsync(id);
         }
 
-        public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string passwordRaw)
+        public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw)
         {
-            // 1. Regla de Negocio: Validar que el DNI no exista
+            // 1. Validar DNI único (Se mantiene igual)
             if (await _usuarioRepository.ExisteDniAsync(usuario.Dni))
+                throw new Exception("El DNI ya está registrado.");
+
+            // --- LÓGICA DE AUTO-COMPLETADO (NUEVO) ---
+
+            // A. Si no enviaron Nombre de Usuario, usamos el DNI
+            if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
             {
-                throw new Exception("El DNI ya está registrado en el sistema.");
+                usuario.NombreUsuario = usuario.Dni;
             }
 
-            // 2. Regla de Seguridad: Hashear contraseña
-            // Nunca guardamos passwordRaw. Usamos BCrypt con un WorkFactor de 11.
-            usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordRaw);
+            // B. Si no enviaron Password (registro rápido), usamos el DNI como contraseña
+            string passwordFinal = passwordRaw;
+            if (string.IsNullOrWhiteSpace(passwordFinal))
+            {
+                passwordFinal = usuario.Dni;
+                // Opcional: Podrías usar una constante como "Gym2025!" si prefieres.
+            }
+            // ------------------------------------------
 
-            // 3. Regla de Negocio: Generar Token QR único
+            // 2. Validar NombreUsuario único (Ahora validamos el autogenerado también)
+            if (await _usuarioRepository.ExisteNombreUsuarioAsync(usuario.NombreUsuario))
+                throw new Exception($"El usuario '{usuario.NombreUsuario}' ya está en uso.");
+
+            // 3. Hashear Password (usamos la variable passwordFinal)
+            usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordFinal);
+
+            // 4. Datos automáticos
             usuario.CodigoQr = Guid.NewGuid();
-
-            // 4. Datos de Auditoría
             usuario.FechaRegistro = DateTime.Now;
-            usuario.Estado = true; // Activo por defecto
+            usuario.Estado = true;
 
-            // 5. Persistencia
             await _usuarioRepository.InsertAsync(usuario);
             await _usuarioRepository.SaveAsync();
 
@@ -56,7 +71,8 @@ namespace GymApp.Services
 
         public async Task ActualizarUsuarioAsync(Usuario usuario)
         {
-            // Aquí podrías agregar validaciones extra antes de guardar
+            // IMPORTANTE: Al editar, deberíamos validar que si cambió el nombre de usuario,
+            // el nuevo no esté ocupado por otra persona. (Se puede refinar luego).
             await _usuarioRepository.UpdateAsync(usuario);
             await _usuarioRepository.SaveAsync();
         }
@@ -71,17 +87,26 @@ namespace GymApp.Services
             return true;
         }
 
-        public async Task<Usuario> ValidarLoginAsync(string dni, string password)
+        public async Task<Usuario> ValidarLoginAsync(string inputLogin, string password)
         {
-            var usuario = await _usuarioRepository.ObtenerPorDNIAsync(dni);
+            Usuario usuario = null;
 
-            if (usuario == null) return null;
-            if (usuario.Estado == false) throw new Exception("Usuario inactivo.");
+            // Intentamos buscar por DNI primero
+            usuario = await _usuarioRepository.ObtenerPorDNIAsync(inputLogin);
 
-            // Verificamos si la contraseña coincide con el Hash
-            bool esValido = BCrypt.Net.BCrypt.Verify(password, usuario.PasswordHash);
+            // Si no existe por DNI, buscamos por NombreUsuario
+            if (usuario == null)
+            {
+                usuario = await _usuarioRepository.ObtenerPorNombreUsuarioAsync(inputLogin);
+            }
 
-            return esValido ? usuario : null;
+            if (usuario == null) return null; // Usuario no existe
+            if (usuario.Estado == false) throw new Exception("Tu cuenta está desactivada.");
+
+            // Validar Password
+            bool passwordCorrecto = BCrypt.Net.BCrypt.Verify(password, usuario.PasswordHash);
+
+            return passwordCorrecto ? usuario : null;
         }
 
         public byte[] GenerarImagenQR(Guid codigoQR)
@@ -100,5 +125,7 @@ namespace GymApp.Services
                 return qrCodeImage;
             }
         }
+
+
     }
 }

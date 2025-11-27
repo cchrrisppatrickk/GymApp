@@ -11,13 +11,15 @@ public partial class Usuario
 
     public string NombreCompleto { get; set; } = null!;
 
+    public string NombreUsuario { get; set; } = null!;
+
     public string Dni { get; set; } = null!;
+
+    public string? PasswordHash { get; set; }
 
     public string? Telefono { get; set; }
 
     public string? Email { get; set; }
-
-    public string? PasswordHash { get; set; }
 
     public Guid? CodigoQr { get; set; }
 

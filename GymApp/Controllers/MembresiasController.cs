@@ -1,12 +1,14 @@
 ﻿using GymApp.Services;
 using GymApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    public class MembresiasController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class MembresiasController : BaseController
     {
         private readonly IMembresiaService _membresiaService;
 

@@ -10,12 +10,13 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
+        /* (Tus estilos CSS se mantienen idénticos, los he omitido aquí para ahorrar espacio pero pégalos tal cual los tenías) */
         :root {
             --sidebar-width: 260px;
             --sidebar-collapsed-width: 80px;
-            --primary-color: #1a1a2e; /* Azul oscuro elegante */
+            --primary-color: #1a1a2e;
             --secondary-color: #16213e;
-            --accent-color: #e94560; /* Rojo Gym */
+            --accent-color: #e94560;
             --text-color: #f8f9fa;
             --hover-color: #0f3460;
             --transition-speed: 0.3s;
@@ -27,7 +28,6 @@
             background-color: #f4f6f9;
         }
 
-        /* Sidebar Styles */
         #sidebar {
             width: var(--sidebar-width);
             height: 100vh;
@@ -75,7 +75,6 @@
             overflow-y: auto;
         }
 
-        /* Menu Items */
         .sidebar-menu {
             list-style: none;
             padding: 0;
@@ -134,7 +133,6 @@
             transform: rotate(180deg);
         }
 
-        /* Submenu Styles */
         .submenu {
             list-style: none;
             padding: 0;
@@ -163,7 +161,6 @@
                 background-color: rgba(255,255,255,0.05);
             }
 
-        /* Main Content */
         #content {
             margin-left: var(--sidebar-width);
             padding: 30px;
@@ -175,7 +172,6 @@
                 margin-left: var(--sidebar-collapsed-width);
             }
 
-        /* Toggle Button */
         #sidebar-toggle {
             background: transparent;
             color: var(--text-color);
@@ -185,7 +181,6 @@
             margin-right: 15px;
         }
 
-        /* Top Navbar (dentro del contenido) */
         .top-navbar {
             background-color: white;
             padding: 10px 20px;
@@ -197,30 +192,26 @@
             align-items: center;
         }
 
-        /* Responsive */
         @@media (max-width: 768px) {
-            #sidebar
+            #sidebar {
+                left: -var(--sidebar-width);
+            }
 
-        {
-            left: -var(--sidebar-width);
-        }
+                #sidebar.active {
+                    left: 0;
+                }
 
-        #sidebar.active {
-            left: 0;
-        }
-
-        #content {
-            margin-left: 0;
-        }
-
-            #content.expanded {
+            #content {
                 margin-left: 0;
             }
 
-        #sidebar.collapsed {
-            left: -var(--sidebar-collapsed-width); /* Hide completely on mobile if collapsed */
-        }
+                #content.expanded {
+                    margin-left: 0;
+                }
 
+            #sidebar.collapsed {
+                left: -var(--sidebar-collapsed-width);
+            }
         }
     </style>
 </head>
@@ -228,114 +219,129 @@
 
     <nav id="sidebar">
         <div class="sidebar-header">
-            <h3><i class="bi bi-exclude me-2"></i>Stefano's Gym</h3>
+            <h3><i class="bi bi-exclude me-2"></i>Gym App</h3>
         </div>
 
         <div class="sidebar-content">
             <ul class="sidebar-menu">
 
                 <li class="menu-item">
-                    <a asp-controller="Home" asp-action="Index" class="menu-link">
-                        <span class="menu-icon"><i class="bi bi-speedometer2"></i></span>
-                        <span class="menu-text">Dashboard</span>
-                    </a>
+                    @if (User.IsInRole("Cliente"))
+                    {
+                        <a asp-controller="ClienteHome" asp-action="Index" class="menu-link">
+                            <span class="menu-icon"><i class="bi bi-person-badge"></i></span>
+                            <span class="menu-text">Mi Perfil</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Home" asp-action="Index" class="menu-link">
+                            <span class="menu-icon"><i class="bi bi-speedometer2"></i></span>
+                            <span class="menu-text">Dashboard</span>
+                        </a>
+                    }
                 </li>
 
-                <li class="menu-item mt-2 mb-1 px-4 text-muted small" style="font-size: 0.75rem;">ADMINISTRACIÓN</li>
+                @if (User.IsInRole("Admin") || User.IsInRole("Empleado"))
+                {
+                    <li class="menu-item mt-2 mb-1 px-4 text-muted small" style="font-size: 0.75rem;">ADMINISTRACIÓN</li>
 
-                <li class="menu-item">
-                    <a href="#submenuConfig" class="menu-link submenu-toggle">
-                        <span class="menu-icon"><i class="bi bi-gear-fill"></i></span>
-                        <span class="menu-text">Configuración</span>
-                        <span class="menu-arrow"><i class="bi bi-chevron-down"></i></span>
-                    </a>
-                    <ul class="submenu" id="submenuConfig">
-                        <li class="submenu-item">
-                            <a asp-controller="Planes" asp-action="Index" class="submenu-link">
-                                <i class="bi bi-tags me-2"></i>Planes y Precios
-                            </a>
-                        </li>
-                        <li class="submenu-item">
-                            <a asp-controller="Turnos" asp-action="Index" class="submenu-link">
-                                <i class="bi bi-clock me-2"></i>Horarios y Turnos
-                            </a>
-                        </li>
-                        <li class="submenu-item">
-                            <a asp-controller="Roles" asp-action="Index" class="submenu-link">
-                                <i class="bi bi-shield-lock me-2"></i>Roles y Permisos
-                            </a>
-                        </li>
-                        <li class="submenu-item">
-                            <a asp-controller="Productos" asp-action="Index" class="submenu-link">
-                                <i class="bi bi-box-seam me-2"></i>Inventario Productos
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="menu-item">
+                        <a href="#submenuConfig" class="menu-link submenu-toggle">
+                            <span class="menu-icon"><i class="bi bi-gear-fill"></i></span>
+                            <span class="menu-text">Configuración</span>
+                            <span class="menu-arrow"><i class="bi bi-chevron-down"></i></span>
+                        </a>
+                        <ul class="submenu" id="submenuConfig">
+                            <li class="submenu-item">
+                                <a asp-controller="Planes" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-tags me-2"></i>Planes y Precios
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a asp-controller="Turnos" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-clock me-2"></i>Horarios y Turnos
+                                </a>
+                            </li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="submenu-item">
+                                    <a asp-controller="Roles" asp-action="Index" class="submenu-link">
+                                        <i class="bi bi-shield-lock me-2"></i>Roles y Permisos
+                                    </a>
+                                </li>
+                            }
+                            <li class="submenu-item">
+                                <a asp-controller="Productos" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-box-seam me-2"></i>Inventario Productos
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="menu-item">
-                    <a href="#submenuUsuarios" class="menu-link submenu-toggle">
-                        <span class="menu-icon"><i class="bi bi-people-fill"></i></span>
-                        <span class="menu-text">Usuarios</span>
-                        <span class="menu-arrow"><i class="bi bi-chevron-down"></i></span>
-                    </a>
-                    <ul class="submenu" id="submenuUsuarios">
-                        <li class="submenu-item">
-                            <a asp-controller="Usuarios" asp-action="Index" class="submenu-link">
-                                <i class="bi bi-list-ul me-2"></i>Listado General
-                            </a>
-                        </li>
-                        <li class="submenu-item">
-                            <a asp-controller="Usuarios" asp-action="Index" asp-route-tipo="Empleado" class="submenu-link">
-                                <i class="bi bi-person-badge me-2"></i>Staff / Empleados
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="menu-item">
+                        <a href="#submenuUsuarios" class="menu-link submenu-toggle">
+                            <span class="menu-icon"><i class="bi bi-people-fill"></i></span>
+                            <span class="menu-text">Usuarios</span>
+                            <span class="menu-arrow"><i class="bi bi-chevron-down"></i></span>
+                        </a>
+                        <ul class="submenu" id="submenuUsuarios">
+                            <li class="submenu-item">
+                                <a asp-controller="Usuarios" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-list-ul me-2"></i>Listado General
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a asp-controller="Usuarios" asp-action="Index" asp-route-tipo="Empleado" class="submenu-link">
+                                    <i class="bi bi-person-badge me-2"></i>Staff / Empleados
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="menu-item mt-3 mb-1 px-4 text-muted small" style="font-size: 0.75rem;">OPERACIONES</li>
+                    <li class="menu-item mt-3 mb-1 px-4 text-muted small" style="font-size: 0.75rem;">OPERACIONES</li>
 
-                <li class="menu-item">
-                    <a asp-controller="Ventas" asp-action="Index" class="menu-link">
-                        <span class="menu-icon"><i class="bi bi-basket2-fill"></i></span>
-                        <span class="menu-text">Quiosco / Venta</span>
-                    </a>
-                </li>
+                    <li class="menu-item">
+                        <a asp-controller="Ventas" asp-action="Index" class="menu-link">
+                            <span class="menu-icon"><i class="bi bi-basket2-fill"></i></span>
+                            <span class="menu-text">Quiosco / Venta</span>
+                        </a>
+                    </li>
 
-                <li class="menu-item">
-                    <a asp-controller="Membresias" asp-action="Index" class="menu-link">
-                        <span class="menu-icon"><i class="bi bi-card-checklist"></i></span>
-                        <span class="menu-text">Suscripciones</span>
-                    </a>
-                </li>
+                    <li class="menu-item">
+                        <a asp-controller="Membresias" asp-action="Index" class="menu-link">
+                            <span class="menu-icon"><i class="bi bi-card-checklist"></i></span>
+                            <span class="menu-text">Suscripciones</span>
+                        </a>
+                    </li>
 
-                <li class="menu-item">
-                    <a asp-controller="Pagos" asp-action="Index" class="menu-link">
-                        <span class="menu-icon"><i class="bi bi-cash-stack"></i></span>
-                        <span class="menu-text">Caja y Pagos</span>
-                    </a>
-                </li>
+                    <li class="menu-item">
+                        <a asp-controller="Pagos" asp-action="Index" class="menu-link">
+                            <span class="menu-icon"><i class="bi bi-cash-stack"></i></span>
+                            <span class="menu-text">Caja y Pagos</span>
+                        </a>
+                    </li>
 
-                <li class="menu-item">
-                    <a href="#submenuAcceso" class="menu-link submenu-toggle">
-                        <span class="menu-icon"><i class="bi bi-qr-code-scan"></i></span>
-                        <span class="menu-text">Control Acceso</span>
-                        <span class="menu-arrow"><i class="bi bi-chevron-down"></i></span>
-                    </a>
-                    <ul class="submenu" id="submenuAcceso">
-                        <li class="submenu-item">
-                            <a asp-controller="Acceso" asp-action="Index" class="submenu-link">
-                                <i class="bi bi-camera-video me-2"></i>Escaner QR
-                            </a>
-                        </li>
-                        <li class="submenu-item">
-                            <a asp-controller="Acceso" asp-action="Historial" class="submenu-link">
-                                <i class="bi bi-clock-history me-2"></i>Historial Visitas
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
+                    <li class="menu-item">
+                        <a href="#submenuAcceso" class="menu-link submenu-toggle">
+                            <span class="menu-icon"><i class="bi bi-qr-code-scan"></i></span>
+                            <span class="menu-text">Control Acceso</span>
+                            <span class="menu-arrow"><i class="bi bi-chevron-down"></i></span>
+                        </a>
+                        <ul class="submenu" id="submenuAcceso">
+                            <li class="submenu-item">
+                                <a asp-controller="Acceso" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-camera-video me-2"></i>Escaner QR
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a asp-controller="Acceso" asp-action="Historial" class="submenu-link">
+                                    <i class="bi bi-clock-history me-2"></i>Historial Visitas
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
                 <li class="menu-item mt-5">
                     <a asp-controller="Auth" asp-action="Logout" class="menu-link text-danger">
                         <span class="menu-icon"><i class="bi bi-box-arrow-left"></i></span>
@@ -355,7 +361,20 @@
                 <h4 class="ms-3 mb-0 text-muted">@ViewData["Title"]</h4>
             </div>
             <div class="user-profile">
-                <span class="fw-bold text-dark">Admin</span>
+                <span class="fw-bold text-dark">
+                    @(User.Identity?.Name ?? "Usuario")
+                </span>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <span class="badge bg-danger ms-1">Admin</span>
+                }
+                else if (User.IsInRole("Cliente"))
+                {
+
+                    <span class="badge bg-success ms-1">Socio</span>
+                }
+
                 <i class="bi bi-person-circle fs-4 ms-2 align-middle"></i>
             </div>
         </div>
@@ -368,7 +387,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
@@ -376,46 +394,34 @@
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const submenuToggles = document.querySelectorAll('.submenu-toggle');
 
-            // Toggle sidebar collapse
             sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
                 content.classList.toggle('expanded');
             });
 
-            // Toggle submenus
             submenuToggles.forEach(toggle => {
                 toggle.addEventListener('click', function(e) {
                     e.preventDefault();
                     const parentItem = this.parentElement;
-
-                    // Si el sidebar está colapsado, abrirlo al hacer click en submenu
                     if (sidebar.classList.contains('collapsed')) {
                         sidebar.classList.remove('collapsed');
                         content.classList.remove('expanded');
                     }
-
-                    // Cerrar otros submenus abiertos
                     document.querySelectorAll('.menu-item.open').forEach(item => {
                         if (item !== parentItem) {
                             item.classList.remove('open');
                         }
                     });
-
-                    // Toggle actual
                     parentItem.classList.toggle('open');
                 });
             });
 
-            // Responsividad móvil
             function checkWidth() {
-                if (window.innerWidth < 768) {
-                   // Lógica móvil si es necesaria
-                }
+                if (window.innerWidth < 768) { }
             }
             window.addEventListener('resize', checkWidth);
         });
     </script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

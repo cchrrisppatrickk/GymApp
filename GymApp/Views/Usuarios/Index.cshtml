@@ -175,7 +175,7 @@
             modalQR = new bootstrap.Modal(document.getElementById('modalQR'));
         });
 
-        // 1. CREAR
+        // 1. ABRIR MODAL CREAR
         function abrirModalCrear() {
             document.getElementById('tituloModal').innerText = "Nuevo Usuario";
             document.getElementById('formUsuario').reset();
@@ -188,7 +188,7 @@
             modalUsuario.show();
         }
 
-        // 2. EDITAR
+        // 2. ABRIR MODAL EDITAR
         function abrirModalEditar(id) {
             document.getElementById('tituloModal').innerText = "Editar Usuario";
 
@@ -197,18 +197,24 @@
                 .then(response => {
                     if (response.success) {
                         const d = response.data;
+                        // CORRECCIÓN: Usamos los IDs correctos del HTML
                         document.getElementById('UserId').value = d.userId;
                         document.getElementById('RoleId').value = d.roleId;
                         document.getElementById('NombreCompleto').value = d.nombreCompleto;
                         document.getElementById('Dni').value = d.dni;
                         document.getElementById('Email').value = d.email;
                         document.getElementById('Telefono').value = d.telefono;
+
+                        // CORRECCIÓN: Para Checkbox se usa .checked, no .value
                         document.getElementById('Estado').checked = d.estado;
 
                         // UI para password (opcional en edit)
-                        document.getElementById('Password').value = ""; // Limpiar
+                        document.getElementById('Password').value = "";
                         document.getElementById('Password').removeAttribute('required');
                         document.getElementById('helpPassword').innerText = "Dejar en blanco para mantener la actual.";
+
+                        // Lógica para mostrar nombre de usuario si es diferente al DNI (Opcional)
+                        // document.getElementById('txtUsuarioManual').value = d.nombreUsuario;
 
                         modalUsuario.show();
                     } else {
@@ -217,40 +223,66 @@
                 });
         }
 
-        // 3. GUARDAR
+        // 3. GUARDAR USUARIO (Corrección de Nombre y IDs)
         function guardarUsuario() {
-            const id = document.getElementById('UserId').value;
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            // A. VALIDACIÓN DE ROL
+            // Usamos JQuery $("#RoleId") o Vanilla JS document.getElementById
+            var rolId = document.getElementById("RoleId").value;
+            if (!rolId) {
+                Swal.fire("Atención", "Debe seleccionar un Rol", "warning");
+                return;
+            }
 
-            const payload = {
-                UserId: parseInt(id),
-                RoleId: parseInt(document.getElementById('RoleId').value),
-                NombreCompleto: document.getElementById('NombreCompleto').value,
-                Dni: document.getElementById('Dni').value,
-                Email: document.getElementById('Email').value,
-                Telefono: document.getElementById('Telefono').value,
-                Password: document.getElementById('Password').value,
-                Estado: document.getElementById('Estado').checked
+            // B. CONSTRUCCIÓN DEL OBJETO (Mapeo correcto de IDs)
+            var usuario = {
+                UserId: parseInt(document.getElementById("UserId").value) || 0,
+                RoleId: parseInt(rolId),
+                NombreCompleto: document.getElementById("NombreCompleto").value,
+                Dni: document.getElementById("Dni").value,
+                Email: document.getElementById("Email").value,
+                Telefono: document.getElementById("Telefono").value,
+
+                // Corrección: Leer checkbox
+                Estado: document.getElementById("Estado").checked,
+
+                // Lógica de Contraseña / Usuario Automático
+                // Si el campo Password está vacío, enviamos null para que el backend use el DNI
+                Password: document.getElementById("Password").value || null,
+
+                // En tu HTML actual no veo campo para "NombreUsuario",
+                // así que enviamos null para que el backend use el DNI por defecto.
+                NombreUsuario: null
             };
 
-            fetch('/Usuarios/Save', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
+            // C. ENVÍO AJAX
+            $.ajax({
+                url: "/Usuarios/Save",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(usuario),
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                success: function (response) {
+                    if (response.success) {
+                        modalUsuario.hide();
+                        Swal.fire({
+                            title: "¡Éxito!",
+                            text: response.message,
+                            icon: "success"
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        // Si hay lista de errores, la mostramos
+                        var msg = response.message;
+                        if(response.errors){
+                            msg += ": " + JSON.stringify(response.errors);
+                        }
+                        Swal.fire("Error", msg, "error");
+                    }
                 },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    modalUsuario.hide();
-                    Swal.fire('¡Éxito!', data.message, 'success').then(() => location.reload());
-                } else {
-                    let errorMsg = data.message;
-                    // Si hay errores de validación detallados
-                    if(data.errors) errorMsg += "<br>" + data.errors.join("<br>");
-                    Swal.fire('Error', errorMsg, 'error');
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                    Swal.fire("Error del Servidor", "Revise la consola para más detalles (F12)", "error");
                 }
             });
         }
@@ -280,10 +312,8 @@
         // 5. VER QR
         function verQR(id, nombre) {
             document.getElementById('qrTitulo').innerText = "QR: " + nombre;
-            // Apuntamos la imagen a la acción del controlador
             const img = document.getElementById('imgQR');
-            img.src = `/Usuarios/ObtenerQR/${id}?t=${new Date().getTime()}`; // timestamp evita caché
-
+            img.src = `/Usuarios/ObtenerQR/${id}?t=${new Date().getTime()}`;
             modalQR.show();
         }
     </script>

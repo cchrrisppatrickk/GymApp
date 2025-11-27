@@ -20,5 +20,8 @@ namespace GymApp.Repositories
         // Método 4: Obtener usuario con su Rol cargado (Eager Loading)
         // El GetById genérico no trae el nombre del rol ("Admin"), este sí.
         Task<Usuario> ObtenerConDetallesAsync(int id);
+
+        Task<Usuario> ObtenerPorNombreUsuarioAsync(string nombreUsuario);
+        Task<bool> ExisteNombreUsuarioAsync(string nombreUsuario);
     }
 }

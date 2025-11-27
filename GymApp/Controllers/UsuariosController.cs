@@ -1,13 +1,15 @@
 ﻿using GymApp.Models;
-using GymApp.Services;
 using GymApp.Repositories;
+using GymApp.Services;
 using GymApp.ViewModels; // Importante
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GymApp.Controllers
 {
-    public class UsuariosController : Controller
+    [Authorize(Roles = "Admin,Empleado")]
+    public class UsuariosController : BaseController
     {
         private readonly IUsuarioService _usuarioService;
         private readonly IGenericRepository<Role> _rolesRepository;
@@ -73,17 +75,17 @@ namespace GymApp.Controllers
             var u = await _usuarioService.ObtenerPorIdAsync(id);
             if (u == null) return NotFound();
 
-            // Retornamos solo lo necesario para el formulario
             var model = new UsuarioViewModel
             {
                 UserId = u.UserId,
                 RoleId = u.RoleId,
                 NombreCompleto = u.NombreCompleto,
+                NombreUsuario = u.NombreUsuario, // <--- NUEVO CAMPO
                 Dni = u.Dni,
                 Email = u.Email,
                 Telefono = u.Telefono,
-                // CORRECCIÓN AQUÍ TAMBIÉN:
                 Estado = u.Estado ?? false,
+                // Password se deja vacío por seguridad
             };
 
             return Json(new { success = true, data = model });
@@ -96,19 +98,22 @@ namespace GymApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save([FromBody] UsuarioViewModel model)
         {
+            // OJO: ModelState.IsValid podría fallar si tienes validaciones Required en el ViewModel. 
+            // Como ya quitamos los Required de Password y Usuario en el paso 1, esto pasará bien.
+            // Validamos solo lo básico (DNI, Nombre, Rol)
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                return Json(new { success = false, message = "Datos inválidos", errors = errors });
+                return Json(new { success = false, message = "Datos incompletos", errors = errors });
             }
-
             try
             {
-                // CASO 1: CREAR (UserId es 0)
+                // --- CREAR ---
                 if (model.UserId == 0)
                 {
-                    if (string.IsNullOrEmpty(model.Password))
-                        return Json(new { success = false, message = "La contraseña es obligatoria para nuevos usuarios." });
+                    // ELIMINAMOS O COMENTAMOS ESTA VALIDACIÓN ANTIGUA:
+                    // if (string.IsNullOrEmpty(model.Password)) return Json(...) 
+                    // Ya no es necesaria porque el Service se encarga.
 
                     var nuevoUsuario = new Usuario
                     {
@@ -118,28 +123,37 @@ namespace GymApp.Controllers
                         Email = model.Email,
                         Telefono = model.Telefono,
                         Estado = true,
-                        FechaRegistro = DateTime.Now
+
+                        // LÓGICA AUTOMÁTICA:
+                        // Si el modelo viene sin usuario, usamos el DNI
+                        NombreUsuario = string.IsNullOrEmpty(model.NombreUsuario) ? model.Dni : model.NombreUsuario
                     };
 
-                    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, model.Password);
-                    return Json(new { success = true, message = "Usuario creado exitosamente." });
+                    // Si el password viene vacío, usamos el DNI
+                    string passwordFinal = string.IsNullOrEmpty(model.Password) ? model.Dni : model.Password;
+
+                    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, passwordFinal);
+                    return Json(new { success = true, message = "Usuario creado. Acceso con DNI." });
                 }
-                // CASO 2: EDITAR
+                // --- EDITAR ---
                 else
                 {
                     var usuarioExistente = await _usuarioService.ObtenerPorIdAsync(model.UserId);
                     if (usuarioExistente == null) return Json(new { success = false, message = "Usuario no encontrado." });
 
+                    // Mapeo de actualizaciones
                     usuarioExistente.RoleId = model.RoleId;
                     usuarioExistente.NombreCompleto = model.NombreCompleto;
+                    usuarioExistente.NombreUsuario = model.NombreUsuario; // <--- Mapeo
                     usuarioExistente.Dni = model.Dni;
                     usuarioExistente.Email = model.Email;
                     usuarioExistente.Telefono = model.Telefono;
-                    usuarioExistente.Estado = model.Estado; // bool a bool? funciona implícitamente, aquí no da error
+                    usuarioExistente.Estado = model.Estado;
 
+                    // Solo si el usuario escribió algo en el campo Password, lo actualizamos
                     if (!string.IsNullOrEmpty(model.Password))
                     {
-                        // Lógica de cambio de contraseña
+                        usuarioExistente.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
                     }
 
                     await _usuarioService.ActualizarUsuarioAsync(usuarioExistente);
