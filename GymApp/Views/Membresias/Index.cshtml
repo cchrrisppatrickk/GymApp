@@ -2,145 +2,278 @@
     ViewData["Title"] = "Gestión de Membresías";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fa fa-id-card"></i> Membresías</h2>
-        <button class="btn btn-primary btn-lg" onclick="abrirModal()">
-            <i class="fa fa-plus-circle"></i> Nueva Suscripción
+<div class="container-fluid px-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-card-checklist text-danger me-2"></i>Suscripciones</h2>
+            <p class="text-muted small mb-0">Administra los accesos y vencimientos de los socios.</p>
+        </div>
+        <button class="btn btn-primary shadow-sm" onclick="abrirModal()">
+            <i class="bi bi-plus-lg me-1"></i> Nueva Suscripción
         </button>
     </div>
 
-    <div class="btn-group mb-3" role="group">
-        <button type="button" class="btn btn-outline-secondary active" onclick="cargarMembresias('todas', this)">Todas</button>
-        <button type="button" class="btn btn-outline-success" onclick="cargarMembresias('activas', this)">Activas</button>
-        <button type="button" class="btn btn-outline-warning" onclick="cargarMembresias('por_vencer', this)">Por Vencer</button>
-        <button type="button" class="btn btn-outline-danger" onclick="cargarMembresias('vencidas', this)">Vencidas</button>
+    <div class="row mb-4 g-3">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-4 border-success h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Membresías Activas</h6>
+                            <h3 class="mb-0 fw-bold text-success" id="kpiActivas">--</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
+                            <i class="bi bi-check-circle-fill fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Por Vencer (5 días)</h6>
+                            <h3 class="mb-0 fw-bold text-warning" id="kpiPorVencer">--</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
+                            <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-4 border-danger h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Vencidas</h6>
+                            <h3 class="mb-0 fw-bold text-danger" id="kpiVencidas">--</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle text-danger">
+                            <i class="bi bi-x-circle-fill fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="card shadow">
-        <div class="card-body">
-            <table class="table table-striped align-middle" id="tablaMembresias">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Plan</th>
-                        <th>Turno</th>
-                        <th>Vencimiento</th>
-                        <th>Estado</th>
-                        <th>Días Rest.</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary"><i class="bi bi-table me-1"></i> Listado de Socios</h6>
+
+            <div class="btn-group btn-group-sm mt-2 mt-md-0" role="group">
+                <button type="button" class="btn btn-outline-secondary active" onclick="cargarMembresias('todas', this)">Todas</button>
+                <button type="button" class="btn btn-outline-success" onclick="cargarMembresias('activas', this)">Activas</button>
+                <button type="button" class="btn btn-outline-warning" onclick="cargarMembresias('por_vencer', this)">Por Vencer</button>
+                <button type="button" class="btn btn-outline-danger" onclick="cargarMembresias('vencidas', this)">Vencidas</button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaMembresias">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="ps-4">Socio / Cliente</th>
+                            <th>Plan Contratado</th>
+                            <th>Turno</th>
+                            <th>Vigencia</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="text-center py-5 d-none">
+                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-2">No se encontraron registros con este filtro.</p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalMembresia" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="modal fade" id="modalMembresia" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Nueva Suscripción</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Nueva Suscripción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="formMembresia">
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Buscar Cliente (DNI o Nombre)</label>
+                    <div class="mb-4 position-relative">
+                        <label class="form-label fw-bold text-secondary text-uppercase small">1. Seleccionar Cliente</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="txtBuscarUsuario" list="listaUsuarios" placeholder="Escribe para buscar..." autocomplete="off">
-                            <datalist id="listaUsuarios"></datalist> <input type="hidden" id="userIdSeleccionado">
+                            <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control form-control-lg" id="txtBuscarUsuario" list="listaUsuarios" placeholder="Escribe DNI o Nombre..." autocomplete="off">
+                            <datalist id="listaUsuarios"></datalist>
+                            <input type="hidden" id="userIdSeleccionado">
+                        </div>
+                        <div id="usuarioFeedback" class="form-text text-success d-none">
+                            <i class="bi bi-check-circle-fill"></i> Usuario seleccionado correctamente.
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Plan</label>
-                            <select class="form-select" id="cboPlan"></select>
+                    <div class="row g-3">
+                        <div class="col-12"><hr class="text-muted opacity-25"></div>
+                        <div class="col-12"><label class="form-label fw-bold text-secondary text-uppercase small">2. Detalles del Plan</label></div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Plan</label>
+                            <select class="form-select" id="cboPlan" onchange="actualizarInfoPrecio()">
+                                <option value="" selected disabled>-- Seleccione --</option>
+                            </select>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Turno</label>
-                            <select class="form-select" id="cboTurno"></select>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Turno</label>
+                            <select class="form-select" id="cboTurno">
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de Inicio</label>
+                            <input type="date" class="form-control" id="txtFechaInicio">
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body d-flex flex-column justify-content-center align-items-center py-2">
+                                    <small class="text-muted text-uppercase fw-bold">Total a Pagar</small>
+                                    <h3 class="text-primary fw-bold mb-0" id="lblPrecioPreview">$0.00</h3>
+                                    <small class="text-muted" id="lblDuracionPreview">- días</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Fecha de Inicio</label>
-                        <input type="date" class="form-control" id="txtFechaInicio">
-                        <small class="text-muted">La fecha de vencimiento se calculará automáticamente.</small>
-                    </div>
-
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarMembresia()">Registrar y Calcular</button>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="guardarMembresia()">
+                    <i class="bi bi-check-lg me-1"></i> Confirmar y Vender
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Almacén temporal para precios de planes
+        let catalogoPlanes = [];
+
         document.addEventListener("DOMContentLoaded", () => {
             cargarMembresias('todas');
-            cargarRecursos(); // Carga planes y turnos en los select
-
-            // Establecer fecha de hoy por defecto
+            cargarRecursos();
             document.getElementById('txtFechaInicio').valueAsDate = new Date();
         });
 
         // 1. CARGAR LISTADO
         function cargarMembresias(filtro, btn) {
-            // Estilos de botones
+            // UI Botones
             if(btn) {
-                document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active', 'btn-secondary'));
+                document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.add('btn-outline-secondary')); // Reset genérico
                 btn.classList.add('active');
             }
+
+            // Mostrar Loading (opcional) o limpiar tabla
+            const tbody = document.querySelector("#tablaMembresias tbody");
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></td></tr>';
+            document.getElementById("emptyState").classList.add("d-none");
 
             fetch(`/Membresias/Listar?filtro=${filtro}`)
                 .then(res => res.json())
                 .then(json => {
                     let html = '';
+                    let contActivas = 0, contVencidas = 0, contPorVencer = 0;
+
+                    if(json.data.length === 0){
+                        tbody.innerHTML = '';
+                        document.getElementById("emptyState").classList.remove("d-none");
+                        return;
+                    }
+
                     json.data.forEach(m => {
-                        let badgeClass = 'bg-secondary';
-                        if (m.estado === 'Activa') badgeClass = 'bg-success';
-                        if (m.estado === 'Vencida') badgeClass = 'bg-danger';
-                        if (m.diasRestantes >= 0 && m.diasRestantes <= 5) badgeClass = 'bg-warning text-dark';
+                        // Contadores para KPIs simples (esto idealmente viene del backend, pero lo simulamos aquí)
+                        if (m.estado === 'Activa') contActivas++;
+                        if (m.estado === 'Vencida') contVencidas++;
+                        if (m.diasRestantes >= 0 && m.diasRestantes <= 5) contPorVencer++;
+
+                        // Badges
+                        let badgeHtml = `<span class="badge bg-secondary">Inactiva</span>`;
+                        if (m.estado === 'Activa') badgeHtml = `<span class="badge bg-success bg-opacity-75"><i class="bi bi-check-circle me-1"></i>Activa</span>`;
+                        if (m.estado === 'Vencida') badgeHtml = `<span class="badge bg-danger bg-opacity-75"><i class="bi bi-x-circle me-1"></i>Vencida</span>`;
+
+                        // Alerta visual de días
+                        let diasHtml = `<span class="fw-bold text-success">${m.diasRestantes} días</span>`;
+                        if (m.diasRestantes <= 5) diasHtml = `<span class="fw-bold text-warning">${m.diasRestantes} días</span>`;
+                        if (m.diasRestantes < 0) diasHtml = `<span class="fw-bold text-danger">Vencida</span>`;
 
                         html += `
-                            <tr>
-                                <td>
-                                    <div class="fw-bold">${m.nombreUsuario}</div>
-                                    <small class="text-muted">DNI: ${m.dni}</small>
+                            <tr class="align-middle">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle p-2 me-3 text-primary border">
+                                            <i class="bi bi-person-fill h5 mb-0"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">${m.nombreUsuario}</div>
+                                            <small class="text-muted" style="font-size: 0.8rem;">DNI: ${m.dni}</small>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td>${m.nombrePlan}</td>
+                                <td><span class="fw-bold text-dark">${m.nombrePlan}</span></td>
                                 <td>${m.nombreTurno}</td>
-                                <td>${m.fechaVencimiento}</td>
-                                <td><span class="badge ${badgeClass}">${m.estado}</span></td>
-                                <td class="fw-bold text-center">${m.diasRestantes}</td>
+                                <td>
+                                    <div class="small text-muted">Vence el:</div>
+                                    <div class="fw-bold">${m.fechaVencimiento}</div>
+                                </td>
+                                <td>${badgeHtml}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary" title="Renovar" onclick="renovar(${m.membresiaId}, '${m.nombreUsuario}')">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                </td>
                             </tr>
                         `;
                     });
-                    document.querySelector("#tablaMembresias tbody").innerHTML = html;
+
+                    tbody.innerHTML = html;
+
+                    // Actualizar KPIs visuales (simulado)
+                    if(filtro === 'todas'){
+                        document.getElementById('kpiActivas').innerText = contActivas;
+                        document.getElementById('kpiVencidas').innerText = contVencidas;
+                        document.getElementById('kpiPorVencer').innerText = contPorVencer;
+                    }
                 });
         }
 
-        // 2. CARGAR COMBOS (PLANES Y TURNOS)
+        // 2. CARGAR RECURSOS Y PRECIOS
         function cargarRecursos() {
             fetch('/Membresias/ObtenerRecursosCreacion')
                 .then(res => res.json())
                 .then(json => {
-                    // Llenar Planes
-                    let planesHtml = '';
+                    // Guardar planes en memoria para precios
+                    catalogoPlanes = json.planes;
+
+                    // Llenar Select Planes
+                    let planesHtml = '<option value="" selected disabled>-- Seleccione --</option>';
                     json.planes.forEach(p => {
-                        planesHtml += `<option value="${p.planId}">${p.nombre} (${p.duracionDias} días) - $${p.precioBase}</option>`;
+                        planesHtml += `<option value="${p.planId}">${p.nombre}</option>`;
                     });
                     document.getElementById('cboPlan').innerHTML = planesHtml;
 
-                    // Llenar Turnos
+                    // Llenar Select Turnos
                     let turnosHtml = '';
                     json.turnos.forEach(t => {
                         turnosHtml += `<option value="${t.turnoId}">${t.nombre} (${t.horaInicio} - ${t.horaFin})</option>`;
@@ -149,77 +282,115 @@
                 });
         }
 
-        // 3. LOGICA DE AUTOCOMPLETE (Simple)
+        // 3. UI: ACTUALIZAR PRECIO AL CAMBIAR PLAN
+        function actualizarInfoPrecio() {
+            const planId = parseInt(document.getElementById('cboPlan').value);
+            const plan = catalogoPlanes.find(p => p.planId === planId);
+
+            if (plan) {
+                // Formatear precio
+                const precio = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(plan.precioBase);
+                document.getElementById('lblPrecioPreview').innerText = precio;
+                document.getElementById('lblDuracionPreview').innerText = plan.duracionDias + " días de duración";
+            } else {
+                document.getElementById('lblPrecioPreview').innerText = "$0.00";
+                document.getElementById('lblDuracionPreview').innerText = "-";
+            }
+        }
+
+        // 4. BUSQUEDA USUARIO
         const inputBuscar = document.getElementById('txtBuscarUsuario');
         const dataList = document.getElementById('listaUsuarios');
 
         inputBuscar.addEventListener('input', function() {
             const val = this.value;
-            if (val.length < 3) return; // Buscar solo si hay 3 letras
+            // Reset selección si escribe de nuevo
+            document.getElementById('userIdSeleccionado').value = "";
+            document.getElementById('usuarioFeedback').classList.add('d-none');
+
+            if (val.length < 3) return;
 
             fetch(`/Membresias/BuscarUsuario?q=${val}`)
                 .then(res => res.json())
                 .then(data => {
                     dataList.innerHTML = '';
                     data.forEach(item => {
-                        // Creamos la opción para el datalist
                         const option = document.createElement('option');
-                        option.value = item.text; // Lo que se ve
-                        option.setAttribute('data-id', item.id); // Guardamos el ID
+                        option.value = item.text;
+                        option.setAttribute('data-id', item.id);
                         dataList.appendChild(option);
                     });
                 });
         });
 
-        // Detectar selección del datalist para capturar el ID
+        // Detectar selección
         inputBuscar.addEventListener('change', function() {
             const val = this.value;
             const options = dataList.childNodes;
             for (let i = 0; i < options.length; i++) {
                 if (options[i].value === val) {
-                    document.getElementById('userIdSeleccionado').value = options[i].getAttribute('data-id');
+                    const id = options[i].getAttribute('data-id');
+                    document.getElementById('userIdSeleccionado').value = id;
+                    document.getElementById('usuarioFeedback').classList.remove('d-none');
                     break;
                 }
             }
         });
 
-        // 4. GUARDAR
+        // 5. GUARDAR (CON SWEETALERT)
         function guardarMembresia() {
             const userId = document.getElementById('userIdSeleccionado').value;
-            if (!userId) {
-                alert("Debes seleccionar un usuario válido de la lista.");
-                return;
-            }
+            const planId = document.getElementById('cboPlan').value;
+            const turnoId = document.getElementById('cboTurno').value;
+
+            if (!userId) return Swal.fire('Error', 'Debes seleccionar un cliente válido.', 'error');
+            if (!planId) return Swal.fire('Error', 'Selecciona un plan.', 'warning');
 
             const data = {
                 UserId: parseInt(userId),
-                PlanId: parseInt(document.getElementById('cboPlan').value),
-                TurnoId: parseInt(document.getElementById('cboTurno').value),
+                PlanId: parseInt(planId),
+                TurnoId: parseInt(turnoId),
                 FechaInicio: document.getElementById('txtFechaInicio').value
             };
 
-            fetch('/Membresias/Crear', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.json())
-            .then(json => {
-                if (json.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalMembresia'));
-                    modal.hide();
-                    cargarMembresias('activas'); // Recargar vista
-                    alert("Membresía creada con éxito");
-                    // Limpiar formulario...
-                } else {
-                    alert("Error: " + json.message);
+            Swal.fire({
+                title: '¿Confirmar Venta?',
+                text: "Se generará la membresía y el registro en caja.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, registrar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/Membresias/Crear', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    })
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('modalMembresia')).hide();
+                            cargarMembresias('todas');
+                            Swal.fire('¡Registrado!', 'La membresía ha sido creada exitosamente.', 'success');
+                            // Limpiar form
+                            document.getElementById('formMembresia').reset();
+                            actualizarInfoPrecio();
+                        } else {
+                            Swal.fire('Error', json.message, 'error');
+                        }
+                    });
                 }
             });
         }
 
         function abrirModal() {
-            const modal = new bootstrap.Modal(document.getElementById('modalMembresia'));
-            modal.show();
+            new bootstrap.Modal(document.getElementById('modalMembresia')).show();
+        }
+
+        function renovar(id, nombre) {
+            // Lógica futura para renovación rápida
+            Swal.fire('Próximamente', `Función de renovación rápida para ${nombre}`, 'info');
         }
     </script>
 }

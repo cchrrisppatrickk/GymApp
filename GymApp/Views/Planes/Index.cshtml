@@ -1,42 +1,30 @@
 ﻿@{
-    ViewData["Title"] = "Gestión de Planes";
+    ViewData["Title"] = "Planes y Precios";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2><i class="fa fa-tags"></i> Planes de Membresía</h2>
-        <button class="btn btn-success" onclick="abrirModal(0)">
-            <i class="fa fa-plus"></i> Nuevo Plan
+<div class="container-fluid px-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-tags-fill text-primary me-2"></i>Planes de Suscripción</h2>
+            <p class="text-muted small mb-0">Configura los paquetes que ofreces a tus socios.</p>
+        </div>
+        <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Plan
         </button>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <table class="table table-hover align-middle" id="tablaPlanes">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Duración (Días)</th>
-                        <th>Precio</th>
-                        <th>Congelamiento</th>
-                        <th class="text-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
+    <div class="row g-4" id="contenedorPlanes">
     </div>
 </div>
 
-<div class="modal fade" id="modalPlan" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+<div class="modal fade" id="modalPlan" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="tituloModal">Gestión de Plan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-bold" id="tituloModal">Gestión de Plan</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="formPlan">
                     <input type="hidden" id="PlanId" value="0">
 
@@ -47,83 +35,101 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Duración (Días)</label>
-                            <input type="number" class="form-control" id="DuracionDias" min="1" required>
-                            <small class="text-muted">Ej: 30 para mensual</small>
+                            <label class="form-label fw-bold">Duración</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="DuracionDias" min="1" required>
+                                <span class="input-group-text bg-light">días</span>
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Precio Base</label>
+                            <label class="form-label fw-bold">Precio</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text bg-light">$</span>
                                 <input type="number" class="form-control" id="PrecioBase" step="0.01" min="0" required>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="PermiteCongelar">
-                        <label class="form-check-label" for="PermiteCongelar">¿Permite Congelar?</label>
-                        <div class="form-text">Si se activa, el socio podrá pausar su membresía.</div>
+                    <div class="alert alert-light border d-flex align-items-center" role="alert">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="PermiteCongelar" style="cursor: pointer;">
+                            <label class="form-check-label fw-bold" for="PermiteCongelar" style="cursor: pointer;">Permite Congelamiento</label>
+                            <div class="text-muted small mt-1">Si activas esto, el socio podrá pausar su membresía por viajes o salud.</div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarPlan()">Guardar Cambios</button>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-link text-decoration-none text-muted" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="guardarPlan()">Guardar</button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             cargarPlanes();
         });
 
-        const modalEl = document.getElementById('modalPlan');
-        const modal = new bootstrap.Modal(modalEl);
+        const modal = new bootstrap.Modal(document.getElementById('modalPlan'));
 
         function cargarPlanes() {
+            const contenedor = document.getElementById("contenedorPlanes");
+            contenedor.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
             fetch('/Planes/Listar')
                 .then(res => res.json())
                 .then(json => {
                     let html = '';
+
+                    if(json.data.length === 0) {
+                        contenedor.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No hay planes creados</h4><p>Crea el primero para empezar a vender.</p></div>';
+                        return;
+                    }
+
                     json.data.forEach(p => {
-                        // Icono para congelar (Verde si sí, Gris si no)
-                        const iconCongela = p.permiteCongelar
-                            ? '<span class="badge bg-success">Sí</span>'
-                            : '<span class="badge bg-secondary">No</span>';
+                        // Badge congelamiento
+                        const badgeCongela = p.permiteCongelar
+                            ? `<span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3"><i class="bi bi-snow2 me-1"></i>Congelable</span>`
+                            : `<span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">No Congelable</span>`;
 
                         html += `
-                            <tr>
-                                <td class="fw-bold">${p.nombre}</td>
-                                <td>${p.duracionDias} días</td>
-                                <td>$ ${p.precioBase.toFixed(2)}</td>
-                                <td>${iconCongela}</td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editarPlan(${p.planId})">
-                                        <i class="fa fa-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarPlan(${p.planId})">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <div class="col-md-4 col-lg-3">
+                                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                                    <div class="card-body p-4 text-center d-flex flex-column">
+                                        <h5 class="fw-bold text-dark mb-3">${p.nombre}</h5>
+                                        <h2 class="display-6 fw-bold text-primary mb-0">$${p.precioBase.toFixed(2)}</h2>
+                                        <p class="text-muted small mb-4">por ${p.duracionDias} días</p>
+
+                                        <div class="mb-4">
+                                            ${badgeCongela}
+                                        </div>
+
+                                        <div class="mt-auto pt-3 border-top d-flex justify-content-center gap-2">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="editarPlan(${p.planId})">
+                                                <i class="bi bi-pencil me-1"></i> Editar
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarPlan(${p.planId})">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         `;
                     });
-                    document.querySelector("#tablaPlanes tbody").innerHTML = html;
+                    contenedor.innerHTML = html;
                 });
         }
 
         function abrirModal(id) {
-            if (id === 0) {
-                document.getElementById('formPlan').reset();
-                document.getElementById('PlanId').value = 0;
-                document.getElementById('PermiteCongelar').checked = false; // Reset checkbox
-                document.getElementById('tituloModal').innerText = "Nuevo Plan";
-                modal.show();
-            }
+            document.getElementById('formPlan').reset();
+            document.getElementById('PlanId').value = 0;
+            document.getElementById('tituloModal').innerText = "Nuevo Plan";
+            modal.show();
         }
 
         function editarPlan(id) {
@@ -136,13 +142,10 @@
                         document.getElementById('Nombre').value = d.nombre;
                         document.getElementById('DuracionDias').value = d.duracionDias;
                         document.getElementById('PrecioBase').value = d.precioBase;
-                        // Mapear el bool al checkbox
-                        document.getElementById('PermiteCongelar').checked = d.permiteCongelar === true;
+                        document.getElementById('PermiteCongelar').checked = d.permiteCongelar;
 
                         document.getElementById('tituloModal').innerText = "Editar Plan";
                         modal.show();
-                    } else {
-                        alert(json.message);
                     }
                 });
         }
@@ -153,13 +156,11 @@
                 Nombre: document.getElementById('Nombre').value,
                 DuracionDias: parseInt(document.getElementById('DuracionDias').value),
                 PrecioBase: parseFloat(document.getElementById('PrecioBase').value),
-                // Convertir estado del checkbox a bool
                 PermiteCongelar: document.getElementById('PermiteCongelar').checked
             };
 
-            // Pequeña validación frontend antes de enviar
             if(!data.Nombre || data.DuracionDias <= 0 || data.PrecioBase < 0) {
-                alert("Por favor completa los datos correctamente.");
+                Swal.fire('Atención', 'Revisa los datos ingresados', 'warning');
                 return;
             }
 
@@ -173,23 +174,35 @@
                 if(json.success) {
                     modal.hide();
                     cargarPlanes();
-                    // Opcional: mostrar notificación toast de éxito
+                    Swal.fire('Guardado', 'El plan se actualizó correctamente', 'success');
                 } else {
-                    alert("Error: " + json.message);
+                    Swal.fire('Error', json.message, 'error');
                 }
-            })
-            .catch(err => console.error(err));
+            });
         }
 
         function eliminarPlan(id) {
-            if(confirm("¿Seguro que deseas eliminar este plan?")) {
-                fetch('/Planes/Eliminar?id=' + id, { method: 'POST' })
-                .then(res => res.json())
-                .then(json => {
-                    if(json.success) cargarPlanes();
-                    else alert(json.message);
-                });
-            }
+            Swal.fire({
+                title: '¿Eliminar Plan?',
+                text: "No podrás eliminarlo si ya tiene ventas asociadas.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/Planes/Eliminar?id=' + id, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(json => {
+                        if(json.success) {
+                            cargarPlanes();
+                            Swal.fire('Eliminado', 'El plan ha sido eliminado.', 'success');
+                        } else {
+                            Swal.fire('No se pudo eliminar', json.message, 'error');
+                        }
+                    });
+                }
+            });
         }
     </script>
 }

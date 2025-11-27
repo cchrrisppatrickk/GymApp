@@ -2,92 +2,191 @@
     ViewData["Title"] = "Caja y Pagos";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fa fa-cash-register"></i> Caja</h2>
-        <button class="btn btn-success btn-lg" onclick="abrirModalPago()">
-            <i class="fa fa-money-bill-wave"></i> Registrar Ingreso
-        </button>
+<div class="container-fluid px-4 fade-in">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-wallet2 text-success me-2"></i>Caja y Tesorería</h2>
+            <p class="text-muted small mb-0">Control de ingresos y emisión de comprobantes.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary shadow-sm">
+                <i class="bi bi-printer me-1"></i> Cierre de Caja
+            </button>
+            <button class="btn btn-success shadow-sm" onclick="abrirModalPago()">
+                <i class="bi bi-plus-lg me-1"></i> Registrar Ingreso
+            </button>
+        </div>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-light fw-bold">Historial de Transacciones</div>
-        <div class="card-body">
-            <table class="table table-hover" id="tablaPagos">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Cliente</th>
-                        <th>Concepto (Plan)</th>
-                        <th>Monto</th>
-                        <th>Método</th>
-                        <th>Cobrado Por</th>
-                        <th>Recibo</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+    <div class="row mb-4 g-3">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                <div class="card-body position-relative">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-0">Ingresos Totales</h6>
+                        <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-graph-up-arrow"></i> Hoy</span>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-0" id="kpiIngresos">$ 0.00</h3>
+                    <div class="position-absolute top-0 end-0 opacity-10 p-3">
+                        <i class="bi bi-currency-dollar fs-1 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-0">Transacciones</h6>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-0" id="kpiTransacciones">0</h3>
+                    <p class="small text-muted mb-0">Operaciones registradas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 bg-primary bg-gradient text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-uppercase text-white-50 small fw-bold mb-0">Último Cobro</h6>
+                    </div>
+                    <h5 class="fw-bold mb-0" id="kpiUltimoCliente">--</h5>
+                    <small class="text-white-50" id="kpiUltimoMonto">--</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary"><i class="bi bi-clock-history me-1"></i> Historial de Movimientos</h6>
+
+            <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                <input type="date" class="form-control form-control-sm" id="filtroFecha" onchange="cargarHistorial()">
+                <button class="btn btn-sm btn-light border" onclick="cargarHistorial()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaPagos">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="ps-4">Fecha / Hora</th>
+                            <th>Cliente</th>
+                            <th>Concepto</th>
+                            <th>Método</th>
+                            <th>Atendido Por</th>
+                            <th class="text-end">Monto</th>
+                            <th class="text-center">Recibo</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="text-center py-5 d-none">
+                <div class="bg-light rounded-circle d-inline-flex p-4 mb-3">
+                    <i class="bi bi-receipt text-muted" style="font-size: 2rem;"></i>
+                </div>
+                <p class="text-muted fw-bold">No hay movimientos registrados hoy.</p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalPago" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+<div class="modal fade" id="modalPago" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Registrar Pago</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title fw-bold"><i class="bi bi-cash-coin me-2"></i>Registrar Cobro</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">DNI del Cliente</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="txtDniBuscar" placeholder="Ingrese DNI y presione Enter">
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary text-uppercase small">Buscar Cliente</label>
+                    <div class="input-group input-group-lg">
+                        <input type="text" class="form-control" id="txtDniBuscar" placeholder="DNI del cliente..." autocomplete="off">
                         <button class="btn btn-outline-secondary" type="button" onclick="buscarDeuda()">
-                            <i class="fa fa-search"></i>
+                            <i class="bi bi-search"></i>
                         </button>
                     </div>
+                    <div class="form-text">Presiona la lupa o Enter para buscar deudas pendientes.</div>
                 </div>
 
-                <div id="infoMembresia" class="alert alert-info d-none">
-                    <strong>Cliente:</strong> <span id="lblCliente"></span><br>
-                    <strong>Plan:</strong> <span id="lblPlan"></span><br>
-                    <strong>Estado Actual:</strong> <span id="lblEstado"></span>
-                </div>
+                <div id="infoMembresia" class="card bg-light border-dashed border-secondary mb-3 d-none">
+                    <div class="card-body position-relative">
+                        <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-warning text-dark border border-light">
+                            Pendiente de Pago
+                        </span>
 
-                <div id="formPagoDetalle" class="d-none">
-                    <hr>
-                    <div class="mb-3">
-                        <label class="form-label">Monto a Cobrar</label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            <input type="number" class="form-control form-control-lg" id="txtMonto" step="0.01">
+                        <div class="text-center mb-3 mt-2">
+                            <h5 class="fw-bold mb-0" id="lblCliente">Juan Perez</h5>
+                            <small class="text-muted">Cliente</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                            <span class="text-muted">Concepto:</span>
+                            <span class="fw-bold text-end" id="lblPlan">Plan Mensual</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Estado Membresía:</span>
+                            <span class="fw-bold" id="lblEstado">Inactiva</span>
                         </div>
                     </div>
+                </div>
+
+                <div id="formPagoDetalle" class="d-none animate-fade-in">
                     <div class="mb-3">
-                        <label class="form-label">Método de Pago</label>
-                        <select class="form-select" id="cboMetodo">
-                            <option value="Efectivo">Efectivo</option>
-                            <option value="Yape/Plin">Yape / Plin</option>
-                            <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
-                            <option value="Transferencia">Transferencia Bancaria</option>
-                        </select>
+                        <label class="form-label fw-bold">Monto a Cobrar</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white text-success border-end-0">$</span>
+                            <input type="number" class="form-control border-start-0 ps-0 fw-bold text-success" id="txtMonto" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Método de Pago</label>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="metodoPago" id="metodo1" value="Efectivo" checked>
+                                <label class="btn btn-outline-success w-100 py-3" for="metodo1">
+                                    <i class="bi bi-cash d-block fs-4"></i><small>Efectivo</small>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="metodoPago" id="metodo2" value="Yape/Plin">
+                                <label class="btn btn-outline-primary w-100 py-3" for="metodo2">
+                                    <i class="bi bi-phone d-block fs-4"></i><small>Yape/Plin</small>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="metodoPago" id="metodo3" value="Tarjeta">
+                                <label class="btn btn-outline-dark w-100 py-3" for="metodo3">
+                                    <i class="bi bi-credit-card d-block fs-4"></i><small>Tarjeta</small>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" id="btnCobrar" onclick="procesarPago()" disabled>Confirmar Cobro</button>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success px-4" id="btnCobrar" onclick="procesarPago()" disabled>
+                    <i class="bi bi-check-lg me-2"></i>Confirmar Pago
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Setear fecha de hoy en el filtro
+            document.getElementById('filtroFecha').valueAsDate = new Date();
             cargarHistorial();
         });
 
@@ -99,94 +198,197 @@
         });
 
         function cargarHistorial() {
+            // Mostrar Loading
+            const tbody = document.querySelector("#tablaPagos tbody");
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><div class="spinner-border text-success" role="status"></div></td></tr>';
+
+            // Simulación de filtro por fecha (en el backend deberías recibir el parámetro)
+            // const fecha = document.getElementById('filtroFecha').value;
+
             fetch('/Pagos/Listar')
                 .then(res => res.json())
                 .then(json => {
                     let html = '';
+                    let totalIngresos = 0;
+
+                    if(json.data.length === 0){
+                        tbody.innerHTML = '';
+                        document.getElementById("emptyState").classList.remove("d-none");
+                        return;
+                    }
+
+                    document.getElementById("emptyState").classList.add("d-none");
+
                     json.data.forEach(p => {
+                        totalIngresos += p.monto;
+
+                        // Estilos de badge según método
+                        let metodoBadge = '<span class="badge bg-secondary">Otro</span>';
+                        if(p.metodoPago === 'Efectivo') metodoBadge = '<span class="badge bg-success bg-opacity-75"><i class="bi bi-cash me-1"></i>Efectivo</span>';
+                        if(p.metodoPago === 'Tarjeta') metodoBadge = '<span class="badge bg-primary bg-opacity-75"><i class="bi bi-credit-card me-1"></i>Tarjeta</span>';
+                        if(p.metodoPago.includes('Yape')) metodoBadge = '<span class="badge" style="background-color: #720e9e; color:white;"><i class="bi bi-qr-code me-1"></i>Yape</span>';
+
                         html += `
                             <tr>
-                                <td>${p.fechaPago}</td>
-                                <td>${p.nombreCliente}</td>
-                                <td>${p.nombrePlan}</td>
-                                <td class="fw-bold text-success">$ ${p.monto.toFixed(2)}</td>
-                                <td>${p.metodoPago}</td>
-                                <td><small>${p.nombreEmpleado}</small></td>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">${p.fechaPago.split(' ')[0]}</div>
+                                    <small class="text-muted">${p.fechaPago.split(' ')[1] || ''}</small>
+                                </td>
                                 <td>
-                                    <a href="/Pagos/Comprobante/${p.pagoId}" target="_blank" class="btn btn-sm btn-outline-dark">
-                                        <i class="fa fa-print"></i>
+                                    <span class="fw-bold">${p.nombreCliente}</span>
+                                </td>
+                                <td><span class="text-muted">${p.nombrePlan}</span></td>
+                                <td>${metodoBadge}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle border p-1 me-2"><i class="bi bi-person text-secondary"></i></div>
+                                        <small>${p.nombreEmpleado}</small>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <span class="fw-bold text-dark h6">$ ${p.monto.toFixed(2)}</span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="/Pagos/Comprobante/${p.pagoId}" target="_blank" class="btn btn-sm btn-light border" title="Imprimir">
+                                        <i class="bi bi-printer"></i>
                                     </a>
                                 </td>
                             </tr>
                         `;
                     });
-                    document.querySelector("#tablaPagos tbody").innerHTML = html;
+
+                    tbody.innerHTML = html;
+
+                    // ACTUALIZAR KPIs
+                    document.getElementById('kpiIngresos').innerText = "$ " + totalIngresos.toFixed(2);
+                    document.getElementById('kpiTransacciones').innerText = json.data.length;
+
+                    // Ultimo cliente
+                    if(json.data.length > 0){
+                        const ultimo = json.data[json.data.length - 1]; // O el primero, según como ordene tu SP
+                        document.getElementById('kpiUltimoCliente').innerText = ultimo.nombreCliente.split(' ')[0];
+                        document.getElementById('kpiUltimoMonto').innerText = "+ $ " + ultimo.monto.toFixed(2);
+                    }
                 });
         }
 
         function buscarDeuda() {
             const dni = document.getElementById("txtDniBuscar").value;
-            if(!dni) return;
+            if(!dni) {
+                Swal.fire('Atención', 'Ingresa un DNI para buscar', 'warning');
+                return;
+            }
+
+            // Efecto de carga en botón
+            const btn = document.querySelector(".input-group button");
+            const iconOriginal = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            btn.disabled = true;
 
             fetch(`/Pagos/BuscarDeuda?dni=${dni}`)
                 .then(res => res.json())
                 .then(json => {
+                    btn.innerHTML = iconOriginal;
+                    btn.disabled = false;
+
                     if (json.success) {
                         const data = json.data;
-                        // Mostrar info
+                        // Llenar tarjeta de deuda
                         document.getElementById("lblCliente").innerText = data.cliente;
                         document.getElementById("lblPlan").innerText = data.plan;
-                        document.getElementById("lblEstado").innerText = data.estado;
 
+                        const lblEstado = document.getElementById("lblEstado");
+                        lblEstado.innerText = data.estado;
+                        lblEstado.className = data.estado === 'Activa' ? "fw-bold text-success" : "fw-bold text-danger";
+
+                        // Mostrar secciones
                         document.getElementById("infoMembresia").classList.remove("d-none");
                         document.getElementById("formPagoDetalle").classList.remove("d-none");
                         document.getElementById("btnCobrar").disabled = false;
+
+                        // Foco en monto para escribir rápido
+                        document.getElementById("txtMonto").focus();
                     } else {
-                        alert(json.message);
-                        limpiarModal();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Sin deudas',
+                            text: json.message,
+                            confirmButtonText: 'Entendido'
+                        });
+                        limpiarModal(false);
                     }
+                })
+                .catch(() => {
+                    btn.innerHTML = iconOriginal;
+                    btn.disabled = false;
                 });
         }
 
         function procesarPago() {
+            const metodoSeleccionado = document.querySelector('input[name="metodoPago"]:checked').value;
+
             const data = {
                 DniCliente: document.getElementById("txtDniBuscar").value,
                 Monto: parseFloat(document.getElementById("txtMonto").value),
-                MetodoPago: document.getElementById("cboMetodo").value
+                MetodoPago: metodoSeleccionado
             };
 
-            if(data.Monto <= 0) { alert("El monto debe ser mayor a 0"); return; }
+            if(isNaN(data.Monto) || data.Monto <= 0) {
+                Swal.fire('Error', 'El monto debe ser válido y mayor a 0', 'error');
+                return;
+            }
 
-            fetch('/Pagos/Registrar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.json())
-            .then(json => {
-                if (json.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalPago'));
-                    modal.hide();
-                    cargarHistorial();
+            Swal.fire({
+                title: '¿Confirmar cobro?',
+                html: `Monto: <b>$${data.Monto.toFixed(2)}</b><br>Método: ${data.MetodoPago}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'Sí, cobrar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/Pagos/Registrar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    })
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('modalPago'));
+                            modal.hide();
+                            cargarHistorial();
 
-                    // Preguntar si quiere imprimir
-                    if(confirm("Pago registrado con éxito. ¿Deseas imprimir el comprobante?")) {
-                        window.open(`/Pagos/Comprobante/${json.pagoId}`, '_blank');
-                    }
-                } else {
-                    alert("Error: " + json.message);
+                            Swal.fire({
+                                title: '¡Cobro Exitoso!',
+                                text: '¿Deseas imprimir el comprobante ahora?',
+                                icon: 'success',
+                                showCancelButton: true,
+                                confirmButtonText: 'Imprimir Ticket',
+                                cancelButtonText: 'Cerrar'
+                            }).then((printResult) => {
+                                if (printResult.isConfirmed) {
+                                    window.open(`/Pagos/Comprobante/${json.pagoId}`, '_blank');
+                                }
+                            });
+                        } else {
+                            Swal.fire('Error', json.message, 'error');
+                        }
+                    });
                 }
             });
         }
 
         function abrirModalPago() {
-            limpiarModal();
-            const modal = new bootstrap.Modal(document.getElementById('modalPago'));
-            modal.show();
+            limpiarModal(true);
+            new bootstrap.Modal(document.getElementById('modalPago')).show();
+            // Foco en input DNI tras abrir modal
+            setTimeout(() => document.getElementById("txtDniBuscar").focus(), 500);
         }
 
-        function limpiarModal() {
-            document.getElementById("txtDniBuscar").value = "";
+        function limpiarModal(fullClear) {
+            if(fullClear) document.getElementById("txtDniBuscar").value = "";
             document.getElementById("txtMonto").value = "";
             document.getElementById("infoMembresia").classList.add("d-none");
             document.getElementById("formPagoDetalle").classList.add("d-none");

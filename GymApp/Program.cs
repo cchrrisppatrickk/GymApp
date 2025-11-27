@@ -72,14 +72,14 @@ app.UseAuthentication(); // <--- Debe ir ANTES de Authorization
 app.UseAuthorization();
 // ============================================================
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-// Rutas
 //app.MapControllerRoute(
 //    name: "default",
-//    // Cambiamos el default para que vaya a la Presentación o Login
-//    pattern: "{controller=Auth}/{action=Login}/{id?}");
+//    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Rutas
+app.MapControllerRoute(
+    name: "default",
+    // Cambiamos el default para que vaya a la Presentación o Login
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();

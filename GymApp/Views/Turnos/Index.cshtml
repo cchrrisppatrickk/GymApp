@@ -1,110 +1,130 @@
 ﻿@{
-    ViewData["Title"] = "Gestión de Turnos";
+    ViewData["Title"] = "Horarios y Turnos";
 }
 
-<div class="container mt-4">
-    <h2>Turnos</h2>
-    <button class="btn btn-primary mb-3" onclick="abrirModal(0)">
-        <i class="fa fa-plus"></i> Nuevo Turno
-    </button>
+<div class="container-fluid px-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-clock-history text-warning me-2"></i>Horarios y Turnos</h2>
+            <p class="text-muted small mb-0">Define los bloques de acceso al gimnasio.</p>
+        </div>
+        <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Turno
+        </button>
+    </div>
 
-    <table class="table table-bordered table-hover" id="tablaTurnos">
-        <thead class="table-dark">
-            <tr>
-                <th>Nombre</th>
-                <th>Hora Inicio</th>
-                <th>Hora Fin</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaTurnos">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="ps-4">Nombre del Turno</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Duración Total</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="modal fade" id="modalTurno" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tituloModal">Gestión de Turno</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="modalTurno" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning bg-gradient text-dark">
+                <h5 class="modal-title fw-bold" id="tituloModal">Gestión de Turno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="formTurno">
                     <input type="hidden" id="TurnoId" value="0">
 
                     <div class="mb-3">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="Nombre" required>
+                        <label class="form-label fw-bold">Nombre</label>
+                        <input type="text" class="form-control" id="Nombre" placeholder="Ej: Mañana" required>
                     </div>
+
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <label class="form-label">Hora Inicio</label>
-                            <input type="time" class="form-control" id="HoraInicio" required>
+                            <label class="form-label fw-bold">Hora Inicio</label>
+                            <input type="time" class="form-control text-center fw-bold" id="HoraInicio" required>
                         </div>
                         <div class="col-6 mb-3">
-                            <label class="form-label">Hora Fin</label>
-                            <input type="time" class="form-control" id="HoraFin" required>
+                            <label class="form-label fw-bold">Hora Fin</label>
+                            <input type="time" class="form-control text-center fw-bold" id="HoraFin" required>
                         </div>
+                    </div>
+
+                    <div class="alert alert-info small mb-0">
+                        <i class="bi bi-info-circle me-1"></i> El sistema validará el acceso solo dentro de este rango.
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarTurno()">Guardar</button>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-link text-decoration-none text-muted" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning px-4 fw-bold" onclick="guardarTurno()">Guardar Turno</button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Cargar datos al iniciar
         document.addEventListener("DOMContentLoaded", function() {
             cargarTurnos();
         });
 
-        // 1. FUNCIÓN LISTAR (READ)
+        const modal = new bootstrap.Modal(document.getElementById('modalTurno'));
+
         function cargarTurnos() {
+            const tbody = document.querySelector("#tablaTurnos tbody");
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><div class="spinner-border text-warning"></div></td></tr>';
+
             fetch('/Turnos/ListarTurnos')
                 .then(response => response.json())
                 .then(json => {
                     let html = '';
-                    json.data.forEach(turno => {
+
+                    if(json.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No hay turnos configurados.</td></tr>';
+                        return;
+                    }
+
+                    json.data.forEach(t => {
+                        // Calcular duración simple (visual)
+                        // Aquí asumimos formato HH:mm:ss
+
                         html += `
                             <tr>
-                                <td>${turno.nombre}</td>
-                                <td>${turno.horaInicio}</td>
-                                <td>${turno.horaFin}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-warning" onclick="editarTurno(${turno.turnoId})">Editar</button>
-                                    <button class="btn btn-sm btn-danger" onclick="eliminarTurno(${turno.turnoId})">Eliminar</button>
+                                <td class="ps-4 fw-bold text-dark">${t.nombre}</td>
+                                <td><span class="badge bg-light text-dark border"><i class="bi bi-sun me-1"></i>${t.horaInicio}</span></td>
+                                <td><span class="badge bg-light text-dark border"><i class="bi bi-moon me-1"></i>${t.horaFin}</span></td>
+                                <td><small class="text-muted">Calculado por sistema</small></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-light border me-1" onclick="editarTurno(${t.turnoId})"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-light border text-danger" onclick="eliminarTurno(${t.turnoId})"><i class="bi bi-trash"></i></button>
                                 </td>
                             </tr>
                         `;
                     });
-                    document.querySelector("#tablaTurnos tbody").innerHTML = html;
+                    tbody.innerHTML = html;
                 });
         }
 
-        // 2. ABRIR MODAL (LIMPIO O CON DATOS)
         function abrirModal(id) {
-            const modal = new bootstrap.Modal(document.getElementById('modalTurno'));
-
-            if (id === 0) {
-                // Modo Crear: Limpiar campos
-                document.getElementById('TurnoId').value = 0;
-                document.getElementById('formTurno').reset();
-                document.getElementById('tituloModal').innerText = "Nuevo Turno";
-                modal.show();
-            } else {
-                // Modo Editar: No necesitamos llamar al fetch aquí si ya tenemos los datos en la tabla,
-                // pero por seguridad hacemos fetch al backend.
-                // NOTA: Implementar funcion editarTurno abajo
-            }
+            document.getElementById('TurnoId').value = 0;
+            document.getElementById('formTurno').reset();
+            document.getElementById('tituloModal').innerText = "Nuevo Turno";
+            modal.show();
         }
 
-        // 3. PREPARAR EDICIÓN
         function editarTurno(id) {
             fetch('/Turnos/ObtenerTurno?id=' + id)
                 .then(res => res.json())
@@ -117,20 +137,23 @@
                         document.getElementById('HoraFin').value = t.horaFin;
 
                         document.getElementById('tituloModal').innerText = "Editar Turno";
-                        const modal = new bootstrap.Modal(document.getElementById('modalTurno'));
                         modal.show();
                     }
                 });
         }
 
-        // 4. GUARDAR (CREATE / UPDATE)
         function guardarTurno() {
             const data = {
                 TurnoId: parseInt(document.getElementById('TurnoId').value),
                 Nombre: document.getElementById('Nombre').value,
-                HoraInicio: document.getElementById('HoraInicio').value, // Formato HH:mm:ss
+                HoraInicio: document.getElementById('HoraInicio').value,
                 HoraFin: document.getElementById('HoraFin').value
             };
+
+            if(!data.Nombre || !data.HoraInicio || !data.HoraFin) {
+                Swal.fire('Atención', 'Completa todos los campos de hora', 'warning');
+                return;
+            }
 
             fetch('/Turnos/Guardar', {
                 method: 'POST',
@@ -140,34 +163,37 @@
             .then(res => res.json())
             .then(json => {
                 if(json.success) {
-                    // Cerrar modal
-                    const modalEl = document.getElementById('modalTurno');
-                    const modal = bootstrap.Modal.getInstance(modalEl);
                     modal.hide();
-
-                    // Recargar tabla
                     cargarTurnos();
-                    alert("Guardado correctamente");
+                    Swal.fire('Éxito', 'Turno guardado correctamente', 'success');
                 } else {
-                    alert("Error: " + json.message);
+                    Swal.fire('Error', json.message, 'error');
                 }
-            })
-            .catch(err => console.error(err));
+            });
         }
 
-        // 5. ELIMINAR (DELETE)
         function eliminarTurno(id) {
-            if(confirm("¿Estás seguro de eliminar este turno?")) {
-                fetch('/Turnos/Eliminar?id=' + id, { method: 'POST' })
-                .then(res => res.json())
-                .then(json => {
-                    if(json.success) {
-                        cargarTurnos();
-                    } else {
-                        alert("Error al eliminar");
-                    }
-                });
-            }
+            Swal.fire({
+                title: '¿Eliminar Turno?',
+                text: "Esto podría afectar a membresías activas.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/Turnos/Eliminar?id=' + id, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(json => {
+                        if(json.success) {
+                            cargarTurnos();
+                            Swal.fire('Eliminado', 'El turno ha sido eliminado.', 'success');
+                        } else {
+                            Swal.fire('Error', json.message, 'error');
+                        }
+                    });
+                }
+            });
         }
     </script>
 }

@@ -1,0 +1,214 @@
+Membresías:
+
+En la vista suscripciones, cambiar "nombres de venta o alguna relaciona" por "registrar".
+No utilizar términos de venta, solo "registrar".
+
+Agregar acciones en membresías: gestión (no eliminar o parar), editar solo con autorización de administrador.
+Para renovar membresía, utilizar la misma registrada (editar o reemplazar la vencida). sugerencia de cual seria mejor
+Separar por meses si es necesario, con paginación.
+
+ver el tema de si se regisra de nuevo una membresia en el escaner tiene que mostrarse lo de esa mrenbrecia, o cual seria la mejor opcion, ya sea renombrar o cual?
+
+La tabla debe mostrar:
+NOMBRES | INICIO | VENCE | TURNO | TELÉFONO | TIPO DE PAGO (EFECTIVO/YAPE) | TIPO DE PLAN
+
+Pagos:
+
+Métodos de pago actuales: Yape y Efectivo.
+Conservar el modal en la vista.
+Quitar "Cierre de Caja", "Ingresos Totales" y "Transacciones".
+
+Reporte en Excel:
+Estructura requerida:
+
+NOMBRES          INICIO      VENCE      TURNO   TELÉFONO   EFECTIVO   YAPE      TIPO DE PLAN
+1 KATY PALACIOS  12/09/2025  11/11/2025  M                 50 soles             30 dias o 1 mes
+2 JULY CIEZA     16/09/2025  15/12/2025         
+3 STEFANY BAZAN  6/08/2025   4/11/2025   T      		      50 soles  30 dias o 1 mes
+
+
+Punto de Venta (Quiosco):
+Módulo: CONTROL DE INGRESOS GENERAL
+
+Estructura de reporte excel o listadao o vista: 
+CONTROL DE INGRESOS GENERAL																		
+DIA	BEBIDAS MAÑANA		BEBIDAS TARDE		TOTAL	LIBRES MAÑANA		LIBRES  TARDE		TOTAL	XB   MAÑANA		XB    TARDE		TOTAL			
+	EFECT.	YAPE	EFECT.	YAPE	TOTAL	EFECT.	YAPE	EFECT.	YAPE	TOTAL	EFECT.	YAPE	EFECT.	YAPE	TOTAL	TOTAL	EFECTIVO	YAPE
+1	1		9	5	15	5	15	6	24	50					0	65	21	44
+2	1	2	10	4	17	15	15	15	5	50	3.5	3.5			7	74	44.5	29.5
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------
+Esta es una situación clásica en sistemas que tienen "doble entrada" (Registro Web vs. Registro Presencial). Tienes toda la razón: el recepcionista NO debe inventar ni saber la contraseña del usuario, y pedirle al cliente que la escriba en el teclado de recepción es incómodo e inseguro.
+
+Aquí te presento la solución estándar de la industria para este caso: El Flujo de "Cuenta Pendiente de Activación".
+
+La Estrategia: "Registro Rápido + Activación en Casa"
+El flujo funciona así:
+
+En Recepción (El problema que tienes): El empleado registra SOLO los datos vitales (DNI, Nombre, Apellido, Plan).
+
+¿Y el Usuario? El sistema asigna automáticamente el DNI como NombreUsuario.
+
+¿Y la Contraseña? Se guarda como NULL en la base de datos.
+
+En Casa (La solución): El cliente intenta entrar a la Web.
+
+Opción A: Intenta registrarse de nuevo -> El sistema le dice: "Ya eres socio, activa tu cuenta aquí".
+
+Opción B: Va a un link de "Primer Ingreso / Activar Cuenta".
+
+Activación: El usuario valida su identidad (con su DNI y quizás Email) y es ahí donde ÉL MISMO crea su contraseña y personaliza su nombre de usuario si quiere.
+
+Implementación Técnica
+Para lograr esto, necesitamos ajustar ligeramente tu lógica en el UsuariosController y en el UsuarioService.
+
+1. Ajuste en el Modelo (ViewModel)
+Tu UsuarioViewModel actualmente obliga a poner contraseña siempre ([Required]). Debemos hacerlo condicional o crear un ViewModel separado para administración.
+
+Para no complicarnos, usaremos lógica en el Controlador: La contraseña es obligatoria SOLO si el UserId es 0 (Crear) Y el registro se hace desde la Web Pública. Si lo hace el Admin, es opcional.
+
+2. Lógica en UsuarioService (Manejo de Contraseña Nula)
+Modifica tu método CrearUsuarioAsync para soportar la creación sin contraseña (modo Recepción).
+
+C#
+
+public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string passwordRaw)
+{
+    // ... validaciones de DNI y Usuario ...
+
+    // CAMBIO CLAVE:
+    if (string.IsNullOrEmpty(passwordRaw)) 
+    {
+        // Si no hay contraseña (Registro por Recepción), dejamos el Hash en NULL
+        usuario.PasswordHash = null;
+        
+        // Regla de Negocio: Si no definieron usuario, usamos el DNI
+        if (string.IsNullOrEmpty(usuario.NombreUsuario))
+        {
+            usuario.NombreUsuario = usuario.Dni;
+        }
+    }
+    else 
+    {
+        // Si hay contraseña (Registro Web), hasheamos normal
+        usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordRaw);
+    }
+
+    // ... resto del código (QR, fechas, guardar) ...
+}
+3. El Controlador (UsuariosController - Método Save)
+Aquí es donde diferencias si quien está usando la pantalla es un Admin registrando a alguien, o el usuario registrándose solo.
+
+C#
+
+[HttpPost]
+public async Task<IActionResult> Save([FromBody] UsuarioViewModel model)
+{
+    // QUITAMOS LA VALIDACIÓN AUTOMÁTICA DE PASSWORD DEL MODELSTATE
+    if (model.UserId == 0 && string.IsNullOrEmpty(model.Password))
+    {
+        // Si es un Admin/Empleado el que está logueado y crea un usuario...
+        if (User.IsInRole("Admin") || User.IsInRole("Empleado")) 
+        {
+            // Permitimos pasar sin contraseña
+            ModelState.Remove("Password");
+            ModelState.Remove("ConfirmPassword");
+        }
+        else 
+        {
+             // Si es registro público, SÍ es obligatorio
+             return Json(new { success = false, message = "La contraseña es obligatoria." });
+        }
+    }
+
+    if (!ModelState.IsValid) 
+    {
+        // ... retornar errores ...
+    }
+
+    // ... mapeo del objeto ...
+    var nuevoUsuario = new Usuario 
+    { 
+       // ... datos ...
+       // Truco: Si no viene nombre de usuario, ponemos el DNI temporalmente
+       NombreUsuario = string.IsNullOrEmpty(model.NombreUsuario) ? model.Dni : model.NombreUsuario
+    };
+
+    // Al llamar al servicio, pasamos null si no hay password
+    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, model.Password);
+    
+    return Json(new { success = true, message = "Socio registrado. Indíquele que active su cuenta en la web con su DNI." });
+}
+4. Cómo el usuario "Activa" su cuenta (Nuevo Endpoint)
+Cuando el usuario registrado en recepción quiera entrar a la web, no podrá porque su password es NULL. Necesitas una vista simple de "Activar Cuenta".
+
+Flujo en AuthController:
+
+C#
+
+[HttpPost]
+public async Task<IActionResult> Login(string dni, string password)
+{
+    var usuario = await _usuarioService.BuscarPorDni(dni);
+    
+    // DETECCIÓN DE CUENTA SIN ACTIVAR
+    if (usuario != null && usuario.PasswordHash == null)
+    {
+        // Redirigir a vista para crear password
+        return RedirectToAction("CrearPassword", new { dni = dni });
+    }
+
+    // ... login normal ...
+}
+O mejor aún, una acción específica:
+
+C#
+
+// AuthController
+
+[HttpGet]
+public IActionResult ActivarCuenta()
+{
+    return View();
+}
+
+[HttpPost]
+public async Task<IActionResult> ActivarCuenta(string dni, string email, string newPassword)
+{
+    var usuario = await _usuarioRepository.ObtenerPorDNIAsync(dni);
+
+    if (usuario == null) 
+        return View("Error", "Usuario no encontrado");
+
+    // VALIDACIÓN DE SEGURIDAD: 
+    // Verificar que el email coincida con el que dio en recepción
+    // Opcional: Si no dio email en recepción, pedirle otros datos (Fecha Nacimiento, etc.)
+    if (usuario.Email != email) 
+        return View("Error", "El email no coincide con nuestros registros.");
+
+    if (usuario.PasswordHash != null)
+        return View("Error", "Esta cuenta ya está activa. Intente iniciar sesión.");
+
+    // TODO OK: Creamos la contraseña
+    usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+    await _usuarioRepository.UpdateAsync(usuario);
+    await _usuarioRepository.SaveAsync();
+
+    return RedirectToAction("Login", new { mensaje = "Cuenta activada. Ingresa ahora." });
+}
+Resumen de la Solución
+En Recepción: El formulario de "Nuevo Cliente" oculta los campos de contraseña. El sistema guarda PasswordHash = NULL y NombreUsuario = DNI.
+
+El Cliente: Se va con su membresía activa (QR funcionando) pero sin acceso web.
+
+En Web: Cuando quiera entrar, el sistema detecta que no tiene password y le pide crear una ("Activar Cuenta") validando su DNI y Email.
+
+¿Te parece bien este flujo? Es el que usan los bancos y gimnasios grandes (SmartFit, Bodytech) para evitar pedir contraseñas en el mostrador.
