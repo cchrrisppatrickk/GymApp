@@ -114,24 +114,39 @@
                     <div class="form-text">Presiona la lupa o Enter para buscar deudas pendientes.</div>
                 </div>
 
-                <div id="infoMembresia" class="card bg-light border-dashed border-secondary mb-3 d-none">
-                    <div class="card-body position-relative">
-                        <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-warning text-dark border border-light">
-                            Pendiente de Pago
-                        </span>
-
-                        <div class="text-center mb-3 mt-2">
-                            <h5 class="fw-bold mb-0" id="lblCliente">Juan Perez</h5>
-                            <small class="text-muted">Cliente</small>
+                <div id="infoMembresia" class="card bg-light border-0 shadow-sm mb-3 d-none">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark" id="lblCliente">Cliente</h5>
+                                <small class="text-muted" id="lblPlan">Plan</small>
+                            </div>
+                            <span class="badge" id="lblEstadoBadge">Estado</span>
                         </div>
 
-                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                            <span class="text-muted">Concepto:</span>
-                            <span class="fw-bold text-end" id="lblPlan">Plan Mensual</span>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between text-muted small mb-1">
+                                <span>Progreso de Pago</span>
+                                <span id="lblPorcentaje">0%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" id="progressBarPago" style="width: 0%"></div>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Estado Membresía:</span>
-                            <span class="fw-bold" id="lblEstado">Inactiva</span>
+
+                        <div class="row text-center mt-3 g-0 border rounded bg-white">
+                            <div class="col border-end p-2">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">TOTAL PLAN</small>
+                                <span class="fw-bold text-dark" id="lblPrecioTotal">$0.00</span>
+                            </div>
+                            <div class="col border-end p-2">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">PAGADO</small>
+                                <span class="fw-bold text-success" id="lblTotalPagado">$0.00</span>
+                            </div>
+                            <div class="col p-2 bg-danger bg-opacity-10">
+                                <small class="text-danger fw-bold d-block" style="font-size: 0.75rem;">DEUDA</small>
+                                <span class="fw-bold text-danger" id="lblDeudaPendiente">$0.00</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -141,8 +156,10 @@
                         <label class="form-label fw-bold">Monto a Cobrar</label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text bg-white text-success border-end-0">$</span>
-                            <input type="number" class="form-control border-start-0 ps-0 fw-bold text-success" id="txtMonto" step="0.01" placeholder="0.00">
+                            <input type="number" class="form-control border-start-0 ps-0 fw-bold text-success"
+                                   id="txtMonto" step="0.01" placeholder="0.00">
                         </div>
+                        <div class="form-text text-danger d-none" id="errorMontoExcedido">El monto no puede superar la deuda pendiente.</div>
                     </div>
 
                     <div class="mb-3">
@@ -184,26 +201,39 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        let deudaActual = 0; // Variable global para validación
+
         document.addEventListener("DOMContentLoaded", () => {
-            // Setear fecha de hoy en el filtro
             document.getElementById('filtroFecha').valueAsDate = new Date();
             cargarHistorial();
         });
 
-        // Enter en el campo DNI activa la búsqueda
+        // Eventos
         document.getElementById("txtDniBuscar").addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-                buscarDeuda();
+            if (event.key === "Enter") buscarDeuda();
+        });
+
+        // Validación visual de monto excedido
+        document.getElementById("txtMonto").addEventListener("input", function() {
+            const valor = parseFloat(this.value);
+            const errorMsg = document.getElementById("errorMontoExcedido");
+            const btn = document.getElementById("btnCobrar");
+
+            if(valor > deudaActual) {
+                errorMsg.classList.remove("d-none");
+                this.classList.add("is-invalid");
+                btn.disabled = true;
+            } else {
+                errorMsg.classList.add("d-none");
+                this.classList.remove("is-invalid");
+                btn.disabled = false;
             }
         });
 
         function cargarHistorial() {
-            // Mostrar Loading
+            // (Esta función se mantiene igual que tu código original, no requiere cambios de lógica)
             const tbody = document.querySelector("#tablaPagos tbody");
             tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><div class="spinner-border text-success" role="status"></div></td></tr>';
-
-            // Simulación de filtro por fecha (en el backend deberías recibir el parámetro)
-            // const fecha = document.getElementById('filtroFecha').value;
 
             fetch('/Pagos/Listar')
                 .then(res => res.json())
@@ -214,6 +244,8 @@
                     if(json.data.length === 0){
                         tbody.innerHTML = '';
                         document.getElementById("emptyState").classList.remove("d-none");
+                        document.getElementById('kpiIngresos').innerText = "$ 0.00";
+                        document.getElementById('kpiTransacciones').innerText = "0";
                         return;
                     }
 
@@ -221,8 +253,6 @@
 
                     json.data.forEach(p => {
                         totalIngresos += p.monto;
-
-                        // Estilos de badge según método
                         let metodoBadge = '<span class="badge bg-secondary">Otro</span>';
                         if(p.metodoPago === 'Efectivo') metodoBadge = '<span class="badge bg-success bg-opacity-75"><i class="bi bi-cash me-1"></i>Efectivo</span>';
                         if(p.metodoPago === 'Tarjeta') metodoBadge = '<span class="badge bg-primary bg-opacity-75"><i class="bi bi-credit-card me-1"></i>Tarjeta</span>';
@@ -234,44 +264,32 @@
                                     <div class="fw-bold text-dark">${p.fechaPago.split(' ')[0]}</div>
                                     <small class="text-muted">${p.fechaPago.split(' ')[1] || ''}</small>
                                 </td>
-                                <td>
-                                    <span class="fw-bold">${p.nombreCliente}</span>
-                                </td>
+                                <td><span class="fw-bold">${p.nombreCliente}</span></td>
                                 <td><span class="text-muted">${p.nombrePlan}</span></td>
                                 <td>${metodoBadge}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded-circle border p-1 me-2"><i class="bi bi-person text-secondary"></i></div>
-                                        <small>${p.nombreEmpleado}</small>
-                                    </div>
-                                </td>
-                                <td class="text-end">
-                                    <span class="fw-bold text-dark h6">$ ${p.monto.toFixed(2)}</span>
-                                </td>
+                                <td><small>${p.nombreEmpleado}</small></td>
+                                <td class="text-end"><span class="fw-bold text-dark h6">$ ${p.monto.toFixed(2)}</span></td>
                                 <td class="text-center">
-                                    <a href="/Pagos/Comprobante/${p.pagoId}" target="_blank" class="btn btn-sm btn-light border" title="Imprimir">
-                                        <i class="bi bi-printer"></i>
-                                    </a>
+                                    <a href="/Pagos/Comprobante/${p.pagoId}" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-printer"></i></a>
                                 </td>
-                            </tr>
-                        `;
+                            </tr>`;
                     });
 
                     tbody.innerHTML = html;
-
-                    // ACTUALIZAR KPIs
                     document.getElementById('kpiIngresos').innerText = "$ " + totalIngresos.toFixed(2);
                     document.getElementById('kpiTransacciones').innerText = json.data.length;
 
-                    // Ultimo cliente
                     if(json.data.length > 0){
-                        const ultimo = json.data[json.data.length - 1]; // O el primero, según como ordene tu SP
+                        const ultimo = json.data[json.data.length - 1];
                         document.getElementById('kpiUltimoCliente').innerText = ultimo.nombreCliente.split(' ')[0];
                         document.getElementById('kpiUltimoMonto').innerText = "+ $ " + ultimo.monto.toFixed(2);
                     }
                 });
         }
 
+        // ============================================
+        // LÓGICA DE BÚSQUEDA DE DEUDA (ACTUALIZADA)
+        // ============================================
         function buscarDeuda() {
             const dni = document.getElementById("txtDniBuscar").value;
             if(!dni) {
@@ -279,7 +297,6 @@
                 return;
             }
 
-            // Efecto de carga en botón
             const btn = document.querySelector(".input-group button");
             const iconOriginal = btn.innerHTML;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
@@ -293,54 +310,95 @@
 
                     if (json.success) {
                         const data = json.data;
-                        // Llenar tarjeta de deuda
+
+                        // Guardar deuda global para validaciones
+                        deudaActual = data.deudaPendiente;
+
+                        // 1. Llenar Datos Básicos
                         document.getElementById("lblCliente").innerText = data.cliente;
                         document.getElementById("lblPlan").innerText = data.plan;
 
-                        const lblEstado = document.getElementById("lblEstado");
-                        lblEstado.innerText = data.estado;
-                        lblEstado.className = data.estado === 'Activa' ? "fw-bold text-success" : "fw-bold text-danger";
+                        // 2. Configurar Badge de Estado
+                        const lblBadge = document.getElementById("lblEstadoBadge");
+                        lblBadge.innerText = data.estado;
+                        if(data.estado === 'Activa') {
+                            lblBadge.className = 'badge bg-success';
+                        } else if(data.estado === 'Pendiente Pago') {
+                            lblBadge.className = 'badge bg-warning text-dark';
+                        } else {
+                            lblBadge.className = 'badge bg-danger';
+                        }
 
-                        // Mostrar secciones
-                        document.getElementById("infoMembresia").classList.remove("d-none");
-                        document.getElementById("formPagoDetalle").classList.remove("d-none");
-                        document.getElementById("btnCobrar").disabled = false;
+                        // 3. Llenar Datos Financieros (NUEVO)
+                        // Aseguramos que vengan números, si no, fallback a 0
+                        const total = data.precioTotal || 0;
+                        const pagado = data.totalPagado || 0;
+                        const deuda = data.deudaPendiente || 0;
 
-                        // Foco en monto para escribir rápido
-                        document.getElementById("txtMonto").focus();
+                        document.getElementById("lblPrecioTotal").innerText = "$ " + total.toFixed(2);
+                        document.getElementById("lblTotalPagado").innerText = "$ " + pagado.toFixed(2);
+                        document.getElementById("lblDeudaPendiente").innerText = "$ " + deuda.toFixed(2);
+
+                        // 4. Barra de Progreso
+                        let porcentaje = 0;
+                        if(total > 0) porcentaje = (pagado / total) * 100;
+                        document.getElementById("progressBarPago").style.width = porcentaje + "%";
+                        document.getElementById("lblPorcentaje").innerText = Math.round(porcentaje) + "% pagado";
+
+                        // 5. Configurar Input de Monto (Autofill)
+                        const inputMonto = document.getElementById("txtMonto");
+                        if(deuda > 0) {
+                            inputMonto.value = deuda.toFixed(2); // Autocompletar con la deuda exacta
+                            inputMonto.max = deuda.toFixed(2); // Bloqueo HTML (soft)
+                            inputMonto.disabled = false;
+                            document.getElementById("btnCobrar").disabled = false;
+
+                            // Mostrar secciones
+                            document.getElementById("infoMembresia").classList.remove("d-none");
+                            document.getElementById("formPagoDetalle").classList.remove("d-none");
+                            inputMonto.focus();
+                        } else {
+                            // Si deuda es 0 o negativa (saldo a favor)
+                            Swal.fire('¡Al día!', `El cliente ${data.cliente} no tiene deuda pendiente.`, 'success');
+                            limpiarModal(false);
+                        }
+
                     } else {
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Sin deudas',
-                            text: json.message,
-                            confirmButtonText: 'Entendido'
-                        });
+                        Swal.fire({ icon: 'info', title: 'Sin resultados', text: json.message });
                         limpiarModal(false);
                     }
                 })
-                .catch(() => {
+                .catch(err => {
+                    console.error(err);
                     btn.innerHTML = iconOriginal;
                     btn.disabled = false;
+                    Swal.fire('Error', 'No se pudo consultar la deuda', 'error');
                 });
         }
 
         function procesarPago() {
             const metodoSeleccionado = document.querySelector('input[name="metodoPago"]:checked').value;
+            const monto = parseFloat(document.getElementById("txtMonto").value);
 
-            const data = {
-                DniCliente: document.getElementById("txtDniBuscar").value,
-                Monto: parseFloat(document.getElementById("txtMonto").value),
-                MetodoPago: metodoSeleccionado
-            };
-
-            if(isNaN(data.Monto) || data.Monto <= 0) {
+            // Validaciones Cliente-Side
+            if(isNaN(monto) || monto <= 0) {
                 Swal.fire('Error', 'El monto debe ser válido y mayor a 0', 'error');
                 return;
             }
+            if(monto > deudaActual) {
+                 Swal.fire('Error', `El monto ($${monto}) supera la deuda pendiente ($${deudaActual})`, 'error');
+                 return;
+            }
+
+            const data = {
+                DniCliente: document.getElementById("txtDniBuscar").value,
+                Monto: monto,
+                MetodoPago: metodoSeleccionado
+            };
 
             Swal.fire({
                 title: '¿Confirmar cobro?',
-                html: `Monto: <b>$${data.Monto.toFixed(2)}</b><br>Método: ${data.MetodoPago}`,
+                html: `Monto: <b class="text-success fs-4">$${monto.toFixed(2)}</b><br>Método: ${metodoSeleccionado}`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#198754',
@@ -348,6 +406,9 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Bloquear botón para evitar doble click
+                    document.getElementById("btnCobrar").disabled = true;
+
                     fetch('/Pagos/Registrar', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -362,7 +423,7 @@
 
                             Swal.fire({
                                 title: '¡Cobro Exitoso!',
-                                text: '¿Deseas imprimir el comprobante ahora?',
+                                text: 'El pago se registró y el estado de la membresía se actualizó si corresponde.',
                                 icon: 'success',
                                 showCancelButton: true,
                                 confirmButtonText: 'Imprimir Ticket',
@@ -373,8 +434,12 @@
                                 }
                             });
                         } else {
+                            document.getElementById("btnCobrar").disabled = false;
                             Swal.fire('Error', json.message, 'error');
                         }
+                    })
+                    .catch(() => {
+                        document.getElementById("btnCobrar").disabled = false;
                     });
                 }
             });
@@ -383,16 +448,19 @@
         function abrirModalPago() {
             limpiarModal(true);
             new bootstrap.Modal(document.getElementById('modalPago')).show();
-            // Foco en input DNI tras abrir modal
             setTimeout(() => document.getElementById("txtDniBuscar").focus(), 500);
         }
 
         function limpiarModal(fullClear) {
             if(fullClear) document.getElementById("txtDniBuscar").value = "";
             document.getElementById("txtMonto").value = "";
+            document.getElementById("txtMonto").classList.remove("is-invalid");
+            document.getElementById("errorMontoExcedido").classList.add("d-none");
+
             document.getElementById("infoMembresia").classList.add("d-none");
             document.getElementById("formPagoDetalle").classList.add("d-none");
             document.getElementById("btnCobrar").disabled = true;
+            deudaActual = 0;
         }
     </script>
 }

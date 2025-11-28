@@ -72,7 +72,6 @@ namespace GymApp.Services
             await _membresiaRepo.SaveAsync();
         }
 
-
         public async Task<IEnumerable<MembresiaListDTO>> ListarMembresiasAsync(string filtro)
         {
             var rawData = await _membresiaRepo.ObtenerTodasConDetallesAsync();
@@ -83,6 +82,7 @@ namespace GymApp.Services
             var lista = rawData.Select(m => new MembresiaListDTO
             {
                 MembresiaId = m.MembresiaId,
+                UserId = m.UserId,
                 NombreUsuario = m.User.NombreCompleto,
                 Dni = m.User.Dni,
                 NombrePlan = m.Plan.Nombre,
@@ -90,7 +90,7 @@ namespace GymApp.Services
                 FechaInicio = m.FechaInicio.ToString("dd/MM/yyyy"),
                 FechaVencimiento = m.FechaVencimiento.ToString("dd/MM/yyyy"),
                 // Lógica visual de estado
-                Estado = m.FechaVencimiento < hoy ? "Vencida" : "Activa",
+                Estado = m.FechaVencimiento < hoy ? "Vencida" : m.Estado,
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber
             });
 

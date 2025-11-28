@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
         <div>
             <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-card-checklist text-danger me-2"></i>Suscripciones</h2>
-            <p class="text-muted small mb-0">Administra los accesos y vencimientos de los socios.</p>
+            <p class="text-muted small mb-0">Administra los accesos, renovaciones y deudas.</p>
         </div>
         <button class="btn btn-primary shadow-sm" onclick="abrirModal()">
             <i class="bi bi-plus-lg me-1"></i> Nueva Suscripción
@@ -14,12 +14,12 @@
     </div>
 
     <div class="row mb-4 g-3">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card border-0 shadow-sm border-start border-4 border-success h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Membresías Activas</h6>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Activas</h6>
                             <h3 class="mb-0 fw-bold text-success" id="kpiActivas">--</h3>
                         </div>
                         <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
@@ -29,12 +29,27 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-4 border-info h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Pendiente Pago</h6>
+                            <h3 class="mb-0 fw-bold text-info" id="kpiPendientes">--</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info">
+                            <i class="bi bi-wallet2 fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Por Vencer (5 días)</h6>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Por Vencer</h6>
                             <h3 class="mb-0 fw-bold text-warning" id="kpiPorVencer">--</h3>
                         </div>
                         <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
@@ -44,7 +59,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card border-0 shadow-sm border-start border-4 border-danger h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -68,6 +83,7 @@
             <div class="btn-group btn-group-sm mt-2 mt-md-0" role="group">
                 <button type="button" class="btn btn-outline-secondary active" onclick="cargarMembresias('todas', this)">Todas</button>
                 <button type="button" class="btn btn-outline-success" onclick="cargarMembresias('activas', this)">Activas</button>
+                <button type="button" class="btn btn-outline-info" onclick="cargarMembresias('pendientes', this)">Pendientes</button>
                 <button type="button" class="btn btn-outline-warning" onclick="cargarMembresias('por_vencer', this)">Por Vencer</button>
                 <button type="button" class="btn btn-outline-danger" onclick="cargarMembresias('vencidas', this)">Vencidas</button>
             </div>
@@ -101,12 +117,11 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Nueva Suscripción</h5>
+                <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Gestión de Suscripción</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
                 <form id="formMembresia">
-
                     <div class="mb-4 position-relative">
                         <label class="form-label fw-bold text-secondary text-uppercase small">1. Seleccionar Cliente</label>
                         <div class="input-group">
@@ -115,8 +130,8 @@
                             <datalist id="listaUsuarios"></datalist>
                             <input type="hidden" id="userIdSeleccionado">
                         </div>
-                        <div id="usuarioFeedback" class="form-text text-success d-none">
-                            <i class="bi bi-check-circle-fill"></i> Usuario seleccionado correctamente.
+                        <div id="usuarioFeedback" class="form-text text-success d-none animate-fade-in">
+                            <i class="bi bi-check-circle-fill"></i> <span id="lblUsuarioSeleccionado">Usuario seleccionado.</span>
                         </div>
                     </div>
 
@@ -140,6 +155,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Fecha de Inicio</label>
                             <input type="date" class="form-control" id="txtFechaInicio">
+                            <div class="form-text small text-muted">Para renovaciones, el sistema ajustará automáticamente si hay días vigentes.</div>
                         </div>
 
                         <div class="col-md-6">
@@ -157,7 +173,7 @@
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary px-4" onclick="guardarMembresia()">
-                    <i class="bi bi-check-lg me-1"></i> Confirmar y Vender
+                    <i class="bi bi-check-lg me-1"></i> Confirmar y Generar
                 </button>
             </div>
         </div>
@@ -167,7 +183,6 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Almacén temporal para precios de planes
         let catalogoPlanes = [];
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -176,16 +191,25 @@
             document.getElementById('txtFechaInicio').valueAsDate = new Date();
         });
 
-        // 1. CARGAR LISTADO
+        // ==========================================
+        // 1. CARGA DE MEMBRESÍAS CON FILTRO PENDIENTE
+        // ==========================================
         function cargarMembresias(filtro, btn) {
-            // UI Botones
             if(btn) {
-                document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active', 'btn-secondary'));
-                document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.add('btn-outline-secondary')); // Reset genérico
+                document.querySelectorAll('.btn-group .btn').forEach(b => {
+                    b.classList.remove('active');
+                    // Restaurar clases outline
+                    if(b.classList.contains('btn-secondary')) b.classList.replace('btn-secondary', 'btn-outline-secondary');
+                    if(b.classList.contains('btn-success')) b.classList.replace('btn-success', 'btn-outline-success');
+                    if(b.classList.contains('btn-info')) b.classList.replace('btn-info', 'btn-outline-info');
+                    if(b.classList.contains('btn-warning')) b.classList.replace('btn-warning', 'btn-outline-warning');
+                    if(b.classList.contains('btn-danger')) b.classList.replace('btn-danger', 'btn-outline-danger');
+                });
+
+                // Activar botón actual
                 btn.classList.add('active');
             }
 
-            // Mostrar Loading (opcional) o limpiar tabla
             const tbody = document.querySelector("#tablaMembresias tbody");
             tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></td></tr>';
             document.getElementById("emptyState").classList.add("d-none");
@@ -194,30 +218,38 @@
                 .then(res => res.json())
                 .then(json => {
                     let html = '';
-                    let contActivas = 0, contVencidas = 0, contPorVencer = 0;
+                    let contActivas = 0, contVencidas = 0, contPorVencer = 0, contPendientes = 0;
 
                     if(json.data.length === 0){
                         tbody.innerHTML = '';
                         document.getElementById("emptyState").classList.remove("d-none");
+                        // Reset contadores a 0 visualmente si quieres
                         return;
                     }
 
                     json.data.forEach(m => {
-                        // Contadores para KPIs simples (esto idealmente viene del backend, pero lo simulamos aquí)
+                        // Lógica de Contadores (KPIs simulados)
                         if (m.estado === 'Activa') contActivas++;
-                        if (m.estado === 'Vencida') contVencidas++;
-                        if (m.diasRestantes >= 0 && m.diasRestantes <= 5) contPorVencer++;
+                        else if (m.estado === 'Vencida') contVencidas++;
+                        else if (m.estado === 'Pendiente Pago') contPendientes++;
 
-                        // Badges
+                        // "Por Vencer" es un estado calculado, puede solaparse con Activa
+                        if (m.diasRestantes >= 0 && m.diasRestantes <= 5 && m.estado === 'Activa') contPorVencer++;
+
+                        // Lógica de Badges
                         let badgeHtml = `<span class="badge bg-secondary">Inactiva</span>`;
-                        if (m.estado === 'Activa') badgeHtml = `<span class="badge bg-success bg-opacity-75"><i class="bi bi-check-circle me-1"></i>Activa</span>`;
-                        if (m.estado === 'Vencida') badgeHtml = `<span class="badge bg-danger bg-opacity-75"><i class="bi bi-x-circle me-1"></i>Vencida</span>`;
+                        if (m.estado === 'Activa') badgeHtml = `<span class="badge bg-success bg-opacity-75 text-white"><i class="bi bi-check-circle me-1"></i>Activa</span>`;
+                        if (m.estado === 'Vencida') badgeHtml = `<span class="badge bg-danger bg-opacity-75 text-white"><i class="bi bi-x-circle me-1"></i>Vencida</span>`;
+                        if (m.estado === 'Pendiente Pago') badgeHtml = `<span class="badge bg-info text-dark border border-info"><i class="bi bi-hourglass-split me-1"></i>Pendiente Pago</span>`;
 
-                        // Alerta visual de días
+                        // Días Restantes
                         let diasHtml = `<span class="fw-bold text-success">${m.diasRestantes} días</span>`;
-                        if (m.diasRestantes <= 5) diasHtml = `<span class="fw-bold text-warning">${m.diasRestantes} días</span>`;
+                        if (m.diasRestantes <= 5 && m.diasRestantes >= 0) diasHtml = `<span class="fw-bold text-warning">${m.diasRestantes} días</span>`;
                         if (m.diasRestantes < 0) diasHtml = `<span class="fw-bold text-danger">Vencida</span>`;
+                        if (m.estado === 'Pendiente Pago') diasHtml = `<span class="fw-bold text-muted">-</span>`;
 
+                        // NOTA: Asegúrate de que tu DTO en backend incluya UserId para que 'renovar' funcione mejor.
+                        // Si no lo tienes, usaremos DNI para buscar.
                         html += `
                             <tr class="align-middle">
                                 <td class="ps-4">
@@ -234,13 +266,14 @@
                                 <td><span class="fw-bold text-dark">${m.nombrePlan}</span></td>
                                 <td>${m.nombreTurno}</td>
                                 <td>
-                                    <div class="small text-muted">Vence el:</div>
-                                    <div class="fw-bold">${m.fechaVencimiento}</div>
+                                    <div class="small text-muted">Vence: ${m.fechaVencimiento}</div>
+                                    ${diasHtml}
                                 </td>
                                 <td>${badgeHtml}</td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary" title="Renovar" onclick="renovar(${m.membresiaId}, '${m.nombreUsuario}')">
-                                        <i class="bi bi-arrow-repeat"></i>
+                                    <button class="btn btn-sm btn-outline-primary shadow-sm" title="Renovar Membresía"
+                                            onclick="renovar('${m.dni}', '${m.nombreUsuario}', ${m.userId || 0})">
+                                        <i class="bi bi-arrow-repeat me-1"></i>Renovar
                                     </button>
                                 </td>
                             </tr>
@@ -249,46 +282,63 @@
 
                     tbody.innerHTML = html;
 
-                    // Actualizar KPIs visuales (simulado)
+                    // Actualizar KPIs (Solo si estamos viendo 'todas' para tener el panorama completo)
                     if(filtro === 'todas'){
                         document.getElementById('kpiActivas').innerText = contActivas;
                         document.getElementById('kpiVencidas').innerText = contVencidas;
                         document.getElementById('kpiPorVencer').innerText = contPorVencer;
+                        document.getElementById('kpiPendientes').innerText = contPendientes;
                     }
                 });
         }
 
-        // 2. CARGAR RECURSOS Y PRECIOS
+        // ==========================================
+        // 2. LÓGICA DE RENOVACIÓN (AUTOCOMPLETADO)
+        // ==========================================
+        function renovar(dni, nombre, userId) {
+            // 1. Abrir Modal
+            abrirModal();
+
+            // 2. Pre-llenar datos visuales
+            const inputBuscar = document.getElementById('txtBuscarUsuario');
+            inputBuscar.value = `${nombre} - ${dni}`; // Visual para el admin
+
+            // 3. Setear ID (Si tu DTO backend no enviaba userId, usaremos la búsqueda por DNI abajo como fallback)
+            if(userId > 0) {
+                 document.getElementById('userIdSeleccionado').value = userId;
+                 mostrarFeedbackUsuario(nombre);
+            } else {
+                // Fallback: Si no tenemos el ID directo, disparamos la búsqueda por DNI
+                inputBuscar.value = dni;
+                inputBuscar.dispatchEvent(new Event('input')); // Dispara la búsqueda
+            }
+
+            // 4. Enfocar en el Plan para agilizar
+            setTimeout(() => document.getElementById('cboPlan').focus(), 500);
+        }
+
+        // ==========================================
+        // 3. FUNCIONES AUXILIARES (MODAL, RECURSOS)
+        // ==========================================
         function cargarRecursos() {
             fetch('/Membresias/ObtenerRecursosCreacion')
                 .then(res => res.json())
                 .then(json => {
-                    // Guardar planes en memoria para precios
                     catalogoPlanes = json.planes;
-
-                    // Llenar Select Planes
                     let planesHtml = '<option value="" selected disabled>-- Seleccione --</option>';
-                    json.planes.forEach(p => {
-                        planesHtml += `<option value="${p.planId}">${p.nombre}</option>`;
-                    });
+                    json.planes.forEach(p => planesHtml += `<option value="${p.planId}">${p.nombre}</option>`);
                     document.getElementById('cboPlan').innerHTML = planesHtml;
 
-                    // Llenar Select Turnos
                     let turnosHtml = '';
-                    json.turnos.forEach(t => {
-                        turnosHtml += `<option value="${t.turnoId}">${t.nombre} (${t.horaInicio} - ${t.horaFin})</option>`;
-                    });
+                    json.turnos.forEach(t => turnosHtml += `<option value="${t.turnoId}">${t.nombre} (${t.horaInicio} - ${t.horaFin})</option>`);
                     document.getElementById('cboTurno').innerHTML = turnosHtml;
                 });
         }
 
-        // 3. UI: ACTUALIZAR PRECIO AL CAMBIAR PLAN
         function actualizarInfoPrecio() {
             const planId = parseInt(document.getElementById('cboPlan').value);
             const plan = catalogoPlanes.find(p => p.planId === planId);
-
             if (plan) {
-                // Formatear precio
                 const precio = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(plan.precioBase);
                 document.getElementById('lblPrecioPreview').innerText = precio;
                 document.getElementById('lblDuracionPreview').innerText = plan.duracionDias + " días de duración";
@@ -298,17 +348,18 @@
             }
         }
 
-        // 4. BUSQUEDA USUARIO
+        // Lógica de Búsqueda (Autocomplete)
         const inputBuscar = document.getElementById('txtBuscarUsuario');
         const dataList = document.getElementById('listaUsuarios');
 
         inputBuscar.addEventListener('input', function() {
             const val = this.value;
-            // Reset selección si escribe de nuevo
-            document.getElementById('userIdSeleccionado').value = "";
-            document.getElementById('usuarioFeedback').classList.add('d-none');
-
-            if (val.length < 3) return;
+            // Si estamos escribiendo, limpiamos la selección previa
+            if(val.length < 3) {
+                 document.getElementById('userIdSeleccionado').value = "";
+                 document.getElementById('usuarioFeedback').classList.add('d-none');
+                 return;
+            }
 
             fetch(`/Membresias/BuscarUsuario?q=${val}`)
                 .then(res => res.json())
@@ -316,14 +367,21 @@
                     dataList.innerHTML = '';
                     data.forEach(item => {
                         const option = document.createElement('option');
-                        option.value = item.text;
+                        option.value = item.text; // Lo que se ve en el input
                         option.setAttribute('data-id', item.id);
                         dataList.appendChild(option);
                     });
+
+                    // Auto-selección si hay coincidencia exacta (útil para la renovación automática)
+                    const coincidencia = data.find(x => x.text.includes(val));
+                    if(coincidencia && data.length === 1) {
+                         document.getElementById('userIdSeleccionado').value = coincidencia.id;
+                         mostrarFeedbackUsuario(coincidencia.text);
+                    }
                 });
         });
 
-        // Detectar selección
+        // Evento Change para detectar click en datalist
         inputBuscar.addEventListener('change', function() {
             const val = this.value;
             const options = dataList.childNodes;
@@ -331,19 +389,23 @@
                 if (options[i].value === val) {
                     const id = options[i].getAttribute('data-id');
                     document.getElementById('userIdSeleccionado').value = id;
-                    document.getElementById('usuarioFeedback').classList.remove('d-none');
+                    mostrarFeedbackUsuario(val);
                     break;
                 }
             }
         });
 
-        // 5. GUARDAR (CON SWEETALERT)
+        function mostrarFeedbackUsuario(texto) {
+            document.getElementById('usuarioFeedback').classList.remove('d-none');
+            document.getElementById('lblUsuarioSeleccionado').innerText = texto.split('(')[0] + " seleccionado.";
+        }
+
         function guardarMembresia() {
             const userId = document.getElementById('userIdSeleccionado').value;
             const planId = document.getElementById('cboPlan').value;
             const turnoId = document.getElementById('cboTurno').value;
 
-            if (!userId) return Swal.fire('Error', 'Debes seleccionar un cliente válido.', 'error');
+            if (!userId) return Swal.fire('Error', 'Debes buscar y seleccionar un cliente válido.', 'warning');
             if (!planId) return Swal.fire('Error', 'Selecciona un plan.', 'warning');
 
             const data = {
@@ -354,11 +416,11 @@
             };
 
             Swal.fire({
-                title: '¿Confirmar Venta?',
-                text: "Se generará la membresía y el registro en caja.",
+                title: '¿Generar Membresía?',
+                html: "Se creará con estado <b>Pendiente de Pago</b>.<br>El cliente deberá pasar por caja para activar el acceso.",
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Sí, registrar',
+                confirmButtonText: 'Sí, generar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -372,10 +434,12 @@
                         if (json.success) {
                             bootstrap.Modal.getInstance(document.getElementById('modalMembresia')).hide();
                             cargarMembresias('todas');
-                            Swal.fire('¡Registrado!', 'La membresía ha sido creada exitosamente.', 'success');
-                            // Limpiar form
+                            Swal.fire('¡Creada!', 'La membresía está pendiente de pago.', 'success');
                             document.getElementById('formMembresia').reset();
                             actualizarInfoPrecio();
+                            // Limpiar estados visuales
+                            document.getElementById('usuarioFeedback').classList.add('d-none');
+                            document.getElementById('userIdSeleccionado').value = "";
                         } else {
                             Swal.fire('Error', json.message, 'error');
                         }
@@ -385,12 +449,14 @@
         }
 
         function abrirModal() {
-            new bootstrap.Modal(document.getElementById('modalMembresia')).show();
-        }
+            // Limpiar modal para nueva venta limpia
+            document.getElementById('formMembresia').reset();
+            document.getElementById('usuarioFeedback').classList.add('d-none');
+            document.getElementById('userIdSeleccionado').value = "";
+            document.getElementById('txtFechaInicio').valueAsDate = new Date();
+            actualizarInfoPrecio();
 
-        function renovar(id, nombre) {
-            // Lógica futura para renovación rápida
-            Swal.fire('Próximamente', `Función de renovación rápida para ${nombre}`, 'info');
+            new bootstrap.Modal(document.getElementById('modalMembresia')).show();
         }
     </script>
 }

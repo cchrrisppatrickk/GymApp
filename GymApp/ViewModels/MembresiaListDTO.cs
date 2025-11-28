@@ -4,6 +4,7 @@
     public class MembresiaListDTO
     {
         public int MembresiaId { get; set; }
+        public int UserId { get; set; }
         public string NombreUsuario { get; set; }
         public string Dni { get; set; }
         public string NombrePlan { get; set; }

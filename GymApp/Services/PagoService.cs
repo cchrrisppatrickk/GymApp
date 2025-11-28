@@ -26,35 +26,40 @@ namespace GymApp.Services
             var usuario = await _usuarioRepo.ObtenerPorDNIAsync(dni);
             if (usuario == null) throw new Exception("Usuario no encontrado");
 
-            // 1. Buscamos la última membresía (puede ser la que acaban de crear "Pendiente" o una "Vencida" con deuda)
+            // 1. Intentamos buscar la última activa/pendiente con datos cargados
             var membresia = await _membresiaRepo.GetLastActiveMembresiaByUserIdAsync(usuario.UserId);
 
-            // Si no tiene activa, buscamos la última creada en general (para pagar una recién creada)
+            // 2. Fallback: Si no tiene activa (ej. está vencida y viene a pagar deuda vieja), buscamos la última histórica
             if (membresia == null)
             {
                 var todas = await _membresiaRepo.ObtenerTodasConDetallesAsync();
                 membresia = todas.Where(m => m.UserId == usuario.UserId)
-                                 .OrderByDescending(m => m.MembresiaId)
-                                 .FirstOrDefault();
+                                    .OrderByDescending(m => m.MembresiaId)
+                                    .FirstOrDefault();
             }
 
             if (membresia == null) throw new Exception("El usuario no tiene ninguna membresía generada para cobrar.");
 
-            // 2. CALCULAR MATEMÁTICAS FINANCIERAS
-            decimal precioPlan = membresia.Plan.PrecioBase; // Asumiendo que Plan tiene PrecioBase
+            // VALIDACIÓN DE SEGURIDAD (Evita el crash si el Plan sigue siendo nulo por alguna razón rara)
+            if (membresia.Plan == null)
+            {
+                // Esto fuerza la carga si falló el Include (parche de emergencia)
+                // Pero con el PASO A esto no debería ocurrir.
+                throw new Exception("Error de datos: La membresía existe pero no tiene un Plan asignado.");
+            }
+
+            // 3. CALCULAR MATEMÁTICAS FINANCIERAS
+            decimal precioPlan = membresia.Plan.PrecioBase;
             decimal yaPagado = await _pagoRepo.GetTotalPagadoAsync(membresia.MembresiaId);
             decimal deuda = precioPlan - yaPagado;
-
-            // Si la deuda es 0 o menor, significa que está al día. 
-            // Podrías lanzar error o mostrar que "No debe nada".
 
             return new DeudaInfoDTO
             {
                 MembresiaId = membresia.MembresiaId,
                 Cliente = usuario.NombreCompleto,
                 Plan = membresia.Plan.Nombre,
-                Estado = membresia.Estado,
-                // Info Financiera
+                // Aquí mostramos el estado real de la BD
+                Estado = membresia.FechaVencimiento < DateOnly.FromDateTime(DateTime.Now) ? "Vencida" : membresia.Estado,
                 PrecioTotal = precioPlan,
                 TotalPagado = yaPagado,
                 DeudaPendiente = deuda > 0 ? deuda : 0
