@@ -53,6 +53,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 var app = builder.Build();
 
+// ============================================================
+// INICIO DEL DATA SEEDING (SEMBRADO DE DATOS)
+// ============================================================
+// Esto se ejecuta una sola vez al levantar la app. 
+// Verifica si la BD está vacía y la llena.
+await DbSeeder.Seed(app);
+// ============================================================
+
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

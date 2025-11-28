@@ -1,71 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\services\\pagoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\services\\pagoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\services\\membresiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\services\\membresiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\repositories\\membresiarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\repositories\\membresiarepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": [
-        {
-          "DockedHeight": 200,
-          "SelectedChildIndex": 0,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PagoService.cs",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\PagoService.cs",
-              "RelativeDocumentMoniker": "GymApp\\Services\\PagoService.cs",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\PagoService.cs",
-              "RelativeToolTip": "GymApp\\Services\\PagoService.cs",
-              "ViewState": "AgIAACUAAAAAAAAAAAAqwDQAAABaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-28T20:03:10.725Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MembresiaService.cs",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\MembresiaService.cs",
-              "RelativeDocumentMoniker": "GymApp\\Services\\MembresiaService.cs",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\MembresiaService.cs",
-              "RelativeToolTip": "GymApp\\Services\\MembresiaService.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAA5wFwAAABJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-28T20:02:08.523Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MembresiaRepository.cs",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Repositories\\MembresiaRepository.cs",
-              "RelativeDocumentMoniker": "GymApp\\Repositories\\MembresiaRepository.cs",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Repositories\\MembresiaRepository.cs",
-              "RelativeToolTip": "GymApp\\Repositories\\MembresiaRepository.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAQwB0AAABVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-28T20:01:33.602Z",
-              "EditorCaption": ""
-            }
-          ]
-        }
-      ]
+      "DocumentGroups": []
     }
   ]
 }
