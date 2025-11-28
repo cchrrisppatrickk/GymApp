@@ -65,7 +65,7 @@ namespace GymApp.Services
                 TurnoId = dto.TurnoId,
                 FechaInicio = nuevaFechaInicio,
                 FechaVencimiento = nuevaFechaFin,
-                Estado = "Activa"
+                Estado = "Pendiente Pago"
             };
 
             await _membresiaRepo.InsertAsync(nuevaMembresia);

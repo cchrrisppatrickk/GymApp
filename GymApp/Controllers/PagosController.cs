@@ -74,5 +74,7 @@ namespace GymApp.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+
+
     }
 }

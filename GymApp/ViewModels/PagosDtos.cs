@@ -25,5 +25,10 @@
         public string Cliente { get; set; }
         public string Plan { get; set; }
         public string Estado { get; set; }
+
+        // NUEVOS CAMPOS FINANCIEROS
+        public decimal PrecioTotal { get; set; }
+        public decimal TotalPagado { get; set; }
+        public decimal DeudaPendiente { get; set; } // PrecioTotal - TotalPagado
     }
 }

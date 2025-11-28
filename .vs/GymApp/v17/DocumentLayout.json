@@ -3,24 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\views\\membresias\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\views\\membresias\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\services\\membresiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\services\\membresiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\controllers\\membresiascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\controllers\\membresiascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\services\\imembresiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\services\\imembresiaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\views\\pagos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\views\\pagos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -36,65 +20,13 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Membresias\\Index.cshtml",
-              "RelativeDocumentMoniker": "GymApp\\Views\\Membresias\\Index.cshtml",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Membresias\\Index.cshtml",
-              "RelativeToolTip": "GymApp\\Views\\Membresias\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIQBAAAJAAAAAAAAAA==",
+              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Pagos\\Index.cshtml",
+              "RelativeDocumentMoniker": "GymApp\\Views\\Pagos\\Index.cshtml",
+              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Pagos\\Index.cshtml",
+              "RelativeToolTip": "GymApp\\Views\\Pagos\\Index.cshtml",
+              "ViewState": "AgIAAHYBAAAAAAAAAAAiwIoBAABBAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-28T17:44:23.654Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "GymApp\\Views\\Shared\\_Layout.cshtml",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "GymApp\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAE0BAAAAAAAAAAAiwGQBAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-28T17:34:24.284Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MembresiasController.cs",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Controllers\\MembresiasController.cs",
-              "RelativeDocumentMoniker": "GymApp\\Controllers\\MembresiasController.cs",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Controllers\\MembresiasController.cs",
-              "RelativeToolTip": "GymApp\\Controllers\\MembresiasController.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAQwEcAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-28T16:56:47.267Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "IMembresiaService.cs",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\IMembresiaService.cs",
-              "RelativeDocumentMoniker": "GymApp\\Services\\IMembresiaService.cs",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\IMembresiaService.cs",
-              "RelativeToolTip": "GymApp\\Services\\IMembresiaService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-28T16:53:22.084Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MembresiaService.cs",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\MembresiaService.cs",
-              "RelativeDocumentMoniker": "GymApp\\Services\\MembresiaService.cs",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\MembresiaService.cs",
-              "RelativeToolTip": "GymApp\\Services\\MembresiaService.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAuwIoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-28T16:53:19.843Z",
+              "WhenOpened": "2025-11-28T18:25:17.255Z",
               "EditorCaption": ""
             }
           ]

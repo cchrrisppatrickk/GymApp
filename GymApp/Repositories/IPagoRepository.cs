@@ -7,5 +7,7 @@ namespace GymApp.Repositories
     public interface IPagoRepository : IGenericRepository<PagosMembresium>
     {
         Task<IEnumerable<PagosMembresium>> ObtenerHistorialCompletoAsync();
+
+        Task<decimal> GetTotalPagadoAsync(int membresiaId);
     }
 }

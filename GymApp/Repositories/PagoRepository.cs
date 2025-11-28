@@ -25,5 +25,13 @@ namespace GymApp.Repositories
                 .OrderByDescending(p => p.FechaPago)
                 .ToListAsync();
         }
+
+        //nuevo
+        public async Task<decimal> GetTotalPagadoAsync(int membresiaId)
+        {
+            return await _context.PagosMembresia
+                .Where(p => p.MembresiaId == membresiaId)
+                .SumAsync(p => p.Monto);
+        }
     }
 }
