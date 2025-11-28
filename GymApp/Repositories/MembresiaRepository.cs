@@ -25,5 +25,18 @@ namespace GymApp.Repositories
                 .OrderByDescending(m => m.MembresiaId) // Las más nuevas primero
                 .ToListAsync();
         }
+
+        // Implementación del nuevo método
+        public async Task<Membresia?> GetLastActiveMembresiaByUserIdAsync(int userId)
+        {
+            var hoy = DateOnly.FromDateTime(DateTime.Today);
+
+            // Busca la membresía más reciente para el usuario que NO haya vencido AÚN.
+            // Esto asegura que si renueva antes del vencimiento, se tome la última fecha fin.
+            return await _context.Membresias
+                .Where(m => m.UserId == userId && m.FechaVencimiento >= hoy)
+                .OrderByDescending(m => m.FechaVencimiento) // La que venza más tarde
+                .FirstOrDefaultAsync();
+        }
     }
 }

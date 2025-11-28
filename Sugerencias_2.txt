@@ -9,6 +9,21 @@ Separar por meses si es necesario, con paginación.
 
 ver el tema de si se regisra de nuevo una membresia en el escaner tiene que mostrarse lo de esa mrenbrecia, o cual seria la mejor opcion, ya sea renombrar o cual?
 
+
+REALIZADO:
+
+. Sugerencia de Mejora (Próximo Nivel)
+Viendo tu clase MembresiaService, hay un caso de borde interesante: La renovación.
+Escenario: Un cliente tiene una membresía que vence el 30 de noviembre. El 28 de noviembre paga el siguiente mes.
+Lógica actual: Si creas una nueva membresía, el FechaInicio sería el 28 (día del pago), perdiendo 2 días del plan anterior.
+Recomendación: En tu lógica de RenovarMembresiaAsync, asegúrate de verificar si tiene una membresía activa. Si la tiene, la FechaInicio de la nueva debe ser FechaVencimiento de la anterior + 1 día.
+
+
+
+
+--------------------------------------------------------------------------------------------------
+
+
 La tabla debe mostrar:
 NOMBRES | INICIO | VENCE | TURNO | TELÉFONO | TIPO DE PAGO (EFECTIVO/YAPE) | TIPO DE PLAN
 
