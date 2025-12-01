@@ -197,5 +197,79 @@ namespace GymApp.Controllers
         }
 
 
+        public IActionResult Membresias()
+        {
+            return View();
+        }
+
+
+
+        // 1. Endpoint para la Vista Web
+        [HttpGet]
+        public async Task<IActionResult> ObtenerMembresias(int mes, int anio)
+        {
+            var data = await _reporteService.ObtenerReporteMembresiasAsync(mes, anio);
+            return Json(new { success = true, data = data });
+        }
+
+        // 2. Endpoint para descargar Excel
+        [HttpGet]
+        public async Task<IActionResult> ExportarMembresiasExcel(int mes, int anio)
+        {
+            var datos = await _reporteService.ObtenerReporteMembresiasAsync(mes, anio);
+            string nombreMes = new DateTime(anio, mes, 1).ToString("MMMM yyyy").ToUpper();
+
+            using (var workbook = new XLWorkbook())
+            {
+                var ws = workbook.Worksheets.Add("Membresías");
+
+                // TÍTULO
+                ws.Cell("A1").Value = $"REPORTE DE MEMBRESÍAS - {nombreMes}";
+                ws.Range("A1:J1").Merge().Style.Font.SetBold().Font.SetFontSize(14)
+                    .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+                // CABECERAS
+                var headers = new[] { "CLIENTE", "PLAN", "TURNO", "INICIO", "FIN", "TELÉFONO", "PAGO EFECTIVO", "PAGO YAPE", "OBSERVACIÓN", "ESTADO" };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    ws.Cell(2, i + 1).Value = headers[i];
+                    ws.Cell(2, i + 1).Style.Fill.SetBackgroundColor(XLColor.LightGray).Font.SetBold();
+                }
+
+                // DATOS
+                int fila = 3;
+                foreach (var item in datos)
+                {
+                    ws.Cell(fila, 1).Value = item.NombreCliente;
+                    ws.Cell(fila, 2).Value = item.NombrePlan;
+                    ws.Cell(fila, 3).Value = item.NombreTurno;
+                    ws.Cell(fila, 4).Value = item.FechaInicio;
+                    ws.Cell(fila, 5).Value = item.FechaFin;
+                    ws.Cell(fila, 6).Value = item.Telefono;
+
+                    // Pagos
+                    ws.Cell(fila, 7).Value = item.PagadoEfectivo;
+                    ws.Cell(fila, 8).Value = item.PagadoYape;
+
+                    ws.Cell(fila, 9).Value = item.Observaciones;
+                    ws.Cell(fila, 10).Value = item.Estado;
+
+                    // Colorear estado
+                    if (item.Estado == "Vencida") ws.Cell(fila, 10).Style.Font.SetFontColor(XLColor.Red);
+
+                    fila++;
+                }
+
+                // FORMATO FINAL
+                ws.Range(2, 1, fila - 1, 10).Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin).Border.SetInsideBorder(XLBorderStyleValues.Thin);
+                ws.Columns().AdjustToContents();
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Membresias_{mes}_{anio}.xlsx");
+                }
+            }
+        }
     }
 }

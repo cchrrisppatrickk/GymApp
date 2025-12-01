@@ -76,5 +76,44 @@ namespace GymApp.Services
 
             return reporte;
         }
+
+        public async Task<List<ReporteMembresiaDTO>> ObtenerReporteMembresiasAsync(int mes, int anio)
+        {
+            var data = await _context.Membresias
+                .Include(m => m.User)          // <--- CAMBIO AQUÍ (Usuario -> User)
+                .Include(m => m.Plan)
+                .Include(m => m.Turno)
+                .Include(m => m.PagosMembresia)
+                .Where(m => m.FechaInicio.Month == mes && m.FechaInicio.Year == anio)
+                .OrderByDescending(m => m.FechaInicio)
+                .Select(m => new ReporteMembresiaDTO
+                {
+                    MembresiaId = m.MembresiaId,
+
+                    // <--- CAMBIO AQUÍ (Usuario -> User)
+                    NombreCliente = m.User.NombreCompleto,
+                    Telefono = m.User.Telefono ?? "-",
+
+                    FechaInicio = m.FechaInicio.ToString("dd/MM/yyyy"),
+                    FechaFin = m.FechaVencimiento.ToString("dd/MM/yyyy"),
+
+                    NombrePlan = m.Plan.Nombre,
+                    NombreTurno = m.Turno.Nombre,
+
+                    PagadoEfectivo = m.PagosMembresia
+                        .Where(p => p.MetodoPago == "Efectivo")
+                        .Sum(p => p.Monto),
+
+                    PagadoYape = m.PagosMembresia
+                        .Where(p => p.MetodoPago.Contains("Yape"))
+                        .Sum(p => p.Monto),
+
+                    Observaciones = m.Observaciones ?? "",
+                    Estado = m.Estado
+                })
+                .ToListAsync();
+
+            return data;
+        }
     }
 }

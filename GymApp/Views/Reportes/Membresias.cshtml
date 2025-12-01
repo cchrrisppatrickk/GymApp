@@ -1,0 +1,136 @@
+﻿@{
+    ViewData["Title"] = "Reporte de Membresías";
+}
+
+<div class="container-fluid mt-4 fade-in">
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold m-0 text-dark"><i class="bi bi-person-vcard text-primary me-2"></i>Reporte de Membresías</h5>
+
+            <div class="d-flex gap-2">
+                <select id="selectMes" class="form-select form-select-sm" style="width: 120px;">
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+                <select id="selectAnio" class="form-select form-select-sm" style="width: 100px;">
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="cargarReporte()">
+                    <i class="bi bi-search"></i> Consultar
+                </button>
+                <button class="btn btn-success btn-sm" onclick="descargarExcel()">
+                    <i class="bi bi-file-earmark-excel"></i> Excel
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center" id="tablaMembresias" style="font-size: 0.9rem;">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="text-start ps-4">Cliente</th>
+                            <th>Plan</th>
+                            <th>Turno</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Teléfono</th>
+                            <th class="bg-success bg-opacity-10 text-success border-start">Efectivo</th>
+                            <th class="bg-info bg-opacity-10 text-primary">Yape</th>
+                            <th>Obs.</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot class="bg-light fw-bold">
+                        <tr>
+                            <td colspan="6" class="text-end pe-3">TOTALES:</td>
+                            <td class="text-success" id="totEfec">0.00</td>
+                            <td class="text-primary" id="totYape">0.00</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const f = new Date();
+            document.getElementById("selectMes").value = f.getMonth() + 1;
+            document.getElementById("selectAnio").value = f.getFullYear();
+            cargarReporte();
+        });
+
+        function cargarReporte() {
+            const mes = document.getElementById("selectMes").value;
+            const anio = document.getElementById("selectAnio").value;
+            const tbody = document.querySelector("#tablaMembresias tbody");
+
+            tbody.innerHTML = '<tr><td colspan="10" class="py-4"><div class="spinner-border text-primary"></div></td></tr>';
+
+            fetch(`/Reportes/ObtenerMembresias?mes=${mes}&anio=${anio}`)
+                .then(res => res.json())
+                .then(json => {
+                    const data = json.data;
+                    let html = '';
+                    let sumE = 0, sumY = 0;
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="10" class="py-4 text-muted">No se encontraron registros.</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(m => {
+                        sumE += m.pagadoEfectivo;
+                        sumY += m.pagadoYape;
+
+                        // Badge para estado
+                        let estadoBadge = `<span class="badge bg-success">${m.estado}</span>`;
+                        if(m.estado === 'Vencida') estadoBadge = `<span class="badge bg-danger">Vencida</span>`;
+                        if(m.estado === 'Cancelada') estadoBadge = `<span class="badge bg-secondary">Cancelada</span>`;
+
+                        html += `
+                            <tr>
+                                <td class="text-start ps-4 fw-bold text-dark">${m.nombreCliente}</td>
+                                <td>${m.nombrePlan}</td>
+                                <td><span class="badge bg-light text-dark border">${m.nombreTurno}</span></td>
+                                <td>${m.fechaInicio}</td>
+                                <td>${m.fechaFin}</td>
+                                <td class="small text-muted">${m.telefono}</td>
+                                <td class="fw-bold text-success bg-success bg-opacity-10">${m.pagadoEfectivo > 0 ? m.pagadoEfectivo.toFixed(2) : '-'}</td>
+                                <td class="fw-bold text-primary bg-info bg-opacity-10">${m.pagadoYape > 0 ? m.pagadoYape.toFixed(2) : '-'}</td>
+                                <td class="small text-muted fst-italic text-truncate" style="max-width: 150px;" title="${m.observaciones}">${m.observaciones}</td>
+                                <td>${estadoBadge}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tbody.innerHTML = html;
+                    document.getElementById("totEfec").innerText = sumE.toFixed(2);
+                    document.getElementById("totYape").innerText = sumY.toFixed(2);
+                });
+        }
+
+        function descargarExcel() {
+            const mes = document.getElementById("selectMes").value;
+            const anio = document.getElementById("selectAnio").value;
+            window.location.href = `/Reportes/ExportarMembresiasExcel?mes=${mes}&anio=${anio}`;
+        }
+    </script>
+}
