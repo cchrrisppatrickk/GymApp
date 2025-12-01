@@ -42,6 +42,8 @@ NOMBRES          INICIO      VENCE      TURNO   TELÉFONO   EFECTIVO   YAPE     
 3 STEFANY BAZAN  6/08/2025   4/11/2025   T      		      50 soles  30 dias o 1 mes
 
 
+
+
 Punto de Venta (Quiosco):
 Módulo: CONTROL DE INGRESOS GENERAL
 

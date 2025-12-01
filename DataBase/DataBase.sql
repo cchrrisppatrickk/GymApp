@@ -68,10 +68,15 @@ CREATE TABLE Planes (
 CREATE TABLE Productos (
     ProductoID INT IDENTITY(1,1) PRIMARY KEY,
     Nombre NVARCHAR(100) NOT NULL,
+	Productos NVARCHAR(50) NOT NULL,
     PrecioVenta DECIMAL(10,2) NOT NULL,
     StockActual INT DEFAULT 0,
     CodigoBarras NVARCHAR(50) NULL
 );
+
+
+
+select * from Productos
 
 -- =============================================
 -- 2. TABLA DE USUARIOS (Núcleo del sistema)
@@ -191,25 +196,14 @@ GO
 
 
 Select * From Usuarios 
+Select * From Membresias 
+Select * From PagosMembresia
+Select * From Usuarios 
+Select * From VentasDetalle
+Select * From VentasCabecera
 
-
-
-INSERT INTO Usuarios (
-    RoleID, 
-    NombreCompleto, 
-    NombreUsuario, 
-    DNI, 
-    PasswordHash, 
-    Telefono, 
-    Email
-) 
-VALUES (
-    1, 
-    'Admin1', 
-    '1234567', 
-    '987654321', 
-    '$2a$11$DBZ.giFlWeDTLS6AQEqf6Oki7HAMwAp5vzRmtJDd.gGdGLOLXQA7e', 
-    '987654321', 
-    'admin1@gmail.com'
-);
+INSERT INTO Roles (Nombre, Descripcion) VALUES
+('Admin', 'Administrador del sistema con acceso completo'),
+('Portero', 'Personal encargado del control de acceso'),
+('Cliente', 'Usuario cliente del servicio');
 

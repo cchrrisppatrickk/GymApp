@@ -1,0 +1,203 @@
+﻿@{
+    ViewData["Title"] = "Control de Ingresos";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold m-0 text-primary"><i class="bi bi-table me-2"></i>Control de Ingresos General</h5>
+
+            <div class="d-flex gap-2">
+                <select id="selectMes" class="form-select form-select-sm" style="width: 120px;">
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+                <select id="selectAnio" class="form-select form-select-sm" style="width: 100px;">
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="cargarReporte()">
+                    <i class="bi bi-search"></i> Consultar
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm text-center align-middle mb-0" style="font-size: 0.85rem;">
+                    <thead>
+                        <tr class="text-white">
+                            <th rowspan="3" class="bg-dark text-white align-middle" style="width: 50px;">DIA</th>
+
+                            <th colspan="4" class="bg-success bg-opacity-75">BEBIDAS (MAÑANA/TARDE)</th>
+                            <th rowspan="2" class="bg-primary">TOTAL</th>
+
+                            <th colspan="4" class="bg-warning text-dark">LIBRES (MAÑANA/TARDE)</th>
+                            <th rowspan="2" class="bg-primary">TOTAL</th>
+
+                            <th colspan="4" class="bg-danger bg-opacity-75">XB (MAÑANA/TARDE)</th>
+                            <th rowspan="2" class="bg-primary">TOTAL</th>
+
+                            <th rowspan="3" class="bg-dark align-middle">TOTAL DÍA</th>
+                        </tr>
+
+                        <tr class="fw-bold small">
+                            <th colspan="2" class="bg-light">MAÑANA</th>
+                            <th colspan="2" class="bg-light">TARDE</th>
+
+                            <th colspan="2" class="bg-light">MAÑANA</th>
+                            <th colspan="2" class="bg-light">TARDE</th>
+
+                            <th colspan="2" class="bg-light">MAÑANA</th>
+                            <th colspan="2" class="bg-light">TARDE</th>
+                        </tr>
+
+                        <tr class="small text-muted">
+                            <th>Efect.</th>
+                            <th>Yape</th>
+                            <th>Efect.</th>
+                            <th>Yape</th>
+                            <th class="bg-light text-primary fw-bold">S/.</th>
+
+                            <th>Efect.</th>
+                            <th>Yape</th>
+                            <th>Efect.</th>
+                            <th>Yape</th>
+                            <th class="bg-light text-primary fw-bold">S/.</th>
+
+                            <th>Efect.</th>
+                            <th>Yape</th>
+                            <th>Efect.</th>
+                            <th>Yape</th>
+                            <th class="bg-light text-primary fw-bold">S/.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla">
+                    </tbody>
+                    <tfoot class="bg-light fw-bold" id="pieTabla">
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Seleccionar mes actual
+            const fecha = new Date();
+            document.getElementById("selectMes").value = fecha.getMonth() + 1;
+            document.getElementById("selectAnio").value = fecha.getFullYear();
+            cargarReporte();
+        });
+
+        function cargarReporte() {
+            const mes = document.getElementById("selectMes").value;
+            const anio = document.getElementById("selectAnio").value;
+            const tbody = document.getElementById("cuerpoTabla");
+
+            tbody.innerHTML = '<tr><td colspan="16" class="p-4"><div class="spinner-border text-primary"></div></td></tr>';
+
+            fetch(`/Reportes/ObtenerIngresos?mes=${mes}&anio=${anio}`)
+                .then(res => res.json())
+                .then(json => {
+                    const data = json.data;
+                    let html = '';
+                    let totales = inicializarTotales();
+
+                    if(data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="16" class="p-4 text-muted">No hay movimientos en este periodo.</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        // Acumular para el footer
+                        sumarTotales(totales, item);
+
+                        html += `
+                        <tr class="hover-row">
+                            <td class="fw-bold bg-light">${item.dia}</td>
+
+                            <td>${format(item.bebidasMananaEfectivo)}</td>
+                            <td>${format(item.bebidasMananaYape)}</td>
+                            <td>${format(item.bebidasTardeEfectivo)}</td>
+                            <td>${format(item.bebidasTardeYape)}</td>
+                            <td class="bg-primary bg-opacity-10 fw-bold">${format(item.totalBebidas)}</td>
+
+                            <td>${format(item.libresMananaEfectivo)}</td>
+                            <td>${format(item.libresMananaYape)}</td>
+                            <td>${format(item.libresTardeEfectivo)}</td>
+                            <td>${format(item.libresTardeYape)}</td>
+                            <td class="bg-primary bg-opacity-10 fw-bold">${format(item.totalLibres)}</td>
+
+                            <td>${format(item.xbMananaEfectivo)}</td>
+                            <td>${format(item.xbMananaYape)}</td>
+                            <td>${format(item.xbTardeEfectivo)}</td>
+                            <td>${format(item.xbTardeYape)}</td>
+                            <td class="bg-primary bg-opacity-10 fw-bold">${format(item.totalXB)}</td>
+
+                            <td class="bg-dark text-white fw-bold">${format(item.totalGeneralDia)}</td>
+                        </tr>
+                        `;
+                    });
+
+                    tbody.innerHTML = html;
+                    renderFooter(totales);
+                });
+        }
+
+        function format(num) {
+            return num > 0 ? num.toFixed(2) : ''; // Dejar vacío si es 0 para limpiar la vista
+        }
+
+        function inicializarTotales() {
+            return { bme:0, bmy:0, bte:0, bty:0, bt:0, lme:0, lmy:0, lte:0, lty:0, lt:0, xme:0, xmy:0, xte:0, xty:0, xt:0, grantotal:0 };
+        }
+
+        function sumarTotales(t, i) {
+            t.bme += i.bebidasMananaEfectivo; t.bmy += i.bebidasMananaYape;
+            t.bte += i.bebidasTardeEfectivo; t.bty += i.bebidasTardeYape; t.bt += i.totalBebidas;
+
+            t.lme += i.libresMananaEfectivo; t.lmy += i.libresMananaYape;
+            t.lte += i.libresTardeEfectivo; t.lty += i.libresTardeYape; t.lt += i.totalLibres;
+
+            t.xme += i.xbMananaEfectivo; t.xmy += i.xbMananaYape;
+            t.xte += i.xbTardeEfectivo; t.xty += i.xbTardeYape; t.xt += i.totalXB;
+
+            t.grantotal += i.totalGeneralDia;
+        }
+
+        function renderFooter(t) {
+            const footer = document.getElementById("pieTabla");
+            footer.innerHTML = `
+                <tr>
+                    <td>TOTAL</td>
+                    <td>${t.bme.toFixed(2)}</td><td>${t.bmy.toFixed(2)}</td>
+                    <td>${t.bte.toFixed(2)}</td><td>${t.bty.toFixed(2)}</td>
+                    <td class="text-primary">${t.bt.toFixed(2)}</td>
+
+                    <td>${t.lme.toFixed(2)}</td><td>${t.lmy.toFixed(2)}</td>
+                    <td>${t.lte.toFixed(2)}</td><td>${t.lty.toFixed(2)}</td>
+                    <td class="text-primary">${t.lt.toFixed(2)}</td>
+
+                    <td>${t.xme.toFixed(2)}</td><td>${t.xmy.toFixed(2)}</td>
+                    <td>${t.xte.toFixed(2)}</td><td>${t.xty.toFixed(2)}</td>
+                    <td class="text-primary">${t.xt.toFixed(2)}</td>
+
+                    <td class="bg-dark text-white">${t.grantotal.toFixed(2)}</td>
+                </tr>
+            `;
+        }
+    </script>
+}

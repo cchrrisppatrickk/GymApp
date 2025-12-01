@@ -1,9 +1,10 @@
 using GymApp.Data;
 using GymApp.Repositories;
 using GymApp.Services;
-using Microsoft.EntityFrameworkCore;
 // 1. AGREGAR ESTE NAMESPACE
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 builder.Services.AddScoped<IVentaService, VentaService>();
 
+// En Program.cs
+builder.Services.AddScoped<IReporteService, ReporteService>();
 // ============================================================
 // 2. CONFIGURAR AUTENTICACIÓN (COOKIES)
 // ============================================================
@@ -92,3 +95,7 @@ app.MapControllerRoute(
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
+
+
+
+//Scaffold - DbContext "Server=DESKTOP-6U3IQMJ\SQLEXPRESS;Database=GymDB;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer - OutputDir Models - ContextDir Data - Context GymDbContext - Force

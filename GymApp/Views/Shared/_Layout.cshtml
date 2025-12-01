@@ -396,6 +396,24 @@
                             </li>
                         </ul>
                     </li>
+
+                    <li class="menu-item">
+                        <a href="#submenuAcceso" class="menu-link submenu-toggle">
+                            <span class="menu-icon"><i class="bi bi-receipt"></i></span>
+                            <span class="menu-text">Reportes</span>
+                            <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                        </a>
+                        <ul class="submenu" id="submenuAcceso">
+                            <li class="submenu-item">
+                                <a asp-controller="Reportes" asp-action="Index" class="submenu-link">Control de Ingresos General</a>
+                            </li>
+                            <li class="submenu-item">
+                                <a asp-controller="Reportes" asp-action="Index" class="submenu-link">Historial Visitas</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                   
                 }
 
                 <li class="menu-item mt-5 pt-3 border-top border-secondary mx-3">
