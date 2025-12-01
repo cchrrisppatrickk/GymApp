@@ -3,14 +3,6 @@
   "WorkspaceRootPath": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\services\\reporteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\services\\reporteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|c:\\users\\krieg.desktop-6u3iqmj\\onedrive\\escritorio\\dev\\_dev_web\\gymapp\\gymapp\\gymapp\\views\\ventas\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{FF0FFDE8-0461-44AE-9A0C-7FDB1A68817C}|GymApp\\GymApp.csproj|solutionrelative:gymapp\\views\\ventas\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
@@ -27,40 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "GymApp\\Views\\Shared\\_Layout.cshtml",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "GymApp\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAIUBAAAAAAAAAAApwJIBAAA8AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-01T18:02:09.222Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Ventas\\Index.cshtml",
               "RelativeDocumentMoniker": "GymApp\\Views\\Ventas\\Index.cshtml",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Ventas\\Index.cshtml",
-              "RelativeToolTip": "GymApp\\Views\\Ventas\\Index.cshtml",
-              "ViewState": "AgIAAIYAAAAAAAAAAAApwD4AAAAnAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Views\\Ventas\\Index.cshtml*",
+              "RelativeToolTip": "GymApp\\Views\\Ventas\\Index.cshtml*",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAAD4AAAA9AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-01T17:53:04.6Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ReporteService.cs",
-              "DocumentMoniker": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\ReporteService.cs",
-              "RelativeDocumentMoniker": "GymApp\\Services\\ReporteService.cs",
-              "ToolTip": "C:\\Users\\krieg.DESKTOP-6U3IQMJ\\OneDrive\\Escritorio\\Dev\\_Dev_Web\\GymApp\\GymApp\\GymApp\\Services\\ReporteService.cs",
-              "RelativeToolTip": "GymApp\\Services\\ReporteService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAE8AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-01T17:50:38.111Z",
+              "WhenOpened": "2025-12-01T19:20:02.325Z",
               "EditorCaption": ""
             }
           ]

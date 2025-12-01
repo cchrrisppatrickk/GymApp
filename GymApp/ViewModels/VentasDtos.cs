@@ -1,17 +1,21 @@
-﻿namespace GymApp.ViewModels
+﻿using System.Collections.Generic;
+
+namespace GymApp.ViewModels
 {
-    // Detalle simple del producto
     public class VentaItemDTO
     {
         public int ProductoId { get; set; }
         public int Cantidad { get; set; }
+
+        // NUEVO: Recibe el precio editado del carrito. 
+        // Si no se editó, el frontend puede mandar 0 o el precio original.
+        public decimal PrecioUnitario { get; set; }
     }
 
-    // El objeto principal que recibe el controlador
     public class VentaCreateDTO
     {
-        public int? UserId { get; set; } // Puede ser null si es venta a público general
-        public string MetodoPago { get; set; } // "Efectivo", "Yape", etc.
+        public int? UserId { get; set; }
+        public string MetodoPago { get; set; }
         public List<VentaItemDTO> Items { get; set; }
     }
 }

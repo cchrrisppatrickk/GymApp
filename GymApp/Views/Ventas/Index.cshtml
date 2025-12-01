@@ -26,10 +26,10 @@
             <table class="table table-sm table-borderless align-middle">
                 <thead>
                     <tr class="text-muted border-bottom small">
-                        <th>Cant.</th>
-                        <th>Producto</th>
-                        <th class="text-end">Total</th>
-                        <th></th>
+                        <th style="width: 30%">Cant.</th>
+                        <th style="width: 40%">Producto</th>
+                        <th class="text-end" style="width: 20%">Precio</th>
+                        <th style="width: 10%"></th>
                     </tr>
                 </thead>
                 <tbody id="listaCarrito">
@@ -61,7 +61,6 @@
                 <select class="form-select form-select-sm" id="cboMetodo">
                     <option value="Efectivo">Efectivo</option>
                     <option value="Yape">Yape / Plin</option>
-                    <option value="Tarjeta">Tarjeta</option>
                 </select>
             </div>
 
@@ -102,7 +101,7 @@
             cargarInventario();
         });
 
-        // 1. CARGAR PRODUCTOS DEL BACKEND
+        // 1. CARGAR PRODUCTOS
         function cargarInventario() {
             fetch('/Productos/Listar')
                 .then(res => res.json())
@@ -112,7 +111,7 @@
                 });
         }
 
-        // 2. RENDERIZAR GRID (Con filtro)
+        // 2. RENDERIZAR GRID
         function renderizarProductos(lista) {
             const container = document.getElementById('gridProductos');
             container.innerHTML = '';
@@ -123,13 +122,22 @@
             }
 
             lista.forEach(p => {
-                // Deshabilitar si no hay stock
-                const sinStock = p.stockActual <= 0;
+                // Validación especial: Los Servicios (Pase Libre) siempre están disponibles
+                // Los productos físicos dependen del stock
+                const esServicio = p.categoria === 'Servicio';
+                const sinStock = !esServicio && p.stockActual <= 0;
+
                 const cardClass = sinStock ? 'opacity-50' : '';
                 const btnAction = sinStock ? '' : `onclick="agregarAlCarrito(${p.productoId})"`;
-                const stockLabel = sinStock
-                    ? '<span class="badge bg-danger">Agotado</span>'
-                    : `<span class="badge bg-light text-dark border">${p.stockActual} disp.</span>`;
+
+                let stockLabel;
+                if(esServicio) {
+                    stockLabel = '<span class="badge bg-info text-dark">Servicio</span>';
+                } else {
+                    stockLabel = sinStock
+                        ? '<span class="badge bg-danger">Agotado</span>'
+                        : `<span class="badge bg-light text-dark border">${p.stockActual} disp.</span>`;
+                }
 
                 const html = `
                     <div class="col">
@@ -147,13 +155,15 @@
             });
         }
 
-        // 3. LOGICA DEL CARRITO
+        // 3. LÓGICA DEL CARRITO
         function agregarAlCarrito(id) {
             const producto = inventario.find(p => p.productoId === id);
             const enCarrito = carrito.find(item => item.productoId === id);
+            const esServicio = producto.categoria === 'Servicio';
 
             if (enCarrito) {
-                if (enCarrito.cantidad < producto.stockActual) {
+                // Solo validamos stock tope si NO es un servicio
+                if (esServicio || enCarrito.cantidad < producto.stockActual) {
                     enCarrito.cantidad++;
                 } else {
                     alert("No hay más stock disponible");
@@ -162,9 +172,10 @@
                 carrito.push({
                     productoId: id,
                     nombre: producto.nombre,
-                    precio: producto.precioVenta,
+                    precio: producto.precioVenta, // Precio base
                     cantidad: 1,
-                    maxStock: producto.stockActual
+                    maxStock: producto.stockActual,
+                    esServicio: esServicio
                 });
             }
             renderizarCarrito();
@@ -180,12 +191,34 @@
             if (!item) return;
 
             const nuevaCant = item.cantidad + delta;
-            if (nuevaCant > 0 && nuevaCant <= item.maxStock) {
+
+            // Si es servicio, el límite es infinito (o alto), si no, es maxStock
+            const limite = item.esServicio ? 9999 : item.maxStock;
+
+            if (nuevaCant > 0 && nuevaCant <= limite) {
                 item.cantidad = nuevaCant;
             } else if (nuevaCant <= 0) {
                 quitarDelCarrito(id);
                 return;
             }
+            renderizarCarrito();
+        }
+
+        // LÓGICA IMPORTANTE: CAMBIAR PRECIO
+        function cambiarPrecio(id, nuevoPrecio) {
+            const item = carrito.find(i => i.productoId === id);
+            if (!item) return;
+
+            let precio = parseFloat(nuevoPrecio);
+
+            // Validación básica
+            if (isNaN(precio) || precio < 0) {
+                // Si borra el precio o pone algo inválido, no hacemos nada visualmente feo,
+                // pero podrías revertir al precio original si quisieras.
+                return;
+            }
+
+            item.precio = precio;
             renderizarCarrito();
         }
 
@@ -209,6 +242,7 @@
                     const subtotal = item.cantidad * item.precio;
                     total += subtotal;
 
+                    // NOTA: Aquí renderizamos el INPUT para editar el precio
                     tbody.innerHTML += `
                         <tr>
                             <td>
@@ -219,8 +253,19 @@
                                 </div>
                             </td>
                             <td><small>${item.nombre}</small></td>
-                            <td class="text-end fw-bold">$${subtotal.toFixed(2)}</td>
-                            <td class="text-end"><i class="bi bi-trash text-danger" style="cursor:pointer" onclick="quitarDelCarrito(${item.productoId})"></i></td>
+                            <td class="text-end" style="width: 100px;">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text px-1 bg-white border-0">$</span>
+                                    <input type="number"
+                                           class="form-control form-control-sm text-end p-0 border-0 fw-bold text-primary"
+                                           value="${item.precio.toFixed(2)}"
+                                           onchange="cambiarPrecio(${item.productoId}, this.value)"
+                                           step="0.50" min="0" style="background: transparent;">
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <i class="bi bi-trash text-danger" style="cursor:pointer" onclick="quitarDelCarrito(${item.productoId})"></i>
+                            </td>
                         </tr>
                     `;
                 });
@@ -228,21 +273,30 @@
             lblTotal.innerText = '$ ' + total.toFixed(2);
         }
 
-        // 4. BUSCADOR EN TIEMPO REAL
+        // 4. BUSCADOR
         function filtrarProductos() {
             const texto = document.getElementById('buscador').value.toLowerCase();
             const filtrados = inventario.filter(p => p.nombre.toLowerCase().includes(texto));
             renderizarProductos(filtrados);
         }
 
-        // 5. PROCESAR VENTA (FETCH)
+        // 5. PROCESAR VENTA (CORREGIDO)
         function procesarVenta() {
-            if(!confirm("¿Confirmar venta?")) return;
+            if(carrito.length === 0) return;
+            if(!confirm("¿Confirmar venta por " + document.getElementById('lblTotal').innerText + "?")) return;
 
             const data = {
                 UserId: document.getElementById('userId').value ? parseInt(document.getElementById('userId').value) : null,
                 MetodoPago: document.getElementById('cboMetodo').value,
-                Items: carrito.map(i => ({ ProductoId: i.productoId, Cantidad: i.cantidad }))
+
+                // === CAMBIO CRÍTICO AQUÍ ===
+                // Ahora enviamos 'PrecioUnitario' con el valor del carrito (i.precio)
+                // Si el portero lo editó, enviará el editado. Si no, enviará el original.
+                Items: carrito.map(i => ({
+                    ProductoId: i.productoId,
+                    Cantidad: i.cantidad,
+                    PrecioUnitario: i.precio
+                }))
             };
 
             fetch('/Ventas/Registrar', {
@@ -257,15 +311,15 @@
                     carrito = [];
                     limpiarCliente();
                     renderizarCarrito();
-                    cargarInventario(); // Recargar stock
+                    cargarInventario();
                 } else {
                     alert("Error: " + json.message);
                 }
-            });
+            })
+            .catch(err => alert("Error de conexión"));
         }
 
         // --- EXTRAS: CLIENTES ---
-        // (Reutilizando la lógica de búsqueda que hiciste para Membresías)
         const modalCli = new bootstrap.Modal(document.getElementById('modalClientes'));
 
         function abrirModalClientes() { modalCli.show(); }
