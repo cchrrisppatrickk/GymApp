@@ -1,0 +1,1 @@
+Seguridad: En un entorno real productivo, deberías agregar el AntiforgeryToken a las peticiones Fetch POST para evitar ataques CSRF, pero para desarrollo local este ejemplo funciona perfectamente.

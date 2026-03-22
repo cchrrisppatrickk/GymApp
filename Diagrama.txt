@@ -1,0 +1,963 @@
+Aquí tienes el resumen ejecutivo de cómo funciona tu GymApp System hasta la última línea de código que hemos diseñado:
+
+1. Arquitectura ("El Motor")
+Tecnología: C# .NET Core MVC + Entity Framework + SQL Server.
+
+Diseño: Estructura en capas (N-Tier) separando responsabilidades:
+
+Controller: Recibe órdenes (API/Vistas).
+
+Service: Piensa y valida (Lógica de negocio).
+
+Repository: Habla con la Base de Datos.
+
+UX (Experiencia de Usuario): Módulos clave como el Quiosco y los Turnos funcionan como SPA (Single Page Application), es decir, todo ocurre en una misma ventana sin recargas molestas, usando JavaScript y AJAX.
+
+2. Flujo Operativo (Paso a Paso)
+A. Configuración Inicial (El Admin prepara el terreno)
+Antes de abrir, el administrador crea:
+
+Turnos: Define horarios (ej. Mañana: 6am - 2pm). El sistema valida que la hora fin no sea menor a la de inicio.
+
+Planes: Define productos de suscripción (ej. Mensual, Anual) con precio y duración en días.
+
+Inventario: Registra productos físicos (Agua, Proteína) con su stock inicial y precio.
+
+B. Gestión de Socios (El Corazón)
+Registro: Se crea el usuario (Cliente) con DNI y datos personales.
+
+Venta de Membresía: Se selecciona al Cliente + Plan + Turno.
+
+Automático: El sistema calcula la fecha de vencimiento (FechaInicio + DuraciónPlan).
+
+Caja (Cobro): Se registra el pago de esa membresía.
+
+Seguridad: El pago es inmutable (no se borra) y queda registrado quién cobró (auditoría).
+Descripcion de mi APP:
+La aplicación será una única plataforma web. Al acceder, los usuarios verán una vista de presentación del gimnasio con su información general y un botón "Unirse".
+
+Al hacer clic en "Unirse", se desplegará un sistema de autenticación (login y registro). Una vez ingresen, los usuarios accederán a diferentes dashboards según su tipo de cuenta:
+
+Para el Cliente: Visualizará un dashboard con la información de su membresía.
+
+Para el Administrador: Tendrá acceso a un dashboard con información importante y un panel de control para gestionar todas las funciones existentes, como los registros de usuarios.
+
+Para el Empleado: Podrá ver información específica y, lo más importante, contará con la función de escaneo de códigos QR para consultar los datos de los clientes.
+
+Funcionamiento del Escaneo QR:
+Un cliente que ingrese al gimnasio podrá mostrar su código QR en una tableta con la función de escáner activa. Al ser escaneado, la información del usuario se mostrará en pantalla por un corto tiempo, tras el cual la cámara se reactivará automáticamente para un nuevo escaneo.
+
+Tanto administradores como empleados también podrán consultar información de clientes directamente desde la aplicación web. Toda la funcionalidad estará integrada en la misma app.
+
+classDiagram
+    %% =======================================================
+    %% NAMESPACE: MODELOS (ENTIDADES DE DOMINIO)
+    %% =======================================================
+    namespace GymApp_Models {
+        class Role {
+            +int RoleId
+            +string Nombre
+            +string Descripcion
+        }
+
+        class Usuario {
+            +int UserId
+            +int RoleId
+            +string NombreCompleto
+            +string NombreUsuario
+            +string Dni
+            +string Email
+            +Guid CodigoQr
+            +bool Estado
+            +string PasswordHash
+            +DateTime FechaRegistro
+        }
+
+        class Asistencia {
+            +int AsistenciaId
+            +int UserId
+            +DateTime FechaHora
+            +bool AccesoPermitido
+            +string MotivoDenegacion
+        }
+
+        class Plane {
+            +int PlanId
+            +string Nombre
+            +int DuracionDias
+            +decimal PrecioBase
+            +bool PermiteCongelar
+        }
+
+        class Turno {
+            +int TurnoId
+            +string Nombre
+            +TimeSpan HoraInicio
+            +TimeSpan HoraFin
+        }
+
+        class Membresia {
+            +int MembresiaId
+            +int UserId
+            +int PlanId
+            +int TurnoId
+            +DateOnly FechaInicio
+            +DateOnly FechaVencimiento
+            +string Estado
+        }
+
+        class Congelamiento {
+            +int CongelamientoId
+            +int MembresiaId
+            +int UsuarioEmpleadoId
+            +DateOnly FechaInicio
+            +DateOnly FechaFin
+            +string Motivo
+        }
+
+        class PagosMembresium {
+            +int PagoId
+            +int MembresiaId
+            +int UsuarioEmpleadoId
+            +decimal Monto
+            +string MetodoPago
+            +DateTime FechaPago
+            +string Comprobante
+        }
+
+        class Producto {
+            +int ProductoId
+            +string Nombre
+            +decimal PrecioVenta
+            +int StockActual
+            +string CodigoBarras
+        }
+
+        class VentasCabecera {
+            +int VentaId
+            +int? UserId
+            +int UsuarioEmpleadoId
+            +DateTime FechaVenta
+            +decimal Total
+            +string MetodoPago
+        }
+
+        class VentasDetalle {
+            +int DetalleId
+            +int VentaId
+            +int ProductoId
+            +int Cantidad
+            +decimal PrecioUnitario
+            +decimal Subtotal
+        }
+    }
+
+    %% =======================================================
+    %% RELACIONES ENTRE MODELOS
+    %% =======================================================
+    Role "1" --> "*" Usuario : Tiene
+    Usuario "1" --> "*" Asistencia : Registra
+    
+    Usuario "1" --> "*" Membresia : Cliente
+    Plane "1" --> "*" Membresia : Define
+    Turno "1" --> "*" Membresia : Asigna
+    
+    Membresia "1" --> "*" PagosMembresium : Tiene
+    Membresia "1" --> "*" Congelamiento : Tiene
+    
+    Usuario "1" ..> "*" PagosMembresium : Empleado Cobra
+    Usuario "1" ..> "*" Congelamiento : Empleado Registra
+    
+    Usuario "1" --> "*" VentasCabecera : Cliente (Opcional)
+    Usuario "1" ..> "*" VentasCabecera : Empleado Vende
+    
+    VentasCabecera "1" *-- "*" VentasDetalle : Contiene
+    Producto "1" --> "*" VentasDetalle : Incluido en
+
+    %% =======================================================
+    %% NAMESPACE: REPOSITORIES (CAPA DE DATOS)
+    %% =======================================================
+    namespace GymApp_Repositories {
+        
+        %% --- GENERICOS ---
+        class IGenericRepository~T~ {
+            <<interface>>
+            +GetAllAsync() Task~IEnumerable~T~~
+            +GetByIdAsync(int id) Task~T~
+            +InsertAsync(T entity) Task
+            +UpdateAsync(T entity) Task
+            +DeleteAsync(int id) Task
+            +SaveAsync() Task
+        }
+
+        class GenericRepository~T~ {
+            -GymDbContext _context
+            -DbSet~T~ _table
+            +GetAllAsync() Task~IEnumerable~T~~
+            +GetByIdAsync(int id) Task~T~
+            +InsertAsync(T entity) Task
+            +UpdateAsync(T entity) Task
+            +DeleteAsync(int id) Task
+            +SaveAsync() Task
+        }
+
+        %% --- USUARIO ---
+        class IUsuarioRepository {
+            <<interface>>
+            +ObtenerPorDNIAsync(string dni) Task~Usuario~
+            +ExisteDniAsync(string dni) Task~bool~
+            +ObtenerPorQRAsync(Guid codigoQR) Task~Usuario~
+            +ObtenerConDetallesAsync(int id) Task~Usuario~
+            +ObtenerPorNombreUsuarioAsync(string nombre) Task~Usuario~
+            +ExisteNombreUsuarioAsync(string nombre) Task~bool~
+        }
+        class UsuarioRepository {
+            +ObtenerPorDNIAsync(string dni) Task~Usuario~
+            +ExisteDniAsync(string dni) Task~bool~
+            +ObtenerPorQRAsync(Guid codigoQR) Task~Usuario~
+            +ObtenerConDetallesAsync(int id) Task~Usuario~
+            +ObtenerPorNombreUsuarioAsync(string nombre) Task~Usuario~
+            +ExisteNombreUsuarioAsync(string nombre) Task~bool~
+        }
+
+        %% --- MEMBRESIA ---
+        class IMembresiaRepository {
+            <<interface>>
+            +ObtenerTodasConDetallesAsync() Task~IEnumerable~Membresia~~
+            +GetLastActiveMembresiaByUserIdAsync(int userId) Task~Membresia?~
+        }
+        class MembresiaRepository {
+            +ObtenerTodasConDetallesAsync() Task~IEnumerable~Membresia~~
+            +GetLastActiveMembresiaByUserIdAsync(int userId) Task~Membresia?~
+        }
+
+        %% --- PAGO ---
+        class IPagoRepository {
+            <<interface>>
+            +ObtenerHistorialCompletoAsync() Task~IEnumerable~PagosMembresium~~
+            +GetTotalPagadoAsync(int membresiaId) Task~decimal~
+        }
+        class PagoRepository {
+            +ObtenerHistorialCompletoAsync() Task~IEnumerable~PagosMembresium~~
+            +GetTotalPagadoAsync(int membresiaId) Task~decimal~
+        }
+
+        %% --- VENTA ---
+        class IVentaRepository {
+            <<interface>>
+            +ObtenerHistorialCompletoAsync() Task~IEnumerable~VentasCabecera~~
+        }
+        class VentaRepository {
+            +ObtenerHistorialCompletoAsync() Task~IEnumerable~VentasCabecera~~
+        }
+
+        %% --- OTROS ---
+        class IProductoRepository { <<interface>> }
+        class ProductoRepository { }
+
+        class IPlaneRepository { <<interface>> }
+        class PlaneRepository { }
+
+        class IRoleRepository { <<interface>> }
+        class RoleRepository { }
+
+        class ITurnoRepository { <<interface>> }
+        class TurnoRepository { }
+    }
+
+    %% HERENCIA DE REPOSITORIOS
+    IGenericRepository <|.. GenericRepository : Implements
+    IGenericRepository <|-- IUsuarioRepository
+    IGenericRepository <|-- IMembresiaRepository
+    IGenericRepository <|-- IPagoRepository
+    IGenericRepository <|-- IVentaRepository
+    IGenericRepository <|-- IProductoRepository
+    IGenericRepository <|-- IPlaneRepository
+    IGenericRepository <|-- IRoleRepository
+    IGenericRepository <|-- ITurnoRepository
+
+    GenericRepository <|-- UsuarioRepository
+    GenericRepository <|-- MembresiaRepository
+    GenericRepository <|-- PagoRepository
+    GenericRepository <|-- VentaRepository
+    GenericRepository <|-- ProductoRepository
+    GenericRepository <|-- PlaneRepository
+    GenericRepository <|-- RoleRepository
+    GenericRepository <|-- TurnoRepository
+
+    IUsuarioRepository <|.. UsuarioRepository
+    IMembresiaRepository <|.. MembresiaRepository
+    IPagoRepository <|.. PagoRepository
+    IVentaRepository <|.. VentaRepository
+    IProductoRepository <|.. ProductoRepository
+    IPlaneRepository <|.. PlaneRepository
+    IRoleRepository <|.. RoleRepository
+    ITurnoRepository <|.. TurnoRepository
+
+    %% =======================================================
+    %% NAMESPACE: SERVICES (CAPA DE NEGOCIO)
+    %% =======================================================
+    namespace GymApp_Services {
+        
+        %% --- MEMBRESIA SERVICE ---
+        class IMembresiaService {
+            <<interface>>
+            +ListarMembresiasAsync(string filtro)
+            +CrearMembresiaAsync(MembresiaCreateDTO dto)
+            +BuscarClientesAsync(string termino)
+            +VerificarTurnoExistente(int userId, int turnoId)
+        }
+        class MembresiaService {
+            -IMembresiaRepository _membresiaRepo
+            -IPlaneRepository _planRepo
+            -ITurnoRepository _turnoRepo
+            -IGenericRepository~Usuario~ _usuarioRepo
+            +ListarMembresiasAsync(string filtro)
+            +CrearMembresiaAsync(MembresiaCreateDTO dto)
+            +BuscarClientesAsync(string termino)
+            +VerificarTurnoExistente(int userId, int turnoId)
+        }
+
+        %% --- PAGO SERVICE ---
+        class IPagoService {
+            <<interface>>
+            +ListarPagosAsync()
+            +RegistrarPagoAsync(PagoCreateDTO dto, int empleadoId)
+            +BuscarMembresiaPorDniAsync(string dni)
+        }
+        class PagoService {
+            -IPagoRepository _pagoRepo
+            -IMembresiaRepository _membresiaRepo
+            -IUsuarioRepository _usuarioRepo
+            +ListarPagosAsync()
+            +RegistrarPagoAsync(PagoCreateDTO dto, int empleadoId)
+            +BuscarMembresiaPorDniAsync(string dni)
+        }
+
+        %% --- PLANE SERVICE ---
+        class IPlaneService {
+            <<interface>>
+            +ObtenerTodosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearPlanAsync(Plane plan)
+            +ActualizarPlanAsync(Plane plan)
+            +EliminarPlanAsync(int id)
+        }
+        class PlaneService {
+            -IPlaneRepository _planeRepository
+            +ObtenerTodosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearPlanAsync(Plane plan)
+            +ActualizarPlanAsync(Plane plan)
+            +EliminarPlanAsync(int id)
+        }
+
+        %% --- PRODUCTO SERVICE ---
+        class IProductoService {
+            <<interface>>
+            +ListarProductosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearProductoAsync(Producto producto)
+            +ActualizarProductoAsync(Producto producto)
+            +EliminarProductoAsync(int id)
+        }
+        class ProductoService {
+            -IProductoRepository _productoRepo
+            +ListarProductosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearProductoAsync(Producto producto)
+            +ActualizarProductoAsync(Producto producto)
+            +EliminarProductoAsync(int id)
+        }
+
+        %% --- ROLE SERVICE ---
+        class IRoleService {
+            <<interface>>
+            +ObtenerTodosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearRolAsync(Role role)
+            +ActualizarRolAsync(Role role)
+            +EliminarRolAsync(int id) bool
+        }
+        class RoleService {
+            -IRoleRepository _roleRepository
+            +ObtenerTodosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearRolAsync(Role role)
+            +ActualizarRolAsync(Role role)
+            +EliminarRolAsync(int id) bool
+        }
+
+        %% --- TURNO SERVICE ---
+        class ITurnoService {
+            <<interface>>
+            +ObtenerTodosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearTurnoAsync(Turno turno)
+            +ActualizarTurnoAsync(Turno turno)
+            +EliminarTurnoAsync(int id)
+        }
+        class TurnoService {
+            -ITurnoRepository _turnoRepository
+            +ObtenerTodosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearTurnoAsync(Turno turno)
+            +ActualizarTurnoAsync(Turno turno)
+            +EliminarTurnoAsync(int id)
+        }
+
+        %% --- USUARIO SERVICE ---
+        class IUsuarioService {
+            <<interface>>
+            +ObtenerTodosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearUsuarioAsync(Usuario usuario, string passwordRaw)
+            +ActualizarUsuarioAsync(Usuario usuario)
+            +EliminarUsuarioAsync(int id) bool
+            +ValidarLoginAsync(string dni, string password)
+            +GenerarImagenQR(Guid codigoQR) byte[]
+        }
+        class UsuarioService {
+            -IUsuarioRepository _usuarioRepository
+            +ObtenerTodosAsync()
+            +ObtenerPorIdAsync(int id)
+            +CrearUsuarioAsync(Usuario usuario, string passwordRaw)
+            +ActualizarUsuarioAsync(Usuario usuario)
+            +EliminarUsuarioAsync(int id) bool
+            +ValidarLoginAsync(string dni, string password)
+            +GenerarImagenQR(Guid codigoQR) byte[]
+        }
+
+        %% --- VENTA SERVICE ---
+        class IVentaService {
+            <<interface>>
+            +RegistrarVentaAsync(VentaCreateDTO dto, int empleadoId)
+            +HistorialVentasAsync()
+        }
+        class VentaService {
+            -IVentaRepository _ventaRepo
+            -IProductoRepository _productoRepo
+            -IGenericRepository~VentasDetalle~ _detalleRepo
+            +RegistrarVentaAsync(VentaCreateDTO dto, int empleadoId)
+            +HistorialVentasAsync()
+        }
+    }
+
+    %% =======================================================
+    %% RELACIONES DE SERVICIOS (IMPLEMENTACIÓN E INYECCIÓN)
+    %% =======================================================
+    
+    %% Implementación de Interfaces de Servicio
+    IMembresiaService <|.. MembresiaService : Implements
+    IPagoService <|.. PagoService : Implements
+    IPlaneService <|.. PlaneService : Implements
+    IProductoService <|.. ProductoService : Implements
+    IRoleService <|.. RoleService : Implements
+    ITurnoService <|.. TurnoService : Implements
+    IUsuarioService <|.. UsuarioService : Implements
+    IVentaService <|.. VentaService : Implements
+
+    %% Inyección de Dependencias (Servicios usan Repositorios)
+    MembresiaService ..> IMembresiaRepository : Uses
+    MembresiaService ..> IPlaneRepository : Uses
+    MembresiaService ..> ITurnoRepository : Uses
+    
+    PagoService ..> IPagoRepository : Uses
+    PagoService ..> IMembresiaRepository : Uses
+    PagoService ..> IUsuarioRepository : Uses
+
+    PlaneService ..> IPlaneRepository : Uses
+    
+    ProductoService ..> IProductoRepository : Uses
+    
+    RoleService ..> IRoleRepository : Uses
+    
+    TurnoService ..> ITurnoRepository : Uses
+    
+    UsuarioService ..> IUsuarioRepository : Uses
+    
+    VentaService ..> IVentaRepository : Uses
+    VentaService ..> IProductoRepository : Uses
+
+    %% =======================================================
+    %% NAMESPACE: CONTROLLERS (CAPA DE PRESENTACIÓN)
+    %% =======================================================
+    namespace GymApp_Controllers {
+        
+        class BaseController {
+            #int CurrentUserId
+            #string CurrentUserName
+            #string CurrentUserRole
+        }
+
+        class HomeController {
+            -ILogger~HomeController~ _logger
+            +Index()
+            +Privacy()
+            +Error()
+        }
+
+        class AuthController {
+            -IUsuarioService _usuarioService
+            +Login()
+            +Login(string dni, string password)
+            +Logout()
+            +AccesoDenegado()
+        }
+
+        class ClienteHomeController {
+            +Index()
+        }
+
+        class AccesoController {
+            -GymDbContext _context
+            +Index()
+            +RegistrarAsistencia(string qrToken)
+        }
+
+        class MembresiasController {
+            -IMembresiaService _membresiaService
+            -IPlaneService _planeService
+            -ITurnoService _turnoService
+            +Index()
+            +Listar(string filtro)
+            +ObtenerRecursosCreacion()
+            +BuscarUsuario(string q)
+            +Crear(MembresiaCreateDTO model)
+        }
+
+        class PagosController {
+            -IPagoService _pagoService
+            +Index()
+            +Comprobante(int id)
+            +Listar()
+            +BuscarDeuda(string dni)
+            +Registrar(PagoCreateDTO model)
+        }
+
+        class PlanesController {
+            -IPlaneService _planeService
+            +Index()
+            +Listar()
+            +Obtener(int id)
+            +Guardar(Plane plan)
+            +Eliminar(int id)
+        }
+
+        class ProductosController {
+            -IProductoService _productoService
+            +Index()
+            +Listar()
+            +Obtener(int id)
+            +Guardar(Producto model)
+            +Eliminar(int id)
+        }
+
+        class RolesController {
+            -IRoleService _roleService
+            +Index()
+            +GetRole(int id)
+            +Create(RoleViewModel model)
+            +Edit(RoleViewModel model)
+            +Delete(int id)
+        }
+
+        class TurnosController {
+            -ITurnoService _turnoService
+            +Index()
+            +ListarTurnos()
+            +ObtenerTurno(int id)
+            +Guardar(TurnoDTO modelo)
+            +Eliminar(int id)
+        }
+
+        class UsuariosController {
+            -IUsuarioService _usuarioService
+            -IGenericRepository~Role~ _rolesRepository
+            +Index(string tipo)
+            +GetUsuario(int id)
+            +Save(UsuarioViewModel model)
+            +Delete(int id)
+            +ObtenerQR(int id)
+        }
+
+        class VentasController {
+            -IVentaService _ventaService
+            +Index()
+            +Historial()
+            +Registrar(VentaCreateDTO modelo)
+        }
+    }
+
+    %% RELACIONES DE CONTROLADORES
+    BaseController <|-- ClienteHomeController
+    BaseController <|-- AccesoController
+    BaseController <|-- MembresiasController
+    BaseController <|-- PagosController
+    BaseController <|-- PlanesController
+    BaseController <|-- ProductosController
+    BaseController <|-- RolesController
+    BaseController <|-- TurnosController
+    BaseController <|-- UsuariosController
+    BaseController <|-- VentasController
+
+    %% Inyecciones de Dependencia en Controladores
+    AuthController ..> IUsuarioService : Injects
+    
+    AccesoController ..> GymDbContext : Injects (Direct Access)
+
+    MembresiasController ..> IMembresiaService : Injects
+    MembresiasController ..> IPlaneService : Injects
+    MembresiasController ..> ITurnoService : Injects
+
+    PagosController ..> IPagoService : Injects
+    
+    PlanesController ..> IPlaneService : Injects
+    
+    ProductosController ..> IProductoService : Injects
+    
+    RolesController ..> IRoleService : Injects
+    
+    TurnosController ..> ITurnoService : Injects
+    
+    UsuariosController ..> IUsuarioService : Injects
+    UsuariosController ..> IGenericRepository : Injects (Roles)
+    
+    VentasController ..> IVentaService : Injects
+
+    %% =======================================================
+    %% NAMESPACE: DATA (CONTEXTO Y SEMILLA)
+    %% =======================================================
+    namespace GymApp_Data {
+        class GymDbContext {
+            +DbSet~Asistencia~ Asistencias
+            +DbSet~Congelamiento~ Congelamientos
+            +DbSet~Membresia~ Membresias
+            +DbSet~PagosMembresium~ PagosMembresia
+            +DbSet~Plane~ Planes
+            +DbSet~Producto~ Productos
+            +DbSet~Role~ Roles
+            +DbSet~Turno~ Turnos
+            +DbSet~Usuario~ Usuarios
+            +DbSet~VentasCabecera~ VentasCabeceras
+            +DbSet~VentasDetalle~ VentasDetalles
+            #OnModelCreating(ModelBuilder modelBuilder)
+        }
+
+        class DbSeeder {
+            <<static>>
+            +Seed(IApplicationBuilder applicationBuilder)
+        }
+
+        %% Notas sobre la configuración en OnModelCreating
+        note for GymDbContext "Configura:\n- PKs y FKs\n- Índices Únicos (DNI, UserName)\n- Valores por defecto (Fecha, Estado)\n- DeleteBehavior.ClientSetNull"
+    }
+
+    %% Relación: El Seeder usa el Contexto para poblar datos
+    DbSeeder ..> GymDbContext : Crea Data Inicial (Roles, Admin)
+
+    %% =======================================================
+    %% NAMESPACE: VIEW MODELS (DTOs)
+    %% =======================================================
+    namespace GymApp_ViewModels {
+        
+        %% --- MEMBRESIA ---
+        class MembresiaCreateDTO {
+            +int UserId
+            +int PlanId
+            +int TurnoId
+            +DateTime FechaInicio
+        }
+
+        class MembresiaListDTO {
+            +int MembresiaId
+            +int UserId
+            +string NombreUsuario
+            +string Dni
+            +string NombrePlan
+            +string NombreTurno
+            +string FechaInicio
+            +string FechaVencimiento
+            +string Estado
+            +int DiasRestantes
+        }
+
+        %% --- PAGOS ---
+        class PagoCreateDTO {
+            +string DniCliente
+            +decimal Monto
+            +string MetodoPago
+        }
+
+        class PagoListDTO {
+            +int PagoId
+            +string NombreCliente
+            +string NombrePlan
+            +string MetodoPago
+            +decimal Monto
+            +string FechaPago
+            +string NombreEmpleado
+        }
+
+        class DeudaInfoDTO {
+            +int MembresiaId
+            +string Cliente
+            +string Plan
+            +string Estado
+            +decimal PrecioTotal
+            +decimal TotalPagado
+            +decimal DeudaPendiente
+        }
+
+        %% --- ROLES ---
+        class RoleViewModel {
+            +int? RoleId
+            +string Nombre
+            +string Descripcion
+            +int CantidadUsuarios
+        }
+
+        %% --- TURNOS ---
+        class TurnoDTO {
+            +int TurnoId
+            +string Nombre
+            +string HoraInicio
+            +string HoraFin
+            +string? Descripcion
+        }
+
+        %% --- USUARIOS ---
+        class UsuarioViewModel {
+            +int UserId
+            +int RoleId
+            +string? NombreRol
+            +string NombreCompleto
+            +string Dni
+            +string? NombreUsuario
+            +string? Password
+            +string? Email
+            +string? Telefono
+            +bool Estado
+        }
+
+        %% --- VENTAS ---
+        class VentaItemDTO {
+            +int ProductoId
+            +int Cantidad
+        }
+
+        class VentaCreateDTO {
+            +int? UserId
+            +string MetodoPago
+            +List~VentaItemDTO~ Items
+        }
+    }
+
+    %% Relación: VentaCreateDTO contiene lista de Items
+    VentaCreateDTO *-- "*" VentaItemDTO : Contiene
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Este es mi base de datos: 
+
+-- =============================================
+-- 1. TABLAS DE CATÁLOGOS (Sin dependencias)
+-- =============================================
+
+-- Tabla: ROLES
+CREATE TABLE Roles (
+    RoleID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(50) NOT NULL, -- Admin, Portero, Cliente
+    Descripcion NVARCHAR(100) NULL
+);
+
+-- Tabla: TURNOS
+CREATE TABLE Turnos (
+    TurnoID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(50) NOT NULL, -- Ej: Mañana
+    HoraInicio TIME(0) NOT NULL,
+    HoraFin TIME(0) NOT NULL,
+    Descripcion NVARCHAR(100) NULL
+);
+
+-- Tabla: PLANES
+CREATE TABLE Planes (
+    PlanID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(50) NOT NULL, -- Ej: Mensual, Trimestral
+    DuracionDias INT NOT NULL,
+    PrecioBase DECIMAL(10,2) NOT NULL,
+    PermiteCongelar BIT DEFAULT 0 -- 1=Sí, 0=No
+);
+
+-- Tabla: PRODUCTOS
+CREATE TABLE Productos (
+    ProductoID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(100) NOT NULL,
+    PrecioVenta DECIMAL(10,2) NOT NULL,
+    StockActual INT DEFAULT 0,
+    CodigoBarras NVARCHAR(50) NULL
+);
+
+-- =============================================
+-- 2. TABLA DE USUARIOS (Núcleo del sistema)
+-- =============================================
+
+CREATE TABLE Usuarios (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    RoleID INT NOT NULL,
+    NombreCompleto NVARCHAR(100) NOT NULL,
+    
+    -- Credenciales de Acceso
+    NombreUsuario NVARCHAR(50) NOT NULL UNIQUE, -- Ya integrado aquí
+    DNI NVARCHAR(15) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(255) NULL, 
+    
+    -- Datos de Contacto y Estado
+    Telefono NVARCHAR(20) NULL,
+    Email NVARCHAR(100) NULL,
+    CodigoQR UNIQUEIDENTIFIER DEFAULT NEWID(), -- Generación automática
+    FechaRegistro DATETIME DEFAULT GETDATE(),
+    Estado BIT DEFAULT 1, -- 1=Activo, 0=Inactivo
+    
+    CONSTRAINT FK_Usuarios_Roles FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
+);
+
+-- =============================================
+-- 3. TABLAS PRINCIPALES (Membresías)
+-- =============================================
+
+CREATE TABLE Membresias (
+    MembresiaID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL,
+    PlanID INT NOT NULL,
+    TurnoID INT NOT NULL,
+    FechaInicio DATE NOT NULL,
+    FechaVencimiento DATE NOT NULL,
+    Estado NVARCHAR(20) DEFAULT 'Activa', -- Activa, Vencida, Cancelada
+    Observaciones NVARCHAR(200) NULL,
+    
+    CONSTRAINT FK_Membresias_Usuarios FOREIGN KEY (UserID) REFERENCES Usuarios(UserID),
+    CONSTRAINT FK_Membresias_Planes FOREIGN KEY (PlanID) REFERENCES Planes(PlanID),
+    CONSTRAINT FK_Membresias_Turnos FOREIGN KEY (TurnoID) REFERENCES Turnos(TurnoID)
+);
+
+-- =============================================
+-- 4. TABLAS TRANSACCIONALES (Operación Diaria)
+-- =============================================
+
+-- Pagos de Membresía
+CREATE TABLE PagosMembresia (
+    PagoID INT IDENTITY(1,1) PRIMARY KEY,
+    MembresiaID INT NOT NULL,
+    UsuarioEmpleadoID INT NOT NULL, -- Auditoría: ¿Quién cobró?
+    Monto DECIMAL(10,2) NOT NULL,
+    MetodoPago NVARCHAR(50) NOT NULL, -- Efectivo, Yape, Tarjeta
+    FechaPago DATETIME DEFAULT GETDATE(),
+    Comprobante NVARCHAR(50) NULL,
+    
+    CONSTRAINT FK_Pagos_Membresias FOREIGN KEY (MembresiaID) REFERENCES Membresias(MembresiaID),
+    CONSTRAINT FK_Pagos_Empleado FOREIGN KEY (UsuarioEmpleadoID) REFERENCES Usuarios(UserID)
+);
+
+-- Congelamientos
+CREATE TABLE Congelamientos (
+    CongelamientoID INT IDENTITY(1,1) PRIMARY KEY,
+    MembresiaID INT NOT NULL,
+    UsuarioEmpleadoID INT NOT NULL, -- Auditoría: ¿Quién autorizó?
+    FechaInicio DATE NOT NULL,
+    FechaFin DATE NOT NULL,
+    Motivo NVARCHAR(200) NULL,
+    FechaRegistro DATETIME DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_Congelamientos_Membresias FOREIGN KEY (MembresiaID) REFERENCES Membresias(MembresiaID),
+    CONSTRAINT FK_Congelamientos_Empleado FOREIGN KEY (UsuarioEmpleadoID) REFERENCES Usuarios(UserID)
+);
+
+-- Asistencias (Torniquete)
+CREATE TABLE Asistencias (
+    AsistenciaID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL,
+    FechaHora DATETIME DEFAULT GETDATE(),
+    AccesoPermitido BIT NOT NULL, -- 1=Entró, 0=Rebotado
+    MotivoDenegacion NVARCHAR(100) NULL,
+    
+    CONSTRAINT FK_Asistencias_Usuarios FOREIGN KEY (UserID) REFERENCES Usuarios(UserID)
+);
+
+-- =============================================
+-- 5. MÓDULO POS (Ventas de Productos)
+-- =============================================
+
+CREATE TABLE VentasCabecera (
+    VentaID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NULL, -- Puede ser NULL si es venta a público general
+    UsuarioEmpleadoID INT NOT NULL,
+    FechaVenta DATETIME DEFAULT GETDATE(),
+    Total DECIMAL(10,2) NOT NULL,
+    MetodoPago NVARCHAR(50) NOT NULL,
+    
+    CONSTRAINT FK_Ventas_Cliente FOREIGN KEY (UserID) REFERENCES Usuarios(UserID),
+    CONSTRAINT FK_Ventas_Empleado FOREIGN KEY (UsuarioEmpleadoID) REFERENCES Usuarios(UserID)
+);
+
+CREATE TABLE VentasDetalle (
+    DetalleID INT IDENTITY(1,1) PRIMARY KEY,
+    VentaID INT NOT NULL,
+    ProductoID INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario DECIMAL(10,2) NOT NULL,
+    Subtotal DECIMAL(10,2) NOT NULL,
+    
+    CONSTRAINT FK_Detalle_Venta FOREIGN KEY (VentaID) REFERENCES VentasCabecera(VentaID),
+    CONSTRAINT FK_Detalle_Producto FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID)
+);
+GO
+
+-- Congelamientos (Pausas)
+CREATE TABLE Congelamientos (
+    CongelamientoID INT IDENTITY(1,1) PRIMARY KEY,
+    MembresiaID INT NOT NULL,
+    UsuarioEmpleadoID INT NOT NULL, -- ¿Quién autorizó?
+    FechaInicio DATE NOT NULL,
+    FechaFin DATE NOT NULL,
+    Motivo NVARCHAR(200) NULL,
+    FechaRegistro DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Congelamientos_Membresias FOREIGN KEY (MembresiaID) REFERENCES Membresias(MembresiaID),
+    CONSTRAINT FK_Congelamientos_Empleado FOREIGN KEY (UsuarioEmpleadoID) REFERENCES Usuarios(UserID)
+);
+
+-- Registro de Asistencias (Log de torniquete/entrada)
+CREATE TABLE Asistencias (
+    AsistenciaID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL,
+    FechaHora DATETIME DEFAULT GETDATE(),
+    AccesoPermitido BIT NOT NULL, -- 1=Entró, 0=Rebotado
+    MotivoDenegacion NVARCHAR(100) NULL, -- 'Membresía Vencida', 'Turno Incorrecto'
+    CONSTRAINT FK_Asistencias_Usuarios FOREIGN KEY (UserID) REFERENCES Usuarios(UserID)
+);
+
+-- 6. MÓDULO POS (VENTAS DE PRODUCTOS)
+
+CREATE TABLE VentasCabecera (
+    VentaID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NULL, -- Cliente que compra (Null si es venta a público general sin registro)
+    UsuarioEmpleadoID INT NOT NULL, -- Empleado que vende
+    FechaVenta DATETIME DEFAULT GETDATE(),
+    Total DECIMAL(10,2) NOT NULL,
+    MetodoPago NVARCHAR(50) NOT NULL,
+    CONSTRAINT FK_Ventas_Cliente FOREIGN KEY (UserID) REFERENCES Usuarios(UserID),
+    CONSTRAINT FK_Ventas_Empleado FOREIGN KEY (UsuarioEmpleadoID) REFERENCES Usuarios(UserID)
+);
+
+CREATE TABLE VentasDetalle (
+    DetalleID INT IDENTITY(1,1) PRIMARY KEY,
+    VentaID INT NOT NULL,
+    ProductoID INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario DECIMAL(10,2) NOT NULL, -- Precio al momento de la venta
+    Subtotal DECIMAL(10,2) NOT NULL,
+    CONSTRAINT FK_Detalle_Venta FOREIGN KEY (VentaID) REFERENCES VentasCabecera(VentaID),
+    CONSTRAINT FK_Detalle_Producto FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID)
+);
+GO
+

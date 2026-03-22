@@ -1,0 +1,404 @@
+Descripcion de mi APP:
+La aplicación será una única plataforma web. Al acceder, los usuarios verán una vista de presentación del gimnasio con su información general y un botón "Unirse".
+
+Al hacer clic en "Unirse", se desplegará un sistema de autenticación (login y registro). Una vez ingresen, los usuarios accederán a diferentes dashboards según su tipo de cuenta:
+
+Para el Cliente: Visualizará un dashboard con la información de su membresía.
+
+Para el Administrador: Tendrá acceso a un dashboard con información importante y un panel de control para gestionar todas las funciones existentes, como los registros de usuarios.
+
+Para el Empleado: Podrá ver información específica y, lo más importante, contará con la función de escaneo de códigos QR para consultar los datos de los clientes.
+
+Funcionamiento del Escaneo QR:
+Un cliente que ingrese al gimnasio podrá mostrar su código QR en una tableta con la función de escáner activa. Al ser escaneado, la información del usuario se mostrará en pantalla por un corto tiempo, tras el cual la cámara se reactivará automáticamente para un nuevo escaneo.
+
+Tanto administradores como empleados también podrán consultar información de clientes directamente desde la aplicación web. Toda la funcionalidad estará integrada en la misma app.
+
+@startuml
+skinparam linetype ortho
+!theme plain
+hide circle
+left to right direction
+
+' ========================================
+' 1. CAPA DE DOMINIO (ENTIDADES / MODELS)
+' ========================================
+package "GymApp.Models" {
+
+    class Usuario {
+      +int UserId
+      +int RoleId
+      +string NombreCompleto
+      +string Dni
+      +string Email
+      +string Telefono
+      +string PasswordHash
+      +Guid CodigoQr
+      +DateTime FechaRegistro
+      +bool Estado
+    }
+
+    class Role {
+      +int RoleId
+      +string Nombre
+      +string Descripcion
+    }
+
+    class Asistencia {
+      +int AsistenciaId
+      +int UserId
+      +DateTime FechaHora
+      +bool AccesoPermitido
+      +string MotivoDenegacion
+    }
+
+    class Membresia {
+      +int MembresiaId
+      +int UserId
+      +int PlanId
+      +int TurnoId
+      +DateOnly FechaInicio
+      +DateOnly FechaVencimiento
+      +string Estado
+    }
+
+    class Plane {
+      +int PlanId
+      +string Nombre
+      +int DuracionDias
+      +decimal PrecioBase
+    }
+
+    class Turno {
+      +int TurnoId
+      +string Nombre
+      +TimeOnly HoraInicio
+      +TimeOnly HoraFin
+    }
+
+    class PagosMembresium {
+      +int PagoId
+      +int MembresiaId
+      +decimal Monto
+      +DateTime FechaPago
+    }
+
+    class Producto {
+      +int ProductoId
+      +string Nombre
+      +decimal PrecioVenta
+      +int StockActual
+    }
+
+    class VentasCabecera {
+      +int VentaId
+      +int UserId
+      +DateTime FechaVenta
+      +decimal Total
+    }
+
+    class VentasDetalle {
+      +int DetalleId
+      +int VentaId
+      +int ProductoId
+      +int Cantidad
+    }
+    
+    ' Entidades omitidas por espacio visual pero existentes:
+    ' Congelamiento, etc.
+}
+
+' ========================================
+' 2. CAPA DE PRESENTACIÓN (VIEWMODELS)
+' ========================================
+package "GymApp.ViewModels" {
+    class RoleViewModel {
+        +int? RoleId
+        +string Nombre
+        +string Descripcion
+    }
+
+    class UsuarioViewModel {
+        +int UserId
+        +int RoleId
+        +string NombreCompleto
+        +string Dni
+        +string Email
+        +string Telefono
+        +string NombreRol
+        +bool Estado
+        +string Password
+    }
+}
+
+' ========================================
+' 3. CAPA DE ACCESO A DATOS (REPOSITORIES)
+' ========================================
+package "GymApp.Repositories" {
+
+    interface "IGenericRepository<T>" as IGenericRepository {
+        +Task<IEnumerable<T>> GetAllAsync()
+        +Task<T> GetByIdAsync(int id)
+        +Task InsertAsync(T entity)
+        +Task UpdateAsync(T entity)
+        +Task DeleteAsync(int id)
+        +Task SaveAsync()
+    }
+
+    class "GenericRepository<T>" as GenericRepository {
+        -GymDbContext _context
+        +GenericRepository(GymDbContext context)
+    }
+
+    ' --- USUARIOS ---
+    interface IUsuarioRepository {
+        +Task<Usuario> ObtenerPorDNIAsync(string dni)
+        +Task<Usuario> ObtenerPorQRAsync(Guid qr)
+    }
+    class UsuarioRepository {
+        +UsuarioRepository(GymDbContext context)
+    }
+
+    ' --- ROLES ---
+    interface IRoleRepository {}
+    class RoleRepository {}
+}
+
+' ========================================
+' 4. CAPA DE LÓGICA DE NEGOCIO (SERVICES)
+' ========================================
+package "GymApp.Services" {
+
+    ' --- USUARIOS ---
+    interface IUsuarioService {
+        +ObtenerTodosAsync()
+        +ObtenerPorIdAsync(int id)
+        +CrearUsuarioAsync(usuario, password)
+        +ActualizarUsuarioAsync(usuario)
+        +EliminarUsuarioAsync(int id)
+        +GenerarImagenQR(Guid qr)
+    }
+
+    class UsuarioService {
+        -IUsuarioRepository _usuarioRepository
+        +UsuarioService(IUsuarioRepository repo)
+    }
+
+    ' --- ROLES ---
+    interface IRoleService {
+        +ObtenerTodosAsync()
+        +CrearRolAsync(role)
+        +ActualizarRolAsync(role)
+        +EliminarRolAsync(int id)
+    }
+
+    class RoleService {
+        -IRoleRepository _roleRepository
+        +RoleService(IRoleRepository repo)
+    }
+}
+
+' ========================================
+' 5. CAPA DE PRESENTACIÓN (CONTROLLERS)
+' ========================================
+package "GymApp.Controllers" {
+
+    class RolesController {
+        -IRoleService _roleService
+        +RolesController(IRoleService service)
+        +Index()
+        +GetRole(id)
+        +Create(model)
+        +Edit(model)
+        +Delete(id)
+    }
+
+    class UsuariosController {
+        -IUsuarioService _usuarioService
+        -IGenericRepository<Role> _rolesRepository
+        +UsuariosController(service, roleRepo)
+        .. Métodos AJAX ..
+        +Index(string tipo) : IActionResult
+        +GetUsuario(int id) : JsonResult
+        +Save(UsuarioViewModel model) : JsonResult
+        +Delete(int id) : JsonResult
+        +ObtenerQR(int id) : FileResult
+        note right: Save() unificado para\nCrear y Editar
+    }
+}
+
+' ========================================
+' RELACIONES Y DEPENDENCIAS
+' ========================================
+
+' RELACIONES DB (Simplificadas)
+Role "1" o-- "many" Usuario : asignado_a
+Usuario "1" o-- "many" Asistencia
+Usuario "1" o-- "many" Membresia
+Membresia "1" o-- "many" PagosMembresium
+VentasCabecera "1" o-- "many" VentasDetalle
+Producto "1" o-- "many" VentasDetalle
+
+' IMPLEMENTACIONES (Herencia)
+IGenericRepository <|.. GenericRepository
+IGenericRepository <|-- IUsuarioRepository
+IUsuarioRepository <|.. UsuarioRepository
+GenericRepository <|-- UsuarioRepository
+
+IGenericRepository <|-- IRoleRepository
+IRoleRepository <|.. RoleRepository
+GenericRepository <|-- RoleRepository
+
+IUsuarioService <|.. UsuarioService
+IRoleService <|.. RoleService
+
+' INYECCIÓN DE DEPENDENCIAS (Controllers)
+RolesController --> IRoleService : usa
+RolesController ..> RoleViewModel : gestiona
+
+UsuariosController --> IUsuarioService : usa
+UsuariosController --> "IGenericRepository" : usa (Roles)
+UsuariosController ..> UsuarioViewModel : gestiona
+
+' INYECCIÓN DE DEPENDENCIAS (Services)
+UsuarioService --> IUsuarioRepository
+RoleService --> IRoleRepository
+
+@enduml
+//////////////////////////
+Este es mi base de datos: 
+
+USE GymDB;
+
+
+-- 2. TABLAS DE CATÁLOGOS Y CONFIGURACIÓN (Sin dependencias)
+
+-- Tabla: ROLES
+CREATE TABLE Roles (
+    RoleID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(50) NOT NULL, -- Admin, Portero, Cliente
+    Descripcion NVARCHAR(100) NULL
+);
+
+-- Tabla: TURNOS (Para validación estricta)
+CREATE TABLE Turnos (
+    TurnoID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(50) NOT NULL, -- Ej: Mañana
+    HoraInicio TIME(0) NOT NULL,
+    HoraFin TIME(0) NOT NULL,
+    Descripcion NVARCHAR(100) NULL
+);
+
+-- Tabla: PLANES
+CREATE TABLE Planes (
+    PlanID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(50) NOT NULL, -- Ej: Mensual, Trimestral
+    DuracionDias INT NOT NULL,
+    PrecioBase DECIMAL(10,2) NOT NULL,
+    PermiteCongelar BIT DEFAULT 0 -- 1=Sí, 0=No
+);
+
+-- Tabla: PRODUCTOS (Para el POS)
+CREATE TABLE Productos (
+    ProductoID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(100) NOT NULL,
+    PrecioVenta DECIMAL(10,2) NOT NULL,
+    StockActual INT DEFAULT 0,
+    CodigoBarras NVARCHAR(50) NULL -- Para pistola de código de barras
+);
+
+-- 3. TABLAS DE USUARIOS (Dependen de Roles)
+
+CREATE TABLE Usuarios (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    RoleID INT NOT NULL,
+    NombreCompleto NVARCHAR(100) NOT NULL,
+    DNI NVARCHAR(15) NOT NULL UNIQUE, -- DNI no debe repetirse
+    Telefono NVARCHAR(20) NULL,
+    Email NVARCHAR(100) NULL,
+    PasswordHash NVARCHAR(255) NULL, -- Nullable por si registras presencial sin pass inicial
+    CodigoQR UNIQUEIDENTIFIER DEFAULT NEWID(), -- Se genera solo automáticamente
+    FechaRegistro DATETIME DEFAULT GETDATE(),
+    Estado BIT DEFAULT 1, -- 1=Activo, 0=Inactivo
+    CONSTRAINT FK_Usuarios_Roles FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
+);
+
+-- 4. TABLAS PRINCIPALES (Membresías)
+
+CREATE TABLE Membresias (
+    MembresiaID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL, -- El cliente
+    PlanID INT NOT NULL, -- El plan contratado
+    TurnoID INT NOT NULL, -- El horario permitido
+    FechaInicio DATE NOT NULL,
+    FechaVencimiento DATE NOT NULL,
+    Estado NVARCHAR(20) DEFAULT 'Activa', -- Activa, Vencida, Cancelada
+    Observaciones NVARCHAR(200) NULL,
+    CONSTRAINT FK_Membresias_Usuarios FOREIGN KEY (UserID) REFERENCES Usuarios(UserID),
+    CONSTRAINT FK_Membresias_Planes FOREIGN KEY (PlanID) REFERENCES Planes(PlanID),
+    CONSTRAINT FK_Membresias_Turnos FOREIGN KEY (TurnoID) REFERENCES Turnos(TurnoID)
+);
+
+-- 5. TABLAS TRANSACCIONALES (Pagos, Asistencia, Congelamientos)
+
+-- Auditoría y Pagos de Membresía
+CREATE TABLE PagosMembresia (
+    PagoID INT IDENTITY(1,1) PRIMARY KEY,
+    MembresiaID INT NOT NULL,
+    UsuarioEmpleadoID INT NOT NULL, -- ¿Quién cobró? (Auditoría)
+    Monto DECIMAL(10,2) NOT NULL,
+    MetodoPago NVARCHAR(50) NOT NULL, -- Efectivo, Yape, Tarjeta
+    FechaPago DATETIME DEFAULT GETDATE(),
+    Comprobante NVARCHAR(50) NULL,
+    CONSTRAINT FK_Pagos_Membresias FOREIGN KEY (MembresiaID) REFERENCES Membresias(MembresiaID),
+    CONSTRAINT FK_Pagos_Empleado FOREIGN KEY (UsuarioEmpleadoID) REFERENCES Usuarios(UserID) -- Auto-relación
+);
+
+-- Congelamientos (Pausas)
+CREATE TABLE Congelamientos (
+    CongelamientoID INT IDENTITY(1,1) PRIMARY KEY,
+    MembresiaID INT NOT NULL,
+    UsuarioEmpleadoID INT NOT NULL, -- ¿Quién autorizó?
+    FechaInicio DATE NOT NULL,
+    FechaFin DATE NOT NULL,
+    Motivo NVARCHAR(200) NULL,
+    FechaRegistro DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Congelamientos_Membresias FOREIGN KEY (MembresiaID) REFERENCES Membresias(MembresiaID),
+    CONSTRAINT FK_Congelamientos_Empleado FOREIGN KEY (UsuarioEmpleadoID) REFERENCES Usuarios(UserID)
+);
+
+-- Registro de Asistencias (Log de torniquete/entrada)
+CREATE TABLE Asistencias (
+    AsistenciaID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL,
+    FechaHora DATETIME DEFAULT GETDATE(),
+    AccesoPermitido BIT NOT NULL, -- 1=Entró, 0=Rebotado
+    MotivoDenegacion NVARCHAR(100) NULL, -- 'Membresía Vencida', 'Turno Incorrecto'
+    CONSTRAINT FK_Asistencias_Usuarios FOREIGN KEY (UserID) REFERENCES Usuarios(UserID)
+);
+
+-- 6. MÓDULO POS (VENTAS DE PRODUCTOS)
+
+CREATE TABLE VentasCabecera (
+    VentaID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NULL, -- Cliente que compra (Null si es venta a público general sin registro)
+    UsuarioEmpleadoID INT NOT NULL, -- Empleado que vende
+    FechaVenta DATETIME DEFAULT GETDATE(),
+    Total DECIMAL(10,2) NOT NULL,
+    MetodoPago NVARCHAR(50) NOT NULL,
+    CONSTRAINT FK_Ventas_Cliente FOREIGN KEY (UserID) REFERENCES Usuarios(UserID),
+    CONSTRAINT FK_Ventas_Empleado FOREIGN KEY (UsuarioEmpleadoID) REFERENCES Usuarios(UserID)
+);
+
+CREATE TABLE VentasDetalle (
+    DetalleID INT IDENTITY(1,1) PRIMARY KEY,
+    VentaID INT NOT NULL,
+    ProductoID INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario DECIMAL(10,2) NOT NULL, -- Precio al momento de la venta
+    Subtotal DECIMAL(10,2) NOT NULL,
+    CONSTRAINT FK_Detalle_Venta FOREIGN KEY (VentaID) REFERENCES VentasCabecera(VentaID),
+    CONSTRAINT FK_Detalle_Producto FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID)
+);
+GO
+
