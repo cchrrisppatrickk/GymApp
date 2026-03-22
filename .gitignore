@@ -1,0 +1,23 @@
+# .gitignore for .NET GymApp
+[Bb]in/
+[Oo]bj/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+appsettings.Development.json
+sql_data/
+docker-compose.override.yml
+# Excluir archivos solicitados
+Diagramas/
+*.txt
+# SQL Server volumes
+/GymApp/sql_data/
+# Node.js (if any)
+node_modules/
+# Env files
+.env
+# Project specific temp
+*.log

@@ -1,0 +1,63 @@
+# ---------------------------------------------------------
+# INICIAR Y DETENER EL CONTENEDOR
+# ---------------------------------------------------------
+
+# Crea y enciende la base de datos por primera vez (o la levanta si fue destruida)
+# El flag -d (detached) la deja corriendo en segundo plano
+docker-compose up -d
+
+docker compose up -d
+
+
+# Apaga la base de datos temporalmente (cuando terminas de trabajar)
+docker-compose stop
+
+# Vuelve a encender la base de datos (cuando inicias tu PC al día siguiente)
+docker-compose start
+
+# ---------------------------------------------------------
+# MANTENIMIENTO Y MONITOREO
+# ---------------------------------------------------------
+
+# Muestra los contenedores que están activos actualmente y sus puertos
+docker ps
+
+# Muestra el historial de errores o mensajes de SQL Server
+# (Cambia 'gym_sql_server' si le pusiste otro nombre en tu docker-compose.yml)
+docker logs gym_sql_server
+
+# Destruye el contenedor de SQL Server por completo
+# (Tranquilo, tu información no se borra gracias al 'volume' configurado)
+docker-compose down
+
+# ---------------------------------------------------------
+# FLUJO DE TRABAJO DIARIO
+# ---------------------------------------------------------
+
+# Tu comando principal: Ejecuta la aplicación y activa la recarga automática.
+# Si cambias código C# o HTML y guardas, el navegador se actualiza solo.
+dotnet watch run
+
+# Solo compila el código para verificar que no haya errores de sintaxis
+dotnet build
+
+# Limpia archivos compilados antiguos (útil si la app se comporta de forma extraña)
+dotnet clean
+
+# Descarga todas las librerías necesarias de NuGet (como Entity Framework)
+dotnet restore
+
+# ---------------------------------------------------------
+# MIGRACIONES (ACTUALIZAR LA ESTRUCTURA DE LA BD)
+# ---------------------------------------------------------
+
+# 1. Crea los planos para una nueva tabla o columna
+# Reemplaza <NombreDeLaMigracion> por algo descriptivo (ej: AgregarColumnaEdad)
+dotnet ef migrations add <NombreDeLaMigracion>
+
+# 2. Aplica los planos creados a tu base de datos SQL Server real
+dotnet ef database update
+
+# (Opcional) Borra la ÚLTIMA migración creada si te equivocaste
+# (Solo funciona si aún no has ejecutado el 'database update')
+dotnet ef migrations remove

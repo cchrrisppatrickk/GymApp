@@ -1,0 +1,466 @@
+﻿@{
+    ViewData["Title"] = "Caja y Pagos";
+}
+
+<div class="container-fluid px-4 fade-in">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-wallet2 text-success me-2"></i>Caja y Tesorería</h2>
+            <p class="text-muted small mb-0">Control de ingresos y emisión de comprobantes.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary shadow-sm">
+                <i class="bi bi-printer me-1"></i> Cierre de Caja
+            </button>
+            <button class="btn btn-success shadow-sm" onclick="abrirModalPago()">
+                <i class="bi bi-plus-lg me-1"></i> Registrar Ingreso
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-4 g-3">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                <div class="card-body position-relative">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-0">Ingresos Totales</h6>
+                        <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-graph-up-arrow"></i> Hoy</span>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-0" id="kpiIngresos">$ 0.00</h3>
+                    <div class="position-absolute top-0 end-0 opacity-10 p-3">
+                        <i class="bi bi-currency-dollar fs-1 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-0">Transacciones</h6>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-0" id="kpiTransacciones">0</h3>
+                    <p class="small text-muted mb-0">Operaciones registradas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 bg-primary bg-gradient text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-uppercase text-white-50 small fw-bold mb-0">Último Cobro</h6>
+                    </div>
+                    <h5 class="fw-bold mb-0" id="kpiUltimoCliente">--</h5>
+                    <small class="text-white-50" id="kpiUltimoMonto">--</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary"><i class="bi bi-clock-history me-1"></i> Historial de Movimientos</h6>
+
+            <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                <input type="date" class="form-control form-control-sm" id="filtroFecha" onchange="cargarHistorial()">
+                <button class="btn btn-sm btn-light border" onclick="cargarHistorial()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tablaPagos">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="ps-4">Fecha / Hora</th>
+                            <th>Cliente</th>
+                            <th>Concepto</th>
+                            <th>Método</th>
+                            <th>Atendido Por</th>
+                            <th class="text-end">Monto</th>
+                            <th class="text-center">Recibo</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="text-center py-5 d-none">
+                <div class="bg-light rounded-circle d-inline-flex p-4 mb-3">
+                    <i class="bi bi-receipt text-muted" style="font-size: 2rem;"></i>
+                </div>
+                <p class="text-muted fw-bold">No hay movimientos registrados hoy.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPago" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-cash-coin me-2"></i>Registrar Cobro</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary text-uppercase small">Buscar Cliente</label>
+                    <div class="input-group input-group-lg">
+                        <input type="text" class="form-control" id="txtDniBuscar" placeholder="DNI del cliente..." autocomplete="off">
+                        <button class="btn btn-outline-secondary" type="button" onclick="buscarDeuda()">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">Presiona la lupa o Enter para buscar deudas pendientes.</div>
+                </div>
+
+                <div id="infoMembresia" class="card bg-light border-0 shadow-sm mb-3 d-none">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark" id="lblCliente">Cliente</h5>
+                                <small class="text-muted" id="lblPlan">Plan</small>
+                            </div>
+                            <span class="badge" id="lblEstadoBadge">Estado</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between text-muted small mb-1">
+                                <span>Progreso de Pago</span>
+                                <span id="lblPorcentaje">0%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" id="progressBarPago" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="row text-center mt-3 g-0 border rounded bg-white">
+                            <div class="col border-end p-2">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">TOTAL PLAN</small>
+                                <span class="fw-bold text-dark" id="lblPrecioTotal">$0.00</span>
+                            </div>
+                            <div class="col border-end p-2">
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">PAGADO</small>
+                                <span class="fw-bold text-success" id="lblTotalPagado">$0.00</span>
+                            </div>
+                            <div class="col p-2 bg-danger bg-opacity-10">
+                                <small class="text-danger fw-bold d-block" style="font-size: 0.75rem;">DEUDA</small>
+                                <span class="fw-bold text-danger" id="lblDeudaPendiente">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="formPagoDetalle" class="d-none animate-fade-in">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Monto a Cobrar</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white text-success border-end-0">$</span>
+                            <input type="number" class="form-control border-start-0 ps-0 fw-bold text-success"
+                                   id="txtMonto" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-text text-danger d-none" id="errorMontoExcedido">El monto no puede superar la deuda pendiente.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Método de Pago</label>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="metodoPago" id="metodo1" value="Efectivo" checked>
+                                <label class="btn btn-outline-success w-100 py-3" for="metodo1">
+                                    <i class="bi bi-cash d-block fs-4"></i><small>Efectivo</small>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="metodoPago" id="metodo2" value="Yape/Plin">
+                                <label class="btn btn-outline-primary w-100 py-3" for="metodo2">
+                                    <i class="bi bi-phone d-block fs-4"></i><small>Yape/Plin</small>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="metodoPago" id="metodo3" value="Tarjeta">
+                                <label class="btn btn-outline-dark w-100 py-3" for="metodo3">
+                                    <i class="bi bi-credit-card d-block fs-4"></i><small>Tarjeta</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success px-4" id="btnCobrar" onclick="procesarPago()" disabled>
+                    <i class="bi bi-check-lg me-2"></i>Confirmar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let deudaActual = 0; // Variable global para validación
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('filtroFecha').valueAsDate = new Date();
+            cargarHistorial();
+        });
+
+        // Eventos
+        document.getElementById("txtDniBuscar").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") buscarDeuda();
+        });
+
+        // Validación visual de monto excedido
+        document.getElementById("txtMonto").addEventListener("input", function() {
+            const valor = parseFloat(this.value);
+            const errorMsg = document.getElementById("errorMontoExcedido");
+            const btn = document.getElementById("btnCobrar");
+
+            if(valor > deudaActual) {
+                errorMsg.classList.remove("d-none");
+                this.classList.add("is-invalid");
+                btn.disabled = true;
+            } else {
+                errorMsg.classList.add("d-none");
+                this.classList.remove("is-invalid");
+                btn.disabled = false;
+            }
+        });
+
+        function cargarHistorial() {
+            // (Esta función se mantiene igual que tu código original, no requiere cambios de lógica)
+            const tbody = document.querySelector("#tablaPagos tbody");
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><div class="spinner-border text-success" role="status"></div></td></tr>';
+
+            fetch('/Pagos/Listar')
+                .then(res => res.json())
+                .then(json => {
+                    let html = '';
+                    let totalIngresos = 0;
+
+                    if(json.data.length === 0){
+                        tbody.innerHTML = '';
+                        document.getElementById("emptyState").classList.remove("d-none");
+                        document.getElementById('kpiIngresos').innerText = "$ 0.00";
+                        document.getElementById('kpiTransacciones').innerText = "0";
+                        return;
+                    }
+
+                    document.getElementById("emptyState").classList.add("d-none");
+
+                    json.data.forEach(p => {
+                        totalIngresos += p.monto;
+                        let metodoBadge = '<span class="badge bg-secondary">Otro</span>';
+                        if(p.metodoPago === 'Efectivo') metodoBadge = '<span class="badge bg-success bg-opacity-75"><i class="bi bi-cash me-1"></i>Efectivo</span>';
+                        if(p.metodoPago === 'Tarjeta') metodoBadge = '<span class="badge bg-primary bg-opacity-75"><i class="bi bi-credit-card me-1"></i>Tarjeta</span>';
+                        if(p.metodoPago.includes('Yape')) metodoBadge = '<span class="badge" style="background-color: #720e9e; color:white;"><i class="bi bi-qr-code me-1"></i>Yape</span>';
+
+                        html += `
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">${p.fechaPago.split(' ')[0]}</div>
+                                    <small class="text-muted">${p.fechaPago.split(' ')[1] || ''}</small>
+                                </td>
+                                <td><span class="fw-bold">${p.nombreCliente}</span></td>
+                                <td><span class="text-muted">${p.nombrePlan}</span></td>
+                                <td>${metodoBadge}</td>
+                                <td><small>${p.nombreEmpleado}</small></td>
+                                <td class="text-end"><span class="fw-bold text-dark h6">$ ${p.monto.toFixed(2)}</span></td>
+                                <td class="text-center">
+                                    <a href="/Pagos/Comprobante/${p.pagoId}" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-printer"></i></a>
+                                </td>
+                            </tr>`;
+                    });
+
+                    tbody.innerHTML = html;
+                    document.getElementById('kpiIngresos').innerText = "$ " + totalIngresos.toFixed(2);
+                    document.getElementById('kpiTransacciones').innerText = json.data.length;
+
+                    if(json.data.length > 0){
+                        const ultimo = json.data[json.data.length - 1];
+                        document.getElementById('kpiUltimoCliente').innerText = ultimo.nombreCliente.split(' ')[0];
+                        document.getElementById('kpiUltimoMonto').innerText = "+ $ " + ultimo.monto.toFixed(2);
+                    }
+                });
+        }
+
+        // ============================================
+        // LÓGICA DE BÚSQUEDA DE DEUDA (ACTUALIZADA)
+        // ============================================
+        function buscarDeuda() {
+            const dni = document.getElementById("txtDniBuscar").value;
+            if(!dni) {
+                Swal.fire('Atención', 'Ingresa un DNI para buscar', 'warning');
+                return;
+            }
+
+            const btn = document.querySelector(".input-group button");
+            const iconOriginal = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            btn.disabled = true;
+
+            fetch(`/Pagos/BuscarDeuda?dni=${dni}`)
+                .then(res => res.json())
+                .then(json => {
+                    btn.innerHTML = iconOriginal;
+                    btn.disabled = false;
+
+                    if (json.success) {
+                        const data = json.data;
+
+                        // Guardar deuda global para validaciones
+                        deudaActual = data.deudaPendiente;
+
+                        // 1. Llenar Datos Básicos
+                        document.getElementById("lblCliente").innerText = data.cliente;
+                        document.getElementById("lblPlan").innerText = data.plan;
+
+                        // 2. Configurar Badge de Estado
+                        const lblBadge = document.getElementById("lblEstadoBadge");
+                        lblBadge.innerText = data.estado;
+                        if(data.estado === 'Activa') {
+                            lblBadge.className = 'badge bg-success';
+                        } else if(data.estado === 'Pendiente Pago') {
+                            lblBadge.className = 'badge bg-warning text-dark';
+                        } else {
+                            lblBadge.className = 'badge bg-danger';
+                        }
+
+                        // 3. Llenar Datos Financieros (NUEVO)
+                        // Aseguramos que vengan números, si no, fallback a 0
+                        const total = data.precioTotal || 0;
+                        const pagado = data.totalPagado || 0;
+                        const deuda = data.deudaPendiente || 0;
+
+                        document.getElementById("lblPrecioTotal").innerText = "$ " + total.toFixed(2);
+                        document.getElementById("lblTotalPagado").innerText = "$ " + pagado.toFixed(2);
+                        document.getElementById("lblDeudaPendiente").innerText = "$ " + deuda.toFixed(2);
+
+                        // 4. Barra de Progreso
+                        let porcentaje = 0;
+                        if(total > 0) porcentaje = (pagado / total) * 100;
+                        document.getElementById("progressBarPago").style.width = porcentaje + "%";
+                        document.getElementById("lblPorcentaje").innerText = Math.round(porcentaje) + "% pagado";
+
+                        // 5. Configurar Input de Monto (Autofill)
+                        const inputMonto = document.getElementById("txtMonto");
+                        if(deuda > 0) {
+                            inputMonto.value = deuda.toFixed(2); // Autocompletar con la deuda exacta
+                            inputMonto.max = deuda.toFixed(2); // Bloqueo HTML (soft)
+                            inputMonto.disabled = false;
+                            document.getElementById("btnCobrar").disabled = false;
+
+                            // Mostrar secciones
+                            document.getElementById("infoMembresia").classList.remove("d-none");
+                            document.getElementById("formPagoDetalle").classList.remove("d-none");
+                            inputMonto.focus();
+                        } else {
+                            // Si deuda es 0 o negativa (saldo a favor)
+                            Swal.fire('¡Al día!', `El cliente ${data.cliente} no tiene deuda pendiente.`, 'success');
+                            limpiarModal(false);
+                        }
+
+                    } else {
+                        Swal.fire({ icon: 'info', title: 'Sin resultados', text: json.message });
+                        limpiarModal(false);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    btn.innerHTML = iconOriginal;
+                    btn.disabled = false;
+                    Swal.fire('Error', 'No se pudo consultar la deuda', 'error');
+                });
+        }
+
+        function procesarPago() {
+            const metodoSeleccionado = document.querySelector('input[name="metodoPago"]:checked').value;
+            const monto = parseFloat(document.getElementById("txtMonto").value);
+
+            // Validaciones Cliente-Side
+            if(isNaN(monto) || monto <= 0) {
+                Swal.fire('Error', 'El monto debe ser válido y mayor a 0', 'error');
+                return;
+            }
+            if(monto > deudaActual) {
+                 Swal.fire('Error', `El monto ($${monto}) supera la deuda pendiente ($${deudaActual})`, 'error');
+                 return;
+            }
+
+            const data = {
+                DniCliente: document.getElementById("txtDniBuscar").value,
+                Monto: monto,
+                MetodoPago: metodoSeleccionado
+            };
+
+            Swal.fire({
+                title: '¿Confirmar cobro?',
+                html: `Monto: <b class="text-success fs-4">$${monto.toFixed(2)}</b><br>Método: ${metodoSeleccionado}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'Sí, cobrar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Bloquear botón para evitar doble click
+                    document.getElementById("btnCobrar").disabled = true;
+
+                    fetch('/Pagos/Registrar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    })
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('modalPago'));
+                            modal.hide();
+                            cargarHistorial();
+
+                            Swal.fire({
+                                title: '¡Cobro Exitoso!',
+                                text: 'El pago se registró y el estado de la membresía se actualizó si corresponde.',
+                                icon: 'success',
+                                showCancelButton: true,
+                                confirmButtonText: 'Imprimir Ticket',
+                                cancelButtonText: 'Cerrar'
+                            }).then((printResult) => {
+                                if (printResult.isConfirmed) {
+                                    window.open(`/Pagos/Comprobante/${json.pagoId}`, '_blank');
+                                }
+                            });
+                        } else {
+                            document.getElementById("btnCobrar").disabled = false;
+                            Swal.fire('Error', json.message, 'error');
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById("btnCobrar").disabled = false;
+                    });
+                }
+            });
+        }
+
+        function abrirModalPago() {
+            limpiarModal(true);
+            new bootstrap.Modal(document.getElementById('modalPago')).show();
+            setTimeout(() => document.getElementById("txtDniBuscar").focus(), 500);
+        }
+
+        function limpiarModal(fullClear) {
+            if(fullClear) document.getElementById("txtDniBuscar").value = "";
+            document.getElementById("txtMonto").value = "";
+            document.getElementById("txtMonto").classList.remove("is-invalid");
+            document.getElementById("errorMontoExcedido").classList.add("d-none");
+
+            document.getElementById("infoMembresia").classList.add("d-none");
+            document.getElementById("formPagoDetalle").classList.add("d-none");
+            document.getElementById("btnCobrar").disabled = true;
+            deudaActual = 0;
+        }
+    </script>
+}

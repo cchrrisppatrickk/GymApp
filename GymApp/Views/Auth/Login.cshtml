@@ -1,0 +1,87 @@
+﻿@{
+    Layout = null; // Login no suele llevar el menú lateral
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - GymApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: #16213e;
+            border: none;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-control {
+            background: #0f3460;
+            border: none;
+            color: white;
+        }
+
+            .form-control:focus {
+                background: #0f3460;
+                color: white;
+                box-shadow: none;
+                border: 1px solid #e94560;
+            }
+
+        .btn-gym {
+            background-color: #e94560;
+            color: white;
+            width: 100%;
+            font-weight: bold;
+        }
+
+            .btn-gym:hover {
+                background-color: #c0354e;
+                color: white;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="card p-4 shadow-lg rounded">
+        <div class="text-center mb-4">
+            <h3>Stefano's Gym</h3>
+            <p class="text-muted">Bienvenido de nuevo</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger text-center p-2">@ViewBag.Error</div>
+        }
+
+        <form asp-action="Login" method="post">
+            <div class="mb-3">
+                <label class="form-label">DNI / Usuario</label>
+                <input type="text" name="dni" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Contraseña</label>
+                <input type="password" name="password" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-gym mt-2">INGRESAR</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <small class="text-muted">¿Olvidaste tu contraseña? Contacta al admin.</small>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: gym_sql_server
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=PasswordSeguro123! # Cambia esto por una contraseña fuerte
+    ports:
+      - "1433:1433" # Expone el puerto por defecto de SQL Server
+    volumes:
+      - sql_data:/var/opt/mssql # Esto asegura que no pierdas la BD si apagas el contenedor
+
+volumes:
+  sql_data:

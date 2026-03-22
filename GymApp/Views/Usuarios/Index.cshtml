@@ -1,0 +1,320 @@
+﻿@model IEnumerable<GymApp.ViewModels.UsuarioViewModel>
+
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+    var rolesSelectList = ViewBag.Roles as SelectList;
+    var filtroActual = ViewBag.FiltroActual as string;
+}
+
+<div class="container-fluid mt-4">
+    <!-- Encabezado y Filtros -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="d-inline-block me-3"><i class="bi bi-people"></i> @ViewData["TituloListado"]</h2>
+            <div class="btn-group" role="group">
+                <a asp-action="Index" asp-route-tipo="Todos" class="btn btn-outline-secondary @(filtroActual == "Todos" ? "active" : "")">Todos</a>
+                <a asp-action="Index" asp-route-tipo="Cliente" class="btn btn-outline-secondary @(filtroActual == "Cliente" ? "active" : "")">Clientes</a>
+                <a asp-action="Index" asp-route-tipo="Personal" class="btn btn-outline-secondary @(filtroActual == "Personal" ? "active" : "")">Personal</a>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalCrear()">
+            <i class="bi bi-person-plus"></i> Nuevo Usuario
+        </button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                        <th>DNI</th>
+                        <th>Contacto</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@item.NombreCompleto</div>
+                            </td>
+                            <td><span class="badge bg-info text-dark">@item.NombreRol</span></td>
+                            <td>@item.Dni</td>
+                            <td>
+                                <small class="d-block"><i class="bi bi-envelope"></i> @item.Email</small>
+                                <small class="d-block"><i class="bi bi-phone"></i> @item.Telefono</small>
+                            </td>
+                            <td>
+                                @if (item.Estado)
+                                {
+                                    <span class="badge bg-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactivo</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <!-- Botón Ver QR -->
+                                <button class="btn btn-sm btn-dark me-1" onclick="verQR(@item.UserId, '@item.NombreCompleto')" title="Ver Código QR">
+                                    <i class="bi bi-qr-code"></i>
+                                </button>
+                                <!-- Botón Editar -->
+                                <button class="btn btn-sm btn-warning me-1" onclick="abrirModalEditar(@item.UserId)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <!-- Botón Eliminar -->
+                                <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(@item.UserId)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL DE GESTIÓN (UPSERT) -->
+<!-- ========================= -->
+<div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="tituloModal">Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formUsuario">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="UserId" value="0" />
+
+                    <div class="row">
+                        <!-- Columna Izquierda -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="RoleId" class="form-label">Rol del Usuario</label>
+                                <select id="RoleId" class="form-select" asp-items="rolesSelectList" required>
+                                    <option value="">-- Seleccione Rol --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="NombreCompleto" class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-control" id="NombreCompleto" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="Dni" class="form-label">DNI / Identificación</label>
+                                <input type="text" class="form-control" id="Dni" required />
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="Email" class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="Email" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="Telefono" class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" id="Telefono" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="Password" class="form-label" id="lblPassword">Contraseña</label>
+                                <input type="password" class="form-control" id="Password" placeholder="Solo llenar si desea cambiarla" />
+                                <small class="text-muted" id="helpPassword">Obligatorio para nuevos usuarios.</small>
+                            </div>
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" id="Estado" checked>
+                                <label class="form-check-label" for="Estado">Usuario Activo</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarUsuario()">Guardar Datos</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL DE CÓDIGO QR       -->
+<!-- ========================= -->
+<div class="modal fade" id="modalQR" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm text-center">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-6" id="qrTitulo">Código QR</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- La imagen se carga dinámicamente -->
+                <img id="imgQR" src="" alt="Cargando QR..." class="img-fluid border p-2" />
+                <p class="mt-2 text-muted small">Escanee este código en la entrada</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        var modalUsuario, modalQR;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
+            modalQR = new bootstrap.Modal(document.getElementById('modalQR'));
+        });
+
+        // 1. ABRIR MODAL CREAR
+        function abrirModalCrear() {
+            document.getElementById('tituloModal').innerText = "Nuevo Usuario";
+            document.getElementById('formUsuario').reset();
+            document.getElementById('UserId').value = "0";
+
+            // UI para password
+            document.getElementById('Password').setAttribute('required', 'required');
+            document.getElementById('helpPassword').innerText = "Obligatorio para crear el usuario.";
+
+            modalUsuario.show();
+        }
+
+        // 2. ABRIR MODAL EDITAR
+        function abrirModalEditar(id) {
+            document.getElementById('tituloModal').innerText = "Editar Usuario";
+
+            fetch(`/Usuarios/GetUsuario/${id}`)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.success) {
+                        const d = response.data;
+                        // CORRECCIÓN: Usamos los IDs correctos del HTML
+                        document.getElementById('UserId').value = d.userId;
+                        document.getElementById('RoleId').value = d.roleId;
+                        document.getElementById('NombreCompleto').value = d.nombreCompleto;
+                        document.getElementById('Dni').value = d.dni;
+                        document.getElementById('Email').value = d.email;
+                        document.getElementById('Telefono').value = d.telefono;
+
+                        // CORRECCIÓN: Para Checkbox se usa .checked, no .value
+                        document.getElementById('Estado').checked = d.estado;
+
+                        // UI para password (opcional en edit)
+                        document.getElementById('Password').value = "";
+                        document.getElementById('Password').removeAttribute('required');
+                        document.getElementById('helpPassword').innerText = "Dejar en blanco para mantener la actual.";
+
+                        // Lógica para mostrar nombre de usuario si es diferente al DNI (Opcional)
+                        // document.getElementById('txtUsuarioManual').value = d.nombreUsuario;
+
+                        modalUsuario.show();
+                    } else {
+                        Swal.fire('Error', 'No se pudieron cargar los datos', 'error');
+                    }
+                });
+        }
+
+        // 3. GUARDAR USUARIO (Corrección de Nombre y IDs)
+        function guardarUsuario() {
+            // A. VALIDACIÓN DE ROL
+            // Usamos JQuery $("#RoleId") o Vanilla JS document.getElementById
+            var rolId = document.getElementById("RoleId").value;
+            if (!rolId) {
+                Swal.fire("Atención", "Debe seleccionar un Rol", "warning");
+                return;
+            }
+
+            // B. CONSTRUCCIÓN DEL OBJETO (Mapeo correcto de IDs)
+            var usuario = {
+                UserId: parseInt(document.getElementById("UserId").value) || 0,
+                RoleId: parseInt(rolId),
+                NombreCompleto: document.getElementById("NombreCompleto").value,
+                Dni: document.getElementById("Dni").value,
+                Email: document.getElementById("Email").value,
+                Telefono: document.getElementById("Telefono").value,
+
+                // Corrección: Leer checkbox
+                Estado: document.getElementById("Estado").checked,
+
+                // Lógica de Contraseña / Usuario Automático
+                // Si el campo Password está vacío, enviamos null para que el backend use el DNI
+                Password: document.getElementById("Password").value || null,
+
+                // En tu HTML actual no veo campo para "NombreUsuario",
+                // así que enviamos null para que el backend use el DNI por defecto.
+                NombreUsuario: null
+            };
+
+            // C. ENVÍO AJAX
+            $.ajax({
+                url: "/Usuarios/Save",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(usuario),
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                success: function (response) {
+                    if (response.success) {
+                        modalUsuario.hide();
+                        Swal.fire({
+                            title: "¡Éxito!",
+                            text: response.message,
+                            icon: "success"
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        // Si hay lista de errores, la mostramos
+                        var msg = response.message;
+                        if(response.errors){
+                            msg += ": " + JSON.stringify(response.errors);
+                        }
+                        Swal.fire("Error", msg, "error");
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                    Swal.fire("Error del Servidor", "Revise la consola para más detalles (F12)", "error");
+                }
+            });
+        }
+
+        // 4. ELIMINAR
+        function eliminarUsuario(id) {
+            Swal.fire({
+                title: '¿Eliminar usuario?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Usuarios/Delete', { id: id }, function(data) {
+                         if (data.success) {
+                            Swal.fire('Eliminado', data.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        // 5. VER QR
+        function verQR(id, nombre) {
+            document.getElementById('qrTitulo').innerText = "QR: " + nombre;
+            const img = document.getElementById('imgQR');
+            img.src = `/Usuarios/ObtenerQR/${id}?t=${new Date().getTime()}`;
+            modalQR.show();
+        }
+    </script>
+}

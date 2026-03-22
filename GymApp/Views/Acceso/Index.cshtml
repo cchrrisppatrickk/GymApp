@@ -1,0 +1,303 @@
+﻿@{
+    ViewData["Title"] = "Control de Acceso";
+}
+
+<style>
+    body {
+        background-color: #212529; /* Fondo oscuro para resaltar la pantalla */
+    }
+
+    /* === MEJORA DE TAMAÑO DE CÁMARA === */
+    #scanner-container {
+        position: relative;
+        background: black;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        /* Hacemos que ocupe el 70% de la altura de la pantalla del dispositivo */
+        height: 70vh;
+        min-height: 500px;
+    }
+
+    #reader {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* === TARJETA DE RESULTADOS === */
+    #resultado-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.98); /* Fondo casi sólido */
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        z-index: 2000;
+        padding: 20px;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .estado-ok {
+        border: 8px solid #198754;
+        color: #198754;
+    }
+
+    .estado-error {
+        border: 8px solid #dc3545;
+        color: #dc3545;
+    }
+
+    .user-avatar {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 4rem;
+        border: 5px solid white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Botón de continuar grande para dedos */
+    #btn-continuar {
+        margin-top: auto; /* Empuja el botón al final */
+        width: 80%;
+        padding: 15px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    }
+</style>
+
+<div class="container-fluid mt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-6">
+
+            <div class="text-center mb-3 text-white">
+                <h3 class="fw-bold"><i class="bi bi-qr-code-scan me-2"></i>Punto de Acceso</h3>
+            </div>
+
+            <div id="scanner-container">
+
+                <div id="reader"></div>
+
+                <div id="resultado-overlay">
+
+                    <div class="user-avatar" id="res-icon-container">
+                        <i class="bi bi-person-fill text-secondary" id="res-icon"></i>
+                    </div>
+
+                    <h1 class="fw-bold mb-0 text-dark" id="res-nombre">Usuario</h1>
+                    <p class="text-muted fs-5 mb-3" id="res-dni">DNI: ---</p>
+
+                    <div class="card border-0 shadow-sm w-100 bg-light mb-3">
+                        <div class="card-body py-4">
+                            <h2 class="fw-bold mb-0 display-5" id="res-mensaje">ESPERANDO...</h2>
+                            <div class="fs-5 text-muted mt-1" id="res-submensaje">--</div>
+                        </div>
+                    </div>
+
+                    <div class="row w-100 px-2">
+                        <div class="col-6 border-end border-secondary">
+                            <small class="text-secondary text-uppercase fw-bold">Plan Actual</small>
+                            <h4 class="text-dark fw-bold mb-0" id="res-plan">--</h4>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-secondary text-uppercase fw-bold">Vencimiento</small>
+                            <h4 class="text-dark fw-bold mb-0" id="res-vencimiento">--</h4>
+                        </div>
+                    </div>
+
+                    <button id="btn-continuar" class="btn btn-dark shadow">
+                        Continuar <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-3" id="btn-container">
+                <button id="btn-iniciar" class="btn btn-light btn-lg fw-bold">
+                    <i class="bi bi-camera-fill me-2"></i> INICIAR CÁMARA
+                </button>
+                <button id="btn-detener" class="btn btn-outline-light d-none">
+                    DETENER
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<audio id="audio-ok" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.m4a"></audio>
+<audio id="audio-error" src="https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.m4a"></audio>
+
+@section Scripts {
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN DE TIEMPO (Modifica aquí)
+        // ==========================================
+        const TIEMPO_AUTOCIERE = 5000; // 4000 ms = 4 segundos
+        // ==========================================
+
+        let html5QrcodeScanner = null;
+        let isProcessing = false;
+        let timerCierre = null; // Variable para guardar el temporizador
+
+        const beepOk = document.getElementById('audio-ok');
+        const beepError = document.getElementById('audio-error');
+
+        // 1. INICIAR CÁMARA
+        document.getElementById('btn-iniciar').addEventListener('click', () => {
+            document.getElementById('btn-iniciar').classList.add('d-none');
+            document.getElementById('btn-detener').classList.remove('d-none');
+
+            html5QrcodeScanner = new Html5Qrcode("reader");
+
+            // Aumentamos el qrbox para que sea más fácil escanear en pantallas grandes
+            const config = {
+                fps: 10,
+                qrbox: { width: 350, height: 350 }, // Caja de escaneo más grande
+                aspectRatio: 1.0
+            };
+
+            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
+            .catch(err => {
+                alert("Error al iniciar cámara: " + err);
+                detenerScanner();
+            });
+        });
+
+        document.getElementById('btn-detener').addEventListener('click', detenerScanner);
+
+        function detenerScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    document.getElementById('reader').innerHTML = "";
+                    document.getElementById('btn-iniciar').classList.remove('d-none');
+                    document.getElementById('btn-detener').classList.add('d-none');
+                });
+            }
+        }
+
+        // 2. ÉXITO AL LEER
+        function onScanSuccess(decodedText, decodedResult) {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            // Reproducir un sonido de "lectura detectada" suave si quisieras
+            // html5QrcodeScanner.pause(); // Opcional: pausar cámara mientras procesa
+
+            fetch('/Acceso/RegistrarAsistencia', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(decodedText)
+            })
+            .then(res => res.json())
+            .then(data => {
+                mostrarOverlay(data);
+            })
+            .catch(err => {
+                console.error(err);
+                mostrarOverlay({ success: false, mensaje: "Error de Servidor", nombre: "Sistema" });
+            });
+        }
+
+        // 3. MOSTRAR RESULTADO
+        function mostrarOverlay(data) {
+            const overlay = document.getElementById('resultado-overlay');
+            const btnContinuar = document.getElementById('btn-continuar');
+
+            // Llenar datos (igual que antes)
+            document.getElementById('res-nombre').innerText = data.nombre || "Desconocido";
+            document.getElementById('res-dni').innerText = data.dni || "";
+            document.getElementById('res-plan').innerText = data.plan || "--";
+            document.getElementById('res-vencimiento').innerText = data.diasRestantes ? `${data.diasRestantes} días` : "--";
+
+            const mensaje = document.getElementById('res-mensaje');
+            const submensaje = document.getElementById('res-submensaje');
+            const icon = document.getElementById('res-icon');
+            const iconContainer = document.getElementById('res-icon-container');
+
+            // Reset estilos
+            overlay.classList.remove('estado-ok', 'estado-error');
+
+            if (data.success) {
+                overlay.classList.add('estado-ok'); // Borde Verde
+                mensaje.innerText = "¡BIENVENIDO!";
+                mensaje.className = "fw-bold mb-0 text-success display-5";
+                submensaje.innerText = "Acceso Correcto";
+
+                icon.className = "bi bi-emoji-smile-fill text-success";
+                iconContainer.style.borderColor = "#198754";
+
+                // Color del botón Continuar
+                btnContinuar.className = "btn btn-success btn-lg w-75 mt-auto mb-4 shadow";
+
+                beepOk.play().catch(()=>{});
+            } else {
+                overlay.classList.add('estado-error'); // Borde Rojo
+                mensaje.innerText = "¡ALTO!";
+                mensaje.className = "fw-bold mb-0 text-danger display-5";
+                submensaje.innerText = data.mensaje || "Acceso Denegado";
+
+                icon.className = "bi bi-x-octagon-fill text-danger";
+                iconContainer.style.borderColor = "#dc3545";
+
+                // Color del botón Continuar
+                btnContinuar.className = "btn btn-danger btn-lg w-75 mt-auto mb-4 shadow";
+
+                beepError.play().catch(()=>{});
+            }
+
+            // Mostrar
+            overlay.style.display = 'flex';
+
+            // === LÓGICA DEL TEMPORIZADOR Y BOTÓN ===
+
+            // Función para cerrar
+            const cerrar = () => {
+                overlay.style.display = 'none';
+                isProcessing = false;
+                clearTimeout(timerCierre); // Limpiar timer si se dio click
+            };
+
+            // Evento Click Botón Continuar
+            btnContinuar.onclick = cerrar;
+
+            // Auto-Cierre Programado
+            if(timerCierre) clearTimeout(timerCierre);
+
+            timerCierre = setTimeout(() => {
+                cerrar();
+            }, TIEMPO_AUTOCIERE);
+        }
+    </script>
+}

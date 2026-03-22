@@ -1,0 +1,228 @@
+﻿@model IEnumerable<GymApp.ViewModels.RoleViewModel>
+
+@{
+    ViewData["Title"] = "Gestión de Roles";
+}
+
+<div class="container-fluid px-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div>
+            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-shield-check text-primary me-2"></i>Roles y Permisos</h2>
+            <p class="text-muted small mb-0">Define los niveles de acceso al sistema.</p>
+        </div>
+        <button type="button" class="btn btn-primary shadow-sm" onclick="abrirModalCrear()">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Rol
+        </button>
+    </div>
+
+    <div class="row g-4">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-shield-x text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-2">No hay roles definidos.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                // Lógica visual: Admin rojo, otros azul
+                var colorClass = item.Nombre.ToLower() == "admin" ? "border-danger" : "border-primary";
+                var iconClass = item.Nombre.ToLower() == "admin" ? "bi-shield-lock-fill text-danger" : "bi-person-badge text-primary";
+                var bgClass = item.Nombre.ToLower() == "admin" ? "bg-danger bg-opacity-10" : "bg-primary bg-opacity-10";
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all border-top border-4 @colorClass">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle p-3 me-3 @bgClass">
+                                    <i class="bi @iconClass fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-0">@item.Nombre</h5>
+                                    <small class="text-muted">Nivel de Acceso</small>
+                                </div>
+                            </div>
+
+                            <p class="text-muted small flex-grow-1">
+                                @(string.IsNullOrEmpty(item.Descripcion) ? "Sin descripción definida." : item.Descripcion)
+                            </p>
+
+                            <div class="border-top pt-3 mt-2 d-flex justify-content-end gap-2">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="abrirModalEditar(@item.RoleId)">
+                                    <i class="bi bi-pencil me-1"></i> Editar
+                                </button>
+
+                                @if (item.Nombre.ToLower() != "admin")
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarRol(@item.RoleId)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-light text-muted" disabled title="El rol Admin no se puede eliminar">
+                                        <i class="bi bi-lock-fill"></i> Protegido
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="modalRol" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="tituloModal">Gestión de Rol</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formRol">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="RoleId" name="RoleId" value="0" />
+
+                    <div class="mb-3">
+                        <label for="Nombre" class="form-label fw-bold">Nombre del Rol</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-tag"></i></span>
+                            <input type="text" class="form-control" id="Nombre" name="Nombre" placeholder="Ej: Entrenador" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Descripcion" class="form-label fw-bold">Descripción</label>
+                        <textarea class="form-control" id="Descripcion" name="Descripcion" rows="3" placeholder="Describe qué permisos tendrá este rol..."></textarea>
+                    </div>
+
+                    <div class="alert alert-info small d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                        <div>
+                            <strong>Nota:</strong> Los permisos específicos se configuran en el código del sistema.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" onclick="guardarRol()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        var myModal;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            myModal = new bootstrap.Modal(document.getElementById('modalRol'));
+        });
+
+        // 1. ABRIR MODAL PARA CREAR
+        function abrirModalCrear() {
+            document.getElementById('tituloModal').innerText = "Crear Nuevo Rol";
+            document.getElementById('formRol').reset();
+            document.getElementById('RoleId').value = "0";
+            myModal.show();
+            setTimeout(() => document.getElementById("Nombre").focus(), 500);
+        }
+
+        // 2. ABRIR MODAL PARA EDITAR
+        function abrirModalEditar(id) {
+            document.getElementById('tituloModal').innerText = "Editar Rol";
+
+            fetch(`/Roles/GetRole/${id}`)
+                .then(response => response.json())
+                .then(res => {
+                    if (res.success) {
+                        document.getElementById('RoleId').value = res.data.roleId;
+                        document.getElementById('Nombre').value = res.data.nombre;
+                        document.getElementById('Descripcion').value = res.data.descripcion;
+                        myModal.show();
+                    } else {
+                        Swal.fire('Error', 'No se pudo cargar el rol', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Error de conexión', 'error'));
+        }
+
+        // 3. GUARDAR
+        function guardarRol() {
+            const id = document.getElementById('RoleId').value;
+            const nombre = document.getElementById('Nombre').value;
+            const descripcion = document.getElementById('Descripcion').value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            if(!nombre.trim()){
+                Swal.fire('Atención', 'El nombre del rol es obligatorio', 'warning');
+                return;
+            }
+
+            const url = id == "0" ? '/Roles/Create' : '/Roles/Edit';
+            const payload = {
+                RoleId: parseInt(id),
+                Nombre: nombre,
+                Descripcion: descripcion
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    myModal.hide();
+                    Swal.fire({
+                        title: '¡Guardado!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(() => Swal.fire('Error', 'Error de conexión', 'error'));
+        }
+
+        // 4. ELIMINAR
+        function eliminarRol(id) {
+            Swal.fire({
+                title: '¿Eliminar Rol?',
+                text: "Asegúrate de que no haya usuarios asignados a este rol.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Roles/Delete', { id: id }, function (data) {
+                        if (data.success) {
+                            Swal.fire('Eliminado', data.message, 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('No se pudo eliminar', data.message, 'error');
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+}
