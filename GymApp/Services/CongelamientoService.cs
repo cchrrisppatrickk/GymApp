@@ -35,7 +35,7 @@ namespace GymApp.Services
                 membresia = todas.FirstOrDefault(m => m.MembresiaId == dto.MembresiaId);
             }
 
-            if (!membresia.Plan.PermiteCongelar)
+            if (!(membresia.Plan.PermiteCongelar ?? false))
                 throw new Exception($"El plan '{membresia.Plan.Nombre}' no permite congelamientos.");
 
             // 2. Validar que no esté ya vencida

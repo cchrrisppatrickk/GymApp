@@ -121,16 +121,14 @@ namespace GymApp.Services
         {
             var hoy = DateOnly.FromDateTime(DateTime.Today);
 
-            // Buscar cualquier membresía activa (no vencida) para este usuario
-            var membresiasActivas = await _membresiaRepo.GetAllAsync();
-            var activa = membresiasActivas
-                            .Where(m => m.UserId == userId && m.FechaVencimiento >= hoy)
-                            .FirstOrDefault();
+            // Cargamos con detalles para tener el nombre del turno si es necesario
+            var todas = await _membresiaRepo.ObtenerTodasConDetallesAsync();
+            var activa = todas.FirstOrDefault(m => m.UserId == userId && m.FechaVencimiento >= hoy);
 
             if (activa != null && activa.TurnoId != nuevoTurnoId)
             {
                 // Si existe una membresía activa y el nuevo turno es diferente, lanzamos una excepción de negocio.
-                throw new Exception($"El cliente ya tiene una membresía activa (vence {activa.FechaVencimiento:dd/MM/yyyy}) con el turno {activa.Turno.Nombre}. Para cambiar de turno, debe esperar a que venza o anular la anterior.");
+                throw new Exception($"El cliente ya tiene una membresía activa (vence {activa.FechaVencimiento:dd/MM/yyyy}) con el turno {activa.Turno?.Nombre}. Para cambiar de turno, debe esperar a que venza o anular la anterior.");
             }
             // Si no tiene activa, o si la activa tiene el mismo turno, se procede sin error.
         }
