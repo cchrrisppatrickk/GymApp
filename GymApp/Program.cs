@@ -22,6 +22,7 @@ builder.Services.AddScoped<IPlaneService, PlaneService>();
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
 builder.Services.AddScoped<ITurnoService, TurnoService>();
 builder.Services.AddScoped<ICongelamientoRepository, CongelamientoRepository>();
+builder.Services.AddScoped<ICongelamientoService, CongelamientoService>();
 builder.Services.AddScoped<IMembresiaRepository, MembresiaRepository>();
 builder.Services.AddScoped<IMembresiaService, MembresiaService>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
