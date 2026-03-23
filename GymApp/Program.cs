@@ -11,16 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configuración de BD (Ya la tienes)
+// ConfiguraciÃ³n de BD (Ya la tienes)
 builder.Services.AddDbContext<GymDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Inyección de Dependencias (Tus repositorios y servicios actuales)
+// InyecciÃ³n de Dependencias (Tus repositorios y servicios actuales)
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IPlaneRepository, PlaneRepository>();
 builder.Services.AddScoped<IPlaneService, PlaneService>();
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();
 builder.Services.AddScoped<ITurnoService, TurnoService>();
+builder.Services.AddScoped<ICongelamientoRepository, CongelamientoRepository>();
 builder.Services.AddScoped<IMembresiaRepository, MembresiaRepository>();
 builder.Services.AddScoped<IMembresiaService, MembresiaService>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
@@ -40,12 +41,12 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 // En Program.cs
 builder.Services.AddScoped<IReporteService, ReporteService>();
 // ============================================================
-// 2. CONFIGURAR AUTENTICACIÓN (COOKIES)
+// 2. CONFIGURAR AUTENTICACIÃ“N (COOKIES)
 // ============================================================
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        // Si el usuario no tiene acceso, lo mandamos aquí
+        // Si el usuario no tiene acceso, lo mandamos aquÃ­
         options.LoginPath = "/Auth/Login";
         // Si el usuario intenta entrar a algo que su rol no permite
         options.AccessDeniedPath = "/Auth/AccesoDenegado";
@@ -60,7 +61,7 @@ var app = builder.Build();
 // INICIO DEL DATA SEEDING (SEMBRADO DE DATOS)
 // ============================================================
 // Esto se ejecuta una sola vez al levantar la app. 
-// Verifica si la BD está vacía y la llena.
+// Verifica si la BD estÃ¡ vacÃ­a y la llena.
 await DbSeeder.Seed(app);
 // ============================================================
 
@@ -78,7 +79,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 // ============================================================
-// 3. ACTIVAR EL MIDDLEWARE (¡IMPORTANTE EL ORDEN!)
+// 3. ACTIVAR EL MIDDLEWARE (Â¡IMPORTANTE EL ORDEN!)
 // ============================================================
 app.UseAuthentication(); // <--- Debe ir ANTES de Authorization
 app.UseAuthorization();
@@ -91,7 +92,7 @@ app.UseAuthorization();
 // Rutas
 app.MapControllerRoute(
     name: "default",
-    // Cambiamos el default para que vaya a la Presentación o Login
+    // Cambiamos el default para que vaya a la PresentaciÃ³n o Login
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
