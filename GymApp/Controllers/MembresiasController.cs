@@ -68,5 +68,19 @@ namespace GymApp.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                var model = await _membresiaService.ObtenerDetallesAsync(id);
+                return View(model);
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("Index");
+            }
+        }
     }
 }

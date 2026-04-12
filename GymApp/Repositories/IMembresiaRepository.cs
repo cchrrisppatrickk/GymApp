@@ -9,6 +9,9 @@ namespace GymApp.Repositories
         // Trae la membresía con sus relaciones (Include)
         Task<IEnumerable<Membresia>> ObtenerTodasConDetallesAsync();
 
+        // Obtiene una membresía específica con todos sus detalles (pagos, congelamientos, etc.)
+        Task<Membresia?> ObtenerPorIdConDetallesAsync(int id);
+
         // Nuevo: Obtiene la última membresía activa/no vencida de un usuario.
         Task<Membresia?> GetLastActiveMembresiaByUserIdAsync(int userId);
     }

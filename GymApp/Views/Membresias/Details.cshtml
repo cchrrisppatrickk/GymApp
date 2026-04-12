@@ -1,0 +1,235 @@
+@model GymApp.Models.Membresia
+@{
+    ViewData["Title"] = "Detalles de Membresía";
+    var totalPagado = Model.PagosMembresia.Sum(p => p.Monto);
+    var deuda = (Model.Plan?.PrecioBase ?? 0m) - totalPagado;
+    
+    // Cálculo de días restantes de forma robusta
+    var hoy = DateTime.Today;
+    var vencimiento = Model.FechaVencimiento.ToDateTime(TimeOnly.MinValue);
+    var diasRestantes = (vencimiento - hoy).Days;
+}
+
+<div class="container-fluid px-4 mt-4 animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">
+                <i class="bi bi-info-circle text-primary me-2"></i>Suscripción #@Model.MembresiaId
+            </h2>
+            <p class="text-muted small mb-0">Socio: <span class="fw-bold">@Model.User.NombreCompleto</span> (@Model.User.Dni)</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+            </a>
+        </div>
+    </div>
+
+    <!-- Botones de Acción Global -->
+    <div class="mb-4 d-flex gap-2">
+        <button class="btn btn-info text-white shadow-sm" onclick="abrirModalCongelar(@Model.MembresiaId)">
+            <i class="bi bi-snow2 me-1"></i> Congelar Cuenta
+        </button>
+        <a asp-action="Index" class="btn btn-primary shadow-sm" style="background-color: #276CF5;">
+            <i class="bi bi-arrow-repeat me-1"></i> Renovar Membresía
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Tarjeta Izquierda: Info del Plan -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h6 class="m-0 fw-bold text-primary"><i class="bi bi-calendar3 me-2"></i>Información de Vigencia</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3 pb-2 border-bottom border-light">
+                        <div class="col-6 text-muted small">Plan Contratado:</div>
+                        <div class="col-6 fw-bold">@Model.Plan.Nombre</div>
+                    </div>
+                    <div class="row mb-3 pb-2 border-bottom border-light">
+                        <div class="col-6 text-muted small">Horario / Turno:</div>
+                        <div class="col-6 fw-bold text-muted">@Model.Turno.Nombre (@Model.Turno.HoraInicio - @Model.Turno.HoraFin)</div>
+                    </div>
+                    <div class="row mb-3 pb-2 border-bottom border-light">
+                        <div class="col-6 text-muted small">Vigencia:</div>
+                        <div class="col-6">
+                            <span class="d-block fw-bold text-success">@Model.FechaInicio.ToString("dd/MM/yyyy")</span>
+                            <span class="d-block fw-bold text-danger">@Model.FechaVencimiento.ToString("dd/MM/yyyy")</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6 text-muted small">Estado:</div>
+                        <div class="col-6">
+                            @if (Model.Estado == "Activa") { <span class="badge bg-success bg-opacity-75"><i class="bi bi-check-circle me-1"></i>Activa</span> }
+                            else if (Model.Estado == "Vencida") { <span class="badge bg-danger bg-opacity-75"><i class="bi bi-x-circle me-1"></i>Vencida</span> }
+                            else if (Model.Estado == "Congelada") { <span class="badge bg-primary bg-opacity-75"><i class="bi bi-snow2 me-1"></i>Congelada</span> }
+                            else { <span class="badge bg-warning text-dark border">@Model.Estado</span> }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 text-muted small">Tiempo Restante:</div>
+                        <div class="col-6">
+                            @if(diasRestantes > 0) {
+                                <span class="fw-bold @(diasRestantes <= 5 ? "text-danger" : "text-success")">@diasRestantes días</span>
+                            } else {
+                                <span class="badge bg-danger">Vencida</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta Derecha: Info Financiera -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between">
+                    <h6 class="m-0 fw-bold text-success"><i class="bi bi-cash-coin me-2"></i>Estado Financiero</h6>
+                    @if(deuda > 0) {
+                        <span class="badge bg-danger-soft text-danger border border-danger border-opacity-25 rounded-pill px-3">Cuenta con deuda</span>
+                    }
+                </div>
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <div class="text-center mb-4">
+                        <h6 class="text-muted small text-uppercase fw-bold mb-1">Costo Total del Plan</h6>
+                        <h2 class="fw-bold display-6">@Model.Plan.PrecioBase.ToString("C")</h2>
+                    </div>
+                    <div class="row text-center mt-3">
+                        <div class="col-6 border-end">
+                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Total Pagado</h6>
+                            <h4 class="text-success fw-bold">@totalPagado.ToString("C")</h4>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Deuda Pendiente</h6>
+                            <h4 class="@(deuda > 0 ? "text-danger" : "text-success") fw-bold">@deuda.ToString("C")</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas de Historial -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-light p-0 border-bottom">
+            <ul class="nav nav-tabs border-bottom-0" id="historialTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active py-3 px-4 border-end-0 rounded-0" id="pagos-tab" data-bs-toggle="tab" data-bs-target="#pagos" type="button" role="tab">
+                        <i class="bi bi-wallet2 me-2"></i>Historial de Pagos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-3 px-4 rounded-0" id="congelamientos-tab" data-bs-toggle="tab" data-bs-target="#congelamientos" type="button" role="tab">
+                        <i class="bi bi-snow2 me-2"></i>Historial de Congelamientos
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body p-0">
+            <div class="tab-content" id="historialTabsContent">
+                <!-- Pestaña: Pagos -->
+                <div class="tab-pane fade show active" id="pagos" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-secondary">
+                                <tr>
+                                    <th class="ps-4">Fecha y Hora de Operación</th>
+                                    <th>Monto Recibido</th>
+                                    <th>Método de Pago</th>
+                                    @if (User.IsInRole("Admin")) { <th class="text-center">Acciones Críticas</th> }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.PagosMembresia.Any())
+                                {
+                                    @foreach (var pago in Model.PagosMembresia.OrderByDescending(p => p.FechaPago))
+                                    {
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-bold">@pago.FechaPago?.ToString("dd/MM/yyyy")</div>
+                                                <small class="text-muted">@pago.FechaPago?.ToString("HH:mm:ss")</small>
+                                            </td>
+                                            <td class="fw-bold text-success font-monospace">@pago.Monto.ToString("C")</td>
+                                            <td><span class="badge bg-white text-dark border px-2">@pago.MetodoPago</span></td>
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <td class="text-center">
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-sm btn-outline-warning" title="Editar Pago"><i class="bi bi-pencil"></i></button>
+                                                        <button class="btn btn-sm btn-outline-danger" title="Anular Pago"><i class="bi bi-trash"></i></button>
+                                                    </div>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="@(User.IsInRole("Admin") ? 4 : 3)" class="text-center py-5">
+                                            <i class="bi bi-cash-stack text-muted opacity-25 display-4 d-block mb-3"></i>
+                                            <p class="text-muted">No se registran pagos para este período.</p>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pestaña: Congelamientos -->
+                <div class="tab-pane fade" id="congelamientos" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-secondary">
+                                <tr>
+                                    <th class="ps-4">Desde</th>
+                                    <th>Hasta</th>
+                                    <th>Motivo / Observación</th>
+                                    <th>Autorizado por</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Congelamientos.Any())
+                                {
+                                    @foreach (var c in Model.Congelamientos.OrderByDescending(c => c.FechaInicio))
+                                    {
+                                        <tr>
+                                            <td class="ps-4 fw-bold">@c.FechaInicio.ToString("dd/MM/yyyy")</td>
+                                            <td class="fw-bold text-primary">@c.FechaFin.ToString("dd/MM/yyyy")</td>
+                                            <td class="small text-muted">@(c.Motivo ?? "-")</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-light rounded-circle p-1 me-2"><i class="bi bi-person-badge text-primary"></i></div>
+                                                    <span class="small">@(c.UsuarioEmpleado?.NombreCompleto ?? "Sistema")</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5">
+                                            <i class="bi bi-snow2 text-muted opacity-25 display-4 d-block mb-3"></i>
+                                            <p class="text-muted">No hay historial de congelamientos.</p>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.05); }
+    .animate-fade-in { animation: fadeIn 0.3s ease-in; }
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-tabs .nav-link { color: #6c757d; font-weight: 500; font-size: 0.9rem; }
+    .nav-tabs .nav-link.active { color: #276CF5; border-top: 3px solid #276CF5 !important; background: white; }
+</style>

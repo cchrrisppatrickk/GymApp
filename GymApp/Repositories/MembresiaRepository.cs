@@ -23,11 +23,25 @@ namespace GymApp.Repositories
                 .Include(m => m.Plan)
                 .Include(m => m.Turno)
                 .Include(m => m.PagosMembresia)
-                .OrderByDescending(m => m.MembresiaId) // Las más nuevas primero
                 .ToListAsync();
         }
 
+        public async Task<Membresia?> ObtenerPorIdConDetallesAsync(int id)
+        {
+            return await _context.Membresias
+                .Include(m => m.User)
+                .Include(m => m.Plan)
+                .Include(m => m.Turno)
+                .Include(m => m.PagosMembresia)
+                .Include(m => m.Congelamientos)
+                    .ThenInclude(c => c.UsuarioEmpleado)
+                .FirstOrDefaultAsync(m => m.MembresiaId == id);
+        }
+
+
+
         // Implementación del nuevo método
+
         public async Task<Membresia?> GetLastActiveMembresiaByUserIdAsync(int userId)
         {
             var hoy = DateOnly.FromDateTime(DateTime.Today);

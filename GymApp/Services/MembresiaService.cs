@@ -109,7 +109,15 @@ namespace GymApp.Services
             return lista;
         }
 
+        public async Task<Membresia> ObtenerDetallesAsync(int id)
+        {
+            var membresia = await _membresiaRepo.ObtenerPorIdConDetallesAsync(id);
+            if (membresia == null) throw new Exception("Membresía no encontrada.");
+            return membresia;
+        }
+
         public async Task<IEnumerable<object>> BuscarClientesAsync(string termino)
+
         {
             var usuarios = await _usuarioRepo.GetAllAsync();
             // Filtro simple en memoria (para producción idealmente se filtra en BD)

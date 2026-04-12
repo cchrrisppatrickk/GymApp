@@ -11,6 +11,8 @@ namespace GymApp.Services
         Task CrearMembresiaAsync(MembresiaCreateDTO dto);
         Task<IEnumerable<object>> BuscarClientesAsync(string termino); // Para el autocomplete
 
+        Task<Membresia> ObtenerDetallesAsync(int id);
+
         // Nuevo: Verifica si el Turno seleccionado ya está asignado a otra membresía activa
         Task VerificarTurnoExistente(int userId, int turnoId);
     }
