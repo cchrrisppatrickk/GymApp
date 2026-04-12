@@ -4,6 +4,7 @@ services:
   sqldata:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: gym_sql_server
+    restart: always
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=PasswordSeguro123! # Cambia esto por una contraseña fuerte
@@ -15,13 +16,13 @@ services:
   gymapp:
     build: .
     container_name: gymapp_web
+    restart: always
     ports:
       - "5000:80"
     depends_on:
       - sqldata
     volumes:
-      - ./fotos_usuarios:/app/wwwroot/uploads/fotos
-
+      - ./gym_data/fotos_usuarios:/app/wwwroot/uploads/fotos
 
 volumes:
   sql_data:

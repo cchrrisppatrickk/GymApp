@@ -38,7 +38,7 @@ namespace GymApp.Services
             // --- NUEVO: GUARDAR FOTO ---
             if (fotoArchivo != null)
             {
-                usuario.FotoUrl = await ProcesarFotoAsync(fotoArchivo, usuario.Dni);
+                usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoArchivo, usuario.Dni);
             }
 
             // 1. Validar DNI único (Se mantiene igual)
@@ -85,7 +85,14 @@ namespace GymApp.Services
             // --- NUEVO: GUARDAR FOTO ---
             if (fotoArchivo != null)
             {
-                usuario.FotoUrl = await ProcesarFotoAsync(fotoArchivo, usuario.Dni);
+                // Limpieza de foto anterior
+                if (!string.IsNullOrEmpty(usuario.FotoUrl))
+                {
+                    string oldPath = Path.Combine(_env.WebRootPath, "uploads", "fotos", usuario.FotoUrl);
+                    if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+                }
+
+                usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoArchivo, usuario.Dni);
             }
 
             // IMPORTANTE: Al editar, deberíamos validar que si cambió el nombre de usuario,
@@ -141,8 +148,35 @@ namespace GymApp.Services
 
                 return qrCodeImage;
             }
+        }        // --- MÉTODO PRIVADO PARA GESTIONAR UPLOADS ---
+        private async Task<string> ProcesarFotoPerfilAsync(IFormFile fotoArchivo, string dniUsuario)
+        {
+            if (fotoArchivo == null || fotoArchivo.Length == 0) return null;
+
+            try
+            {
+                string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "fotos");
+
+                // Crear directorio si no existe
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                // Generar nombre único: {dni}_{ticks}.{ext}
+                string extension = Path.GetExtension(fotoArchivo.FileName);
+                string uniqueFileName = $"{dniUsuario}_{DateTime.Now.Ticks}{extension}";
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await fotoArchivo.CopyToAsync(fileStream);
+                }
+
+                return uniqueFileName;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
-
-
     }
 }
