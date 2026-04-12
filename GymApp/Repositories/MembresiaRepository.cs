@@ -22,6 +22,7 @@ namespace GymApp.Repositories
                 .Include(m => m.User)
                 .Include(m => m.Plan)
                 .Include(m => m.Turno)
+                .Include(m => m.PagosMembresia)
                 .OrderByDescending(m => m.MembresiaId) // Las más nuevas primero
                 .ToListAsync();
         }

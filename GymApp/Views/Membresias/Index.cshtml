@@ -109,11 +109,10 @@
                 <table class="table table-hover align-middle mb-0" id="tablaMembresias">
                     <thead class="bg-light text-secondary">
                         <tr>
-                            <th class="ps-4">Socio / Cliente</th>
-                            <th>Plan Contratado</th>
-                            <th>Turno</th>
-                            <th>Vigencia</th>
+                            <th class="ps-4">ID</th>
+                            <th>Socio</th>
                             <th>Estado</th>
+                            <th>Deuda</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -309,50 +308,31 @@
                         if (m.estado === 'Pendiente Pago') badgeHtml = `<span class="badge bg-info text-dark border border-info"><i class="bi bi-hourglass-split me-1"></i>Pendiente Pago</span>`;
                         if (m.estado === 'Congelada') badgeHtml = `<span class="badge bg-primary bg-opacity-75 text-white"><i class="bi bi-cloud-snow me-1"></i>Congelada</span>`;
 
-                        // Días Restantes
-                        let diasHtml = `<span class="fw-bold text-success">${m.diasRestantes} días</span>`;
-                        if (m.diasRestantes <= 5 && m.diasRestantes >= 0) diasHtml = `<span class="fw-bold text-warning">${m.diasRestantes} días</span>`;
-                        if (m.diasRestantes < 0) diasHtml = `<span class="fw-bold text-danger">Vencida</span>`;
-                        if (m.estado === 'Pendiente Pago') diasHtml = `<span class="fw-bold text-muted">-</span>`;
+                        // Deuda
+                        let deudaFormatter = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+                        let deudaHtml = '';
+                        if (m.deuda > 0) {
+                            deudaHtml = `<span class="text-danger fw-bold"><i class="fas fa-exclamation-circle me-1"></i>${deudaFormatter.format(m.deuda)}</span>`;
+                        } else {
+                            deudaHtml = `<span class="badge bg-success bg-opacity-75 text-white"><i class="bi bi-check-circle me-1"></i>Pagado</span>`;
+                        }
 
-                        // NOTA: Asegúrate de que tu DTO en backend incluya UserId para que 'renovar' funcione mejor.
-                        // Si no lo tienes, usaremos DNI para buscar.
                         html += `
                             <tr class="align-middle">
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded-circle p-2 me-3 text-primary border">
-                                            <i class="bi bi-person-fill h5 mb-0"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">${m.nombreUsuario}</div>
-                                            <small class="text-muted" style="font-size: 0.8rem;">DNI: ${m.dni}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><span class="fw-bold text-dark">${m.nombrePlan}</span></td>
-                                <td>${m.nombreTurno}</td>
+                                <td class="ps-4 fw-bold text-muted">#${m.membresiaId}</td>
                                 <td>
-                                    <div class="small text-muted">Vence: ${m.fechaVencimiento}</div>
-                                    ${diasHtml}
+                                    <div class="fw-bold text-dark">${m.nombreUsuario}</div>
                                 </td>
                                 <td>${badgeHtml}</td>
+                                <td>${deudaHtml}</td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-primary" title="Renovar Membresía"
-                                                onclick="renovar('${m.dni}', '${m.nombreUsuario}', ${m.userId || 0})">
-                                            <i class="bi bi-arrow-repeat"></i>
-                                        </button>
-
-                                        ${m.estado === 'Congelada' ?
-                                            `<button class="btn btn-sm btn-success" title="Reactivar (Descongelar)" onclick="descongelarMembresia(${m.membresiaId})">
-                                                <i class="bi bi-play-fill text-white"></i>
-                                            </button>` :
-                                            (m.permiteCongelar && m.estado === 'Activa' ? 
-                                                `<button class="btn btn-sm btn-outline-info" title="Congelar" onclick="abrirModalCongelar(${m.membresiaId})">
-                                                    <i class="bi bi-snow2"></i>
-                                                </button>` : '')
-                                        }
+                                        <a href="/Pagos/Registrar?membresiaId=${m.membresiaId}" class="btn btn-sm btn-success" title="Registrar Pago">
+                                            <i class="fas fa-money-bill-wave"></i>
+                                        </a>
+                                        <a href="/Membresias/Details/${m.membresiaId}" class="btn btn-sm" style="background-color: #276CF5; color: white;" title="Ver Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

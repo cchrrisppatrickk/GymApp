@@ -92,7 +92,8 @@ namespace GymApp.Services
                 // Lógica visual de estado
                 Estado = m.FechaVencimiento < hoy ? "Vencida" : m.Estado,
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
-                PermiteCongelar = m.Plan.PermiteCongelar ?? false
+                PermiteCongelar = m.Plan.PermiteCongelar ?? false,
+                Deuda = (m.Plan?.PrecioBase ?? 0m) - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
             });
 
             // Aplicar Filtros
