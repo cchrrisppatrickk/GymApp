@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace GymApp.Services
 {
@@ -10,11 +11,12 @@ namespace GymApp.Services
         // CRUD Básico
         Task<IEnumerable<Usuario>> ObtenerTodosAsync();
         Task<Usuario> ObtenerPorIdAsync(int id);
-
+        
         // Lógica de Negocio Compleja
-        Task<Usuario> CrearUsuarioAsync(Usuario usuario, string passwordRaw);
-        Task ActualizarUsuarioAsync(Usuario usuario);
+        Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null);
+        Task ActualizarUsuarioAsync(Usuario usuario, IFormFile? fotoArchivo = null);
         Task<bool> EliminarUsuarioAsync(int id);
+
 
         // Seguridad
         Task<Usuario> ValidarLoginAsync(string dni, string password);

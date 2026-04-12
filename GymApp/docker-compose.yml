@@ -12,5 +12,16 @@ services:
     volumes:
       - sql_data:/var/opt/mssql # Esto asegura que no pierdas la BD si apagas el contenedor
 
+  gymapp:
+    build: .
+    container_name: gymapp_web
+    ports:
+      - "5000:80"
+    depends_on:
+      - sqldata
+    volumes:
+      - ./fotos_usuarios:/app/wwwroot/uploads/fotos
+
+
 volumes:
   sql_data:

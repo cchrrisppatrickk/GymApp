@@ -91,7 +91,8 @@ namespace GymApp.Services
                 FechaVencimiento = m.FechaVencimiento.ToString("dd/MM/yyyy"),
                 // Lógica visual de estado
                 Estado = m.FechaVencimiento < hoy ? "Vencida" : m.Estado,
-                DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber
+                DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
+                PermiteCongelar = m.Plan.PermiteCongelar ?? false
             });
 
             // Aplicar Filtros
@@ -101,6 +102,8 @@ namespace GymApp.Services
                 lista = lista.Where(x => x.DiasRestantes >= 0 && x.DiasRestantes <= 5);
             else if (filtro == "activas")
                 lista = lista.Where(x => x.DiasRestantes >= 0);
+            else if (filtro == "congeladas")
+                lista = lista.Where(x => x.Estado == "Congelada");
 
             return lista;
         }

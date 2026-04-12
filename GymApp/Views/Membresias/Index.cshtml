@@ -14,7 +14,7 @@
     </div>
 
     <div class="row mb-4 g-3">
-        <div class="col-md-3">
+        <div class="col-md-3 col-lg">
             <div class="card border-0 shadow-sm border-start border-4 border-success h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -29,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-lg">
             <div class="card border-0 shadow-sm border-start border-4 border-info h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -44,7 +44,22 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-lg">
+            <div class="card border-0 shadow-sm border-start border-4 border-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase text-muted small fw-bold mb-1">Congeladas</h6>
+                            <h3 class="mb-0 fw-bold text-primary" id="kpiCongeladas">--</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
+                            <i class="bi bi-snow2 fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg">
             <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -59,7 +74,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-lg">
             <div class="card border-0 shadow-sm border-start border-4 border-danger h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -83,6 +98,7 @@
             <div class="btn-group btn-group-sm mt-2 mt-md-0" role="group">
                 <button type="button" class="btn btn-outline-secondary active" onclick="cargarMembresias('todas', this)">Todas</button>
                 <button type="button" class="btn btn-outline-success" onclick="cargarMembresias('activas', this)">Activas</button>
+                <button type="button" class="btn btn-outline-primary" onclick="cargarMembresias('congeladas', this)">Congeladas</button>
                 <button type="button" class="btn btn-outline-info" onclick="cargarMembresias('pendientes', this)">Pendientes</button>
                 <button type="button" class="btn btn-outline-warning" onclick="cargarMembresias('por_vencer', this)">Por Vencer</button>
                 <button type="button" class="btn btn-outline-danger" onclick="cargarMembresias('vencidas', this)">Vencidas</button>
@@ -180,6 +196,55 @@
     </div>
 </div>
 
+<!-- MODAL CONGELAR -->
+<div class="modal fade" id="modalCongelar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-snow2 me-2"></i>Congelar Membresía</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-info small mb-4">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    Esta acción pausará el acceso del socio y <b>extenderá</b> su fecha de vencimiento automáticamente.
+                </div>
+                
+                <form id="formCongelar">
+                    <input type="hidden" id="freezeIdMembresia">
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Fecha de Inicio</label>
+                            <input type="date" class="form-control" id="txtFreezeInicio" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Fecha Proyectada de Fin</label>
+                            <input type="date" class="form-control" id="txtFreezeFin">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Motivo</label>
+                            <textarea class="form-control" id="txtFreezeMotivo" rows="2" placeholder="Ej: Viaje, Salud, Vacaciones..."></textarea>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="historialFreeze" class="mt-4 d-none">
+                    <hr>
+                    <h6 class="fw-bold small text-muted text-uppercase mb-3">Historial de Pausas</h6>
+                    <div id="listadoHistorial" class="small"></div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary px-4" id="btnConfirmarCongelar" onclick="confirmarCongelar()">
+                    <i class="bi bi-check-lg me-1"></i> Congelar Ahora
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -218,7 +283,7 @@
                 .then(res => res.json())
                 .then(json => {
                     let html = '';
-                    let contActivas = 0, contVencidas = 0, contPorVencer = 0, contPendientes = 0;
+                    let contActivas = 0, contVencidas = 0, contPorVencer = 0, contPendientes = 0, contCongeladas = 0;
 
                     if(json.data.length === 0){
                         tbody.innerHTML = '';
@@ -232,6 +297,7 @@
                         if (m.estado === 'Activa') contActivas++;
                         else if (m.estado === 'Vencida') contVencidas++;
                         else if (m.estado === 'Pendiente Pago') contPendientes++;
+                        else if (m.estado === 'Congelada') contCongeladas++;
 
                         // "Por Vencer" es un estado calculado, puede solaparse con Activa
                         if (m.diasRestantes >= 0 && m.diasRestantes <= 5 && m.estado === 'Activa') contPorVencer++;
@@ -241,6 +307,7 @@
                         if (m.estado === 'Activa') badgeHtml = `<span class="badge bg-success bg-opacity-75 text-white"><i class="bi bi-check-circle me-1"></i>Activa</span>`;
                         if (m.estado === 'Vencida') badgeHtml = `<span class="badge bg-danger bg-opacity-75 text-white"><i class="bi bi-x-circle me-1"></i>Vencida</span>`;
                         if (m.estado === 'Pendiente Pago') badgeHtml = `<span class="badge bg-info text-dark border border-info"><i class="bi bi-hourglass-split me-1"></i>Pendiente Pago</span>`;
+                        if (m.estado === 'Congelada') badgeHtml = `<span class="badge bg-primary bg-opacity-75 text-white"><i class="bi bi-cloud-snow me-1"></i>Congelada</span>`;
 
                         // Días Restantes
                         let diasHtml = `<span class="fw-bold text-success">${m.diasRestantes} días</span>`;
@@ -271,10 +338,22 @@
                                 </td>
                                 <td>${badgeHtml}</td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary shadow-sm" title="Renovar Membresía"
-                                            onclick="renovar('${m.dni}', '${m.nombreUsuario}', ${m.userId || 0})">
-                                        <i class="bi bi-arrow-repeat me-1"></i>Renovar
-                                    </button>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-primary" title="Renovar Membresía"
+                                                onclick="renovar('${m.dni}', '${m.nombreUsuario}', ${m.userId || 0})">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+
+                                        ${m.estado === 'Congelada' ?
+                                            `<button class="btn btn-sm btn-success" title="Reactivar (Descongelar)" onclick="descongelarMembresia(${m.membresiaId})">
+                                                <i class="bi bi-play-fill text-white"></i>
+                                            </button>` :
+                                            (m.permiteCongelar && m.estado === 'Activa' ? 
+                                                `<button class="btn btn-sm btn-outline-info" title="Congelar" onclick="abrirModalCongelar(${m.membresiaId})">
+                                                    <i class="bi bi-snow2"></i>
+                                                </button>` : '')
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -288,6 +367,7 @@
                         document.getElementById('kpiVencidas').innerText = contVencidas;
                         document.getElementById('kpiPorVencer').innerText = contPorVencer;
                         document.getElementById('kpiPendientes').innerText = contPendientes;
+                        document.getElementById('kpiCongeladas').innerText = contCongeladas;
                     }
                 });
         }
@@ -457,6 +537,111 @@
             actualizarInfoPrecio();
 
             new bootstrap.Modal(document.getElementById('modalMembresia')).show();
+        }
+
+        // ==========================================
+        // 4. LÓGICA DE CONGELAMIENTO
+        // ==========================================
+        function abrirModalCongelar(id) {
+            document.getElementById('freezeIdMembresia').value = id;
+            document.getElementById('txtFreezeInicio').valueAsDate = new Date();
+            document.getElementById('txtFreezeFin').value = "";
+            document.getElementById('txtFreezeMotivo').value = "";
+            
+            // Cargar Historial
+            fetch(`/Congelamientos/Historial/${id}`)
+                .then(res => res.json())
+                .then(json => {
+                    const div = document.getElementById('historialFreeze');
+                    const lista = document.getElementById('listadoHistorial');
+                    lista.innerHTML = "";
+
+                    if(json.success && json.data.length > 0) {
+                        div.classList.remove('d-none');
+                        json.data.forEach(c => {
+                            lista.innerHTML += `
+                                <div class="mb-2 p-2 border-start border-3 border-info bg-light">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold text-dark">${c.inicio} al ${c.fin}</span>
+                                        <span class="badge bg-secondary" style="font-size:0.6rem">OK</span>
+                                    </div>
+                                    <div class="text-muted" style="font-size:0.75rem">${c.motivo || 'Sin motivo'}</div>
+                                    <div class="text-muted" style="font-size:0.7rem">Autorizado por: ${c.empleado || 'Admin'}</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        div.classList.add('d-none');
+                    }
+                });
+
+            new bootstrap.Modal(document.getElementById('modalCongelar')).show();
+        }
+
+        function confirmarCongelar() {
+            const id = document.getElementById('freezeIdMembresia').value;
+            const fin = document.getElementById('txtFreezeFin').value;
+            const motivo = document.getElementById('txtFreezeMotivo').value;
+
+            if(!fin) return Swal.fire('Error', 'Indica una fecha de fin proyectada.', 'warning');
+
+            const data = {
+                MembresiaId: parseInt(id),
+                FechaInicio: new Date(),
+                FechaFin: new Date(fin),
+                Motivo: motivo
+            };
+
+            Swal.fire({
+                title: '¿Congelar Membresía?',
+                text: "El socio no podrá ingresar hasta que se cumpla la fecha o sea reactivado manualmente.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, pausar',
+                cancelButtonText: 'Dudar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/Congelamientos/Congelar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    })
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('modalCongelar')).hide();
+                            cargarMembresias('todas');
+                            Swal.fire('¡Congelada!', json.message, 'success');
+                        } else {
+                            Swal.fire('Error', json.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function descongelarMembresia(id) {
+            Swal.fire({
+                title: '¿Reactivar Membresía?',
+                text: "El socio volverá a tener acceso inmediato.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, reactivar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/Congelamientos/Descongelar/${id}`, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) {
+                            cargarMembresias('todas');
+                            Swal.fire('¡Reactivada!', json.message, 'success');
+                        } else {
+                            Swal.fire('Error', json.message, 'error');
+                        }
+                    });
+                }
+            });
         }
     </script>
 }

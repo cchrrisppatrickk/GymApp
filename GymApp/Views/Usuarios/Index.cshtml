@@ -60,6 +60,10 @@
                                 }
                             </td>
                             <td class="text-end">
+                                <!-- Botón Detalles -->
+                                <a asp-action="Details" asp-route-id="@item.UserId" class="btn btn-sm btn-info me-1" title="Ver Ficha">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                                 <!-- Botón Ver QR -->
                                 <button class="btn btn-sm btn-dark me-1" onclick="verQR(@item.UserId, '@item.NombreCompleto')" title="Ver Código QR">
                                     <i class="bi bi-qr-code"></i>
@@ -92,7 +96,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formUsuario">
+                <form id="formUsuario" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <input type="hidden" id="UserId" value="0" />
 
@@ -112,6 +116,10 @@
                             <div class="mb-3">
                                 <label for="Dni" class="form-label">DNI / Identificación</label>
                                 <input type="text" class="form-control" id="Dni" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Foto de Perfil</label>
+                                <input type="file" id="FotoArchivo" name="FotoArchivo" class="form-control" accept="image/*" />
                             </div>
                         </div>
 
@@ -223,43 +231,37 @@
                 });
         }
 
-        // 3. GUARDAR USUARIO (Corrección de Nombre y IDs)
+        // 3. GUARDAR USUARIO (Usando FormData para archivos)
         function guardarUsuario() {
-            // A. VALIDACIÓN DE ROL
-            // Usamos JQuery $("#RoleId") o Vanilla JS document.getElementById
             var rolId = document.getElementById("RoleId").value;
             if (!rolId) {
                 Swal.fire("Atención", "Debe seleccionar un Rol", "warning");
                 return;
             }
 
-            // B. CONSTRUCCIÓN DEL OBJETO (Mapeo correcto de IDs)
-            var usuario = {
-                UserId: parseInt(document.getElementById("UserId").value) || 0,
-                RoleId: parseInt(rolId),
-                NombreCompleto: document.getElementById("NombreCompleto").value,
-                Dni: document.getElementById("Dni").value,
-                Email: document.getElementById("Email").value,
-                Telefono: document.getElementById("Telefono").value,
+            // Usamos FormData para enviar el archivo y los campos
+            var formData = new FormData();
+            formData.append("UserId", document.getElementById("UserId").value);
+            formData.append("RoleId", rolId);
+            formData.append("NombreCompleto", document.getElementById("NombreCompleto").value);
+            formData.append("Dni", document.getElementById("Dni").value);
+            formData.append("Email", document.getElementById("Email").value);
+            formData.append("Telefono", document.getElementById("Telefono").value);
+            formData.append("Estado", document.getElementById("Estado").checked);
+            
+            var password = document.getElementById("Password").value;
+            if(password) formData.append("Password", password);
 
-                // Corrección: Leer checkbox
-                Estado: document.getElementById("Estado").checked,
-
-                // Lógica de Contraseña / Usuario Automático
-                // Si el campo Password está vacío, enviamos null para que el backend use el DNI
-                Password: document.getElementById("Password").value || null,
-
-                // En tu HTML actual no veo campo para "NombreUsuario",
-                // así que enviamos null para que el backend use el DNI por defecto.
-                NombreUsuario: null
-            };
+            var foto = document.getElementById("FotoArchivo").files[0];
+            if(foto) formData.append("FotoArchivo", foto);
 
             // C. ENVÍO AJAX
             $.ajax({
                 url: "/Usuarios/Save",
                 type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(usuario),
+                data: formData,
+                processData: false, // Importante: no procesar datos
+                contentType: false, // Importante: no establecer contentType manual
                 headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
                 success: function (response) {
                     if (response.success) {
@@ -272,7 +274,6 @@
                             location.reload();
                         });
                     } else {
-                        // Si hay lista de errores, la mostramos
                         var msg = response.message;
                         if(response.errors){
                             msg += ": " + JSON.stringify(response.errors);
@@ -282,7 +283,7 @@
                 },
                 error: function (xhr) {
                     console.log(xhr.responseText);
-                    Swal.fire("Error del Servidor", "Revise la consola para más detalles (F12)", "error");
+                    Swal.fire("Error del Servidor", "Revise la consola para más detalles", "error");
                 }
             });
         }

@@ -1,9 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+
 
 namespace GymApp.ViewModels
 {
     public class UsuarioViewModel
     {
+        public IFormFile? FotoArchivo { get; set; }
+
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "El Rol es obligatorio")]

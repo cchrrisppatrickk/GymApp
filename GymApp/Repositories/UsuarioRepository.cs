@@ -47,9 +47,14 @@ namespace GymApp.Repositories
             // Sobrescribe la lógica de GetById para incluir relaciones
             return await _context.Usuarios
                                  .Include(u => u.Role)
-                                 // Aquí podrías incluir también .Include(u => u.Membresias) si quisieras
+                                 .Include(u => u.Membresia)
+                                    .ThenInclude(m => m.Plan)
+                                 .Include(u => u.Membresia)
+                                    .ThenInclude(m => m.Turno)
+                                 .Include(u => u.PagosMembresia)
                                  .FirstOrDefaultAsync(u => u.UserId == id);
         }
+
 
         public async Task<Usuario> ObtenerPorNombreUsuarioAsync(string nombreUsuario)
         {

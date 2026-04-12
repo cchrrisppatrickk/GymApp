@@ -13,5 +13,6 @@
         public string FechaVencimiento { get; set; }
         public string Estado { get; set; } // Activa, Vencida, Por Vencer
         public int DiasRestantes { get; set; }
+        public bool PermiteCongelar { get; set; }
     }
 }

@@ -57,14 +57,24 @@ namespace GymApp.Controllers
                 Email = u.Email,
                 Telefono = u.Telefono,
                 NombreRol = u.Role?.Nombre,
-                // CORRECCIÓN AQUÍ: (u.Estado ?? false)
-                // Si u.Estado es nulo, se usará 'false' automáticamente.
                 Estado = u.Estado ?? false,
                 RoleId = u.RoleId
             }).ToList();
 
             return View(listadoViewModels);
         }
+
+        // ==========================================
+        // 6. VISTA DETALLES (PREMIUM)
+        // ==========================================
+        public async Task<IActionResult> Details(int id)
+        {
+            var usuario = await _usuarioService.ObtenerPorIdAsync(id);
+            if (usuario == null) return NotFound();
+
+            return View(usuario);
+        }
+
 
         // ==========================================
         // 2. OBTENER UN USUARIO (AJAX)
@@ -96,7 +106,7 @@ namespace GymApp.Controllers
         // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Save([FromBody] UsuarioViewModel model)
+        public async Task<IActionResult> Save([FromForm] UsuarioViewModel model)
         {
             // OJO: ModelState.IsValid podría fallar si tienes validaciones Required en el ViewModel. 
             // Como ya quitamos los Required de Password y Usuario en el paso 1, esto pasará bien.
@@ -132,7 +142,7 @@ namespace GymApp.Controllers
                     // Si el password viene vacío, usamos el DNI
                     string passwordFinal = string.IsNullOrEmpty(model.Password) ? model.Dni : model.Password;
 
-                    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, passwordFinal);
+                    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, passwordFinal, model.FotoArchivo);
                     return Json(new { success = true, message = "Usuario creado. Acceso con DNI." });
                 }
                 // --- EDITAR ---
@@ -156,7 +166,7 @@ namespace GymApp.Controllers
                         usuarioExistente.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
                     }
 
-                    await _usuarioService.ActualizarUsuarioAsync(usuarioExistente);
+                    await _usuarioService.ActualizarUsuarioAsync(usuarioExistente, model.FotoArchivo);
                     return Json(new { success = true, message = "Usuario actualizado correctamente." });
                 }
             }

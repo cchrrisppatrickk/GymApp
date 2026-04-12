@@ -1,6 +1,9 @@
 ﻿using GymApp.Models;
 using GymApp.Repositories;
 using QRCoder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,10 +15,12 @@ namespace GymApp.Services
     {
         // Inyectamos el Repositorio, no el DbContext directamente.
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IWebHostEnvironment _env;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IWebHostEnvironment env)
         {
             _usuarioRepository = usuarioRepository;
+            _env = env;
         }
 
         public async Task<IEnumerable<Usuario>> ObtenerTodosAsync()
@@ -28,8 +33,14 @@ namespace GymApp.Services
             return await _usuarioRepository.ObtenerConDetallesAsync(id);
         }
 
-        public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw)
+        public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null)
         {
+            // --- NUEVO: GUARDAR FOTO ---
+            if (fotoArchivo != null)
+            {
+                usuario.FotoUrl = await ProcesarFotoAsync(fotoArchivo, usuario.Dni);
+            }
+
             // 1. Validar DNI único (Se mantiene igual)
             if (await _usuarioRepository.ExisteDniAsync(usuario.Dni))
                 throw new Exception("El DNI ya está registrado.");
@@ -69,8 +80,14 @@ namespace GymApp.Services
             return usuario;
         }
 
-        public async Task ActualizarUsuarioAsync(Usuario usuario)
+        public async Task ActualizarUsuarioAsync(Usuario usuario, IFormFile? fotoArchivo = null)
         {
+            // --- NUEVO: GUARDAR FOTO ---
+            if (fotoArchivo != null)
+            {
+                usuario.FotoUrl = await ProcesarFotoAsync(fotoArchivo, usuario.Dni);
+            }
+
             // IMPORTANTE: Al editar, deberíamos validar que si cambió el nombre de usuario,
             // el nuevo no esté ocupado por otra persona. (Se puede refinar luego).
             await _usuarioRepository.UpdateAsync(usuario);

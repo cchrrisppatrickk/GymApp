@@ -26,6 +26,8 @@ public partial class Usuario
     public DateTime? FechaRegistro { get; set; }
 
     public bool? Estado { get; set; }
+    public string? FotoUrl { get; set; } // Almacenará el nombre del archivo o ruta relativa
+
 
     public virtual ICollection<Asistencia> Asistencia { get; set; } = new List<Asistencia>();
 

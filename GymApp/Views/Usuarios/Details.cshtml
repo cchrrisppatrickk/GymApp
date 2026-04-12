@@ -1,0 +1,167 @@
+@model GymApp.Models.Usuario
+@{
+    ViewData["Title"] = "Ficha del Socio";
+    var membresiaActiva = Model.Membresia
+        .Where(m => m.FechaVencimiento >= DateOnly.FromDateTime(DateTime.Today))
+        .OrderByDescending(m => m.FechaVencimiento)
+        .FirstOrDefault();
+
+    var diasRestantes = membresiaActiva != null 
+        ? (membresiaActiva.FechaVencimiento.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber) 
+        : 0;
+    
+    var ultimosPagos = Model.PagosMembresia
+        .OrderByDescending(p => p.FechaPago)
+        .Take(3)
+        .ToList();
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Columna Izquierda: Perfil y Estado -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center p-4">
+                <div class="mb-3">
+                    @if (!string.IsNullOrEmpty(Model.FotoUrl))
+                    {
+                        <img src="~/uploads/fotos/@Model.FotoUrl" class="img-thumbnail rounded-circle shadow-sm" style="width: 200px; height: 200px; object-fit: cover;" alt="Foto Perfil">
+                    }
+                    else
+                    {
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 200px; height: 200px;">
+                            <i class="bi bi-person-fill text-secondary" style="font-size: 80px;"></i>
+                        </div>
+                    }
+                </div>
+                <h3 class="fw-bold" style="color: #276CF5;">@Model.NombreCompleto</h3>
+                <p class="text-muted mb-3">@Model.Role?.Nombre</p>
+                
+                <div class="mb-4">
+                    @if (Model.Estado == true)
+                    {
+                        <span class="badge bg-success px-3 py-2 fs-6"><i class="bi bi-check-circle me-1"></i> SOCIO ACTIVO</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger px-3 py-2 fs-6"><i class="bi bi-x-circle me-1"></i> SOCIO INACTIVO</span>
+                    }
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Volver al listado</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Información Detallada -->
+        <div class="col-md-8">
+            <!-- Nav Tabs -->
+            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-info-tab" data-bs-toggle="pill" data-bs-target="#pills-info" type="button" role="tab" style="--bs-nav-pills-link-active-bg: #276CF5;">Información Personal</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-membresia-tab" data-bs-toggle="pill" data-bs-target="#pills-membresia" type="button" role="tab" style="--bs-nav-pills-link-active-color: #fff; --bs-nav-pills-link-active-bg: #276CF5;">Membresía</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-pagos-tab" data-bs-toggle="pill" data-bs-target="#pills-pagos" type="button" role="tab" style="--bs-nav-pills-link-active-bg: #276CF5;">Historial de Pagos</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+                <!-- Tab: Info Personal -->
+                <div class="tab-pane fade show active" id="pills-info" role="tabpanel">
+                    <div class="card shadow-sm border-0 border-top border-4" style="border-top-color: #276CF5 !important;">
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">DNI / ID:</div>
+                                <div class="col-sm-8">@Model.Dni</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Email:</div>
+                                <div class="col-sm-8 text-primary">@Model.Email</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Teléfono:</div>
+                                <div class="col-sm-8">@Model.Telefono</div>
+                            </div>
+                            <div class="row mb-0">
+                                <div class="col-sm-4 fw-bold">Fecha Registro:</div>
+                                <div class="col-sm-8">@(Model.FechaRegistro?.ToString("dd/MM/yyyy") ?? "No registrada")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Membresía -->
+                <div class="tab-pane fade" id="pills-membresia" role="tabpanel">
+                    <div class="card shadow-sm border-0 border-top border-4" style="border-top-color: #276CF5 !important;">
+                        <div class="card-body">
+                            @if (membresiaActiva != null)
+                            {
+                                <div class="row align-items-center">
+                                    <div class="col-md-7">
+                                        <h4 class="fw-bold mb-3">@membresiaActiva.Plan?.Nombre</h4>
+                                        <p class="mb-2"><i class="bi bi-clock me-2"></i><strong>Turno:</strong> @membresiaActiva.Turno?.Nombre</p>
+                                        <p class="mb-2"><i class="bi bi-calendar-check me-2"></i><strong>Vencimiento:</strong> @membresiaActiva.FechaVencimiento.ToString("dd/MM/yyyy")</p>
+                                    </div>
+                                    <div class="col-md-5 text-center">
+                                        <div class="p-3 bg-light rounded shadow-sm">
+                                            <div class="fs-1 fw-bold text-primary">@diasRestantes</div>
+                                            <div class="text-muted small text-uppercase">Días Restantes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-4">
+                                    <i class="bi bi-exclamation-triangle text-warning fs-1"></i>
+                                    <p class="mt-2 text-muted">No tiene una membresía activa actualmente.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Pagos -->
+                <div class="tab-pane fade" id="pills-pagos" role="tabpanel">
+                    <div class="card shadow-sm border-0 border-top border-4" style="border-top-color: #276CF5 !important;">
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Concepto</th>
+                                        <th>Monto</th>
+                                        <th>Método</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if(ultimosPagos.Any())
+                                    {
+                                        @foreach (var pago in ultimosPagos)
+                                        {
+                                            <tr>
+                                                <td>@(pago.FechaPago?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                                <td>Membresía #@pago.MembresiaId</td>
+                                                <td class="fw-bold text-success">S/ @pago.Monto.ToString("F2")</td>
+                                                <td>@pago.MetodoPago</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="4" class="text-center py-3 text-muted">No hay pagos registrados.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
