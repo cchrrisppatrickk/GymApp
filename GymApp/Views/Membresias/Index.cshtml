@@ -253,6 +253,24 @@
             cargarMembresias('todas');
             cargarRecursos();
             document.getElementById('txtFechaInicio').valueAsDate = new Date();
+
+            @if (ViewBag.PreselectUserId != null)
+            {
+                <text>
+                const preselectedId = @ViewBag.PreselectUserId;
+                fetch(`/Membresias/BuscarUsuario?q=` + preselectedId)
+                    .then(res => res.json())
+                    .then(data => {
+                        const user = data.find(u => u.id == preselectedId) || data[0];
+                        if (user) {
+                            document.getElementById('userIdSeleccionado').value = user.id;
+                            document.getElementById('txtBuscarUsuario').value = user.text;
+                            mostrarFeedbackUsuario(user.text);
+                            abrirModal();
+                        }
+                    });
+                </text>
+            }
         });
 
         // ==========================================

@@ -15,6 +15,8 @@ namespace GymApp.Services
 
         // Nuevo: Verifica si el Turno seleccionado ya está asignado a otra membresía activa
         Task VerificarTurnoExistente(int userId, int turnoId);
+
+        Task<bool> CongelarMembresiaAsync(int membresiaId, int empleadoId, DateOnly fechaFin, string motivo);
     }
 
 }

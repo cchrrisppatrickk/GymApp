@@ -14,18 +14,21 @@ namespace GymApp.Services
         private readonly IPlaneRepository _planRepo;
         private readonly ITurnoRepository _turnoRepo;
         // Inyectamos repositorio de usuarios para la búsqueda
-        private readonly IGenericRepository<Usuario> _usuarioRepo; 
+        private readonly IGenericRepository<Usuario> _usuarioRepo;
+        private readonly IGenericRepository<Congelamiento> _congelamientoRepo;
 
         public MembresiaService(
             IMembresiaRepository membresiaRepo,
             IPlaneRepository planRepo,
             ITurnoRepository turnoRepo,
-            IGenericRepository<Usuario> usuarioRepo)
+            IGenericRepository<Usuario> usuarioRepo,
+            IGenericRepository<Congelamiento> congelamientoRepo)
         {
             _membresiaRepo = membresiaRepo;
             _planRepo = planRepo;
             _turnoRepo = turnoRepo;
             _usuarioRepo = usuarioRepo;
+            _congelamientoRepo = congelamientoRepo;
         }
 
         public async Task CrearMembresiaAsync(MembresiaCreateDTO dto)
@@ -145,5 +148,47 @@ namespace GymApp.Services
             // Si no tiene activa, o si la activa tiene el mismo turno, se procede sin error.
         }
 
+        public async Task<bool> CongelarMembresiaAsync(int membresiaId, int empleadoId, DateOnly fechaFin, string motivo)
+        {
+            var hoy = DateOnly.FromDateTime(DateTime.Today);
+            var membresia = await _membresiaRepo.ObtenerPorIdConDetallesAsync(membresiaId);
+
+            if (membresia == null) throw new Exception("Membresía no encontrada.");
+            
+            // 1. Validar que el plan permita congelar
+            if (membresia.Plan?.PermiteCongelar != true)
+                throw new Exception("Este plan no permite congelamientos.");
+
+            // 2. Validar que esté activa
+            if (membresia.FechaVencimiento <= hoy)
+                throw new Exception("No se puede congelar una membresía ya vencida.");
+
+            if (fechaFin <= hoy)
+                throw new Exception("La fecha de fin debe ser futura.");
+
+            // 3. Calcular días a extender
+            int diasExtra = fechaFin.DayNumber - hoy.DayNumber;
+
+            // 4. Crear registro de congelamiento
+            var congelamiento = new Congelamiento
+            {
+                MembresiaId = membresiaId,
+                UsuarioEmpleadoId = empleadoId,
+                FechaInicio = hoy,
+                FechaFin = fechaFin,
+                Motivo = motivo,
+                FechaRegistro = DateTime.Now
+            };
+
+            // 5. Actualizar Membresía
+            membresia.FechaVencimiento = membresia.FechaVencimiento.AddDays(diasExtra);
+            membresia.Estado = "Congelada";
+
+            await _congelamientoRepo.InsertAsync(congelamiento);
+            await _membresiaRepo.UpdateAsync(membresia);
+            
+            await _membresiaRepo.SaveAsync();
+            return true;
+        }
     }
 }

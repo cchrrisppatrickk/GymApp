@@ -27,13 +27,38 @@
 
     <!-- Botones de Acción Global -->
     <div class="mb-4 d-flex gap-2">
-        <button class="btn btn-info text-white shadow-sm" onclick="abrirModalCongelar(@Model.MembresiaId)">
-            <i class="bi bi-snow2 me-1"></i> Congelar Cuenta
-        </button>
-        <a asp-action="Index" class="btn btn-primary shadow-sm" style="background-color: #276CF5;">
+        @if (Model.Plan?.PermiteCongelar == true)
+        {
+            <button class="btn btn-info text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCongelar">
+                <i class="bi bi-snow2 me-1"></i> Congelar Cuenta
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-info text-white shadow-sm opacity-50" disabled title="El plan no permite congelar">
+                <i class="bi bi-snow2 me-1"></i> El plan no permite congelar
+            </button>
+        }
+        
+        <a asp-controller="Membresias" asp-action="Crear" asp-route-userId="@Model.UserId" class="btn btn-primary shadow-sm" style="background-color: #276CF5;">
             <i class="bi bi-arrow-repeat me-1"></i> Renovar Membresía
         </a>
     </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <div class="row g-4 mb-4">
         <!-- Tarjeta Izquierda: Info del Plan -->
@@ -226,6 +251,44 @@
     </div>
 </div>
 
+<!-- Modal Congelar -->
+<div class="modal fade" id="modalCongelar" tabindex="-1" aria-labelledby="modalCongelarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title fw-bold" id="modalCongelarLabel"><i class="bi bi-snow2 me-2"></i>Congelar Membresía</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Membresias" asp-action="Congelar" method="post">
+                <input type="hidden" name="membresiaId" value="@Model.MembresiaId" />
+                <div class="modal-body p-4">
+                    <div class="alert alert-warning small mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Esta acción extenderá la fecha de vencimiento y pausará el acceso hasta la fecha seleccionada.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Fecha Fin de Congelamiento</label>
+                        <input type="date" name="fechaFin" class="form-control" required min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")">
+                        <div class="form-text small text-muted">A partir de esta fecha, el socio volverá a tener acceso.</div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small">Motivo</label>
+                        <textarea name="motivo" class="form-control" rows="3" placeholder="Ej: Viaje, Salud, Vacaciones..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info text-white px-4">
+                        <i class="bi bi-check-lg me-1"></i> Confirmar Congelamiento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
     .bg-danger-soft { background-color: rgba(220, 53, 69, 0.05); }
     .animate-fade-in { animation: fadeIn 0.3s ease-in; }
@@ -233,3 +296,4 @@
     .nav-tabs .nav-link { color: #6c757d; font-weight: 500; font-size: 0.9rem; }
     .nav-tabs .nav-link.active { color: #276CF5; border-top: 3px solid #276CF5 !important; background: white; }
 </style>
+
