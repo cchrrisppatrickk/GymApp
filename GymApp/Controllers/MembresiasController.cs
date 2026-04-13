@@ -107,5 +107,41 @@ namespace GymApp.Controllers
 
             return RedirectToAction("Details", new { id = membresiaId });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPropuestaRenovacion(int id)
+        {
+            var fecha = await _membresiaService.ObtenerPropuestaRenovacionAsync(id);
+            return Json(new { fechaInicio = fecha.ToString("yyyy-MM-dd") });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Renovar(int userId, int planId, int turnoId, DateTime fechaInicio)
+        {
+            try
+            {
+                var dto = new MembresiaCreateDTO
+                {
+                    UserId = userId,
+                    PlanId = planId,
+                    TurnoId = turnoId,
+                    FechaInicio = fechaInicio
+                };
+
+                await _membresiaService.CrearMembresiaAsync(dto);
+                
+                // Buscar la última membresía creada para este usuario para poder registrar el pago
+                var membresias = await _membresiaService.ListarMembresiasAsync("todas");
+                var nueva = membresias.OrderByDescending(m => m.MembresiaId).FirstOrDefault(m => m.UserId == userId);
+
+                TempData["Success"] = $"Membresía renovada con éxito. <a href='/Pagos/Registrar?membresiaId={nueva?.MembresiaId}' class='fw-bold text-decoration-underline'>¿Registrar Pago Ahora?</a>";
+                return RedirectToAction("Details", new { id = nueva?.MembresiaId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
     }
 }

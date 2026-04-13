@@ -40,15 +40,15 @@
             </button>
         }
         
-        <a asp-controller="Membresias" asp-action="Crear" asp-route-userId="@Model.UserId" class="btn btn-primary shadow-sm" style="background-color: #276CF5;">
+        <button class="btn btn-primary shadow-sm" style="background-color: #276CF5;" onclick="abrirModalRenovacion()">
             <i class="bi bi-arrow-repeat me-1"></i> Renovar Membresía
-        </a>
+        </button>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle me-2"></i> @Html.Raw(TempData["Success"])
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
@@ -288,6 +288,71 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Renovar -->
+<div class="modal fade" id="modalRenovacion" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-arrow-repeat me-2"></i>Renovación Inteligente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Membresias" asp-action="Renovar" method="post">
+                <input type="hidden" name="userId" value="@Model.UserId" />
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Elegir Plan</label>
+                        <select name="planId" id="cboRenovarPlan" class="form-select" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Elegir Turno</label>
+                        <select name="turnoId" id="cboRenovarTurno" class="form-select" required></select>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small">Fecha de Inicio de Nueva Membresía</label>
+                        <input type="date" name="fechaInicio" id="txtRenovarInicio" class="form-control" required>
+                        <div class="form-text small text-info">
+                            <i class="bi bi-info-circle-fill me-1"></i>
+                            Calculado automáticamente para no perder días de la membresía actual.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-check-lg me-1"></i> Confirmar Renovación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function abrirModalRenovacion() {
+        // Cargar Planes y Turnos si no están cargados (o refrescar)
+        fetch('/Membresias/ObtenerRecursosCreacion')
+            .then(res => res.json())
+            .then(json => {
+                let pSelect = document.getElementById('cboRenovarPlan');
+                pSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Plan --</option>';
+                json.planes.forEach(p => pSelect.innerHTML += `<option value="${p.planId}">${p.nombre} (${p.duracionDias} días)</option>`);
+
+                let tSelect = document.getElementById('cboRenovarTurno');
+                tSelect.innerHTML = '';
+                json.turnos.forEach(t => tSelect.innerHTML += `<option value="${t.turnoId}" ${t.turnoId == @Model.TurnoId ? 'selected' : ''}>${t.nombre}</option>`);
+            });
+
+        // Obtener Propuesta de Fecha
+        fetch(`/Membresias/GetPropuestaRenovacion/@Model.MembresiaId`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('txtRenovarInicio').value = data.fechaInicio;
+            });
+
+        new bootstrap.Modal(document.getElementById('modalRenovacion')).show();
+    }
+</script>
 
 <style>
     .bg-danger-soft { background-color: rgba(220, 53, 69, 0.05); }

@@ -148,6 +148,23 @@ namespace GymApp.Services
             // Si no tiene activa, o si la activa tiene el mismo turno, se procede sin error.
         }
 
+        public async Task<DateOnly> ObtenerPropuestaRenovacionAsync(int membresiaId)
+        {
+            var membresia = await _membresiaRepo.GetByIdAsync(membresiaId);
+            if (membresia == null) return DateOnly.FromDateTime(DateTime.Today);
+
+            var hoy = DateOnly.FromDateTime(DateTime.Today);
+            
+            // Si vence en el futuro, la renovación empieza el día siguiente al vencimiento.
+            if (membresia.FechaVencimiento > hoy)
+            {
+                return membresia.FechaVencimiento.AddDays(1);
+            }
+            
+            // Si ya venció, empieza hoy.
+            return hoy;
+        }
+
         public async Task<bool> CongelarMembresiaAsync(int membresiaId, int empleadoId, DateOnly fechaFin, string motivo)
         {
             var hoy = DateOnly.FromDateTime(DateTime.Today);

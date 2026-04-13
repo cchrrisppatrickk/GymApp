@@ -12,6 +12,7 @@ namespace GymApp.Services
         Task<IEnumerable<object>> BuscarClientesAsync(string termino); // Para el autocomplete
 
         Task<Membresia> ObtenerDetallesAsync(int id);
+        Task<DateOnly> ObtenerPropuestaRenovacionAsync(int membresiaId);
 
         // Nuevo: Verifica si el Turno seleccionado ya está asignado a otra membresía activa
         Task VerificarTurnoExistente(int userId, int turnoId);
