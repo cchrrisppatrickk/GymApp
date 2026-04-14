@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   sqldata:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -7,18 +5,25 @@ services:
     restart: always
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=PasswordSeguro123! # Cambia esto por una contraseña fuerte
+      - MSSQL_SA_PASSWORD=PasswordSeguro123!
+      - MSSQL_PID=Developer
     ports:
-      - "1433:1433" # Expone el puerto por defecto de SQL Server
+      - "1433:1433"
     volumes:
-      - sql_data:/var/opt/mssql # Esto asegura que no pierdas la BD si apagas el contenedor
+      - sql_data:/var/opt/mssql
 
   gymapp:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     container_name: gymapp_web
     restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=sqldata,1433;Database=GymDB;User Id=sa;Password=PasswordSeguro123!;TrustServerCertificate=True;MultipleActiveResultSets=true
     ports:
-      - "5000:80"
+      - "5000:8080"
     depends_on:
       - sqldata
     volumes:

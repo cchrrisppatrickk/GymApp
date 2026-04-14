@@ -1,63 +1,57 @@
 # ---------------------------------------------------------
-# INICIAR Y DETENER EL CONTENEDOR
+# GESTIÓN DEL ENTORNO CON DOCKER
 # ---------------------------------------------------------
 
-# Crea y enciende la base de datos por primera vez (o la levanta si fue destruida)
-# El flag -d (detached) la deja corriendo en segundo plano
-docker-compose up -d
+# Levantar todo el entorno (Base de Datos + Aplicación Web)
+# --build asegura que se construya la imagen de la app si hay cambios
+docker compose up -d --build
 
-docker compose up -d
-
-
-# Apaga la base de datos temporalmente (cuando terminas de trabajar)
-docker-compose stop
-
-# Vuelve a encender la base de datos (cuando inicias tu PC al día siguiente)
-docker-compose start
-
-# ---------------------------------------------------------
-# MANTENIMIENTO Y MONITOREO
-# ---------------------------------------------------------
-
-# Muestra los contenedores que están activos actualmente y sus puertos
+# Ver el estado de los contenedores
 docker ps
 
-# Muestra el historial de errores o mensajes de SQL Server
-# (Cambia 'gym_sql_server' si le pusiste otro nombre en tu docker-compose.yml)
-docker logs gym_sql_server
+# Ver logs de la aplicación web (para debugear errores internos)
+docker logs gymapp_web -f
 
-# Destruye el contenedor de SQL Server por completo
-# (Tranquilo, tu información no se borra gracias al 'volume' configurado)
-docker-compose down
+# Ver logs de la base de datos
+docker logs gym_sql_server -f
+
+# Detener los contenedores sin borrarlos
+docker compose stop
+
+# Iniciar los contenedores detenidos
+docker compose start
+
+# Apagar y eliminar los contenedores (mantiene los datos de la BD por el volumen)
+docker compose down
 
 # ---------------------------------------------------------
-# FLUJO DE TRABAJO DIARIO
+# FLUJO DE DESARROLLO LOCAL (RECOMENDADO PARA CAMBIOS RÁPIDOS)
 # ---------------------------------------------------------
 
-# Tu comando principal: Ejecuta la aplicación y activa la recarga automática.
-# Si cambias código C# o HTML y guardas, el navegador se actualiza solo.
+# 1. Asegúrate de que SOLO la base de datos esté corriendo en Docker:
+# docker compose up -d sqldata
+
+# 2. Ejecuta la app localmente con recarga automática:
 dotnet watch run
-
-# Solo compila el código para verificar que no haya errores de sintaxis
-dotnet build
-
-# Limpia archivos compilados antiguos (útil si la app se comporta de forma extraña)
-dotnet clean
-
-# Descarga todas las librerías necesarias de NuGet (como Entity Framework)
-dotnet restore
 
 # ---------------------------------------------------------
 # MIGRACIONES (ACTUALIZAR LA ESTRUCTURA DE LA BD)
 # ---------------------------------------------------------
 
-# 1. Crea los planos para una nueva tabla o columna
-# Reemplaza <NombreDeLaMigracion> por algo descriptivo (ej: AgregarColumnaEdad)
+# NOTA: Ejecutar estos comandos en la terminal de tu PC (no dentro del contenedor)
+# Asegúrate de tener la BD corriendo en Docker antes de actualizar.
+
+# 1. Crea una nueva migración
 dotnet ef migrations add <NombreDeLaMigracion>
 
-# 2. Aplica los planos creados a tu base de datos SQL Server real
+# 2. Aplica los cambios a la base de datos real
 dotnet ef database update
 
-# (Opcional) Borra la ÚLTIMA migración creada si te equivocaste
-# (Solo funciona si aún no has ejecutado el 'database update')
-dotnet ef migrations remove
+# ---------------------------------------------------------
+# MANTENIMIENTO .NET
+# ---------------------------------------------------------
+
+# Limpiar y reconstruir el proyecto localmente
+dotnet clean
+dotnet build
+dotnet restore
