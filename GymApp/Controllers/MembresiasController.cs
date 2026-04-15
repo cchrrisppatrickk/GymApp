@@ -68,8 +68,8 @@ namespace GymApp.Controllers
         {
             try
             {
-                await _membresiaService.CrearMembresiaAsync(model);
-                return Json(new { success = true, message = "Membresía registrada correctamente" });
+                var id = await _membresiaService.CrearMembresiaAsync(model);
+                return Json(new { success = true, message = "Membresía registrada correctamente", id });
             }
             catch (Exception ex)
             {
@@ -128,14 +128,10 @@ namespace GymApp.Controllers
                     FechaInicio = fechaInicio
                 };
 
-                await _membresiaService.CrearMembresiaAsync(dto);
-                
-                // Buscar la última membresía creada para este usuario para poder registrar el pago
-                var membresias = await _membresiaService.ListarMembresiasAsync("todas");
-                var nueva = membresias.OrderByDescending(m => m.MembresiaId).FirstOrDefault(m => m.UserId == userId);
+                var nuevaMembresiaId = await _membresiaService.CrearMembresiaAsync(dto);
 
-                TempData["Success"] = $"Membresía renovada con éxito. <a href='/Pagos/Registrar?membresiaId={nueva?.MembresiaId}' class='fw-bold text-decoration-underline'>¿Registrar Pago Ahora?</a>";
-                return RedirectToAction("Details", new { id = nueva?.MembresiaId });
+                TempData["Success"] = "Membresía renovada con éxito. <a href='/Pagos/Index' class='fw-bold text-decoration-underline'>Ir a Caja para registrar cobro</a>";
+                return RedirectToAction("Details", new { id = nuevaMembresiaId });
             }
             catch (Exception ex)
             {
