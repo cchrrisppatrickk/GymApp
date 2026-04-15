@@ -18,6 +18,9 @@ namespace GymApp.Services
         Task VerificarTurnoExistente(int userId, int turnoId);
 
         Task<bool> CongelarMembresiaAsync(int membresiaId, int empleadoId, DateOnly fechaFin, string motivo);
+
+        Task<bool> TieneMembresiaActivaAsync(int userId);
+        Task<bool> TieneRenovacionProgramadaAsync(int userId);
     }
 
 }

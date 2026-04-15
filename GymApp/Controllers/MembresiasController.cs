@@ -68,6 +68,12 @@ namespace GymApp.Controllers
         {
             try
             {
+                if (await _membresiaService.TieneMembresiaActivaAsync(model.UserId))
+                {
+                    TempData["Error"] = $"El usuario ya cuenta con una suscripción activa. <a href='/Usuarios/Details/{model.UserId}' class='fw-bold text-decoration-underline'>Haga clic aquí para ver sus detalles o renovar</a>.";
+                    return BadRequest(new { success = false, message = TempData["Error"] });
+                }
+
                 var id = await _membresiaService.CrearMembresiaAsync(model);
                 return Json(new { success = true, message = "Membresía registrada correctamente", id });
             }
@@ -120,6 +126,12 @@ namespace GymApp.Controllers
         {
             try
             {
+                if (await _membresiaService.TieneRenovacionProgramadaAsync(userId))
+                {
+                    TempData["Error"] = "Operación cancelada: El usuario ya tiene una renovación programada para el futuro. No es necesario renovar nuevamente.";
+                    return RedirectToAction("Details", "Usuarios", new { id = userId });
+                }
+
                 var dto = new MembresiaCreateDTO
                 {
                     UserId = userId,

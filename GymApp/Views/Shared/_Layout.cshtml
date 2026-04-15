@@ -443,6 +443,23 @@
         </div>
 
         <div class="container-fluid p-0 fade-in">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    @Html.Raw(TempData["Success"])
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mx-4 mt-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    @Html.Raw(TempData["Error"])
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
             @RenderBody()
         </div>
     </div>

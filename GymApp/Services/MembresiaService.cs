@@ -209,5 +209,19 @@ namespace GymApp.Services
             await _membresiaRepo.SaveAsync();
             return true;
         }
+
+        public async Task<bool> TieneMembresiaActivaAsync(int userId)
+        {
+            var hoy = DateOnly.FromDateTime(DateTime.Today);
+            var todas = await _membresiaRepo.GetAllAsync();
+            return todas.Any(m => m.UserId == userId && m.FechaVencimiento >= hoy && m.Estado == "Activa");
+        }
+
+        public async Task<bool> TieneRenovacionProgramadaAsync(int userId)
+        {
+            var hoy = DateOnly.FromDateTime(DateTime.Today);
+            var todas = await _membresiaRepo.GetAllAsync();
+            return todas.Any(m => m.UserId == userId && m.FechaInicio > hoy && m.Estado == "Activa");
+        }
     }
 }
