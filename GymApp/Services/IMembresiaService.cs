@@ -8,7 +8,7 @@ namespace GymApp.Services
     public interface IMembresiaService
     {
         Task<IEnumerable<MembresiaListDTO>> ListarMembresiasAsync(string filtro);
-        Task CrearMembresiaAsync(MembresiaCreateDTO dto);
+        Task<int> CrearMembresiaAsync(MembresiaCreateDTO dto);
         Task<IEnumerable<object>> BuscarClientesAsync(string termino); // Para el autocomplete
 
         Task<Membresia> ObtenerDetallesAsync(int id);

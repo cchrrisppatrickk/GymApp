@@ -31,7 +31,7 @@ namespace GymApp.Services
             _congelamientoRepo = congelamientoRepo;
         }
 
-        public async Task CrearMembresiaAsync(MembresiaCreateDTO dto)
+        public async Task<int> CrearMembresiaAsync(MembresiaCreateDTO dto)
         {
             // 1. Validaciones Preliminares (Lógica de Negocio)
             await VerificarTurnoExistente(dto.UserId, dto.TurnoId);
@@ -73,6 +73,8 @@ namespace GymApp.Services
 
             await _membresiaRepo.InsertAsync(nuevaMembresia);
             await _membresiaRepo.SaveAsync();
+
+            return nuevaMembresia.MembresiaId;
         }
 
         public async Task<IEnumerable<MembresiaListDTO>> ListarMembresiasAsync(string filtro)
