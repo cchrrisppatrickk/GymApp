@@ -7,26 +7,70 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BCrypt.Net; // Asegúrate de tener instalado BCrypt.Net-Next
+using BCrypt.Net;
+using GymApp.Data;
+using GymApp.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace GymApp.Services
 {
     public class UsuarioService : IUsuarioService
     {
-        // Inyectamos el Repositorio, no el DbContext directamente.
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IWebHostEnvironment _env;
+        private readonly GymDbContext _context;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository, IWebHostEnvironment env)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IWebHostEnvironment env, GymDbContext context)
         {
             _usuarioRepository = usuarioRepository;
             _env = env;
+            _context = context;
         }
 
         public async Task<IEnumerable<Usuario>> ObtenerTodosAsync()
         {
             return await _usuarioRepository.GetAllAsync();
         }
+
+        public async Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int tamanoPagina = 10)
+        {
+            var query = _context.Usuarios.Include(u => u.Role).AsQueryable();
+
+            if (!string.IsNullOrEmpty(buscar))
+            {
+                query = query.Where(u => u.NombreCompleto.Contains(buscar) || (u.Dni != null && u.Dni.Contains(buscar)));
+            }
+
+            int count = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(count / (double)tamanoPagina);
+
+            var items = await query
+                .OrderByDescending(u => u.UserId)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .Select(u => new UsuarioViewModel
+                {
+                    UserId = u.UserId,
+                    NombreCompleto = u.NombreCompleto,
+                    Dni = u.Dni,
+                    NombreRol = u.Role.Nombre,
+                    Email = u.Email,
+                    Telefono = u.Telefono,
+                    Estado = u.Estado ?? false,
+                    NombreUsuario = u.NombreUsuario
+                })
+                .ToListAsync();
+
+            return new PagedResult<UsuarioViewModel>
+            {
+                Items = items,
+                TotalPages = totalPages,
+                CurrentPage = pagina,
+                SearchTerm = buscar
+            };
+        }
+
 
         public async Task<Usuario> ObtenerPorIdAsync(int id)
         {

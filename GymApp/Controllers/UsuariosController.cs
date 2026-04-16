@@ -21,48 +21,22 @@ namespace GymApp.Controllers
         }
 
         // ==========================================
-        // 1. VISTA PRINCIPAL (INDEX)
+        // 1. VISTA PRINCIPAL (INDEX) - PAGINADA
         // ==========================================
-        public async Task<IActionResult> Index(string tipo = "Todos")
+        public async Task<IActionResult> Index(string? buscar, int pagina = 1)
         {
-            var usuarios = await _usuarioService.ObtenerTodosAsync();
-
-            // Filtrado básico para la vista inicial
-            if (tipo == "Cliente")
-            {
-                usuarios = usuarios.Where(u => u.Role.Nombre == "Cliente");
-                ViewData["TituloListado"] = "Listado de Clientes";
-            }
-            else if (tipo == "Personal")
-            {
-                usuarios = usuarios.Where(u => u.Role.Nombre != "Cliente");
-                ViewData["TituloListado"] = "Listado de Personal";
-            }
-            else
-            {
-                ViewData["TituloListado"] = "Todos los Usuarios";
-            }
+            var pagedResult = await _usuarioService.ObtenerUsuariosPaginadosAsync(buscar, pagina);
 
             // CARGAMOS LOS ROLES AQUÍ para enviarlos a la vista y llenar el <select> del Modal
             var roles = await _rolesRepository.GetAllAsync();
             ViewBag.Roles = new SelectList(roles, "RoleId", "Nombre");
-            ViewBag.FiltroActual = tipo;
+            
+            ViewData["CurrentFilter"] = buscar;
+            ViewData["TituloListado"] = string.IsNullOrEmpty(buscar) ? "Listado de Usuarios" : $"Resultados para: {buscar}";
 
-            // Mapeamos a ViewModel para la tabla
-            var listadoViewModels = usuarios.Select(u => new UsuarioViewModel
-            {
-                UserId = u.UserId,
-                NombreCompleto = u.NombreCompleto,
-                Dni = u.Dni,
-                Email = u.Email,
-                Telefono = u.Telefono,
-                NombreRol = u.Role?.Nombre,
-                Estado = u.Estado ?? false,
-                RoleId = u.RoleId
-            }).ToList();
-
-            return View(listadoViewModels);
+            return View(pagedResult);
         }
+
 
         // ==========================================
         // 6. VISTA DETALLES (PREMIUM)

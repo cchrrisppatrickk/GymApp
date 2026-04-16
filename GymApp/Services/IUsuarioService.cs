@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using GymApp.ViewModels;
 
 namespace GymApp.Services
 {
     public interface IUsuarioService
     {
+        Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int tamanoPagina = 10);
         // CRUD Básico
         Task<IEnumerable<Usuario>> ObtenerTodosAsync();
         Task<Usuario> ObtenerPorIdAsync(int id);
