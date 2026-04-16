@@ -41,12 +41,12 @@ namespace GymApp.Controllers
 
         // API: Buscar Membresía al escribir DNI
         [HttpGet]
-        public async Task<IActionResult> BuscarDeuda(string dni)
+        public async Task<IActionResult> BuscarDeuda(string termino)
         {
             try
             {
-                var info = await _pagoService.BuscarMembresiaPorDniAsync(dni);
-                return Json(new { success = true, data = info });
+                var resultados = await _pagoService.BuscarDeudaClienteAsync(termino);
+                return Json(new { success = true, data = resultados });
             }
             catch (Exception ex)
             {

@@ -8,6 +8,6 @@ namespace GymApp.Services
     {
         Task<IEnumerable<PagoListDTO>> ListarPagosAsync();
         Task<int> RegistrarPagoAsync(PagoCreateDTO dto, int empleadoId);
-        Task<DeudaInfoDTO> BuscarMembresiaPorDniAsync(string dni);
+        Task<List<DeudaInfoDTO>> BuscarDeudaClienteAsync(string termino);
     }
 }

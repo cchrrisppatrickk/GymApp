@@ -21,49 +21,38 @@ namespace GymApp.Services
             _usuarioRepo = usuarioRepo;
         }
 
-        public async Task<DeudaInfoDTO> BuscarMembresiaPorDniAsync(string dni)
+        public async Task<List<DeudaInfoDTO>> BuscarDeudaClienteAsync(string termino)
         {
-            var usuario = await _usuarioRepo.ObtenerPorDNIAsync(dni);
-            if (usuario == null) throw new Exception("Usuario no encontrado");
+            var todas = await _membresiaRepo.ObtenerTodasConDetallesAsync();
+            var membresias = todas.Where(m => (m.Estado == "Activa" || m.Estado == "Pendiente Pago" || m.Estado == "Vencida") && 
+                (string.IsNullOrEmpty(termino) || 
+                 m.User.NombreCompleto.Contains(termino, StringComparison.OrdinalIgnoreCase) || 
+                 (m.User.Dni != null && m.User.Dni.Contains(termino)))).ToList();
 
-            // 1. Intentamos buscar la última activa/pendiente con datos cargados
-            var membresia = await _membresiaRepo.GetLastActiveMembresiaByUserIdAsync(usuario.UserId);
+            var resultados = new List<DeudaInfoDTO>();
 
-            // 2. Fallback: Si no tiene activa (ej. está vencida y viene a pagar deuda vieja), buscamos la última histórica
-            if (membresia == null)
+            foreach(var membresia in membresias)
             {
-                var todas = await _membresiaRepo.ObtenerTodasConDetallesAsync();
-                membresia = todas.Where(m => m.UserId == usuario.UserId)
-                                    .OrderByDescending(m => m.MembresiaId)
-                                    .FirstOrDefault();
+                if (membresia.Plan == null) continue;
+
+                decimal precioPlan = membresia.Plan.PrecioBase;
+                decimal yaPagado = await _pagoRepo.GetTotalPagadoAsync(membresia.MembresiaId);
+                decimal deuda = precioPlan - yaPagado;
+
+                resultados.Add(new DeudaInfoDTO
+                {
+                    MembresiaId = membresia.MembresiaId,
+                    NombreCliente = membresia.User.NombreCompleto,
+                    DniCliente = membresia.User.Dni,
+                    NombrePlan = membresia.Plan.Nombre,
+                    Estado = membresia.FechaVencimiento < DateOnly.FromDateTime(DateTime.Now) && membresia.Estado != "Pendiente Pago" ? "Vencida" : membresia.Estado,
+                    PrecioTotal = precioPlan,
+                    TotalPagado = yaPagado,
+                    DeudaPendiente = deuda > 0 ? deuda : 0
+                });
             }
 
-            if (membresia == null) throw new Exception("El usuario no tiene ninguna membresía generada para cobrar.");
-
-            // VALIDACIÓN DE SEGURIDAD (Evita el crash si el Plan sigue siendo nulo por alguna razón rara)
-            if (membresia.Plan == null)
-            {
-                // Esto fuerza la carga si falló el Include (parche de emergencia)
-                // Pero con el PASO A esto no debería ocurrir.
-                throw new Exception("Error de datos: La membresía existe pero no tiene un Plan asignado.");
-            }
-
-            // 3. CALCULAR MATEMÁTICAS FINANCIERAS
-            decimal precioPlan = membresia.Plan.PrecioBase;
-            decimal yaPagado = await _pagoRepo.GetTotalPagadoAsync(membresia.MembresiaId);
-            decimal deuda = precioPlan - yaPagado;
-
-            return new DeudaInfoDTO
-            {
-                MembresiaId = membresia.MembresiaId,
-                Cliente = usuario.NombreCompleto,
-                Plan = membresia.Plan.Nombre,
-                // Aquí mostramos el estado real de la BD
-                Estado = membresia.FechaVencimiento < DateOnly.FromDateTime(DateTime.Now) ? "Vencida" : membresia.Estado,
-                PrecioTotal = precioPlan,
-                TotalPagado = yaPagado,
-                DeudaPendiente = deuda > 0 ? deuda : 0
-            };
+            return resultados;
         }
 
         public async Task<int> RegistrarPagoAsync(PagoCreateDTO dto, int empleadoId)
@@ -71,10 +60,15 @@ namespace GymApp.Services
             // 1. Validaciones
             if (dto.Monto <= 0) throw new Exception("El monto debe ser mayor a 0");
 
-            var infoDeuda = await BuscarMembresiaPorDniAsync(dto.DniCliente);
+            var membresia = await _membresiaRepo.ObtenerPorIdConDetallesAsync(dto.MembresiaId);
+            if (membresia == null || membresia.Plan == null) throw new Exception("Membresía no encontrada o no tiene un plan válido asociado.");
 
-            if (dto.Monto > infoDeuda.DeudaPendiente)
-                throw new Exception($"El monto excede la deuda. Solo debe: {infoDeuda.DeudaPendiente:C}");
+            decimal precioPlan = membresia.Plan.PrecioBase;
+            decimal yaPagado = await _pagoRepo.GetTotalPagadoAsync(dto.MembresiaId);
+            decimal deudaPendiente = precioPlan - yaPagado;
+
+            if (dto.Monto > deudaPendiente)
+                throw new Exception($"El monto excede la deuda. Solo debe: {deudaPendiente:C}");
 
             // 2. Registrar el Pago (Inmutable)
             var nuevoPago = new PagosMembresium

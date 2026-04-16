@@ -2,7 +2,7 @@
 {
     public class PagoCreateDTO
     {
-        public string DniCliente { get; set; } // Para buscar la membresía
+        public int MembresiaId { get; set; } // Para indicar qué membresía se está cobrando
         public decimal Monto { get; set; }
         public string MetodoPago { get; set; } // Texto libre o select
     }
@@ -22,8 +22,9 @@
     public class DeudaInfoDTO
     {
         public int MembresiaId { get; set; }
-        public string Cliente { get; set; }
-        public string Plan { get; set; }
+        public string NombreCliente { get; set; }
+        public string? DniCliente { get; set; }
+        public string NombrePlan { get; set; }
         public string Estado { get; set; }
 
         // NUEVOS CAMPOS FINANCIEROS
