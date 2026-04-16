@@ -44,6 +44,13 @@
         <button class="btn btn-primary shadow-sm" style="background-color: #276CF5;" onclick="abrirModalRenovacion()">
             <i class="bi bi-arrow-repeat me-1"></i> Renovar Membresía
         </button>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <button class="btn btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEditarMembresia">
+                <i class="bi bi-pencil-square me-1"></i> Editar Membresía
+            </button>
+        }
     </div>
 
     @if (TempData["Success"] != null)
@@ -330,6 +337,56 @@
                     <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary px-4">
                         <i class="bi bi-check-lg me-1"></i> Confirmar Renovación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Membresía -->
+<div class="modal fade" id="modalEditarMembresia" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Datos de Membresía</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Membresias" asp-action="Editar" method="post">
+                <input type="hidden" name="MembresiaId" value="@Model.MembresiaId" />
+                <div class="modal-body p-4">
+                    <div class="alert alert-warning small mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Esta acción modifica directamente los valores de la base de datos. Usar solo para corregir errores de registro.
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Plan Contratado</label>
+                            <select name="PlanId" class="form-select" asp-items="ViewBag.Planes">
+                                <option value="@Model.PlanId" selected>@Model.Plan?.Nombre (Actual)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Turno</label>
+                            <select name="TurnoId" class="form-select" asp-items="ViewBag.Turnos">
+                                <option value="@Model.TurnoId" selected>@Model.Turno?.Nombre (Actual)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Fecha de Inicio</label>
+                            <input type="date" name="FechaInicio" class="form-control" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Fecha de Vencimiento (Fin)</label>
+                            <input type="date" name="FechaVencimiento" class="form-control" value="@Model.FechaVencimiento.ToString("yyyy-MM-dd")" required>
+                            <div class="form-text small text-muted">El estado Activo/Vencido se recalculará en base a esta fecha.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning px-4 fw-bold">
+                        <i class="bi bi-save me-1"></i> Guardar Cambios
                     </button>
                 </div>
             </form>

@@ -2,6 +2,7 @@
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Threading.Tasks;
 
@@ -89,6 +90,12 @@ namespace GymApp.Controllers
             try
             {
                 var model = await _membresiaService.ObtenerDetallesAsync(id);
+
+                var planes = await _planeService.ObtenerTodosAsync();
+                var turnos = await _turnoService.ObtenerTodosAsync();
+                ViewBag.Planes = new SelectList(planes, "PlanId", "Nombre");
+                ViewBag.Turnos = new SelectList(turnos, "TurnoId", "Nombre");
+
                 return View(model);
             }
             catch (Exception)
@@ -149,6 +156,22 @@ namespace GymApp.Controllers
             {
                 TempData["Error"] = ex.Message;
                 return RedirectToAction("Index");
+            }
+        }
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Editar(MembresiaEditDTO dto)
+        {
+            try
+            {
+                await _membresiaService.EditarMembresiaAsync(dto);
+                TempData["Success"] = "Membresía actualizada correctamente.";
+                return RedirectToAction("Details", new { id = dto.MembresiaId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Details", new { id = dto.MembresiaId });
             }
         }
     }

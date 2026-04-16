@@ -150,6 +150,31 @@ namespace GymApp.Services
             // Si no tiene activa, o si la activa tiene el mismo turno, se procede sin error.
         }
 
+        public async Task<bool> EditarMembresiaAsync(MembresiaEditDTO dto)
+        {
+            var membresia = await _membresiaRepo.GetByIdAsync(dto.MembresiaId);
+            if (membresia == null) throw new Exception("Membresía no encontrada.");
+
+            membresia.PlanId = dto.PlanId;
+            membresia.TurnoId = dto.TurnoId;
+            membresia.FechaInicio = DateOnly.FromDateTime(dto.FechaInicio);
+            membresia.FechaVencimiento = DateOnly.FromDateTime(dto.FechaVencimiento);
+
+            if (membresia.FechaVencimiento < DateOnly.FromDateTime(DateTime.Now))
+            {
+                membresia.Estado = "Vencida";
+            }
+            else
+            {
+                membresia.Estado = "Activa";
+            }
+
+            await _membresiaRepo.UpdateAsync(membresia);
+            await _membresiaRepo.SaveAsync();
+
+            return true;
+        }
+
         public async Task<DateOnly> ObtenerPropuestaRenovacionAsync(int membresiaId)
         {
             var membresia = await _membresiaRepo.GetByIdAsync(membresiaId);
