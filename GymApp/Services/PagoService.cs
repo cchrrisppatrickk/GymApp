@@ -73,7 +73,7 @@ namespace GymApp.Services
             // 2. Registrar el Pago (Inmutable)
             var nuevoPago = new PagosMembresium
             {
-                MembresiaId = infoDeuda.MembresiaId,
+                MembresiaId = dto.MembresiaId,
                 UsuarioEmpleadoId = empleadoId,
                 Monto = dto.Monto,
                 MetodoPago = dto.MetodoPago,
@@ -85,17 +85,14 @@ namespace GymApp.Services
 
             // 3. ACTUALIZACIÓN DE ESTADO (El paso crucial que faltaba)
             // Verificamos si con este pago se salda la deuda
-            decimal nuevoTotalPagado = infoDeuda.TotalPagado + dto.Monto;
+            decimal nuevoTotalPagado = yaPagado + dto.Monto;
 
-            if (nuevoTotalPagado >= infoDeuda.PrecioTotal)
+            if (nuevoTotalPagado >= precioPlan)
             {
-                // Recuperamos la entidad Membresía para editarla
-                var membresiaEntity = await _membresiaRepo.GetByIdAsync(infoDeuda.MembresiaId);
-
-                if (membresiaEntity.Estado == "Pendiente Pago") // Solo si estaba pendiente
+                if (membresia.Estado == "Pendiente Pago") // Solo si estaba pendiente
                 {
-                    membresiaEntity.Estado = "Activa";
-                    await _membresiaRepo.UpdateAsync(membresiaEntity);
+                    membresia.Estado = "Activa";
+                    await _membresiaRepo.UpdateAsync(membresia);
                 }
             }
 
