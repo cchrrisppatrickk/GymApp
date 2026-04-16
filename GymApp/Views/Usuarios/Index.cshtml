@@ -42,7 +42,7 @@
                                 <div class="fw-bold">@item.NombreCompleto</div>
                             </td>
                             <td><span class="badge bg-info text-dark">@item.NombreRol</span></td>
-                            <td>@item.Dni</td>
+                            <td>@(string.IsNullOrEmpty(item.Dni) ? Html.Raw("<span class='text-muted fst-italic'>Sin DNI</span>") : item.Dni)</td>
                             <td class="text-end">
                                 <!-- Botón Detalles -->
                                 <a asp-action="Details" asp-route-id="@item.UserId" class="btn btn-sm btn-info text-white" title="Ver Detalles">

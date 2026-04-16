@@ -6,7 +6,7 @@
         public int MembresiaId { get; set; }
         public int UserId { get; set; }
         public string NombreUsuario { get; set; }
-        public string Dni { get; set; }
+        public string? Dni { get; set; }
         public string NombrePlan { get; set; }
         public string NombreTurno { get; set; }
         public string FechaInicio { get; set; }

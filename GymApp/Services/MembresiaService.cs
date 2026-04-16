@@ -127,9 +127,9 @@ namespace GymApp.Services
             var usuarios = await _usuarioRepo.GetAllAsync();
             // Filtro simple en memoria (para producción idealmente se filtra en BD)
             return usuarios
-                .Where(u => u.NombreCompleto.Contains(termino, StringComparison.OrdinalIgnoreCase) || u.Dni.Contains(termino))
+                .Where(u => u.NombreCompleto.Contains(termino, StringComparison.OrdinalIgnoreCase) || (u.Dni != null && u.Dni.Contains(termino)))
                 .Take(10)
-                .Select(u => new { id = u.UserId, text = $"{u.NombreCompleto} ({u.Dni})" });
+                .Select(u => new { id = u.UserId, text = u.NombreCompleto + (u.Dni != null ? $" (DNI: {u.Dni})" : " (Sin DNI)") });
         }
 
         // *** NUEVO MÉTODO DE VALIDACIÓN DE TURNO ***
