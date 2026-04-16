@@ -184,7 +184,7 @@ public partial class GymDbContext : DbContext
 
             entity.HasIndex(e => e.NombreUsuario, "UQ__Usuarios__6B0F5AE03DC8E965").IsUnique();
 
-            entity.HasIndex(e => e.Dni, "UQ__Usuarios__C035B8DD955B12A3").IsUnique();
+            entity.HasIndex(u => u.Dni).IsUnique().HasFilter("[Dni] IS NOT NULL");
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.CodigoQr)

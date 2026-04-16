@@ -17,8 +17,7 @@ namespace GymApp.ViewModels
         [Required(ErrorMessage = "El nombre completo es obligatorio")]
         public string NombreCompleto { get; set; }
 
-        [Required(ErrorMessage = "El DNI es obligatorio")]
-        public string Dni { get; set; }
+        public string? Dni { get; set; }
 
         // --- CAMBIO CLAVE: QUITAR [Required] ---
         // Estos campos ahora son opcionales. El controlador los llenará si vienen nulos.

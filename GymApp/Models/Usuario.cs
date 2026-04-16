@@ -13,7 +13,7 @@ public partial class Usuario
 
     public string NombreUsuario { get; set; } = null!;
 
-    public string Dni { get; set; } = null!;
+    public string? Dni { get; set; }
 
     public string? PasswordHash { get; set; }
 
