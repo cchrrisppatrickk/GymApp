@@ -120,7 +120,7 @@ namespace GymApp.Services
             return lista;
         }
 
-        public async Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 10)
+        public async Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 20)
         {
             var query = _context.Membresias
                 .Include(m => m.User)

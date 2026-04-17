@@ -9,7 +9,7 @@ namespace GymApp.Services
 {
     public interface IUsuarioService
     {
-        Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int tamanoPagina = 10);
+        Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int tamanoPagina = 20);
         // CRUD Básico
         Task<IEnumerable<Usuario>> ObtenerTodosAsync();
         Task<Usuario> ObtenerPorIdAsync(int id);

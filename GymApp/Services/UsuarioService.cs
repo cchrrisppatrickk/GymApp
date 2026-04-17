@@ -33,7 +33,7 @@ namespace GymApp.Services
             return await _usuarioRepository.GetAllAsync();
         }
 
-        public async Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int tamanoPagina = 10)
+        public async Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int tamanoPagina = 20)
         {
             var query = _context.Usuarios.Include(u => u.Role).AsQueryable();
 
