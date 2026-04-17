@@ -5,6 +5,7 @@
         public int MembresiaId { get; set; } // Para indicar qué membresía se está cobrando
         public decimal Monto { get; set; }
         public string MetodoPago { get; set; } // Texto libre o select
+        public DateTime? FechaPago { get; set; }
     }
 
     public class PagoListDTO

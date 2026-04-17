@@ -77,7 +77,7 @@ namespace GymApp.Services
                 UsuarioEmpleadoId = empleadoId,
                 Monto = dto.Monto,
                 MetodoPago = dto.MetodoPago,
-                FechaPago = DateTime.Now,
+                FechaPago = dto.FechaPago ?? DateTime.Now,
                 Comprobante = Guid.NewGuid().ToString().Substring(0, 8).ToUpper()
             };
 

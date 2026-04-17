@@ -186,6 +186,12 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="FechaPago" class="form-label fw-bold">Fecha de Pago (Opcional)</label>
+                        <input type="datetime-local" id="txtFechaPago" name="FechaPago" class="form-control" />
+                        <div class="form-text text-muted">Déjalo en blanco para registrar con la fecha y hora actual. Ideal para data antigua.</div>
+                    </div>
                 </div>
 
             </div>
@@ -406,6 +412,7 @@
         function procesarPago() {
             const metodoSeleccionado = document.querySelector('input[name="metodoPago"]:checked').value;
             const monto = parseFloat(document.getElementById("txtMonto").value);
+            const fechaPago = document.getElementById("txtFechaPago").value;
 
             // Validaciones Cliente-Side
             if(isNaN(monto) || monto <= 0) {
@@ -420,12 +427,13 @@
             const data = {
                 MembresiaId: membresiaSeleccionada,
                 Monto: monto,
-                MetodoPago: metodoSeleccionado
+                MetodoPago: metodoSeleccionado,
+                FechaPago: fechaPago ? fechaPago : null
             };
 
             Swal.fire({
                 title: '¿Confirmar cobro?',
-                html: `Monto: <b class="text-success fs-4">$${monto.toFixed(2)}</b><br>Método: ${metodoSeleccionado}`,
+                html: `Monto: <b class="text-success fs-4">$${monto.toFixed(2)}</b><br>Método: ${metodoSeleccionado}${fechaPago ? `<br>Fecha: ${fechaPago}` : ''}`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#198754',
