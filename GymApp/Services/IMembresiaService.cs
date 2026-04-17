@@ -22,6 +22,7 @@ namespace GymApp.Services
         Task<bool> TieneMembresiaActivaAsync(int userId);
         Task<bool> TieneRenovacionProgramadaAsync(int userId);
         Task<bool> EditarMembresiaAsync(MembresiaEditDTO dto);
+        Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 10);
     }
 
 }

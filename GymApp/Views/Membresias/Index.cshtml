@@ -1,4 +1,5 @@
-﻿@{
+﻿@model GymApp.ViewModels.PagedResult<GymApp.ViewModels.MembresiaListDTO>
+@{
     ViewData["Title"] = "Gestión de Membresías";
 }
 
@@ -92,17 +93,34 @@
     </div>
 
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary"><i class="bi bi-table me-1"></i> Listado de Socios</h6>
-
-            <div class="btn-group btn-group-sm mt-2 mt-md-0" role="group">
-                <button type="button" class="btn btn-outline-secondary active" onclick="cargarMembresias('todas', this)">Todas</button>
-                <button type="button" class="btn btn-outline-success" onclick="cargarMembresias('activas', this)">Activas</button>
-                <button type="button" class="btn btn-outline-primary" onclick="cargarMembresias('congeladas', this)">Congeladas</button>
-                <button type="button" class="btn btn-outline-info" onclick="cargarMembresias('pendientes', this)">Pendientes</button>
-                <button type="button" class="btn btn-outline-warning" onclick="cargarMembresias('por_vencer', this)">Por Vencer</button>
-                <button type="button" class="btn btn-outline-danger" onclick="cargarMembresias('vencidas', this)">Vencidas</button>
-            </div>
+        <div class="card-header bg-white py-3">
+            <form method="get" asp-action="Index">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-5">
+                        <input type="text" name="buscar" class="form-control" placeholder="Buscar por Nombre o DNI..." value="@ViewBag.Buscar">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="mes" class="form-select">
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                if (i == ViewBag.MesSeleccionado) { <option value="@i" selected>Mes @i</option> } else { <option value="@i">Mes @i</option> }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="anio" class="form-select">
+                            @for (int i = 2024; i <= DateTime.Now.Year; i++)
+                            {
+                                if (i == ViewBag.AnioSeleccionado) { <option value="@i" selected>@i</option> } else { <option value="@i">@i</option> }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Filtrar</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -117,13 +135,65 @@
                         </tr>
                     </thead>
                     <tbody class="border-top-0">
+                        @if (!Model.Items.Any())
+                        {
+                            <tr><td colspan="5" class="text-center py-5">No se encontraron registros en este periodo.</td></tr>
+                        }
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">@item.MembresiaId</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle p-2 me-3"><i class="bi bi-person text-secondary"></i></div>
+                                        <div>
+                                            <div class="fw-bold text-dark">@item.NombreUsuario</div>
+                                            <div class="small text-muted"><i class="bi bi-card-text me-1"></i>@item.Dni</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if(item.Estado == "Activa") { <span class="badge bg-success bg-opacity-75">Activa</span> }
+                                    else if(item.Estado == "Vencida") { <span class="badge bg-danger bg-opacity-75">Vencida</span> }
+                                    else if(item.Estado == "Congelada") { <span class="badge bg-primary bg-opacity-75">Congelada</span> }
+                                    else { <span class="badge bg-secondary">@item.Estado</span> }
+                                </td>
+                                <td>
+                                    @if(item.Deuda > 0) { <span class="text-danger fw-bold">$@item.Deuda.ToString("0.00")</span> }
+                                    else { <span class="text-success"><i class="bi bi-check2-all"></i> Al día</span> }
+                                </td>
+                                <td class="text-center">
+                                    <a href="/Membresias/Details/@item.MembresiaId" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> Detalles</a>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
-            <div id="emptyState" class="text-center py-5 d-none">
-                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-                <p class="text-muted mt-2">No se encontraron registros con este filtro.</p>
-            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="mt-4 pb-3">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@ViewBag.Buscar" asp-route-mes="@ViewBag.MesSeleccionado" asp-route-anio="@ViewBag.AnioSeleccionado">
+                                <i class="bi bi-chevron-left"></i> Anterior
+                            </a>
+                        </li>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@ViewBag.Buscar" asp-route-mes="@ViewBag.MesSeleccionado" asp-route-anio="@ViewBag.AnioSeleccionado">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@ViewBag.Buscar" asp-route-mes="@ViewBag.MesSeleccionado" asp-route-anio="@ViewBag.AnioSeleccionado">
+                                Siguiente <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
         </div>
     </div>
 </div>

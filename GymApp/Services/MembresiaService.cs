@@ -4,6 +4,7 @@ using GymApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace GymApp.Services
@@ -247,6 +248,72 @@ namespace GymApp.Services
             var hoy = DateOnly.FromDateTime(DateTime.Today);
             var todas = await _membresiaRepo.GetAllAsync();
             return todas.Any(m => m.UserId == userId && m.FechaInicio > hoy && m.Estado == "Activa");
+        }
+        public async Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 10)
+        {
+            var query = _membresiaRepo.GetQueryable()
+                .Include(m => m.User)
+                .Include(m => m.Plan)
+                .Include(m => m.Turno)
+                .Include(m => m.PagosMembresia)
+                .Include(m => m.Congelamientos)
+                .AsQueryable();
+
+            if (mes.HasValue && anio.HasValue)
+            {
+                // Note: EF Core 8 translates DateOnly properties nicely, but Month/Year extraction requires DateTime.
+                // Assuming FechaInicio is DateOnly, EF might translate it, or we use bounds
+                var start = new DateOnly(anio.Value, mes.Value, 1);
+                var end = start.AddMonths(1).AddDays(-1);
+                query = query.Where(m => m.FechaInicio >= start && m.FechaInicio <= end);
+            }
+
+            if (!string.IsNullOrWhiteSpace(buscar))
+            {
+                buscar = buscar.ToLower();
+                query = query.Where(m =>
+                    (m.User.NombreCompleto != null && m.User.NombreCompleto.ToLower().Contains(buscar)) ||
+                    (m.User.Dni != null && m.User.Dni.Contains(buscar))
+                );
+            }
+
+            // Ordenamiento por defecto: más recientes primero
+            query = query.OrderByDescending(m => m.FechaInicio).ThenByDescending(m => m.MembresiaId);
+
+            int totalRegistros = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalRegistros / (double)tamanoPagina);
+
+            var items = await query.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToListAsync();
+
+            var dtos = items.Select(m => {
+                var totalPagado = m.PagosMembresia?.Sum(p => p.Monto) ?? 0m;
+                var precioBase = m.Plan?.PrecioBase ?? 0m;
+                var deuda = precioBase - totalPagado;
+                
+                return new MembresiaListDTO
+                {
+                    MembresiaId = m.MembresiaId,
+                    UserId = m.UserId,
+                    NombreUsuario = m.User?.NombreCompleto ?? "Desconocido",
+                    Dni = m.User?.Dni,
+                    NombrePlan = m.Plan?.Nombre ?? "-",
+                    NombreTurno = m.Turno?.Nombre ?? "-",
+                    Estado = m.Estado,
+                    FechaInicio = m.FechaInicio.ToString("dd/MM/yyyy"),
+                    FechaVencimiento = m.FechaVencimiento.ToString("dd/MM/yyyy"),
+                    DiasRestantes = (m.FechaVencimiento.ToDateTime(TimeOnly.MinValue) - DateTime.Today).Days,
+                    Deuda = deuda,
+                    PermiteCongelar = m.Plan?.PermiteCongelar ?? false
+                };
+            }).ToList();
+
+            return new PagedResult<MembresiaListDTO>
+            {
+                Items = dtos,
+                CurrentPage = pagina,
+                TotalPages = totalPages,
+                SearchTerm = buscar
+            };
         }
     }
 }

@@ -62,5 +62,10 @@ namespace GymApp.Repositories
             // Impacta los cambios (Insert/Update/Delete) en la BD SQL Server
             await _context.SaveChangesAsync();
         }
+
+        public System.Linq.IQueryable<T> GetQueryable()
+        {
+            return _table.AsQueryable();
+        }
     }
 }

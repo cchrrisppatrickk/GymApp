@@ -25,10 +25,21 @@ namespace GymApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index(int? userId)
+        public async Task<IActionResult> Index(string? buscar, int? mes, int? anio, int pagina = 1)
         {
-            ViewBag.PreselectUserId = userId;
-            return View();
+            if (!mes.HasValue || !anio.HasValue)
+            {
+                mes = DateTime.Now.Month;
+                anio = DateTime.Now.Year;
+            }
+
+            var result = await _membresiaService.ObtenerMembresiasPaginadasAsync(buscar, mes, anio, pagina);
+
+            ViewBag.MesSeleccionado = mes;
+            ViewBag.AnioSeleccionado = anio;
+            ViewBag.Buscar = buscar;
+
+            return View(result);
         }
 
         [HttpGet]
