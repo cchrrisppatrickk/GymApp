@@ -129,16 +129,15 @@ namespace GymApp.Services
                 .Include(m => m.PagosMembresia)
                 .AsQueryable();
 
-            if (mes.HasValue && anio.HasValue)
-            {
-                query = query.Where(m => m.FechaInicio.Month == mes.Value && m.FechaInicio.Year == anio.Value);
-            }
-
             if (!string.IsNullOrEmpty(buscar))
             {
                 var termino = buscar.ToLower();
                 query = query.Where(m => m.User.NombreCompleto.ToLower().Contains(termino) || 
                                          (m.User.Dni != null && m.User.Dni.Contains(termino)));
+            }
+            else if (mes.HasValue && anio.HasValue)
+            {
+                query = query.Where(m => m.FechaInicio.Month == mes.Value && m.FechaInicio.Year == anio.Value);
             }
 
             // Orden normal
