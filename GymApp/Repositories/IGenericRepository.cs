@@ -23,7 +23,5 @@ namespace GymApp.Repositories
 
         // Guardar cambios (Commit)
         Task SaveAsync();
-
-        System.Linq.IQueryable<T> GetQueryable();
     }
 }

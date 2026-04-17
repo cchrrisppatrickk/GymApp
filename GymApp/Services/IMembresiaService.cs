@@ -24,5 +24,4 @@ namespace GymApp.Services
         Task<bool> EditarMembresiaAsync(MembresiaEditDTO dto);
         Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 10);
     }
-
 }

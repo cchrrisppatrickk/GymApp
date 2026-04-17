@@ -1,6 +1,9 @@
 ﻿@model GymApp.ViewModels.PagedResult<GymApp.ViewModels.MembresiaListDTO>
 @{
     ViewData["Title"] = "Gestión de Membresías";
+    var buscar = ViewBag.Buscar as string;
+    var mes = ViewBag.Mes as int?;
+    var anio = ViewBag.Anio as int?;
 }
 
 <div class="container-fluid px-4 fade-in">
@@ -92,35 +95,48 @@
         </div>
     </div>
 
+    <form method="get" asp-action="Index" class="mb-4">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="buscar" class="form-control" placeholder="Buscar por Nombre o DNI..." value="@buscar">
+            </div>
+            <div class="col-md-3">
+                <select name="mes" class="form-select">
+                    <option value="">Mes Actual (Por Defecto)</option>
+                    @for(int i = 1; i <= 12; i++)
+                    {
+                        if (mes == i) {
+                            <option value="@i" selected>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i).ToUpper()</option>
+                        } else {
+                            <option value="@i">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i).ToUpper()</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="anio" class="form-select">
+                    <option value="">Año Actual (Por Defecto)</option>
+                    @for(int i = DateTime.Now.Year - 2; i <= DateTime.Now.Year; i++)
+                    {
+                        if (anio == i) {
+                            <option value="@i" selected>@i</option>
+                        } else {
+                            <option value="@i">@i</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-filter"></i> Filtrar</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+            </div>
+        </div>
+    </form>
+
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-            <form method="get" asp-action="Index">
-                <div class="row g-2 align-items-center">
-                    <div class="col-md-5">
-                        <input type="text" name="buscar" class="form-control" placeholder="Buscar por Nombre o DNI..." value="@ViewBag.Buscar">
-                    </div>
-                    <div class="col-md-2">
-                        <select name="mes" class="form-select">
-                            @for (int i = 1; i <= 12; i++)
-                            {
-                                if (i == ViewBag.MesSeleccionado) { <option value="@i" selected>Mes @i</option> } else { <option value="@i">Mes @i</option> }
-                            }
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="anio" class="form-select">
-                            @for (int i = 2024; i <= DateTime.Now.Year; i++)
-                            {
-                                if (i == ViewBag.AnioSeleccionado) { <option value="@i" selected>@i</option> } else { <option value="@i">@i</option> }
-                            }
-                        </select>
-                    </div>
-                    <div class="col-md-3 text-end">
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Filtrar</button>
-                        <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
-                    </div>
-                </div>
-            </form>
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary"><i class="bi bi-table me-1"></i> Listado de Suscripciones</h6>
+        </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -137,65 +153,85 @@
                     <tbody class="border-top-0">
                         @if (!Model.Items.Any())
                         {
-                            <tr><td colspan="5" class="text-center py-5">No se encontraron registros en este periodo.</td></tr>
-                        }
-                        @foreach (var item in Model.Items)
-                        {
                             <tr>
-                                <td class="ps-4 fw-bold">@item.MembresiaId</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded-circle p-2 me-3"><i class="bi bi-person text-secondary"></i></div>
-                                        <div>
-                                            <div class="fw-bold text-dark">@item.NombreUsuario</div>
-                                            <div class="small text-muted"><i class="bi bi-card-text me-1"></i>@item.Dni</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    @if(item.Estado == "Activa") { <span class="badge bg-success bg-opacity-75">Activa</span> }
-                                    else if(item.Estado == "Vencida") { <span class="badge bg-danger bg-opacity-75">Vencida</span> }
-                                    else if(item.Estado == "Congelada") { <span class="badge bg-primary bg-opacity-75">Congelada</span> }
-                                    else { <span class="badge bg-secondary">@item.Estado</span> }
-                                </td>
-                                <td>
-                                    @if(item.Deuda > 0) { <span class="text-danger fw-bold">$@item.Deuda.ToString("0.00")</span> }
-                                    else { <span class="text-success"><i class="bi bi-check2-all"></i> Al día</span> }
-                                </td>
-                                <td class="text-center">
-                                    <a href="/Membresias/Details/@item.MembresiaId" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> Detalles</a>
+                                <td colspan="5" class="text-center py-5">
+                                    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                    <p class="text-muted mt-2">No se encontraron registros con este filtro.</p>
                                 </td>
                             </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold">#@item.MembresiaId</td>
+                                    <td>
+                                        <div class="fw-bold text-dark">@item.NombreUsuario</div>
+                                        <small class="text-muted"><i class="bi bi-person-vcard me-1"></i>@(string.IsNullOrEmpty(item.Dni) ? "Sin DNI" : item.Dni)</small>
+                                        <div class="mt-1">
+                                            <span class="badge bg-light text-dark border"><i class="bi bi-tag me-1"></i>@item.NombrePlan</span>
+                                            <span class="badge bg-light text-dark border"><i class="bi bi-clock me-1"></i>@item.NombreTurno</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (item.Estado == "Activa") { <span class="badge bg-success">Activa</span> }
+                                        else if (item.Estado == "Vencida") { <span class="badge bg-danger">Vencida</span> }
+                                        else if (item.Estado == "Congelada") { <span class="badge bg-primary">Congelada</span> }
+                                        else { <span class="badge bg-warning text-dark border">@item.Estado</span> }
+                                        
+                                        <div class="small mt-1 text-muted">@item.FechaInicio - @item.FechaVencimiento</div>
+                                        @if(item.DiasRestantes >= 0 && item.DiasRestantes <= 5 && item.Estado == "Activa") {
+                                            <small class="text-warning fw-bold d-block"><i class="bi bi-exclamation-circle me-1"></i>Vence en @item.DiasRestantes día(s)</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if(item.Deuda > 0) {
+                                            <span class="fw-bold text-danger">$@item.Deuda.ToString("F2")</span>
+                                        } else {
+                                            <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Al día</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="/Membresias/Details/@item.MembresiaId" class="btn btn-sm btn-info text-white shadow-sm" title="Ver Detalles">
+                                            <i class="bi bi-eye"></i> Detalles
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
             </div>
-
-            @if (Model.TotalPages > 1)
-            {
-                <nav class="mt-4 pb-3">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
-                            <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@ViewBag.Buscar" asp-route-mes="@ViewBag.MesSeleccionado" asp-route-anio="@ViewBag.AnioSeleccionado">
-                                <i class="bi bi-chevron-left"></i> Anterior
-                            </a>
-                        </li>
-                        @for (int i = 1; i <= Model.TotalPages; i++)
-                        {
-                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@ViewBag.Buscar" asp-route-mes="@ViewBag.MesSeleccionado" asp-route-anio="@ViewBag.AnioSeleccionado">@i</a>
-                            </li>
-                        }
-                        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
-                            <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@ViewBag.Buscar" asp-route-mes="@ViewBag.MesSeleccionado" asp-route-anio="@ViewBag.AnioSeleccionado">
-                                Siguiente <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            }
         </div>
     </div>
+    
+    <!-- Paginación -->
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Navegacion de membresias" class="mt-4">
+            <ul class="pagination justify-content-center pagination-lg">
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
+                        Siguiente <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
 </div>
 
 <div class="modal fade" id="modalMembresia" tabindex="-1" data-bs-backdrop="static">
@@ -320,7 +356,6 @@
         let catalogoPlanes = [];
 
         document.addEventListener("DOMContentLoaded", () => {
-            cargarMembresias('todas');
             cargarRecursos();
             document.getElementById('txtFechaInicio').valueAsDate = new Date();
 
@@ -343,102 +378,7 @@
             }
         });
 
-        // ==========================================
-        // 1. CARGA DE MEMBRESÍAS CON FILTRO PENDIENTE
-        // ==========================================
-        function cargarMembresias(filtro, btn) {
-            if(btn) {
-                document.querySelectorAll('.btn-group .btn').forEach(b => {
-                    b.classList.remove('active');
-                    // Restaurar clases outline
-                    if(b.classList.contains('btn-secondary')) b.classList.replace('btn-secondary', 'btn-outline-secondary');
-                    if(b.classList.contains('btn-success')) b.classList.replace('btn-success', 'btn-outline-success');
-                    if(b.classList.contains('btn-info')) b.classList.replace('btn-info', 'btn-outline-info');
-                    if(b.classList.contains('btn-warning')) b.classList.replace('btn-warning', 'btn-outline-warning');
-                    if(b.classList.contains('btn-danger')) b.classList.replace('btn-danger', 'btn-outline-danger');
-                });
 
-                // Activar botón actual
-                btn.classList.add('active');
-            }
-
-            const tbody = document.querySelector("#tablaMembresias tbody");
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></td></tr>';
-            document.getElementById("emptyState").classList.add("d-none");
-
-            fetch(`/Membresias/Listar?filtro=${filtro}`)
-                .then(res => res.json())
-                .then(json => {
-                    let html = '';
-                    let contActivas = 0, contVencidas = 0, contPorVencer = 0, contPendientes = 0, contCongeladas = 0;
-
-                    if(json.data.length === 0){
-                        tbody.innerHTML = '';
-                        document.getElementById("emptyState").classList.remove("d-none");
-                        // Reset contadores a 0 visualmente si quieres
-                        return;
-                    }
-
-                    json.data.forEach(m => {
-                        // Lógica de Contadores (KPIs simulados)
-                        if (m.estado === 'Activa') contActivas++;
-                        else if (m.estado === 'Vencida') contVencidas++;
-                        else if (m.estado === 'Pendiente Pago') contPendientes++;
-                        else if (m.estado === 'Congelada') contCongeladas++;
-
-                        // "Por Vencer" es un estado calculado, puede solaparse con Activa
-                        if (m.diasRestantes >= 0 && m.diasRestantes <= 5 && m.estado === 'Activa') contPorVencer++;
-
-                        // Lógica de Badges
-                        let badgeHtml = `<span class="badge bg-secondary">Inactiva</span>`;
-                        if (m.estado === 'Activa') badgeHtml = `<span class="badge bg-success bg-opacity-75 text-white"><i class="bi bi-check-circle me-1"></i>Activa</span>`;
-                        if (m.estado === 'Vencida') badgeHtml = `<span class="badge bg-danger bg-opacity-75 text-white"><i class="bi bi-x-circle me-1"></i>Vencida</span>`;
-                        if (m.estado === 'Pendiente Pago') badgeHtml = `<span class="badge bg-info text-dark border border-info"><i class="bi bi-hourglass-split me-1"></i>Pendiente Pago</span>`;
-                        if (m.estado === 'Congelada') badgeHtml = `<span class="badge bg-primary bg-opacity-75 text-white"><i class="bi bi-cloud-snow me-1"></i>Congelada</span>`;
-
-                        // Deuda
-                        let deudaFormatter = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
-                        let deudaHtml = '';
-                        if (m.deuda > 0) {
-                            deudaHtml = `<span class="text-danger fw-bold"><i class="fas fa-exclamation-circle me-1"></i>${deudaFormatter.format(m.deuda)}</span>`;
-                        } else {
-                            deudaHtml = `<span class="badge bg-success bg-opacity-75 text-white"><i class="bi bi-check-circle me-1"></i>Pagado</span>`;
-                        }
-
-                        html += `
-                            <tr class="align-middle">
-                                <td class="ps-4 fw-bold text-muted">#${m.membresiaId}</td>
-                                <td>
-                                    <div class="fw-bold text-dark">${m.nombreUsuario}</div>
-                                </td>
-                                <td>${badgeHtml}</td>
-                                <td>${deudaHtml}</td>
-                                <td class="text-center">
-                                    <div class="btn-group">
-                                        <a href="/Pagos/Registrar?membresiaId=${m.membresiaId}" class="btn btn-sm btn-success" title="Registrar Pago">
-                                            <i class="fas fa-money-bill-wave"></i>
-                                        </a>
-                                        <a href="/Membresias/Details/${m.membresiaId}" class="btn btn-sm" style="background-color: #276CF5; color: white;" title="Ver Detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-
-                    tbody.innerHTML = html;
-
-                    // Actualizar KPIs (Solo si estamos viendo 'todas' para tener el panorama completo)
-                    if(filtro === 'todas'){
-                        document.getElementById('kpiActivas').innerText = contActivas;
-                        document.getElementById('kpiVencidas').innerText = contVencidas;
-                        document.getElementById('kpiPorVencer').innerText = contPorVencer;
-                        document.getElementById('kpiPendientes').innerText = contPendientes;
-                        document.getElementById('kpiCongeladas').innerText = contCongeladas;
-                    }
-                });
-        }
 
         // ==========================================
         // 2. LÓGICA DE RENOVACIÓN (AUTOCOMPLETADO)
