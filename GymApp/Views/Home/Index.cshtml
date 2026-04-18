@@ -127,12 +127,53 @@
             </div>
         </div>
     </div>
+    <!-- ================= SECCIÓN RENDIMIENTO FINANCIERO ================= -->
+    <div class="mb-4 mt-5">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="fas fa-chart-line fa-xl text-success"></i>
+            <h3 class="fw-semibold m-0">Rendimiento Financiero</h3>
+            <span class="badge bg-success bg-opacity-25 text-dark">ingresos + pagos libres</span>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+                    <div class="card-body p-0">
+                        <h5 class="card-title fw-bold"><i class="fas fa-chart-bar me-2 text-primary"></i> Ingresos por Membresías (últimos 6 meses)</h5>
+                        <div style="height: 300px;">
+                            <canvas id="monthlyRevenueChart"></canvas>
+                        </div>
+                        <div class="mt-3 small bg-light p-2 rounded-2 d-flex justify-content-between" id="monthlyExtraNote">
+                            <span><i class="fas fa-calendar-alt"></i> <strong>Abril 2026:</strong> S/ 17,640.00 en membresías</span>
+                            <span><i class="fas fa-arrow-up text-success"></i> Crecimiento +11% vs marzo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+                    <div class="card-body p-0">
+                        <h5 class="card-title fw-bold"><i class="fas fa-chart-line me-2 text-info"></i> Ingresos por Semana (últimas 4 semanas)</h5>
+                        <div style="height: 300px;">
+                            <canvas id="weeklyRevenueChart"></canvas>
+                        </div>
+                        <div class="mt-3 small bg-light p-2 rounded-2 d-flex justify-content-between" id="weeklyExtraNote">
+                            <span><i class="fas fa-chart-simple"></i> <strong>Semana actual:</strong> S/ 5,180.00</span>
+                            <span><i class="fas fa-arrow-up text-success"></i> +5.2% vs semana anterior</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         $(document).ready(function () {
             cargarEstadisticas();
+            inicializarGraficos();
         });
 
         function cargarEstadisticas() {
@@ -147,7 +188,6 @@
                     $('#expiringWeekCount').text(data.porVencer7Dias);
                     $('#debtUsersCount').text(data.usuariosConDeuda);
                     
-                    // Formateo de moneda local
                     let montoFormatted = new Intl.NumberFormat('es-PE', { 
                         style: 'currency', 
                         currency: 'PEN' 
@@ -157,6 +197,82 @@
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al cargar estadísticas del dashboard:", error);
+                }
+            });
+        }
+
+        function inicializarGraficos() {
+            const ctxMonthly = document.getElementById('monthlyRevenueChart').getContext('2d');
+            const ctxWeekly = document.getElementById('weeklyRevenueChart').getContext('2d');
+
+            // Datos estáticos de prueba (Mock)
+            const months = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'];
+            const monthlyRevenue = [13800, 14520, 15890, 17640, 18450, 18820];
+
+            const weekLabels = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
+            const weeklyRevenue = [4250, 4480, 4920, 5180];
+
+            new Chart(ctxMonthly, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Ingresos (S/)',
+                        data: monthlyRevenue,
+                        backgroundColor: 'rgba(13, 110, 253, 0.8)',
+                        borderRadius: 6,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { drawBorder: false }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            new Chart(ctxWeekly, {
+                type: 'line',
+                data: {
+                    labels: weekLabels,
+                    datasets: [{
+                        label: 'Ingresos semanales (S/)',
+                        data: weeklyRevenue,
+                        borderColor: '#198754',
+                        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#198754',
+                        pointRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { drawBorder: false }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
                 }
             });
         }
