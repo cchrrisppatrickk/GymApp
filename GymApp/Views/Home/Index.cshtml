@@ -84,8 +84,22 @@
                 </div>
             </div>
 
+            <!-- Membresías Congeladas -->
+            <div class="col-md-4 col-sm-6">
+                <div class="card-stats card h-100 p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="stat-label">MEMBRESÍAS CONGELADAS</div>
+                            <div class="stat-value" id="frozenCount">0</div>
+                            <small class="text-primary"><i class="fas fa-snowflake me-1"></i>pausa temporal</small>
+                        </div>
+                        <div class="stat-icon text-primary" style="background: rgba(13, 110, 253, 0.12);"><i class="fas fa-ice-cream"></i></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Por vencer en 7 días -->
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-4 col-sm-6">
                 <div class="card-stats card h-100 p-4">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -99,7 +113,7 @@
             </div>
 
             <!-- Usuarios con deudas pendientes -->
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-4 col-sm-6">
                 <div class="card-stats card h-100 p-4">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -129,6 +143,7 @@
                 success: function (data) {
                     $('#newUsersCount').text(data.nuevosMiembrosMes);
                     $('#expiredNoRenewCount').text(data.vencidosSinRenovar);
+                    $('#frozenCount').text(data.membresiasCongeladas);
                     $('#expiringWeekCount').text(data.porVencer7Dias);
                     $('#debtUsersCount').text(data.usuariosConDeuda);
                     

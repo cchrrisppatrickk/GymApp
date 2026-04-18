@@ -163,13 +163,19 @@ namespace GymApp.Services
                 .Where(x => x.Deuda > 0)
                 .ToList();
 
+            // 5. Membresías Congeladas
+            int congeladas = await _context.Membresias
+                .AsNoTracking()
+                .CountAsync(m => m.Estado == "Congelada");
+
             return new DashboardUserStatsDTO
             {
                 NuevosMiembrosMes = nuevos,
                 VencidosSinRenovar = sinRenovar,
                 PorVencer7Dias = porVencer,
                 UsuariosConDeuda = listaDeudores.Select(x => x.UserId).Distinct().Count(),
-                MontoTotalDeuda = listaDeudores.Sum(x => x.Deuda)
+                MontoTotalDeuda = listaDeudores.Sum(x => x.Deuda),
+                MembresiasCongeladas = congeladas
             };
         }
     }

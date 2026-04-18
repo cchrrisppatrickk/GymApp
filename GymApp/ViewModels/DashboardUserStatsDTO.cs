@@ -7,5 +7,6 @@ namespace GymApp.ViewModels
         public int PorVencer7Dias { get; set; }
         public int UsuariosConDeuda { get; set; }
         public decimal MontoTotalDeuda { get; set; }
+        public int MembresiasCongeladas { get; set; }
     }
 }
