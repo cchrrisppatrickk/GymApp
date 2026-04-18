@@ -337,7 +337,7 @@
                     </li>
 
                     <li class="menu-item">
-                        <a asp-controller="Pagos" asp-action="Index" class="menu-link @(currentController == "Pagos" || currentController == "Ventas" ? "active" : "")">
+                        <a asp-controller="Pagos" asp-action="Index" class="menu-link @(currentController == "Pagos" ? "active" : "")">
                             <span class="menu-icon"><i class="bi bi-cash-stack"></i></span>
                             <span class="menu-text">Cajas</span>
                         </a>
@@ -351,10 +351,14 @@
                         </a>
                         <ul class="submenu" id="submenuReportes">
                             <li class="submenu-item">
-                                <a asp-controller="Reportes" asp-action="Index" class="submenu-link">Control de Ingresos General</a>
+                                <a asp-controller="Reportes" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-dot me-1"></i> Control de Ingresos General
+                                </a>
                             </li>
                             <li class="submenu-item">
-                                <a asp-controller="Reportes" asp-action="Membresias" class="submenu-link">Control de Membresías</a>
+                                <a asp-controller="Reportes" asp-action="Membresias" class="submenu-link">
+                                    <i class="bi bi-dot me-1"></i> Control de Membresías
+                                </a>
                             </li>
                         </ul>
                     </li>
@@ -405,7 +409,9 @@
                                 </li>
                             }
                             <li class="submenu-item">
-                                <a asp-controller="Productos" asp-action="Index" class="submenu-link">Productos</a>
+                                <a asp-controller="Productos" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-dot me-1"></i> Productos
+                                </a>
                             </li>
                         </ul>
                     </li>
