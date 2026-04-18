@@ -1,8 +1,116 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard de Estadísticas";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Styles {
+    <style>
+        .card-stats {
+            border: none;
+            border-radius: 1.5rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03), 0 2px 6px rgba(0,0,0,0.05);
+            background: white;
+        }
+
+        .card-stats:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(13, 110, 253, 0.12);
+            border-radius: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #0d6efd;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #1e2f41;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #5e6f8d;
+            letter-spacing: 0.3px;
+        }
+    </style>
+}
+
+<div class="container-fluid mt-4">
+    <!-- ================= SECCIÓN USUARIOS ================= -->
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="fas fa-users fa-xl text-primary"></i>
+            <h3 class="fw-semibold m-0">Panel de Usuarios</h3>
+            <span class="badge bg-secondary bg-opacity-25 text-dark">Membresías · Deudas · Vencimientos</span>
+        </div>
+
+        <div class="row g-4">
+            <!-- Nuevos registros del mes -->
+            <div class="col-md-3 col-sm-6">
+                <div class="card-stats card h-100 p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="stat-label">NUEVOS MIEMBROS</div>
+                            <div class="stat-value" id="newUsersCount">0</div>
+                            <small class="text-success"><i class="fas fa-user-plus me-1"></i>registrados este mes</small>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Membresías vencidas SIN renovar -->
+            <div class="col-md-3 col-sm-6">
+                <div class="card-stats card h-100 p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="stat-label">SIN RENOVAR (VENCIDOS)</div>
+                            <div class="stat-value" id="expiredNoRenewCount">0</div>
+                            <small class="text-danger"><i class="fas fa-hourglass-end me-1"></i>no han renovado</small>
+                        </div>
+                        <div class="stat-icon text-danger" style="background: rgba(220, 53, 69, 0.12);"><i class="fas fa-user-slash"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Por vencer en 7 días -->
+            <div class="col-md-3 col-sm-6">
+                <div class="card-stats card h-100 p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="stat-label">PRÓXIMO VENCIMIENTO (7d)</div>
+                            <div class="stat-value" id="expiringWeekCount">0</div>
+                            <small class="text-warning"><i class="fas fa-calendar-week me-1"></i>por vencer</small>
+                        </div>
+                        <div class="stat-icon text-warning" style="background: rgba(255, 193, 7, 0.12);"><i class="fas fa-clock"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuarios con deudas pendientes -->
+            <div class="col-md-3 col-sm-6">
+                <div class="card-stats card h-100 p-4">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="stat-label">CON DEUDAS PENDIENTES</div>
+                            <div class="stat-value" id="debtUsersCount">0</div>
+                            <small class="text-danger"><i class="fas fa-coins me-1"></i>saldo adeudado total: <strong id="totalDebtAmount">$0</strong></small>
+                        </div>
+                        <div class="stat-icon text-danger" style="background: rgba(220, 53, 69, 0.12);"><i class="fas fa-file-invoice-dollar"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
