@@ -360,6 +360,13 @@
                     </li>
 
                     <li class="menu-item">
+                        <a asp-controller="Ventas" asp-action="Index" class="menu-link @(currentController == "Ventas" ? "active" : "")">
+                            <span class="menu-icon"><i class="bi bi-cart-fill"></i></span>
+                            <span class="menu-text">Ventas</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
                         <a href="#submenuAcceso" class="menu-link submenu-toggle @(currentController == "Acceso" ? "active" : "")">
                             <span class="menu-icon"><i class="bi bi-qr-code-scan"></i></span>
                             <span class="menu-text">Control de Acceso</span>
