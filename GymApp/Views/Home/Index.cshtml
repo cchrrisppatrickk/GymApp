@@ -114,3 +114,36 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            cargarEstadisticas();
+        });
+
+        function cargarEstadisticas() {
+            $.ajax({
+                url: '/Reportes/ObtenerEstadisticasUsuarios',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $('#newUsersCount').text(data.nuevosMiembrosMes);
+                    $('#expiredNoRenewCount').text(data.vencidosSinRenovar);
+                    $('#expiringWeekCount').text(data.porVencer7Dias);
+                    $('#debtUsersCount').text(data.usuariosConDeuda);
+                    
+                    // Formateo de moneda local
+                    let montoFormatted = new Intl.NumberFormat('es-PE', { 
+                        style: 'currency', 
+                        currency: 'PEN' 
+                    }).format(data.montoTotalDeuda);
+                    
+                    $('#totalDebtAmount').text(montoFormatted);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al cargar estadísticas del dashboard:", error);
+                }
+            });
+        }
+    </script>
+}

@@ -22,6 +22,13 @@ namespace GymApp.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ObtenerEstadisticasUsuarios()
+        {
+            var stats = await _reporteService.ObtenerEstadisticasUsuariosAsync();
+            return Json(stats);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ObtenerIngresos(int mes, int anio)
         {
             var data = await _reporteService.ObtenerReporteMensualAsync(mes, anio);

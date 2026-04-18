@@ -80,7 +80,7 @@ namespace GymApp.Services
         public async Task<List<ReporteMembresiaDTO>> ObtenerReporteMembresiasAsync(int mes, int anio)
         {
             var data = await _context.Membresias
-                .Include(m => m.User)          // <--- CAMBIO AQUÍ (Usuario -> User)
+                .Include(m => m.User)          
                 .Include(m => m.Plan)
                 .Include(m => m.Turno)
                 .Include(m => m.PagosMembresia)
@@ -89,31 +89,88 @@ namespace GymApp.Services
                 .Select(m => new ReporteMembresiaDTO
                 {
                     MembresiaId = m.MembresiaId,
-
-                    // <--- CAMBIO AQUÍ (Usuario -> User)
                     NombreCliente = m.User.NombreCompleto,
                     Telefono = m.User.Telefono ?? "-",
-
                     FechaInicio = m.FechaInicio.ToString("dd/MM/yyyy"),
                     FechaFin = m.FechaVencimiento.ToString("dd/MM/yyyy"),
-
                     NombrePlan = m.Plan.Nombre,
                     NombreTurno = m.Turno.Nombre,
-
                     PagadoEfectivo = m.PagosMembresia
                         .Where(p => p.MetodoPago == "Efectivo")
                         .Sum(p => p.Monto),
-
                     PagadoYape = m.PagosMembresia
                         .Where(p => p.MetodoPago.Contains("Yape"))
                         .Sum(p => p.Monto),
-
                     Observaciones = m.Observaciones ?? "",
                     Estado = m.Estado
                 })
                 .ToListAsync();
 
             return data;
+        }
+
+        public async Task<DashboardUserStatsDTO> ObtenerEstadisticasUsuariosAsync()
+        {
+            var hoyDt = DateTime.Now;
+            var hoy = DateOnly.FromDateTime(hoyDt);
+            var finSemana = hoy.AddDays(7);
+            var mesActual = hoyDt.Month;
+            var anioActual = hoyDt.Year;
+
+            // 1. Nuevos Miembros del Mes
+            int nuevos = await _context.Usuarios
+                .AsNoTracking()
+                .CountAsync(u => u.FechaRegistro.HasValue && 
+                                 u.FechaRegistro.Value.Month == mesActual && 
+                                 u.FechaRegistro.Value.Year == anioActual);
+
+            // 2. Vencidos Sin Renovar
+            // Buscamos usuarios que tienen alguna membresía vencida pero NINGUNA activa o futura
+            var usuariosConMembresia = await _context.Membresias
+                .AsNoTracking()
+                .GroupBy(m => m.UserId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    TieneActivaOFutura = g.Any(m => m.Estado == "Activa" || m.FechaInicio > hoy),
+                    TieneVencida = g.Any(m => m.Estado == "Vencida")
+                })
+                .ToListAsync();
+
+            int sinRenovar = usuariosConMembresia.Count(u => u.TieneVencida && !u.TieneActivaOFutura);
+
+            // 3. Por Vencer en 7 Días
+            int porVencer = await _context.Membresias
+                .AsNoTracking()
+                .CountAsync(m => m.Estado == "Activa" && 
+                                 m.FechaVencimiento >= hoy && 
+                                 m.FechaVencimiento <= finSemana);
+
+            // 4. Deudas
+            // Traemos membresías con su precio de plan y total pagado
+            var deudasData = await _context.Membresias
+                .AsNoTracking()
+                .Select(m => new
+                {
+                    m.UserId,
+                    PrecioBase = m.Plan.PrecioBase,
+                    TotalPagado = m.PagosMembresia.Sum(p => p.Monto)
+                })
+                .ToListAsync();
+
+            var listaDeudores = deudasData
+                .Select(d => new { d.UserId, Deuda = d.PrecioBase - d.TotalPagado })
+                .Where(x => x.Deuda > 0)
+                .ToList();
+
+            return new DashboardUserStatsDTO
+            {
+                NuevosMiembrosMes = nuevos,
+                VencidosSinRenovar = sinRenovar,
+                PorVencer7Dias = porVencer,
+                UsuariosConDeuda = listaDeudores.Select(x => x.UserId).Distinct().Count(),
+                MontoTotalDeuda = listaDeudores.Sum(x => x.Deuda)
+            };
         }
     }
 }
