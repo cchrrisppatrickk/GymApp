@@ -103,6 +103,7 @@ namespace GymApp.Services
                 // Lógica visual de estado
                 Estado = m.FechaVencimiento < hoy ? "Vencida" : m.Estado,
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
+                DiasVencidos = m.FechaVencimiento < hoy ? hoy.DayNumber - m.FechaVencimiento.DayNumber : 0,
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
                 Deuda = (m.Plan?.PrecioBase ?? 0m) - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
             });
@@ -159,6 +160,7 @@ namespace GymApp.Services
                 FechaVencimiento = m.FechaVencimiento.ToString("dd/MM/yyyy"),
                 Estado = m.FechaVencimiento < hoy ? "Vencida" : m.Estado,
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
+                DiasVencidos = m.FechaVencimiento < hoy ? hoy.DayNumber - m.FechaVencimiento.DayNumber : 0,
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
                 Deuda = (m.Plan?.PrecioBase ?? 0m) - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
             }).ToList();

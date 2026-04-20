@@ -105,6 +105,11 @@
                                         else { <span class="badge bg-warning text-dark border">@item.Estado</span> }
                                         
                                         <div class="small mt-1 text-muted">@item.FechaInicio - @item.FechaVencimiento</div>
+                                        @if(item.DiasVencidos > 0) {
+                                            <small class="text-danger fw-bold d-block mt-1">
+                                                <i class="bi bi-calendar-x me-1"></i> @item.DiasVencidos días sin renovar
+                                            </small>
+                                        }
                                         @if(item.DiasRestantes >= 0 && item.DiasRestantes <= 5 && item.Estado == "Activa") {
                                             <small class="text-warning fw-bold d-block"><i class="bi bi-exclamation-circle me-1"></i>Vence en @item.DiasRestantes día(s)</small>
                                         }
