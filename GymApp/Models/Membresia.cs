@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GymApp.Models;
 
@@ -20,6 +21,9 @@ public partial class Membresia
     public string? Estado { get; set; }
 
     public string? Observaciones { get; set; }
+
+    [Column(TypeName = "decimal(10,2)")]
+    public decimal PrecioAcordado { get; set; }
 
     public virtual ICollection<Congelamiento> Congelamientos { get; set; } = new List<Congelamiento>();
 
