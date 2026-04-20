@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GymApp.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymApp.Services
 {
@@ -13,12 +15,14 @@ namespace GymApp.Services
         private readonly IPagoRepository _pagoRepo;
         private readonly IMembresiaRepository _membresiaRepo;
         private readonly IUsuarioRepository _usuarioRepo; // Necesitamos buscar user por DNI
+        private readonly GymDbContext _context;
 
-        public PagoService(IPagoRepository pagoRepo, IMembresiaRepository membresiaRepo, IUsuarioRepository usuarioRepo)
+        public PagoService(IPagoRepository pagoRepo, IMembresiaRepository membresiaRepo, IUsuarioRepository usuarioRepo, GymDbContext context)
         {
             _pagoRepo = pagoRepo;
             _membresiaRepo = membresiaRepo;
             _usuarioRepo = usuarioRepo;
+            _context = context;
         }
 
         public async Task<List<DeudaInfoDTO>> BuscarDeudaClienteAsync(string termino)
@@ -115,6 +119,50 @@ namespace GymApp.Services
                 FechaPago = p.FechaPago?.ToString("g"), // Formato general fecha+hora
                 NombreEmpleado = p.UsuarioEmpleado.NombreCompleto
             });
+        }
+
+        public async Task<PagedResult<PagoListDTO>> ObtenerPagosPaginadosAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 20)
+        {
+            var query = _context.PagosMembresia
+                .Include(p => p.Membresia).ThenInclude(m => m.User)
+                .Include(p => p.Membresia).ThenInclude(m => m.Plan)
+                .Include(p => p.UsuarioEmpleado)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(buscar))
+            {
+                var termino = buscar.ToLower();
+                query = query.Where(p => p.Membresia.User.NombreCompleto.ToLower().Contains(termino) || 
+                                         (p.Membresia.User.Dni != null && p.Membresia.User.Dni.Contains(termino)));
+            }
+            else if (mes.HasValue && anio.HasValue)
+            {
+                query = query.Where(p => p.FechaPago.HasValue && p.FechaPago.Value.Month == mes.Value && p.FechaPago.Value.Year == anio.Value);
+            }
+
+            query = query.OrderByDescending(p => p.PagoId);
+
+            int totalRegistros = await query.CountAsync();
+            var items = await query.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToListAsync();
+
+            var listaDto = items.Select(p => new PagoListDTO
+            {
+                PagoId = p.PagoId,
+                NombreCliente = p.Membresia.User.NombreCompleto,
+                NombrePlan = p.Membresia.Plan.Nombre,
+                Monto = p.Monto,
+                MetodoPago = p.MetodoPago,
+                FechaPago = p.FechaPago?.ToString("dd/MM/yyyy HH:mm") ?? "--- ---",
+                NombreEmpleado = p.UsuarioEmpleado.NombreCompleto
+            }).ToList();
+
+            return new PagedResult<PagoListDTO>
+            {
+                Items = listaDto,
+                TotalPages = (int)Math.Ceiling((double)totalRegistros / tamanoPagina),
+                CurrentPage = pagina,
+                SearchTerm = buscar
+            };
         }
     }
 }

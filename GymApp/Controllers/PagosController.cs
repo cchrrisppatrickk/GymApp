@@ -18,9 +18,21 @@ namespace GymApp.Controllers
             _pagoService = pagoService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string? buscar, int? mes, int? anio, int pagina = 1)
         {
-            return View();
+            if (!mes.HasValue || !anio.HasValue)
+            {
+                mes = DateTime.Now.Month;
+                anio = DateTime.Now.Year;
+            }
+
+            var result = await _pagoService.ObtenerPagosPaginadosAsync(buscar, mes, anio, pagina);
+
+            ViewBag.Buscar = buscar;
+            ViewBag.Mes = mes;
+            ViewBag.Anio = anio;
+
+            return View(result);
         }
 
         // VISTA DE IMPRESIÓN (Simple HTML para imprimir)
