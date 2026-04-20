@@ -178,5 +178,78 @@ namespace GymApp.Services
                 MembresiasCongeladas = congeladas
             };
         }
+
+        public async Task<DashboardFinancialStatsDTO> ObtenerEstadisticasFinancierasAsync()
+        {
+            var hoy = DateTime.Now;
+            var result = new DashboardFinancialStatsDTO();
+
+            // 1. Mensual (Últimos 6 meses)
+            var hace6Meses = new DateTime(hoy.Year, hoy.Month, 1).AddMonths(-5);
+            var pagosMensualesDb = await _context.PagosMembresia
+                .AsNoTracking()
+                .Where(p => p.FechaPago >= hace6Meses)
+                .ToListAsync();
+
+            var pagosAgrupadosMes = pagosMensualesDb
+                .Where(p => p.FechaPago.HasValue)
+                .GroupBy(p => new { p.FechaPago.Value.Year, p.FechaPago.Value.Month })
+                .ToDictionary(g => new DateTime(g.Key.Year, g.Key.Month, 1), g => g.Sum(p => p.Monto));
+
+            var mesesLabels = new List<string>();
+            var ingresosMensuales = new List<decimal>();
+
+            for (int i = 5; i >= 0; i--)
+            {
+                var mes = new DateTime(hoy.Year, hoy.Month, 1).AddMonths(-i);
+                mesesLabels.Add(mes.ToString("MMM", new System.Globalization.CultureInfo("es-ES")));
+                ingresosMensuales.Add(pagosAgrupadosMes.ContainsKey(mes) ? pagosAgrupadosMes[mes] : 0m);
+            }
+
+            result.MesesLabels = mesesLabels;
+            result.IngresosMensuales = ingresosMensuales;
+
+            result.IngresoMesActual = ingresosMensuales.LastOrDefault();
+            decimal ingresoMesAnterior = ingresosMensuales.Count > 1 ? ingresosMensuales[ingresosMensuales.Count - 2] : 0;
+            
+            if (ingresoMesAnterior != 0)
+                result.CrecimientoMensualPorcentaje = ((result.IngresoMesActual - ingresoMesAnterior) / ingresoMesAnterior) * 100;
+            else
+                result.CrecimientoMensualPorcentaje = result.IngresoMesActual > 0 ? 100 : 0;
+
+            // 2. Semanal (Últimos 28 días)
+            var hace28Dias = hoy.Date.AddDays(-28);
+            var pagosSemanalesDb = await _context.PagosMembresia
+                .AsNoTracking()
+                .Where(p => p.FechaPago >= hace28Dias)
+                .ToListAsync();
+
+            var semanasLabels = new List<string>();
+            var ingresosSemanales = new List<decimal>();
+
+            for (int i = 0; i < 4; i++)
+            {
+                var inicioSemana = hace28Dias.AddDays(i * 7);
+                var finSemana = inicioSemana.AddDays(7);
+                semanasLabels.Add($"Sem {i + 1}");
+                var sumaSemana = pagosSemanalesDb
+                    .Where(p => p.FechaPago >= inicioSemana && p.FechaPago < finSemana)
+                    .Sum(p => p.Monto);
+                ingresosSemanales.Add(sumaSemana);
+            }
+
+            result.SemanasLabels = semanasLabels;
+            result.IngresosSemanales = ingresosSemanales;
+
+            result.IngresoSemanaActual = ingresosSemanales.LastOrDefault();
+            decimal ingresoSemanaAnterior = ingresosSemanales.Count > 1 ? ingresosSemanales[ingresosSemanales.Count - 2] : 0;
+
+            if (ingresoSemanaAnterior != 0)
+                result.CrecimientoSemanalPorcentaje = ((result.IngresoSemanaActual - ingresoSemanaAnterior) / ingresoSemanaAnterior) * 100;
+            else
+                result.CrecimientoSemanalPorcentaje = result.IngresoSemanaActual > 0 ? 100 : 0;
+
+            return result;
+        }
     }
 }

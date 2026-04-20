@@ -144,8 +144,7 @@
                             <canvas id="monthlyRevenueChart"></canvas>
                         </div>
                         <div class="mt-3 small bg-light p-2 rounded-2 d-flex justify-content-between" id="monthlyExtraNote">
-                            <span><i class="fas fa-calendar-alt"></i> <strong>Abril 2026:</strong> S/ 17,640.00 en membresías</span>
-                            <span><i class="fas fa-arrow-up text-success"></i> Crecimiento +11% vs marzo</span>
+                            <!-- Dynamically generated note -->
                         </div>
                     </div>
                 </div>
@@ -158,8 +157,7 @@
                             <canvas id="weeklyRevenueChart"></canvas>
                         </div>
                         <div class="mt-3 small bg-light p-2 rounded-2 d-flex justify-content-between" id="weeklyExtraNote">
-                            <span><i class="fas fa-chart-simple"></i> <strong>Semana actual:</strong> S/ 5,180.00</span>
-                            <span><i class="fas fa-arrow-up text-success"></i> +5.2% vs semana anterior</span>
+                            <!-- Dynamically generated note -->
                         </div>
                     </div>
                 </div>
@@ -174,6 +172,7 @@
         $(document).ready(function () {
             cargarEstadisticas();
             inicializarGraficos();
+            cargarDatosFinancieros();
         });
 
         function cargarEstadisticas() {
@@ -201,24 +200,20 @@
             });
         }
 
+        let monthlyChart;
+        let weeklyChart;
+
         function inicializarGraficos() {
             const ctxMonthly = document.getElementById('monthlyRevenueChart').getContext('2d');
             const ctxWeekly = document.getElementById('weeklyRevenueChart').getContext('2d');
 
-            // Datos estáticos de prueba (Mock)
-            const months = ['Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'];
-            const monthlyRevenue = [13800, 14520, 15890, 17640, 18450, 18820];
-
-            const weekLabels = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
-            const weeklyRevenue = [4250, 4480, 4920, 5180];
-
-            new Chart(ctxMonthly, {
+            monthlyChart = new Chart(ctxMonthly, {
                 type: 'bar',
                 data: {
-                    labels: months,
+                    labels: [],
                     datasets: [{
                         label: 'Ingresos (S/)',
-                        data: monthlyRevenue,
+                        data: [],
                         backgroundColor: 'rgba(13, 110, 253, 0.8)',
                         borderRadius: 6,
                         barPercentage: 0.6
@@ -242,13 +237,13 @@
                 }
             });
 
-            new Chart(ctxWeekly, {
+            weeklyChart = new Chart(ctxWeekly, {
                 type: 'line',
                 data: {
-                    labels: weekLabels,
+                    labels: [],
                     datasets: [{
                         label: 'Ingresos semanales (S/)',
-                        data: weeklyRevenue,
+                        data: [],
                         borderColor: '#198754',
                         backgroundColor: 'rgba(25, 135, 84, 0.1)',
                         borderWidth: 3,
@@ -273,6 +268,49 @@
                             grid: { display: false }
                         }
                     }
+                }
+            });
+        }
+
+        function cargarDatosFinancieros() {
+            $.ajax({
+                url: '/Reportes/ObtenerEstadisticasFinancieras',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    // Update Monthly Chart
+                    monthlyChart.data.labels = data.mesesLabels;
+                    monthlyChart.data.datasets[0].data = data.ingresosMensuales;
+                    monthlyChart.update();
+
+                    // Update Weekly Chart
+                    weeklyChart.data.labels = data.semanasLabels;
+                    weeklyChart.data.datasets[0].data = data.ingresosSemanales;
+                    weeklyChart.update();
+
+                    // Formatting function setup
+                    let currencyFormat = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+
+                    // Monthly Note Update
+                    let monthlyColor = data.crecimientoMensualPorcentaje >= 0 ? "text-success" : "text-danger";
+                    let monthlyIcon = data.crecimientoMensualPorcentaje >= 0 ? "fa-arrow-up" : "fa-arrow-down";
+                    
+                    $('#monthlyExtraNote').html(`
+                        <span><i class="fas fa-calendar-alt"></i> <strong>Mes actual:</strong> ${currencyFormat.format(data.ingresoMesActual)} en membresías</span>
+                        <span><i class="fas ${monthlyIcon} ${monthlyColor}"></i> Crecimiento ${data.crecimientoMensualPorcentaje >= 0 ? '+' : ''}${data.crecimientoMensualPorcentaje.toFixed(2)}% vs anterior</span>
+                    `);
+
+                    // Weekly Note Update
+                    let weeklyColor = data.crecimientoSemanalPorcentaje >= 0 ? "text-success" : "text-danger";
+                    let weeklyIcon = data.crecimientoSemanalPorcentaje >= 0 ? "fa-arrow-up" : "fa-arrow-down";
+
+                    $('#weeklyExtraNote').html(`
+                        <span><i class="fas fa-chart-simple"></i> <strong>Semana actual:</strong> ${currencyFormat.format(data.ingresoSemanaActual)}</span>
+                        <span><i class="fas ${weeklyIcon} ${weeklyColor}"></i> ${data.crecimientoSemanalPorcentaje >= 0 ? '+' : ''}${data.crecimientoSemanalPorcentaje.toFixed(2)}% vs semana anterior</span>
+                    `);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al cargar estadísticas financieras:", error);
                 }
             });
         }
