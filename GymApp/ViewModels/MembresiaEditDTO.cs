@@ -9,5 +9,6 @@ namespace GymApp.ViewModels
         public int TurnoId { get; set; }
         public DateTime FechaInicio { get; set; }
         public DateTime FechaVencimiento { get; set; }
+        public decimal? PrecioAcordadoPersonalizado { get; set; }
     }
 }

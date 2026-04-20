@@ -7,5 +7,6 @@
         public int PlanId { get; set; }
         public int TurnoId { get; set; }
         public DateTime FechaInicio { get; set; }
+        public decimal? PrecioAcordadoPersonalizado { get; set; }
     }
 }

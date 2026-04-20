@@ -74,6 +74,7 @@ namespace GymApp.Services
                 TurnoId = dto.TurnoId,
                 FechaInicio = nuevaFechaInicio,
                 FechaVencimiento = nuevaFechaFin,
+                PrecioAcordado = dto.PrecioAcordadoPersonalizado ?? plan.PrecioBase,
                 Estado = "Pendiente Pago"
             };
 
@@ -105,7 +106,7 @@ namespace GymApp.Services
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
                 DiasVencidos = m.FechaVencimiento < hoy ? hoy.DayNumber - m.FechaVencimiento.DayNumber : 0,
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
-                Deuda = (m.Plan?.PrecioBase ?? 0m) - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
+                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
             });
 
             // Aplicar Filtros
@@ -162,7 +163,7 @@ namespace GymApp.Services
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
                 DiasVencidos = m.FechaVencimiento < hoy ? hoy.DayNumber - m.FechaVencimiento.DayNumber : 0,
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
-                Deuda = (m.Plan?.PrecioBase ?? 0m) - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
+                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
             }).ToList();
 
             return new PagedResult<MembresiaListDTO>
@@ -219,6 +220,11 @@ namespace GymApp.Services
             membresia.TurnoId = dto.TurnoId;
             membresia.FechaInicio = DateOnly.FromDateTime(dto.FechaInicio);
             membresia.FechaVencimiento = DateOnly.FromDateTime(dto.FechaVencimiento);
+
+            if (dto.PrecioAcordadoPersonalizado.HasValue)
+            {
+                membresia.PrecioAcordado = dto.PrecioAcordadoPersonalizado.Value;
+            }
 
             if (membresia.FechaVencimiento < DateOnly.FromDateTime(DateTime.Now))
             {

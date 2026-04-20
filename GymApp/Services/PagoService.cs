@@ -39,9 +39,9 @@ namespace GymApp.Services
             {
                 if (membresia.Plan == null) continue;
 
-                decimal precioPlan = membresia.Plan.PrecioBase;
+                decimal precioAcordado = membresia.PrecioAcordado;
                 decimal yaPagado = await _pagoRepo.GetTotalPagadoAsync(membresia.MembresiaId);
-                decimal deuda = precioPlan - yaPagado;
+                decimal deuda = precioAcordado - yaPagado;
 
                 resultados.Add(new DeudaInfoDTO
                 {
@@ -50,7 +50,7 @@ namespace GymApp.Services
                     DniCliente = membresia.User.Dni,
                     NombrePlan = membresia.Plan.Nombre,
                     Estado = membresia.FechaVencimiento < DateOnly.FromDateTime(DateTime.Now) && membresia.Estado != "Pendiente Pago" ? "Vencida" : membresia.Estado,
-                    PrecioTotal = precioPlan,
+                    PrecioTotal = precioAcordado,
                     TotalPagado = yaPagado,
                     DeudaPendiente = deuda > 0 ? deuda : 0
                 });
@@ -67,9 +67,9 @@ namespace GymApp.Services
             var membresia = await _membresiaRepo.ObtenerPorIdConDetallesAsync(dto.MembresiaId);
             if (membresia == null || membresia.Plan == null) throw new Exception("Membresía no encontrada o no tiene un plan válido asociado.");
 
-            decimal precioPlan = membresia.Plan.PrecioBase;
+            decimal precioAcordado = membresia.PrecioAcordado;
             decimal yaPagado = await _pagoRepo.GetTotalPagadoAsync(dto.MembresiaId);
-            decimal deudaPendiente = precioPlan - yaPagado;
+            decimal deudaPendiente = precioAcordado - yaPagado;
 
             if (dto.Monto > deudaPendiente)
                 throw new Exception($"El monto excede la deuda. Solo debe: {deudaPendiente:C}");
@@ -91,7 +91,7 @@ namespace GymApp.Services
             // Verificamos si con este pago se salda la deuda
             decimal nuevoTotalPagado = yaPagado + dto.Monto;
 
-            if (nuevoTotalPagado >= precioPlan)
+            if (nuevoTotalPagado >= precioAcordado)
             {
                 if (membresia.Estado == "Pendiente Pago") // Solo si estaba pendiente
                 {
