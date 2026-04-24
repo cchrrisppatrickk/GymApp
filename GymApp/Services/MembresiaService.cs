@@ -1,6 +1,7 @@
-﻿using GymApp.Models;
+using GymApp.Models;
 using GymApp.Repositories;
 using GymApp.ViewModels;
+using GymApp.ViewModels.ApiAgent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -313,6 +314,82 @@ namespace GymApp.Services
             var hoy = DateOnly.FromDateTime(DateTime.Today);
             var todas = await _membresiaRepo.GetAllAsync();
             return todas.Any(m => m.UserId == userId && m.FechaInicio > hoy && m.Estado == "Activa");
+        }
+
+        // ── Dominio de Membresías — Consultas granulares para el Agente IA ──────
+
+        /// <summary>
+        /// Proyección compartida hacia MembresiaAgenteDTO para evitar duplicación de lógica.
+        /// Se usa en los tres métodos del agente.
+        /// </summary>
+        private static MembresiaAgenteDTO MapToAgenteDTO(Membresia m)
+        {
+            var hoy      = DateOnly.FromDateTime(DateTime.Now.Date);
+            var diasRest = m.FechaVencimiento.DayNumber - hoy.DayNumber;
+            var estado   = m.FechaVencimiento < hoy ? "Vencida" : m.Estado ?? "Activa";
+            var deuda    = m.PrecioAcordado - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m);
+
+            return new MembresiaAgenteDTO
+            {
+                Id             = m.MembresiaId,
+                NombrePlan     = m.Plan?.Nombre ?? "Sin plan",
+                Estado         = estado,
+                FechaInicio    = m.FechaInicio.ToDateTime(TimeOnly.MinValue),
+                FechaFin       = m.FechaVencimiento.ToDateTime(TimeOnly.MinValue),
+                DiasRestantes  = diasRest,
+                Comentarios    = m.Observaciones,
+                DeudaPendiente = deuda < 0 ? 0m : deuda
+            };
+        }
+
+        public async Task<MembresiaAgenteDTO?> ObtenerActivaParaAgenteAsync(int userId)
+        {
+            // Reutiliza la lógica existente del repositorio que ya conoce qué es "activa"
+            var membresia = await _membresiaRepo.GetLastActiveMembresiaByUserIdAsync(userId);
+            if (membresia == null) return null;
+
+            // Cargar las relaciones necesarias para el mapeo (Plan y Pagos)
+            await _context.Entry(membresia)
+                .Reference(m => m.Plan)
+                .LoadAsync();
+            await _context.Entry(membresia)
+                .Collection(m => m.PagosMembresia)
+                .LoadAsync();
+
+            return MapToAgenteDTO(membresia);
+        }
+
+        public async Task<IEnumerable<MembresiaAgenteDTO>> ObtenerHistorialParaAgenteAsync(int userId)
+        {
+            var membresias = await _context.Membresias
+                .Where(m => m.UserId == userId)
+                .Include(m => m.Plan)
+                .Include(m => m.PagosMembresia)
+                .OrderByDescending(m => m.FechaInicio)
+                .ToListAsync();
+
+            return membresias.Select(MapToAgenteDTO);
+        }
+
+        public async Task<IEnumerable<MembresiaAgenteDTO>> ObtenerAlertasParaAgenteAsync(int diasPorVencer)
+        {
+            var hoy          = DateOnly.FromDateTime(DateTime.Now.Date);
+            var limiteVencida = hoy.AddDays(-15); // vencidas en los últimos 15 días
+            var limiteFutura  = hoy.AddDays(diasPorVencer);
+
+            var membresias = await _context.Membresias
+                .Include(m => m.Plan)
+                .Include(m => m.PagosMembresia)
+                .Where(m =>
+                    // Activas que vencen pronto
+                    (m.Estado == "Activa" && m.FechaVencimiento >= hoy && m.FechaVencimiento <= limiteFutura)
+                    ||
+                    // Vencidas en los últimos 15 días
+                    (m.FechaVencimiento < hoy && m.FechaVencimiento >= limiteVencida))
+                .OrderBy(m => m.FechaVencimiento)
+                .ToListAsync();
+
+            return membresias.Select(MapToAgenteDTO);
         }
     }
 }

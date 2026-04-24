@@ -21,15 +21,18 @@ public class ApiAgentController : ControllerBase
     private readonly IReporteService _reporteService;
     private readonly IUsuarioService _usuarioService;
     private readonly IPagoService    _pagoService;
+    private readonly IMembresiaService _membresiaService;
 
     public ApiAgentController(
         IReporteService reporteService,
         IUsuarioService usuarioService,
-        IPagoService    pagoService)
+        IPagoService    pagoService,
+        IMembresiaService membresiaService)
     {
         _reporteService = reporteService;
         _usuarioService = usuarioService;
         _pagoService    = pagoService;
+        _membresiaService = membresiaService;
     }
 
     // -----------------------------------------------------------------------
@@ -151,6 +154,49 @@ public class ApiAgentController : ControllerBase
     public async Task<IActionResult> GetUsuariosPorFecha([FromQuery] DateTime fecha)
     {
         var resultado = await _usuarioService.ObtenerPorFechaExactaParaAgenteAsync(fecha);
+        return Ok(resultado);
+    }
+
+    // -----------------------------------------------------------------------
+    // MEMBRESÍAS — Dominio de Estado y Servicio para el Agente IA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Consulta el estado de la membresía activa o congelada de un usuario.
+    /// GET /api/agent/membresias/usuario/{userId}/activa
+    /// </summary>
+    [HttpGet("membresias/usuario/{userId}/activa")]
+    public async Task<IActionResult> GetMembresiaActiva(int userId)
+    {
+        var resultado = await _membresiaService.ObtenerActivaParaAgenteAsync(userId);
+        if (resultado == null)
+            return NotFound(new { error = "No hay membresía activa para este usuario" });
+
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Retorna el historial de membresías de un usuario.
+    /// GET /api/agent/membresias/usuario/{userId}/historial
+    /// </summary>
+    [HttpGet("membresias/usuario/{userId}/historial")]
+    public async Task<IActionResult> GetHistorialMembresias(int userId)
+    {
+        var resultado = await _membresiaService.ObtenerHistorialParaAgenteAsync(userId);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Retorna membresías críticas: vencidas recientemente o por vencer.
+    /// GET /api/agent/membresias/alertas?dias=7
+    /// </summary>
+    [HttpGet("membresias/alertas")]
+    public async Task<IActionResult> GetAlertasMembresias([FromQuery] int dias = 7)
+    {
+        if (dias <= 0)
+            return BadRequest(new { error = "El parámetro 'dias' debe ser un número positivo." });
+
+        var resultado = await _membresiaService.ObtenerAlertasParaAgenteAsync(dias);
         return Ok(resultado);
     }
 }

@@ -1,5 +1,7 @@
-﻿using GymApp.Models;
+using GymApp.Models;
 using GymApp.ViewModels;
+using GymApp.ViewModels.ApiAgent;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -23,5 +25,18 @@ namespace GymApp.Services
         Task<bool> TieneRenovacionProgramadaAsync(int userId);
         Task<bool> EditarMembresiaAsync(MembresiaEditDTO dto);
         Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 20);
+
+        // ── Dominio de Membresías — Consultas granulares para el Agente IA ──────
+        /// <summary>Devuelve la membresía activa o congelada actual del usuario. Null si no tiene.</summary>
+        Task<MembresiaAgenteDTO?> ObtenerActivaParaAgenteAsync(int userId);
+
+        /// <summary>Devuelve el historial completo de membresías del usuario, más reciente primero.</summary>
+        Task<IEnumerable<MembresiaAgenteDTO>> ObtenerHistorialParaAgenteAsync(int userId);
+
+        /// <summary>
+        /// Devuelve membresías en estado crítico: activas con N días o menos hasta vencer,
+        /// y vencidas en los últimos 15 días.
+        /// </summary>
+        Task<IEnumerable<MembresiaAgenteDTO>> ObtenerAlertasParaAgenteAsync(int diasPorVencer);
     }
-}
+}
