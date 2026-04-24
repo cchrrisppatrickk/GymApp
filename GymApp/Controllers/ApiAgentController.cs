@@ -199,4 +199,49 @@ public class ApiAgentController : ControllerBase
         var resultado = await _membresiaService.ObtenerAlertasParaAgenteAsync(dias);
         return Ok(resultado);
     }
+
+    // -----------------------------------------------------------------------
+    // PAGOS Y DEUDAS — Dominio Financiero Granular para el Agente IA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Retorna el consolidado de deuda de un cliente y la cantidad de membresías adeudadas.
+    /// GET /api/agent/pagos/deuda/{userId}
+    /// </summary>
+    [HttpGet("pagos/deuda/{userId}")]
+    public async Task<IActionResult> GetDeudaCliente(int userId)
+    {
+        var resultado = await _pagoService.ObtenerDeudaTotalParaAgenteAsync(userId);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Retorna el historial de pagos de un cliente específico.
+    /// GET /api/agent/pagos/usuario/{userId}
+    /// </summary>
+    [HttpGet("pagos/usuario/{userId}")]
+    public async Task<IActionResult> GetHistorialPagosUsuario(int userId)
+    {
+        var resultado = await _pagoService.ObtenerHistorialUsuarioParaAgenteAsync(userId);
+        
+        // Retornamos lista vacía si no hay para no romper el flujo
+        if (resultado == null || !resultado.Any())
+            return Ok(new List<PagoAgenteDTO>());
+
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Busca todos los pagos realizados en un rango de fechas.
+    /// GET /api/agent/pagos/rango?inicio=2025-01-01&fin=2025-12-31
+    /// </summary>
+    [HttpGet("pagos/rango")]
+    public async Task<IActionResult> GetPagosPorRango([FromQuery] DateTime inicio, [FromQuery] DateTime fin)
+    {
+        if (fin < inicio)
+            return BadRequest(new { error = "La fecha de fin no puede ser menor a la de inicio." });
+
+        var resultado = await _pagoService.ObtenerPagosPorRangoParaAgenteAsync(inicio, fin);
+        return Ok(resultado);
+    }
 }

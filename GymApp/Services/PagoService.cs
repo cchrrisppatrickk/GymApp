@@ -1,6 +1,7 @@
-﻿using GymApp.Models;
+using GymApp.Models;
 using GymApp.Repositories;
 using GymApp.ViewModels;
+using GymApp.ViewModels.ApiAgent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -163,6 +164,74 @@ namespace GymApp.Services
                 CurrentPage = pagina,
                 SearchTerm = buscar
             };
+        }
+
+        // --- Para ApiAgent ---
+        public async Task<DeudaUsuarioAgenteDTO> ObtenerDeudaTotalParaAgenteAsync(int userId)
+        {
+            var membresias = await _context.Membresias
+                .Include(m => m.PagosMembresia)
+                .Where(m => m.UserId == userId)
+                .ToListAsync();
+
+            decimal deudaTotal = 0;
+            int membresiasConDeuda = 0;
+
+            foreach (var m in membresias)
+            {
+                decimal pagado = m.PagosMembresia.Sum(p => p.Monto);
+                decimal deudaMembresia = m.PrecioAcordado - pagado;
+                
+                if (deudaMembresia > 0)
+                {
+                    deudaTotal += deudaMembresia;
+                    membresiasConDeuda++;
+                }
+            }
+
+            return new DeudaUsuarioAgenteDTO
+            {
+                DeudaTotal = deudaTotal,
+                MembresiasConDeuda = membresiasConDeuda
+            };
+        }
+
+        public async Task<IEnumerable<PagoAgenteDTO>> ObtenerHistorialUsuarioParaAgenteAsync(int userId)
+        {
+            var pagos = await _context.PagosMembresia
+                .Include(p => p.Membresia)
+                .ThenInclude(m => m.User)
+                .Where(p => p.Membresia.UserId == userId)
+                .OrderByDescending(p => p.FechaPago)
+                .ToListAsync();
+
+            return pagos.Select(p => new PagoAgenteDTO
+            {
+                Id = p.PagoId,
+                Monto = p.Monto,
+                Fecha = p.FechaPago ?? DateTime.MinValue,
+                MetodoPago = p.MetodoPago ?? "Desconocido",
+                NombreCliente = p.Membresia.User.NombreCompleto
+            });
+        }
+
+        public async Task<IEnumerable<PagoAgenteDTO>> ObtenerPagosPorRangoParaAgenteAsync(DateTime inicio, DateTime fin)
+        {
+            var pagos = await _context.PagosMembresia
+                .Include(p => p.Membresia)
+                .ThenInclude(m => m.User)
+                .Where(p => p.FechaPago >= inicio && p.FechaPago <= fin)
+                .OrderByDescending(p => p.FechaPago)
+                .ToListAsync();
+
+            return pagos.Select(p => new PagoAgenteDTO
+            {
+                Id = p.PagoId,
+                Monto = p.Monto,
+                Fecha = p.FechaPago ?? DateTime.MinValue,
+                MetodoPago = p.MetodoPago ?? "Desconocido",
+                NombreCliente = p.Membresia.User.NombreCompleto
+            });
         }
     }
 }
