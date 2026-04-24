@@ -107,4 +107,50 @@ public class ApiAgentController : ControllerBase
 
         return Ok(pagosFiltrados);
     }
+
+    // -----------------------------------------------------------------------
+    // USUARIOS — Dominio de Identidad y Búsqueda para el Agente IA
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Busca usuarios por nombre (coincidencia parcial) o DNI (coincidencia exacta).
+    /// Retorna un DTO ultra-ligero sin datos sensibles (sin PasswordHash, FotoUrl, etc.).
+    /// GET /api/agent/usuarios/buscar?q={termino}
+    /// </summary>
+    [HttpGet("usuarios/buscar")]
+    public async Task<IActionResult> BuscarUsuarios([FromQuery] string q)
+    {
+        if (string.IsNullOrWhiteSpace(q))
+            return BadRequest(new { error = "El parámetro 'q' es obligatorio y no puede estar vacío." });
+
+        var resultado = await _usuarioService.BuscarParaAgenteAsync(q.Trim());
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Devuelve los usuarios registrados en los últimos N días (por defecto 7).
+    /// Útil para el agente cuando necesita detectar nuevos miembros recientes.
+    /// GET /api/agent/usuarios/nuevos?dias=7
+    /// </summary>
+    [HttpGet("usuarios/nuevos")]
+    public async Task<IActionResult> GetUsuariosNuevos([FromQuery] int dias = 7)
+    {
+        if (dias <= 0)
+            return BadRequest(new { error = "El parámetro 'dias' debe ser un número positivo." });
+
+        var resultado = await _usuarioService.ObtenerRecientesParaAgenteAsync(dias);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Devuelve los usuarios cuya fecha de registro coincide exactamente con el día indicado
+    /// (ignora la hora). Formato esperado: yyyy-MM-dd.
+    /// GET /api/agent/usuarios/fecha?fecha=2025-04-24
+    /// </summary>
+    [HttpGet("usuarios/fecha")]
+    public async Task<IActionResult> GetUsuariosPorFecha([FromQuery] DateTime fecha)
+    {
+        var resultado = await _usuarioService.ObtenerPorFechaExactaParaAgenteAsync(fecha);
+        return Ok(resultado);
+    }
 }

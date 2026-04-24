@@ -1,4 +1,4 @@
-﻿using GymApp.Models;
+using GymApp.Models;
 using GymApp.Repositories;
 using QRCoder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using BCrypt.Net;
 using GymApp.Data;
 using GymApp.ViewModels;
+using GymApp.ViewModels.ApiAgent;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
@@ -192,7 +193,61 @@ namespace GymApp.Services
 
                 return qrCodeImage;
             }
-        }        // --- MÉTODO PRIVADO PARA GESTIONAR UPLOADS ---
+        }
+
+        // ── Dominio de Usuarios — Consultas granulares para el Agente IA ──────
+
+        public async Task<IEnumerable<UsuarioAgenteDTO>> BuscarParaAgenteAsync(string termino)
+        {
+            return await _context.Usuarios
+                .Where(u => u.NombreCompleto.Contains(termino) || u.Dni == termino)
+                .Select(u => new UsuarioAgenteDTO
+                {
+                    Id             = u.UserId,
+                    NombreCompleto = u.NombreCompleto,
+                    DNI            = u.Dni,
+                    Telefono       = u.Telefono,
+                    FechaRegistro  = u.FechaRegistro ?? DateTime.MinValue
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<UsuarioAgenteDTO>> ObtenerRecientesParaAgenteAsync(int dias)
+        {
+            var desde = DateTime.Now.AddDays(-dias);
+            return await _context.Usuarios
+                .Where(u => u.FechaRegistro >= desde)
+                .OrderByDescending(u => u.FechaRegistro)
+                .Select(u => new UsuarioAgenteDTO
+                {
+                    Id             = u.UserId,
+                    NombreCompleto = u.NombreCompleto,
+                    DNI            = u.Dni,
+                    Telefono       = u.Telefono,
+                    FechaRegistro  = u.FechaRegistro ?? DateTime.MinValue
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<UsuarioAgenteDTO>> ObtenerPorFechaExactaParaAgenteAsync(DateTime fecha)
+        {
+            return await _context.Usuarios
+                .Where(u => u.FechaRegistro.HasValue
+                         && u.FechaRegistro.Value.Year  == fecha.Year
+                         && u.FechaRegistro.Value.Month == fecha.Month
+                         && u.FechaRegistro.Value.Day   == fecha.Day)
+                .Select(u => new UsuarioAgenteDTO
+                {
+                    Id             = u.UserId,
+                    NombreCompleto = u.NombreCompleto,
+                    DNI            = u.Dni,
+                    Telefono       = u.Telefono,
+                    FechaRegistro  = u.FechaRegistro ?? DateTime.MinValue
+                })
+                .ToListAsync();
+        }
+
+        // --- MÉTODO PRIVADO PARA GESTIONAR UPLOADS ---
         private async Task<string> ProcesarFotoPerfilAsync(IFormFile fotoArchivo, string dniUsuario)
         {
             if (fotoArchivo == null || fotoArchivo.Length == 0) return null;
