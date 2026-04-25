@@ -109,63 +109,104 @@ namespace GymApp.Services
 
         public async Task ActualizarPagoAsync(PagoEditDTO dto, int empleadoId)
         {
-            var pago = await _context.PagosMembresia
-                .Include(p => p.Membresia)
-                .ThenInclude(m => m.PagosMembresia)
-                .FirstOrDefaultAsync(p => p.PagoId == dto.Id);
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var pago = await _context.PagosMembresia
+                    .Include(p => p.Membresia)
+                    .ThenInclude(m => m.PagosMembresia)
+                    .FirstOrDefaultAsync(p => p.PagoId == dto.Id);
 
-            if (pago == null)
-                throw new Exception("Pago no encontrado.");
+                if (pago == null)
+                    throw new Exception("Pago no encontrado.");
 
-            if (pago.EsAnulado)
-                throw new Exception("No se puede editar un pago que ha sido anulado.");
+                if (pago.EsAnulado)
+                    throw new Exception("No se puede editar un pago que ha sido anulado.");
 
-            decimal otrosPagos = pago.Membresia.PagosMembresia
-                .Where(p => p.PagoId != dto.Id && !p.EsAnulado)
-                .Sum(p => p.Monto);
+                decimal otrosPagos = pago.Membresia.PagosMembresia
+                    .Where(p => p.PagoId != dto.Id && !p.EsAnulado)
+                    .Sum(p => p.Monto);
 
-            decimal maximoPermitido = pago.Membresia.PrecioAcordado - otrosPagos;
+                decimal maximoPermitido = pago.Membresia.PrecioAcordado - otrosPagos;
 
-            if (dto.Monto > maximoPermitido)
-                throw new Exception($"El monto excede la deuda pendiente. El máximo permitido es: {maximoPermitido:C}");
+                if (dto.Monto > maximoPermitido)
+                    throw new Exception($"El monto excede la deuda pendiente. El máximo permitido es: {maximoPermitido:C}");
 
-            pago.Monto = dto.Monto;
-            pago.MetodoPago = dto.MetodoPago;
-            pago.Observaciones = $"Editado: {dto.Observaciones}".Trim();
+                pago.Monto = dto.Monto;
+                pago.MetodoPago = dto.MetodoPago;
+                pago.Observaciones = $"Editado: {dto.Observaciones}".Trim();
 
-            _context.PagosMembresia.Update(pago);
-            await _context.SaveChangesAsync();
+                _context.PagosMembresia.Update(pago);
+                await _context.SaveChangesAsync();
+
+                await SincronizarEstadoMembresiaAsync(pago.MembresiaId);
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task AnularPagoAsync(int id, string motivoAnulacion, int empleadoId)
         {
-            var pago = await _context.PagosMembresia
-                .Include(p => p.Membresia)
-                .ThenInclude(m => m.PagosMembresia)
-                .FirstOrDefaultAsync(p => p.PagoId == id);
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var pago = await _context.PagosMembresia
+                    .Include(p => p.Membresia)
+                    .ThenInclude(m => m.PagosMembresia)
+                    .FirstOrDefaultAsync(p => p.PagoId == id);
 
-            if (pago == null)
-                throw new Exception("Pago no encontrado.");
+                if (pago == null)
+                    throw new Exception("Pago no encontrado.");
 
-            if (pago.EsAnulado)
-                throw new Exception("El pago ya se encuentra anulado.");
+                if (pago.EsAnulado)
+                    throw new Exception("El pago ya se encuentra anulado.");
 
-            pago.EsAnulado = true;
-            pago.Observaciones = $"Anulado por emp {empleadoId}: {motivoAnulacion}";
+                pago.EsAnulado = true;
+                pago.Observaciones = $"Anulado por emp {empleadoId}: {motivoAnulacion}";
 
-            decimal otrosPagosValidos = pago.Membresia.PagosMembresia
+                _context.PagosMembresia.Update(pago);
+                await _context.SaveChangesAsync();
+
+                await SincronizarEstadoMembresiaAsync(pago.MembresiaId);
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        private async Task SincronizarEstadoMembresiaAsync(int membresiaId)
+        {
+            var membresia = await _context.Membresias
+                .Include(m => m.PagosMembresia)
+                .FirstOrDefaultAsync(m => m.MembresiaId == membresiaId);
+
+            if (membresia == null) return;
+
+            decimal totalPagado = membresia.PagosMembresia
                 .Where(p => !p.EsAnulado)
                 .Sum(p => p.Monto);
 
-            decimal deudaResultante = pago.Membresia.PrecioAcordado - otrosPagosValidos;
+            decimal deudaActual = membresia.PrecioAcordado - totalPagado;
 
-            if (deudaResultante > 0 && pago.Membresia.Estado == "Activa")
+            if (deudaActual > 0)
             {
-                // Si vuelve a tener deuda, regresa a Pendiente Pago
-                pago.Membresia.Estado = "Pendiente Pago";
+                membresia.Estado = "Pendiente Pago";
+            }
+            else if (deudaActual <= 0 && membresia.Estado != "Vencida" && membresia.Estado != "Congelada")
+            {
+                membresia.Estado = "Activa";
             }
 
-            _context.PagosMembresia.Update(pago);
+            _context.Membresias.Update(membresia);
             await _context.SaveChangesAsync();
         }
 

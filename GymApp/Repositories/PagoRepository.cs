@@ -1,4 +1,4 @@
-﻿using GymApp.Data;
+using GymApp.Data;
 using GymApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -30,7 +30,7 @@ namespace GymApp.Repositories
         public async Task<decimal> GetTotalPagadoAsync(int membresiaId)
         {
             return await _context.PagosMembresia
-                .Where(p => p.MembresiaId == membresiaId)
+                .Where(p => p.MembresiaId == membresiaId && !p.EsAnulado)
                 .SumAsync(p => p.Monto);
         }
     }

@@ -107,7 +107,7 @@ namespace GymApp.Services
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
                 DiasVencidos = m.FechaVencimiento < hoy ? hoy.DayNumber - m.FechaVencimiento.DayNumber : 0,
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
-                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
+                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m)
             });
 
             // Aplicar Filtros
@@ -164,7 +164,7 @@ namespace GymApp.Services
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
                 DiasVencidos = m.FechaVencimiento < hoy ? hoy.DayNumber - m.FechaVencimiento.DayNumber : 0,
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
-                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m)
+                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m)
             }).ToList();
 
             return new PagedResult<MembresiaListDTO>
@@ -327,7 +327,7 @@ namespace GymApp.Services
             var hoy      = DateOnly.FromDateTime(DateTime.Now.Date);
             var diasRest = m.FechaVencimiento.DayNumber - hoy.DayNumber;
             var estado   = m.FechaVencimiento < hoy ? "Vencida" : m.Estado ?? "Activa";
-            var deuda    = m.PrecioAcordado - (m.PagosMembresia?.Sum(p => p.Monto) ?? 0m);
+            var deuda    = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m);
 
             return new MembresiaAgenteDTO
             {
