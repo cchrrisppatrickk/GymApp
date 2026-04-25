@@ -1,4 +1,4 @@
-﻿using GymApp.Services;
+using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -184,6 +184,21 @@ namespace GymApp.Controllers
             {
                 TempData["Error"] = ex.Message;
                 return RedirectToAction("Details", new { id = dto.MembresiaId });
+            }
+        }
+
+        [HttpPost("EliminarFisicamente/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> EliminarFisicamente(int id)
+        {
+            try
+            {
+                await _membresiaService.EliminarMembresiaFisicamenteAsync(id);
+                return Ok(new { success = true, message = "La membresía y todos sus pagos han sido eliminados permanentemente del sistema." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = "Error al eliminar la membresía: " + ex.Message });
             }
         }
     }
