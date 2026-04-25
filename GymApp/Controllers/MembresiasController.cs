@@ -187,7 +187,7 @@ namespace GymApp.Controllers
             }
         }
 
-        [HttpPost("EliminarFisicamente/{id}")]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> EliminarFisicamente(int id)
         {
