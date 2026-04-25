@@ -1,5 +1,6 @@
 using GymApp.Filters;
 using GymApp.Services;
+using GymApp.ViewModels.ApiAgent;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymApp.Controllers;

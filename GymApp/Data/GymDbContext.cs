@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using GymApp.Models;
 using Microsoft.EntityFrameworkCore;
@@ -122,6 +122,7 @@ public partial class GymDbContext : DbContext
             entity.Property(e => e.MetodoPago).HasMaxLength(50);
             entity.Property(e => e.Monto).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UsuarioEmpleadoId).HasColumnName("UsuarioEmpleadoID");
+            entity.Property(e => e.Observaciones).HasMaxLength(255);
 
             entity.HasOne(d => d.Membresia).WithMany(p => p.PagosMembresia)
                 .HasForeignKey(d => d.MembresiaId)

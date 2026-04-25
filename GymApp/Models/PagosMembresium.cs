@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace GymApp.Models;
@@ -22,4 +22,8 @@ public partial class PagosMembresium
     public virtual Membresia Membresia { get; set; } = null!;
 
     public virtual Usuario UsuarioEmpleado { get; set; } = null!;
+
+    public bool EsAnulado { get; set; } = false;
+
+    public string? Observaciones { get; set; }
 }
