@@ -107,6 +107,36 @@ namespace GymApp.Services
             return nuevoPago.PagoId;
         }
 
+        public async Task ActualizarPagoAsync(PagoEditDTO dto, int empleadoId)
+        {
+            var pago = await _context.PagosMembresia
+                .Include(p => p.Membresia)
+                .ThenInclude(m => m.PagosMembresia)
+                .FirstOrDefaultAsync(p => p.PagoId == dto.Id);
+
+            if (pago == null)
+                throw new Exception("Pago no encontrado.");
+
+            if (pago.EsAnulado)
+                throw new Exception("No se puede editar un pago que ha sido anulado.");
+
+            decimal otrosPagos = pago.Membresia.PagosMembresia
+                .Where(p => p.PagoId != dto.Id && !p.EsAnulado)
+                .Sum(p => p.Monto);
+
+            decimal maximoPermitido = pago.Membresia.PrecioAcordado - otrosPagos;
+
+            if (dto.Monto > maximoPermitido)
+                throw new Exception($"El monto excede la deuda pendiente. El máximo permitido es: {maximoPermitido:C}");
+
+            pago.Monto = dto.Monto;
+            pago.MetodoPago = dto.MetodoPago;
+            pago.Observaciones = $"Editado: {dto.Observaciones}".Trim();
+
+            _context.PagosMembresia.Update(pago);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<PagoListDTO>> ListarPagosAsync()
         {
             var pagos = await _pagoRepo.ObtenerHistorialCompletoAsync();

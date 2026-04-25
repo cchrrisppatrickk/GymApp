@@ -11,6 +11,7 @@ namespace GymApp.Services
         Task<IEnumerable<PagoListDTO>> ListarPagosAsync();
         Task<PagedResult<PagoListDTO>> ObtenerPagosPaginadosAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 20);
         Task<int> RegistrarPagoAsync(PagoCreateDTO dto, int empleadoId);
+        Task ActualizarPagoAsync(PagoEditDTO dto, int empleadoId);
         Task<List<DeudaInfoDTO>> BuscarDeudaClienteAsync(string termino);
 
         // --- Para ApiAgent ---
