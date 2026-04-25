@@ -123,5 +123,23 @@ namespace GymApp.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+
+        [HttpPost("Anular/{id}")]
+        public async Task<IActionResult> Anular(int id, [FromBody] string motivo)
+        {
+            try
+            {
+                var empleadoIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                int empleadoId = int.Parse(empleadoIdClaim ?? "1");
+
+                await _pagoService.AnularPagoAsync(id, motivo, empleadoId);
+
+                return Ok(new { success = true, message = "Pago anulado y deuda recalculada correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

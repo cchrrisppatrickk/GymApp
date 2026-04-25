@@ -155,8 +155,11 @@
                                         <a href="/Pagos/Comprobante/@p.PagoId" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-printer"></i></a>
                                         @if (!p.EsAnulado)
                                         {
-                                            <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="abrirModalEditarPago(@p.PagoId)">
+                                            <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
                                                 <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="anularPago(@p.PagoId)" title="Anular">
+                                                <i class="bi bi-x-circle"></i>
                                             </button>
                                         }
                                     </td>
@@ -669,6 +672,60 @@
             })
             .finally(() => {
                 btn.disabled = false;
+            });
+        }
+
+        // --- LÓGICA DE ANULACIÓN DE PAGO ---
+        function anularPago(id) {
+            Swal.fire({
+                title: '¿Anular Pago?',
+                text: "Ingresa el motivo de la anulación. Esta acción no se puede deshacer.",
+                input: 'textarea',
+                inputPlaceholder: 'Escribe el motivo aquí...',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, Anular',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value || value.trim() === '') {
+                        return '¡Debes ingresar un motivo para anular el pago!'
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const motivo = result.value;
+
+                    // Mostrar loading spinner
+                    Swal.fire({
+                        title: 'Procesando...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading()
+                        }
+                    });
+
+                    fetch(`/Pagos/Anular/${id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(motivo)
+                    })
+                    .then(async res => {
+                        const json = await res.json();
+                        if (res.ok && json.success) {
+                            Swal.fire('¡Anulado!', json.message, 'success').then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error', json.message || 'No se pudo anular el pago', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Error', 'Error de conexión con el servidor', 'error');
+                    });
+                }
             });
         }
     </script>

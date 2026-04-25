@@ -137,6 +137,38 @@ namespace GymApp.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task AnularPagoAsync(int id, string motivoAnulacion, int empleadoId)
+        {
+            var pago = await _context.PagosMembresia
+                .Include(p => p.Membresia)
+                .ThenInclude(m => m.PagosMembresia)
+                .FirstOrDefaultAsync(p => p.PagoId == id);
+
+            if (pago == null)
+                throw new Exception("Pago no encontrado.");
+
+            if (pago.EsAnulado)
+                throw new Exception("El pago ya se encuentra anulado.");
+
+            pago.EsAnulado = true;
+            pago.Observaciones = $"Anulado por emp {empleadoId}: {motivoAnulacion}";
+
+            decimal otrosPagosValidos = pago.Membresia.PagosMembresia
+                .Where(p => !p.EsAnulado)
+                .Sum(p => p.Monto);
+
+            decimal deudaResultante = pago.Membresia.PrecioAcordado - otrosPagosValidos;
+
+            if (deudaResultante > 0 && pago.Membresia.Estado == "Activa")
+            {
+                // Si vuelve a tener deuda, regresa a Pendiente Pago
+                pago.Membresia.Estado = "Pendiente Pago";
+            }
+
+            _context.PagosMembresia.Update(pago);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<PagoListDTO>> ListarPagosAsync()
         {
             var pagos = await _pagoRepo.ObtenerHistorialCompletoAsync();
