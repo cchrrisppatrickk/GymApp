@@ -1,4 +1,4 @@
-﻿@model GymApp.ViewModels.PagedResult<GymApp.ViewModels.PagoListDTO>
+@model GymApp.ViewModels.PagedResult<GymApp.ViewModels.PagoListDTO>
 @{
     ViewData["Title"] = "Caja y Pagos";
     var buscar = ViewBag.Buscar as string;
@@ -153,6 +153,12 @@
                                     <td class="text-end"><span class="fw-bold text-dark h6">$ @p.Monto.ToString("F2")</span></td>
                                     <td class="text-center">
                                         <a href="/Pagos/Comprobante/@p.PagoId" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-printer"></i></a>
+                                        @if (!p.EsAnulado)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="abrirModalEditarPago(@p.PagoId)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -296,6 +302,51 @@
                 <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-success px-4" id="btnCobrar" onclick="procesarPago()" disabled>
                     <i class="bi bi-check-lg me-2"></i>Confirmar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Pago -->
+<div class="modal fade" id="modalEditarPago" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Pago</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formEditarPago">
+                    <input type="hidden" id="editPagoId" name="Id" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Monto</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control fw-bold text-primary" id="editMonto" name="Monto" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Método de Pago</label>
+                        <select class="form-select" id="editMetodoPago" name="MetodoPago" required>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Yape/Plin">Yape/Plin</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Observaciones</label>
+                        <textarea class="form-control" id="editObservaciones" name="Observaciones" rows="3" placeholder="Motivo de la edición..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary px-4" id="btnGuardarEdicion" onclick="guardarEdicionPago()">
+                    <i class="bi bi-save me-2"></i>Guardar Cambios
                 </button>
             </div>
         </div>
@@ -540,6 +591,85 @@
             document.getElementById("resultados-busqueda").style.display = "none";
             membresiaSeleccionada = 0;
             deudaActual = 0;
+        }
+
+        // --- LÓGICA DE EDICIÓN DE PAGO ---
+        let modalEditar = null;
+
+        function abrirModalEditarPago(id) {
+            fetch(`/Pagos/ObtenerParaEdicion/${id}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('No se pudo cargar la información del pago o está anulado.');
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('editPagoId').value = data.id;
+                    document.getElementById('editMonto').value = data.monto;
+                    
+                    // Manejar selectores que pueden tener variaciones como "Yape/Plin" vs "Yape"
+                    let selectMetodo = document.getElementById('editMetodoPago');
+                    let metodoValue = data.metodoPago;
+                    if(metodoValue && (metodoValue.includes('Yape') || metodoValue.includes('Plin'))) {
+                        metodoValue = 'Yape/Plin';
+                    }
+                    selectMetodo.value = metodoValue;
+                    
+                    document.getElementById('editObservaciones').value = data.observaciones || '';
+
+                    if (!modalEditar) {
+                        modalEditar = new bootstrap.Modal(document.getElementById('modalEditarPago'));
+                    }
+                    modalEditar.show();
+                })
+                .catch(err => {
+                    Swal.fire('Error', err.message, 'error');
+                });
+        }
+
+        function guardarEdicionPago() {
+            const id = document.getElementById('editPagoId').value;
+            const monto = document.getElementById('editMonto').value;
+            const metodoPago = document.getElementById('editMetodoPago').value;
+            const observaciones = document.getElementById('editObservaciones').value;
+
+            if(!monto || monto <= 0) {
+                Swal.fire('Error', 'El monto debe ser válido y mayor a 0', 'error');
+                return;
+            }
+
+            const data = {
+                Id: parseInt(id),
+                Monto: parseFloat(monto),
+                MetodoPago: metodoPago,
+                Observaciones: observaciones
+            };
+
+            const btn = document.getElementById('btnGuardarEdicion');
+            btn.disabled = true;
+
+            fetch('/Pagos/Editar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(async res => {
+                const json = await res.json();
+                if (res.ok && json.success) {
+                    modalEditar.hide();
+                    Swal.fire('¡Éxito!', json.message, 'success').then(() => {
+                        window.location.reload(); // Recargar para actualizar la tabla con SSR
+                    });
+                } else {
+                    Swal.fire('Error', json.message || 'Error al editar el pago', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error', 'Error de conexión', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+            });
         }
     </script>
 }

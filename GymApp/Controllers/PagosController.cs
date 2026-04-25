@@ -1,10 +1,11 @@
-﻿using GymApp.Services;
+using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization; // Necesario para identificar quién cobra
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims; // Para leer los Claims del usuario
 using System.Threading.Tasks;
+using GymApp.Data;
 
 namespace GymApp.Controllers
 {
@@ -12,10 +13,12 @@ namespace GymApp.Controllers
     public class PagosController : BaseController
     {
         private readonly IPagoService _pagoService;
+        private readonly GymDbContext _context;
 
-        public PagosController(IPagoService pagoService)
+        public PagosController(IPagoService pagoService, GymDbContext context)
         {
             _pagoService = pagoService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index(string? buscar, int? mes, int? anio, int pagina = 1)
@@ -86,7 +89,39 @@ namespace GymApp.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+        [HttpGet("ObtenerParaEdicion/{id}")]
+        public async Task<IActionResult> ObtenerParaEdicion(int id)
+        {
+            var pago = await _context.PagosMembresia.FindAsync(id);
+            if (pago == null) return NotFound("Pago no encontrado");
 
+            if (pago.EsAnulado) return BadRequest("No se puede editar un pago anulado");
 
+            return Json(new 
+            { 
+                id = pago.PagoId, 
+                monto = pago.Monto, 
+                metodoPago = pago.MetodoPago, 
+                observaciones = pago.Observaciones 
+            });
+        }
+
+        [HttpPost("Editar")]
+        public async Task<IActionResult> Editar([FromBody] PagoEditDTO model)
+        {
+            try
+            {
+                var empleadoIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                int empleadoId = int.Parse(empleadoIdClaim ?? "1");
+
+                await _pagoService.ActualizarPagoAsync(model, empleadoId);
+
+                return Ok(new { success = true, message = "Pago actualizado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

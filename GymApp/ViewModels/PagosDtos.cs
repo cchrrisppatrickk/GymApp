@@ -1,4 +1,4 @@
-﻿namespace GymApp.ViewModels
+namespace GymApp.ViewModels
 {
     public class PagoCreateDTO
     {
@@ -17,6 +17,7 @@
         public decimal Monto { get; set; }
         public string FechaPago { get; set; }
         public string NombreEmpleado { get; set; } // Auditoría
+        public bool EsAnulado { get; set; }
     }
 
     // Para mostrar info previa al cobro

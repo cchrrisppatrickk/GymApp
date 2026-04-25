@@ -148,7 +148,8 @@ namespace GymApp.Services
                 Monto = p.Monto,
                 MetodoPago = p.MetodoPago,
                 FechaPago = p.FechaPago?.ToString("g"), // Formato general fecha+hora
-                NombreEmpleado = p.UsuarioEmpleado.NombreCompleto
+                NombreEmpleado = p.UsuarioEmpleado.NombreCompleto,
+                EsAnulado = p.EsAnulado
             });
         }
 
@@ -184,7 +185,8 @@ namespace GymApp.Services
                 Monto = p.Monto,
                 MetodoPago = p.MetodoPago,
                 FechaPago = p.FechaPago?.ToString("dd/MM/yyyy HH:mm") ?? "--- ---",
-                NombreEmpleado = p.UsuarioEmpleado.NombreCompleto
+                NombreEmpleado = p.UsuarioEmpleado.NombreCompleto,
+                EsAnulado = p.EsAnulado
             }).ToList();
 
             return new PagedResult<PagoListDTO>
