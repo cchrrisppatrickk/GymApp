@@ -122,15 +122,23 @@
                                         }
                                     </td>
                                     <td class="text-center">
-                                        <a href="/Membresias/Details/@item.MembresiaId" class="btn btn-sm btn-info text-white shadow-sm" title="Ver Detalles">
-                                            <i class="bi bi-eye"></i> Detalles
-                                        </a>
-                                        @if (item.DeudaPendiente > 0)
-                                        {
-                                            <a href="/Pagos/Index?buscar=@item.Dni" class="btn btn-sm btn-success shadow-sm ms-1" title="Registrar Pago">
-                                                <i class="bi bi-cash-coin"></i> Pagar
+                                        <div class="btn-group">
+                                            <a href="/Membresias/Details/@item.MembresiaId" class="btn btn-sm btn-info text-white shadow-sm" title="Ver Detalles">
+                                                <i class="bi bi-eye"></i> Detalles
                                             </a>
-                                        }
+                                            @if (item.DeudaPendiente > 0)
+                                            {
+                                                <a href="/Pagos/Index?buscar=@item.Dni" class="btn btn-sm btn-success shadow-sm" title="Registrar Pago">
+                                                    <i class="bi bi-cash-coin"></i> Pagar
+                                                </a>
+                                            }
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-danger shadow-sm btn-hard-delete" data-id="@item.MembresiaId" title="Eliminar Físicamente (Solo Admin)">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            }
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -600,5 +608,51 @@
                 }
             });
         }
+
+        // LÓGICA DE BORRADO FÍSICO (EXCLUSIVO ADMIN)
+        $(document).on('click', '.btn-hard-delete', function() {
+            const id = $(this).data('id');
+            
+            Swal.fire({
+                title: '¿ELIMINACIÓN DEFINITIVA?',
+                text: "Esta acción borrará permanentemente la membresía, todos sus PAGOS y CONGELAMIENTOS asociados. ¡No se puede deshacer!",
+                icon: 'warning',
+                input: 'text',
+                inputPlaceholder: 'Escribe ELIMINAR para confirmar',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, borrar todo',
+                cancelButtonText: 'Cancelar',
+                preConfirm: (inputValue) => {
+                    if (inputValue.trim().toUpperCase() !== 'ELIMINAR') {
+                        Swal.showValidationMessage('Debes escribir ELIMINAR para proceder');
+                        return false;
+                    }
+                    return true;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Procesando...',
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    fetch(`/Membresias/EliminarFisicamente/${id}`, { method: 'POST' })
+                        .then(res => res.json())
+                        .then(json => {
+                            if (json.success) {
+                                Swal.fire('Eliminado', json.message, 'success').then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Error', json.message, 'error');
+                            }
+                        })
+                        .catch(err => {
+                            Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
+                        });
+                }
+            });
+        });
     </script>
 }
