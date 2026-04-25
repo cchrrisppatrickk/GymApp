@@ -395,5 +395,40 @@ namespace GymApp.Services
 
             return membresias.Select(MapToAgenteDTO);
         }
+
+        public async Task EliminarMembresiaFisicamenteAsync(int membresiaId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Paso A: Congelamientos
+                var congelamientos = await _context.Congelamientos
+                    .Where(c => c.MembresiaId == membresiaId)
+                    .ToListAsync();
+                _context.Congelamientos.RemoveRange(congelamientos);
+
+                // Paso B: Pagos
+                var pagos = await _context.PagosMembresia
+                    .Where(p => p.MembresiaId == membresiaId)
+                    .ToListAsync();
+                _context.PagosMembresia.RemoveRange(pagos);
+
+                // Paso C: Membresía
+                var membresia = await _context.Membresias.FindAsync(membresiaId);
+                if (membresia == null)
+                {
+                    throw new KeyNotFoundException($"No se encontró la membresía con ID {membresiaId}");
+                }
+                _context.Membresias.Remove(membresia);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

@@ -38,5 +38,6 @@ namespace GymApp.Services
         /// y vencidas en los últimos 15 días.
         /// </summary>
         Task<IEnumerable<MembresiaAgenteDTO>> ObtenerAlertasParaAgenteAsync(int diasPorVencer);
+        Task EliminarMembresiaFisicamenteAsync(int membresiaId);
     }
 }
