@@ -1,7 +1,7 @@
 @model GymApp.Models.Membresia
 @{
     ViewData["Title"] = "Detalles de Membresía";
-    var totalPagado = Model.PagosMembresia.Sum(p => p.Monto);
+    var totalPagado = Model.PagosMembresia.Where(p => !p.EsAnulado).Sum(p => p.Monto);
     var deuda = Model.PrecioAcordado - totalPagado;
     
     // Cálculo de días restantes de forma robusta
@@ -189,20 +189,31 @@
                                 {
                                     @foreach (var pago in Model.PagosMembresia.OrderByDescending(p => p.FechaPago))
                                     {
-                                        <tr>
+                                        <tr class="@(pago.EsAnulado ? "opacity-50 text-muted table-light" : "")">
                                             <td class="ps-4">
-                                                <div class="fw-bold">@pago.FechaPago?.ToString("dd/MM/yyyy")</div>
+                                                <div class="fw-bold @(pago.EsAnulado ? "text-decoration-line-through" : "")">@pago.FechaPago?.ToString("dd/MM/yyyy")</div>
                                                 <small class="text-muted">@pago.FechaPago?.ToString("HH:mm:ss")</small>
+                                                @if (pago.EsAnulado)
+                                                {
+                                                    <span class="badge bg-danger ms-2">Anulado</span>
+                                                }
                                             </td>
-                                            <td class="fw-bold text-success font-monospace">@pago.Monto.ToString("C")</td>
+                                            <td class="fw-bold @(pago.EsAnulado ? "text-decoration-line-through" : "text-success") font-monospace">@pago.Monto.ToString("C")</td>
                                             <td><span class="badge bg-white text-dark border px-2">@pago.MetodoPago</span></td>
                                             @if (User.IsInRole("Admin"))
                                             {
                                                 <td class="text-center">
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-sm btn-outline-warning" title="Editar Pago"><i class="bi bi-pencil"></i></button>
-                                                        <button class="btn btn-sm btn-outline-danger" title="Anular Pago"><i class="bi bi-trash"></i></button>
-                                                    </div>
+                                                    @if (!pago.EsAnulado)
+                                                    {
+                                                        <div class="btn-group">
+                                                            <button class="btn btn-sm btn-outline-warning" title="Editar Pago"><i class="bi bi-pencil"></i></button>
+                                                            <button class="btn btn-sm btn-outline-danger" title="Anular Pago"><i class="bi bi-trash"></i></button>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-light text-muted border">Sin acciones</span>
+                                                    }
                                                 </td>
                                             }
                                         </tr>

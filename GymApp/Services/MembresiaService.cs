@@ -107,6 +107,8 @@ namespace GymApp.Services
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
                 DiasVencidos = m.FechaVencimiento < hoy ? hoy.DayNumber - m.FechaVencimiento.DayNumber : 0,
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
+                TotalPagado = m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m,
+                DeudaPendiente = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m),
                 Deuda = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m)
             });
 
@@ -164,6 +166,8 @@ namespace GymApp.Services
                 DiasRestantes = m.FechaVencimiento.DayNumber - hoy.DayNumber,
                 DiasVencidos = m.FechaVencimiento < hoy ? hoy.DayNumber - m.FechaVencimiento.DayNumber : 0,
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
+                TotalPagado = m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m,
+                DeudaPendiente = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m),
                 Deuda = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m)
             }).ToList();
 

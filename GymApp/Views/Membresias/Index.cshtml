@@ -1,4 +1,4 @@
-﻿@model GymApp.ViewModels.PagedResult<GymApp.ViewModels.MembresiaListDTO>
+@model GymApp.ViewModels.PagedResult<GymApp.ViewModels.MembresiaListDTO>
 @{
     ViewData["Title"] = "Gestión de Membresías";
     var buscar = ViewBag.Buscar as string;
@@ -115,8 +115,8 @@
                                         }
                                     </td>
                                     <td>
-                                        @if(item.Deuda > 0) {
-                                            <span class="fw-bold text-danger">$@item.Deuda.ToString("F2")</span>
+                                        @if(item.DeudaPendiente > 0) {
+                                            <span class="fw-bold text-danger">$@item.DeudaPendiente.ToString("F2")</span>
                                         } else {
                                             <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Al día</span>
                                         }
@@ -125,6 +125,12 @@
                                         <a href="/Membresias/Details/@item.MembresiaId" class="btn btn-sm btn-info text-white shadow-sm" title="Ver Detalles">
                                             <i class="bi bi-eye"></i> Detalles
                                         </a>
+                                        @if (item.DeudaPendiente > 0)
+                                        {
+                                            <a href="/Pagos/Index?buscar=@item.Dni" class="btn btn-sm btn-success shadow-sm ms-1" title="Registrar Pago">
+                                                <i class="bi bi-cash-coin"></i> Pagar
+                                            </a>
+                                        }
                                     </td>
                                 </tr>
                             }
