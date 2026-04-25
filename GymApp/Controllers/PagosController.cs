@@ -124,7 +124,7 @@ namespace GymApp.Controllers
             }
         }
 
-        [HttpPost("Anular/{id}")]
+        [HttpPost]
         public async Task<IActionResult> Anular(int id, [FromBody] string motivo)
         {
             try
