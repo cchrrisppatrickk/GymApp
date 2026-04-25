@@ -89,7 +89,7 @@ namespace GymApp.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
-        [HttpGet("ObtenerParaEdicion/{id}")]
+        [HttpGet]
         public async Task<IActionResult> ObtenerParaEdicion(int id)
         {
             var pago = await _context.PagosMembresia.FindAsync(id);
@@ -106,7 +106,7 @@ namespace GymApp.Controllers
             });
         }
 
-        [HttpPost("Editar")]
+        [HttpPost]
         public async Task<IActionResult> Editar([FromBody] PagoEditDTO model)
         {
             try
