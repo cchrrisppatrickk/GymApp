@@ -103,9 +103,12 @@
                                             <span class="badge bg-secondary">Finalizada</span> 
                                         }
                                         else if (item.Estado == "Activa") { 
-                                            @if (item.DiasRestantes <= 5) {
+                                            @if (item.DiasRestantes <= 3) {
                                                 <span class="badge bg-danger">Por Vencer</span> <br>
                                                 <small class="text-danger fw-bold">Quedan @item.DiasRestantes días</small>
+                                            } else if (item.DiasRestantes <= 7) {
+                                                <span class="badge bg-warning text-dark">Próximo Venc.</span> <br>
+                                                <small class="text-warning fw-bold">Quedan @item.DiasRestantes días</small>
                                             } else {
                                                 <span class="badge bg-success">Activa</span> <br>
                                                 <small class="text-muted">(@item.DiasRestantes días restantes)</small>
