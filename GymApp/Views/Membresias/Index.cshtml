@@ -71,6 +71,7 @@
                             <th>Socio</th>
                             <th>Estado</th>
                             <th>Deuda</th>
+                            <th>Observaciones</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -137,6 +138,9 @@
                                         } else {
                                             <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Al día</span>
                                         }
+                                    </td>
+                                    <td class="small text-muted">
+                                        @(string.IsNullOrEmpty(item.Observaciones) ? "-" : (item.Observaciones.Length > 40 ? item.Observaciones.Substring(0, 37) + "..." : item.Observaciones))
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group">
@@ -258,6 +262,11 @@
                                     <small class="text-muted" id="lblDuracionPreview">- días</small>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <label class="form-label fw-bold text-secondary text-uppercase small">3. Observaciones (Opcional)</label>
+                            <textarea class="form-control" id="txtObservaciones" rows="2" placeholder="Notas sobre el cliente o el servicio..." maxlength="200"></textarea>
                         </div>
                     </div>
                 </form>
@@ -473,7 +482,8 @@
                 PlanId: parseInt(planId),
                 TurnoId: parseInt(turnoId),
                 FechaInicio: document.getElementById('txtFechaInicio').value,
-                PrecioAcordadoPersonalizado: pre ? parseFloat(pre) : null
+                PrecioAcordadoPersonalizado: pre ? parseFloat(pre) : null,
+                Observaciones: document.getElementById('txtObservaciones').value
             };
 
             Swal.fire({
@@ -516,6 +526,7 @@
             document.getElementById('userIdSeleccionado').value = "";
             document.getElementById('txtFechaInicio').valueAsDate = new Date();
             document.getElementById('txtPrecioPersonalizado').value = '';
+            document.getElementById('txtObservaciones').value = '';
             actualizarInfoPrecio();
 
             new bootstrap.Modal(document.getElementById('modalMembresia')).show();
