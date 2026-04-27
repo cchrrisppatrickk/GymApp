@@ -34,13 +34,17 @@ namespace GymApp.Services
             return await _usuarioRepository.GetAllAsync();
         }
 
-        public async Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int tamanoPagina = 20)
+        public async Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int? mes = null, int? anio = null, int tamanoPagina = 20)
         {
             var query = _context.Usuarios.Include(u => u.Role).AsQueryable();
 
             if (!string.IsNullOrEmpty(buscar))
             {
                 query = query.Where(u => u.NombreCompleto.Contains(buscar) || (u.Dni != null && u.Dni.Contains(buscar)));
+            }
+            else if (mes.HasValue && anio.HasValue)
+            {
+                query = query.Where(u => u.FechaRegistro.HasValue && u.FechaRegistro.Value.Month == mes.Value && u.FechaRegistro.Value.Year == anio.Value);
             }
 
             int count = await query.CountAsync();

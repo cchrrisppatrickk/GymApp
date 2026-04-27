@@ -1,4 +1,4 @@
-﻿using GymApp.Models;
+using GymApp.Models;
 using GymApp.Repositories;
 using GymApp.Services;
 using GymApp.ViewModels; // Importante
@@ -23,15 +23,23 @@ namespace GymApp.Controllers
         // ==========================================
         // 1. VISTA PRINCIPAL (INDEX) - PAGINADA
         // ==========================================
-        public async Task<IActionResult> Index(string? buscar, int pagina = 1)
+        public async Task<IActionResult> Index(string? buscar, int? mes, int? anio, int pagina = 1)
         {
-            var pagedResult = await _usuarioService.ObtenerUsuariosPaginadosAsync(buscar, pagina);
+            if (string.IsNullOrEmpty(buscar) && (!mes.HasValue || !anio.HasValue))
+            {
+                mes = DateTime.Now.Month;
+                anio = DateTime.Now.Year;
+            }
+
+            var pagedResult = await _usuarioService.ObtenerUsuariosPaginadosAsync(buscar, pagina, mes, anio);
 
             // CARGAMOS LOS ROLES AQUÍ para enviarlos a la vista y llenar el <select> del Modal
             var roles = await _rolesRepository.GetAllAsync();
             ViewBag.Roles = new SelectList(roles, "RoleId", "Nombre");
             
             ViewData["CurrentFilter"] = buscar;
+            ViewBag.Mes = mes;
+            ViewBag.Anio = anio;
             ViewData["TituloListado"] = string.IsNullOrEmpty(buscar) ? "Listado de Usuarios" : $"Resultados para: {buscar}";
 
             return View(pagedResult);
