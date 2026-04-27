@@ -24,7 +24,7 @@ namespace GymApp.Services
         Task<bool> TieneMembresiaActivaAsync(int userId);
         Task<bool> TieneRenovacionProgramadaAsync(int userId);
         Task<bool> EditarMembresiaAsync(MembresiaEditDTO dto);
-        Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 20);
+        Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, string? filtro = null, int tamanoPagina = 20);
 
         // ── Dominio de Membresías — Consultas granulares para el Agente IA ──────
         /// <summary>Devuelve la membresía activa o congelada actual del usuario. Null si no tiene.</summary>
@@ -40,4 +40,4 @@ namespace GymApp.Services
         Task<IEnumerable<MembresiaAgenteDTO>> ObtenerAlertasParaAgenteAsync(int diasPorVencer);
         Task EliminarMembresiaFisicamenteAsync(int membresiaId);
     }
-}
+}

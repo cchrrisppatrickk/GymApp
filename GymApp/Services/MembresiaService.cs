@@ -127,7 +127,7 @@ namespace GymApp.Services
             return lista;
         }
 
-        public async Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, int tamanoPagina = 20)
+        public async Task<PagedResult<MembresiaListDTO>> ObtenerMembresiasPaginadasAsync(string? buscar, int? mes, int? anio, int pagina, string? filtro = null, int tamanoPagina = 20)
         {
             var query = _context.Membresias
                 .Include(m => m.User)
@@ -142,9 +142,28 @@ namespace GymApp.Services
                 query = query.Where(m => m.User.NombreCompleto.ToLower().Contains(termino) || 
                                          (m.User.Dni != null && m.User.Dni.Contains(termino)));
             }
-            else if (mes.HasValue && anio.HasValue)
+            else if (mes.HasValue && anio.HasValue && string.IsNullOrEmpty(filtro))
             {
                 query = query.Where(m => m.FechaInicio.Month == mes.Value && m.FechaInicio.Year == anio.Value);
+            }
+
+            var hoy = DateOnly.FromDateTime(DateTime.Now);
+
+            // Aplicar filtros especiales (Dashboard)
+            if (filtro == "deudores")
+            {
+                // Deuda = PrecioAcordado - Sum(Pagos no anulados)
+                query = query.Where(m => (m.Estado == "Activa" || m.Estado == "Pendiente Pago") && 
+                                          m.PrecioAcordado - m.PagosMembresia.Where(p => !p.EsAnulado).Sum(p => p.Monto) > 0);
+            }
+            else if (filtro == "porVencer")
+            {
+                var finSemana = hoy.AddDays(7);
+                query = query.Where(m => m.Estado == "Activa" && m.FechaVencimiento >= hoy && m.FechaVencimiento <= finSemana);
+            }
+            else if (filtro == "nuevos")
+            {
+                query = query.Where(m => m.FechaInicio.Month == hoy.Month && m.FechaInicio.Year == hoy.Year);
             }
 
             // Orden normal
@@ -152,7 +171,6 @@ namespace GymApp.Services
 
             int totalRegistros = await query.CountAsync();
             var items = await query.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToListAsync();
-            var hoy = DateOnly.FromDateTime(DateTime.Now);
 
             var listaDto = items.Select(m => new MembresiaListDTO
             {

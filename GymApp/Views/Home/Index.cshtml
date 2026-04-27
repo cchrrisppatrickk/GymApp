@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Dashboard de Estadísticas";
 }
 
@@ -7,14 +7,33 @@
         .card-stats {
             border: none;
             border-radius: 1.5rem;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 8px 20px rgba(0,0,0,0.03), 0 2px 6px rgba(0,0,0,0.05);
             background: white;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
         .card-stats:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
             box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1);
+        }
+
+        .card-stats::after {
+            content: 'Ver detalles \2192';
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: inherit;
+        }
+
+        .card-stats:hover::after {
+            opacity: 0.7;
         }
 
         .stat-icon {
@@ -27,21 +46,43 @@
             justify-content: center;
             font-size: 1.8rem;
             color: #0d6efd;
+            transition: transform 0.3s ease;
+        }
+
+        .card-stats:hover .stat-icon {
+            transform: scale(1.1) rotate(5deg);
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
-            letter-spacing: -0.5px;
+            letter-spacing: -1px;
             color: #1e2f41;
         }
 
-        .stat-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: #5e6f8d;
-            letter-spacing: 0.3px;
+        .btn-refresh {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-refresh:hover {
+            transform: rotate(180deg);
+        }
+
+        .loading-shimmer {
+            animation: shimmer 2s infinite linear;
+            background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+            background-size: 800px 104px;
+        }
+
+        @@keyframes shimmer {
+            0% { background-position: -468px 0; }
+            100% { background-position: 468px 0; }
         }
     </style>
 }
@@ -49,49 +90,54 @@
 <div class="container-fluid mt-4">
     <!-- ================= SECCIÓN USUARIOS ================= -->
     <div class="mb-4">
-        <div class="d-flex align-items-center gap-2 mb-3">
-            <i class="fas fa-users fa-xl text-primary"></i>
-            <h3 class="fw-semibold m-0">Panel de Usuarios</h3>
-            <span class="badge bg-secondary bg-opacity-25 text-dark">Membresías · Deudas · Vencimientos</span>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-users fa-xl text-primary"></i>
+                <h3 class="fw-semibold m-0">Panel de Usuarios</h3>
+                <span class="badge bg-secondary bg-opacity-25 text-dark">Membresías · Deudas · Vencimientos</span>
+            </div>
+            <button class="btn btn-outline-primary btn-refresh border-0" onclick="actualizarDashboard()" title="Actualizar datos">
+                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+            </button>
         </div>
 
         <div class="row g-4">
             <!-- Nuevos registros del mes -->
             <div class="col-md-3 col-sm-6">
-                <div class="card-stats card h-100 p-4">
+                <div class="card-stats card h-100 p-4 border-start border-4 border-success" onclick="location.href='/Membresias/Index?filtro=nuevos'">
                     <div class="d-flex justify-content-between">
                         <div>
                             <div class="stat-label">NUEVOS MIEMBROS</div>
-                            <div class="stat-value" id="newUsersCount">0</div>
-                            <small class="text-success"><i class="fas fa-user-plus me-1"></i>registrados este mes</small>
+                            <div class="stat-value counter" id="newUsersCount">0</div>
+                            <small class="text-success fw-medium"><i class="fas fa-user-plus me-1"></i>registrados este mes</small>
                         </div>
-                        <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                        <div class="stat-icon text-success" style="background: rgba(25, 135, 84, 0.12);"><i class="fas fa-user-check"></i></div>
                     </div>
                 </div>
             </div>
 
             <!-- Membresías vencidas SIN renovar -->
             <div class="col-md-3 col-sm-6">
-                <div class="card-stats card h-100 p-4">
+                <div class="card-stats card h-100 p-4 border-start border-4 border-secondary" onclick="location.href='/Membresias/Index?filtro=vencidas'">
                     <div class="d-flex justify-content-between">
                         <div>
                             <div class="stat-label">SIN RENOVAR (VENCIDOS)</div>
-                            <div class="stat-value" id="expiredNoRenewCount">0</div>
-                            <small class="text-danger"><i class="fas fa-hourglass-end me-1"></i>no han renovado</small>
+                            <div class="stat-value counter" id="expiredNoRenewCount">0</div>
+                            <small class="text-muted"><i class="fas fa-hourglass-end me-1"></i>no han renovado</small>
                         </div>
-                        <div class="stat-icon text-danger" style="background: rgba(220, 53, 69, 0.12);"><i class="fas fa-user-slash"></i></div>
+                        <div class="stat-icon text-secondary" style="background: rgba(108, 117, 125, 0.12);"><i class="fas fa-user-slash"></i></div>
                     </div>
                 </div>
             </div>
 
             <!-- Membresías Congeladas -->
             <div class="col-md-4 col-sm-6">
-                <div class="card-stats card h-100 p-4">
+                <div class="card-stats card h-100 p-4 border-start border-4 border-primary" onclick="location.href='/Membresias/Index?filtro=congeladas'">
                     <div class="d-flex justify-content-between">
                         <div>
                             <div class="stat-label">MEMBRESÍAS CONGELADAS</div>
-                            <div class="stat-value" id="frozenCount">0</div>
-                            <small class="text-primary"><i class="fas fa-snowflake me-1"></i>pausa temporal</small>
+                            <div class="stat-value counter" id="frozenCount">0</div>
+                            <small class="text-primary fw-medium"><i class="fas fa-snowflake me-1"></i>pausa temporal</small>
                         </div>
                         <div class="stat-icon text-primary" style="background: rgba(13, 110, 253, 0.12);"><i class="fas fa-ice-cream"></i></div>
                     </div>
@@ -100,12 +146,12 @@
 
             <!-- Por vencer en 7 días -->
             <div class="col-md-4 col-sm-6">
-                <div class="card-stats card h-100 p-4">
+                <div class="card-stats card h-100 p-4 border-start border-4 border-warning" onclick="location.href='/Membresias/Index?filtro=porVencer'">
                     <div class="d-flex justify-content-between">
                         <div>
                             <div class="stat-label">PRÓXIMO VENCIMIENTO (7d)</div>
-                            <div class="stat-value" id="expiringWeekCount">0</div>
-                            <small class="text-warning"><i class="fas fa-calendar-week me-1"></i>por vencer</small>
+                            <div class="stat-value counter" id="expiringWeekCount">0</div>
+                            <small class="text-warning fw-bold"><i class="fas fa-calendar-week me-1"></i>por vencer pronto</small>
                         </div>
                         <div class="stat-icon text-warning" style="background: rgba(255, 193, 7, 0.12);"><i class="fas fa-clock"></i></div>
                     </div>
@@ -114,12 +160,14 @@
 
             <!-- Usuarios con deudas pendientes -->
             <div class="col-md-4 col-sm-6">
-                <div class="card-stats card h-100 p-4">
+                <div class="card-stats card h-100 p-4 border-start border-4 border-danger" onclick="location.href='/Membresias/Index?filtro=deudores'">
                     <div class="d-flex justify-content-between">
                         <div>
                             <div class="stat-label">CON DEUDAS PENDIENTES</div>
-                            <div class="stat-value" id="debtUsersCount">0</div>
-                            <small class="text-danger"><i class="fas fa-coins me-1"></i>saldo adeudado total: <strong id="totalDebtAmount">$0</strong></small>
+                            <div class="stat-value counter" id="debtUsersCount">0</div>
+                            <small class="text-danger fw-bold" id="debtAlertText">
+                                <i class="fas fa-coins me-1"></i> Total adeudado: <strong id="totalDebtAmount">S/. 0.00</strong>
+                            </small>
                         </div>
                         <div class="stat-icon text-danger" style="background: rgba(220, 53, 69, 0.12);"><i class="fas fa-file-invoice-dollar"></i></div>
                     </div>
@@ -175,17 +223,44 @@
             cargarDatosFinancieros();
         });
 
+        function actualizarDashboard() {
+            const icon = $('#refreshIcon');
+            icon.addClass('fa-spin');
+            
+            cargarEstadisticas();
+            cargarDatosFinancieros();
+            
+            setTimeout(() => icon.removeClass('fa-spin'), 1000);
+        }
+
+        function animateCounter(id, target) {
+            $({ countNum: $(id).text() }).animate({ countNum: target }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function() {
+                    $(id).text(Math.floor(this.countNum));
+                },
+                complete: function() {
+                    $(id).text(this.countNum);
+                }
+            });
+        }
+
         function cargarEstadisticas() {
+            $('.stat-value').addClass('loading-shimmer text-transparent');
+
             $.ajax({
                 url: '/Reportes/ObtenerEstadisticasUsuarios',
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
-                    $('#newUsersCount').text(data.nuevosMiembrosMes);
-                    $('#expiredNoRenewCount').text(data.vencidosSinRenovar);
-                    $('#frozenCount').text(data.membresiasCongeladas);
-                    $('#expiringWeekCount').text(data.porVencer7Dias);
-                    $('#debtUsersCount').text(data.usuariosConDeuda);
+                    $('.stat-value').removeClass('loading-shimmer text-transparent');
+                    
+                    animateCounter('#newUsersCount', data.nuevosMiembrosMes);
+                    animateCounter('#expiredNoRenewCount', data.vencidosSinRenovar);
+                    animateCounter('#frozenCount', data.membresiasCongeladas);
+                    animateCounter('#expiringWeekCount', data.porVencer7Dias);
+                    animateCounter('#debtUsersCount', data.usuariosConDeuda);
                     
                     let montoFormatted = new Intl.NumberFormat('es-PE', { 
                         style: 'currency', 
@@ -193,9 +268,19 @@
                     }).format(data.montoTotalDeuda);
                     
                     $('#totalDebtAmount').text(montoFormatted);
+
+                    // Alerta visual si hay deudores
+                    if (data.usuariosConDeuda > 0) {
+                        $('#debtUsersCount').addClass('text-danger');
+                        $('#debtAlertText').addClass('bg-danger bg-opacity-10 rounded px-2 py-1 d-inline-block mt-1');
+                    } else {
+                        $('#debtUsersCount').removeClass('text-danger');
+                        $('#debtAlertText').removeClass('bg-danger bg-opacity-10 rounded px-2 py-1');
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al cargar estadísticas del dashboard:", error);
+                    $('.stat-value').removeClass('loading-shimmer text-transparent').text('!');
                 }
             });
         }

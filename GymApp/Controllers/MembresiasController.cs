@@ -25,7 +25,7 @@ namespace GymApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? buscar, int? mes, int? anio, int pagina = 1, int? userId = null)
+        public async Task<IActionResult> Index(string? buscar, int? mes, int? anio, int pagina = 1, int? userId = null, string? filtro = null)
         {
             if (!mes.HasValue || !anio.HasValue)
             {
@@ -33,12 +33,13 @@ namespace GymApp.Controllers
                 anio = DateTime.Now.Year;
             }
 
-            var result = await _membresiaService.ObtenerMembresiasPaginadasAsync(buscar, mes, anio, pagina);
+            var result = await _membresiaService.ObtenerMembresiasPaginadasAsync(buscar, mes, anio, pagina, filtro);
 
             ViewBag.Buscar = buscar;
             ViewBag.Mes = mes;
             ViewBag.Anio = anio;
             ViewBag.PreselectUserId = userId;
+            ViewBag.Filtro = filtro;
             
             return View(result);
         }
