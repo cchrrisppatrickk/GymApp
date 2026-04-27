@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using GymApp.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    public class ReportesController : Controller
+    public class ReportesController : BaseController
     {
         private readonly IReporteService _reporteService;
 
