@@ -1,4 +1,4 @@
-﻿namespace GymApp.ViewModels
+namespace GymApp.ViewModels
 {
     // Lo que recibimos del formulario JS
     public class MembresiaCreateDTO
@@ -8,5 +8,6 @@
         public int TurnoId { get; set; }
         public DateTime FechaInicio { get; set; }
         public decimal? PrecioAcordadoPersonalizado { get; set; }
+        public string? Observaciones { get; set; }
     }
 }

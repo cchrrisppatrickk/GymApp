@@ -1,4 +1,4 @@
-﻿using GymApp.Data;
+using GymApp.Data;
 using GymApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -117,14 +117,14 @@ namespace GymApp.Services
             var mesActual = hoyDt.Month;
             var anioActual = hoyDt.Year;
 
-            // 1. Nuevos Miembros del Mes
+            // 1. Nuevos Miembros del Mes (AsNoTracking)
             int nuevos = await _context.Usuarios
                 .AsNoTracking()
                 .CountAsync(u => u.FechaRegistro.HasValue && 
                                  u.FechaRegistro.Value.Month == mesActual && 
                                  u.FechaRegistro.Value.Year == anioActual);
 
-            // 2. Vencidos Sin Renovar
+            // 2. Vencidos Sin Renovar (AsNoTracking)
             // Buscamos usuarios que tienen alguna membresía vencida pero NINGUNA activa o futura
             var usuariosConMembresia = await _context.Membresias
                 .AsNoTracking()
@@ -139,31 +139,31 @@ namespace GymApp.Services
 
             int sinRenovar = usuariosConMembresia.Count(u => u.TieneVencida && !u.TieneActivaOFutura);
 
-            // 3. Por Vencer en 7 Días
+            // 3. Por Vencer en 7 Días (Solo Activas vigentes)
             int porVencer = await _context.Membresias
                 .AsNoTracking()
                 .CountAsync(m => m.Estado == "Activa" && 
                                  m.FechaVencimiento >= hoy && 
                                  m.FechaVencimiento <= finSemana);
 
-            // 4. Deudas
-            // Traemos membresías con su precio de plan y total pagado
+            // 4. Deudas (Criterio Real: Solo Activas o Pendientes de Pago)
             var deudasData = await _context.Membresias
                 .AsNoTracking()
+                .Where(m => m.Estado == "Activa" || m.Estado == "Pendiente Pago")
                 .Select(m => new
                 {
                     m.UserId,
-                    PrecioBase = m.Plan.PrecioBase,
-                    TotalPagado = m.PagosMembresia.Sum(p => p.Monto)
+                    PrecioCalculo = m.PrecioAcordado,
+                    TotalPagado = m.PagosMembresia.Where(p => !p.EsAnulado).Sum(p => p.Monto)
                 })
                 .ToListAsync();
 
             var listaDeudores = deudasData
-                .Select(d => new { d.UserId, Deuda = d.PrecioBase - d.TotalPagado })
+                .Select(d => new { d.UserId, Deuda = d.PrecioCalculo - d.TotalPagado })
                 .Where(x => x.Deuda > 0)
                 .ToList();
 
-            // 5. Membresías Congeladas
+            // 5. Membresías Congeladas (AsNoTracking)
             int congeladas = await _context.Membresias
                 .AsNoTracking()
                 .CountAsync(m => m.Estado == "Congelada");
@@ -184,11 +184,11 @@ namespace GymApp.Services
             var hoy = DateTime.Now;
             var result = new DashboardFinancialStatsDTO();
 
-            // 1. Mensual (Últimos 6 meses)
+            // 1. Mensual (Últimos 6 meses) - Excluyendo Pagos Anulados
             var hace6Meses = new DateTime(hoy.Year, hoy.Month, 1).AddMonths(-5);
             var pagosMensualesDb = await _context.PagosMembresia
                 .AsNoTracking()
-                .Where(p => p.FechaPago >= hace6Meses)
+                .Where(p => p.FechaPago >= hace6Meses && !p.EsAnulado)
                 .ToListAsync();
 
             var pagosAgrupadosMes = pagosMensualesDb
@@ -217,11 +217,11 @@ namespace GymApp.Services
             else
                 result.CrecimientoMensualPorcentaje = result.IngresoMesActual > 0 ? 100 : 0;
 
-            // 2. Semanal (Últimos 28 días)
+            // 2. Semanal (Últimos 28 días) - Excluyendo Pagos Anulados
             var hace28Dias = hoy.Date.AddDays(-28);
             var pagosSemanalesDb = await _context.PagosMembresia
                 .AsNoTracking()
-                .Where(p => p.FechaPago >= hace28Dias)
+                .Where(p => p.FechaPago >= hace28Dias && !p.EsAnulado)
                 .ToListAsync();
 
             var semanasLabels = new List<string>();

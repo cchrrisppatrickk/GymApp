@@ -59,6 +59,7 @@ dotnet restore
 
 # Detener y eliminar contenedores, redes y VOLÚMENES (esto borra la base de datos)
 docker compose down -v
+docker compose up --build
 
 # En Linux Fedora/KDE, esto borrará todas las fotos guardadas
 rm -rf ./gym_data/fotos_usuarios/*

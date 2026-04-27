@@ -76,7 +76,8 @@ namespace GymApp.Services
                 FechaInicio = nuevaFechaInicio,
                 FechaVencimiento = nuevaFechaFin,
                 PrecioAcordado = dto.PrecioAcordadoPersonalizado ?? plan.PrecioBase,
-                Estado = "Pendiente Pago"
+                Estado = "Pendiente Pago",
+                Observaciones = dto.Observaciones
             };
 
             await _membresiaRepo.InsertAsync(nuevaMembresia);
@@ -109,7 +110,8 @@ namespace GymApp.Services
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
                 TotalPagado = m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m,
                 DeudaPendiente = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m),
-                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m)
+                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m),
+                Observaciones = m.Observaciones
             });
 
             // Aplicar Filtros
@@ -168,7 +170,8 @@ namespace GymApp.Services
                 PermiteCongelar = m.Plan.PermiteCongelar ?? false,
                 TotalPagado = m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m,
                 DeudaPendiente = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m),
-                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m)
+                Deuda = m.PrecioAcordado - (m.PagosMembresia?.Where(p => !p.EsAnulado).Sum(p => p.Monto) ?? 0m),
+                Observaciones = m.Observaciones
             }).ToList();
 
             return new PagedResult<MembresiaListDTO>
@@ -225,6 +228,7 @@ namespace GymApp.Services
             membresia.TurnoId = dto.TurnoId;
             membresia.FechaInicio = DateOnly.FromDateTime(dto.FechaInicio);
             membresia.FechaVencimiento = DateOnly.FromDateTime(dto.FechaVencimiento);
+            membresia.Observaciones = dto.Observaciones;
 
             if (dto.PrecioAcordadoPersonalizado.HasValue)
             {

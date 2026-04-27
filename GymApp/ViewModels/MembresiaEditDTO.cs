@@ -10,5 +10,6 @@ namespace GymApp.ViewModels
         public DateTime FechaInicio { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public decimal? PrecioAcordadoPersonalizado { get; set; }
+        public string? Observaciones { get; set; }
     }
 }

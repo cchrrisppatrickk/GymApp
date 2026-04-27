@@ -18,5 +18,6 @@ namespace GymApp.ViewModels
         public decimal TotalPagado { get; set; }
         public decimal DeudaPendiente { get; set; }
         public decimal Deuda { get; set; } // Mantener por compatibilidad si es necesario, pero usaremos DeudaPendiente
+        public string? Observaciones { get; set; }
     }
 }
