@@ -1,4 +1,14 @@
+networks:
+  gym_net:
+    driver: bridge
+
+volumes:
+  sql_data:
+  n8n_data:
+  ollama_models:
+
 services:
+  # 1. Base de Datos
   sqldata:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: gym_sql_server
@@ -9,9 +19,12 @@ services:
       - MSSQL_PID=Developer
     ports:
       - "1433:1433"
+    networks:
+      - gym_net
     volumes:
       - sql_data:/var/opt/mssql
 
+  # 2. Aplicación .NET
   gymapp:
     build:
       context: .
@@ -21,13 +34,78 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
-      - ConnectionStrings__DefaultConnection=Server=sqldata,1433;Database=GymDB;User Id=sa;Password=PasswordSeguro123!;TrustServerCertificate=True;MultipleActiveResultSets=true
+      - ConnectionStrings__DefaultConnection=Server=gym_sql_server,1433;Database=GymDB;User Id=sa;Password=PasswordSeguro123!;TrustServerCertificate=True;MultipleActiveResultSets=true
     ports:
       - "5000:8080"
+    networks:
+      - gym_net
     depends_on:
       - sqldata
     volumes:
       - ./gym_data/fotos_usuarios:/app/wwwroot/uploads/fotos
 
-volumes:
-  sql_data:
+  # 3. Modelo de IA Local (Ollama)
+  ollama:
+    image: ollama/ollama
+    container_name: gym_ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    networks:
+      - gym_net
+    volumes:
+      - ollama_models:/root/.ollama
+    # -------------------------------------------------------------
+    # 🚀 ACTIVACIÓN DE GPU (NVIDIA)
+    # Cuando pases el proyecto a tu equipo con la RTX 5050, asegúrate
+    # de tener instalado el NVIDIA Container Toolkit y descomenta 
+    # este bloque 'deploy' completo:
+    # -------------------------------------------------------------
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    # -------------------------------------------------------------
+
+    # 4. Orquestador y Automatización (n8n)
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: gym_n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - WEBHOOK_URL=${WEBHOOK_URL:-}
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    networks:
+      - gym_net
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - gymapp
+      - ollama
+
+  # 5. Túnel Público (Solo para Webhooks de Telegram/WhatsApp)
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: gym_ngrok
+    restart: always
+    command:
+      - "http"
+      - "gym_n8n:5678"
+      - "--url=${NGROK_URL:-}"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+    networks:
+      - gym_net
+    depends_on:
+      - n8n
