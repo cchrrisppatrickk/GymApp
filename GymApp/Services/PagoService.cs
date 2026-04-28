@@ -41,20 +41,28 @@ namespace GymApp.Services
                 if (membresia.Plan == null) continue;
 
                 decimal precioAcordado = membresia.PrecioAcordado;
-                decimal yaPagado = await _pagoRepo.GetTotalPagadoAsync(membresia.MembresiaId);
+                // Usamos la relación ya cargada para evitar N+1 queries
+                decimal yaPagado = membresia.PagosMembresia != null 
+                    ? membresia.PagosMembresia.Where(p => !p.EsAnulado).Sum(p => p.Monto)
+                    : 0;
+                
                 decimal deuda = precioAcordado - yaPagado;
 
-                resultados.Add(new DeudaInfoDTO
+                // Solo mostramos membresías que tengan deuda pendiente (> 0)
+                if (deuda > 0)
                 {
-                    MembresiaId = membresia.MembresiaId,
-                    NombreCliente = membresia.User.NombreCompleto,
-                    DniCliente = membresia.User.Dni,
-                    NombrePlan = membresia.Plan.Nombre,
-                    Estado = membresia.FechaVencimiento < DateOnly.FromDateTime(DateTime.Now) && membresia.Estado != "Pendiente Pago" ? "Vencida" : membresia.Estado,
-                    PrecioTotal = precioAcordado,
-                    TotalPagado = yaPagado,
-                    DeudaPendiente = deuda > 0 ? deuda : 0
-                });
+                    resultados.Add(new DeudaInfoDTO
+                    {
+                        MembresiaId = membresia.MembresiaId,
+                        NombreCliente = membresia.User.NombreCompleto,
+                        DniCliente = membresia.User.Dni,
+                        NombrePlan = membresia.Plan.Nombre,
+                        Estado = membresia.FechaVencimiento < DateOnly.FromDateTime(DateTime.Now) && membresia.Estado != "Pendiente Pago" ? "Vencida" : membresia.Estado,
+                        PrecioTotal = precioAcordado,
+                        TotalPagado = yaPagado,
+                        DeudaPendiente = deuda
+                    });
+                }
             }
 
             return resultados;
