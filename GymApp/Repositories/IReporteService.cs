@@ -1,4 +1,4 @@
-﻿using GymApp.ViewModels;
+using GymApp.ViewModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,5 +10,6 @@ namespace GymApp.Services
         Task<List<ReporteMembresiaDTO>> ObtenerReporteMembresiasAsync(int mes, int anio);
         Task<DashboardUserStatsDTO> ObtenerEstadisticasUsuariosAsync();
         Task<DashboardFinancialStatsDTO> ObtenerEstadisticasFinancierasAsync();
+        Task<List<PagoRecienteDTO>> ObtenerPagosRecientesAsync(int cantidad = 7);
     }
 }

@@ -36,6 +36,13 @@ namespace GymApp.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ObtenerPagosRecientes()
+        {
+            var pagos = await _reporteService.ObtenerPagosRecientesAsync();
+            return Json(pagos);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ObtenerIngresos(int mes, int anio)
         {
             var data = await _reporteService.ObtenerReporteMensualAsync(mes, anio);

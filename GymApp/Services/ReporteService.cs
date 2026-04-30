@@ -251,5 +251,28 @@ namespace GymApp.Services
 
             return result;
         }
+
+        public async Task<List<PagoRecienteDTO>> ObtenerPagosRecientesAsync(int cantidad = 7)
+        {
+            var pagos = await _context.PagosMembresia
+                .Include(p => p.Membresia)
+                    .ThenInclude(m => m.User)
+                .Include(p => p.Membresia)
+                    .ThenInclude(m => m.Plan)
+                .OrderByDescending(p => p.FechaPago)
+                .Take(cantidad)
+                .Select(p => new PagoRecienteDTO
+                {
+                    NombreCliente = p.Membresia.User.NombreCompleto,
+                    NombrePlan = p.Membresia.Plan.Nombre,
+                    Monto = p.Monto,
+                    FechaPago = p.FechaPago.Value,
+                    MetodoPago = p.MetodoPago
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            return pagos;
+        }
     }
 }
