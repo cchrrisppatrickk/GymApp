@@ -80,10 +80,17 @@
             background-size: 800px 104px;
         }
 
-        @@keyframes shimmer {
+        @keyframes shimmer {
             0% { background-position: -468px 0; }
             100% { background-position: 468px 0; }
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .text-transparent { color: transparent !important; }
     </style>
 }
 
@@ -210,6 +217,35 @@
                     </div>
                 </div>
             </div>
+    </div>
+
+    <!-- ================= SECCIÓN PAGOS RECIENTES ================= -->
+    <div class="mb-4 mt-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-history fa-xl text-info"></i>
+                <h3 class="fw-semibold m-0">Pagos Recientes</h3>
+                <span class="badge bg-info bg-opacity-25 text-dark">Últimos 7 movimientos</span>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 text-uppercase small fw-bold text-muted">Cliente</th>
+                            <th class="text-uppercase small fw-bold text-muted">Plan / Membresía</th>
+                            <th class="text-uppercase small fw-bold text-muted">Monto</th>
+                            <th class="text-uppercase small fw-bold text-muted">Fecha</th>
+                            <th class="text-end pe-4 text-uppercase small fw-bold text-muted">Método</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentPaymentsTable">
+                        <!-- Carga dinámica por AJAX -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -221,6 +257,7 @@
             cargarEstadisticas();
             inicializarGraficos();
             cargarDatosFinancieros();
+            cargarPagosRecientes();
         });
 
         function actualizarDashboard() {
@@ -229,6 +266,7 @@
             
             cargarEstadisticas();
             cargarDatosFinancieros();
+            cargarPagosRecientes();
             
             setTimeout(() => icon.removeClass('fa-spin'), 1000);
         }
@@ -396,6 +434,87 @@
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al cargar estadísticas financieras:", error);
+                }
+            });
+        }
+
+        function cargarPagosRecientes() {
+            const tbody = $('#recentPaymentsTable');
+            
+            // Efecto Shimmer inicial (Skeleton)
+            const skeleton = Array(7).fill(`
+                <tr>
+                    <td class="ps-4"><div class="loading-shimmer py-2 rounded w-75"></div></td>
+                    <td><div class="loading-shimmer py-2 rounded w-50"></div></td>
+                    <td><div class="loading-shimmer py-2 rounded w-25"></div></td>
+                    <td><div class="loading-shimmer py-2 rounded w-50"></div></td>
+                    <td class="text-end pe-4"><div class="loading-shimmer py-2 rounded w-25 ms-auto"></div></td>
+                </tr>
+            `).join('');
+            
+            tbody.html(skeleton);
+
+            $.ajax({
+                url: '/Reportes/ObtenerPagosRecientes',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    tbody.empty();
+                    
+                    if (!data || data.length === 0) {
+                        tbody.append('<tr><td colspan="5" class="text-center py-5 text-muted">No se encontraron pagos recientes</td></tr>');
+                        return;
+                    }
+
+                    const currencyFormat = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+                    const today = new Date().toLocaleDateString();
+
+                    data.forEach((pago, index) => {
+                        const fecha = new Date(pago.fechaPago);
+                        const esHoy = fecha.toLocaleDateString() === today;
+                        const badgeHoy = esHoy ? '<span class="badge bg-success ms-2 animate__animated animate__pulse animate__infinite" style="font-size: 0.65rem;">HOY</span>' : '';
+                        
+                        const row = `
+                            <tr style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.08}s; opacity: 0;">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                                             style="width: 35px; height: 35px; font-size: 0.85rem; border: 1px solid rgba(13, 110, 253, 0.1);">
+                                            ${pago.nombreCliente.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">${pago.nombreCliente}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="badge bg-light text-dark fw-normal border">${pago.nombrePlan}</div>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-success">${currencyFormat.format(pago.monto)}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center text-muted small">
+                                        <i class="far fa-calendar-alt me-2 text-info"></i>
+                                        ${fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        ${badgeHoy}
+                                    </div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <span class="badge rounded-pill ${pago.metodoPago === 'Efectivo' ? 'bg-secondary' : 'bg-primary'} bg-opacity-10 text-dark border border-opacity-10" 
+                                          style="font-weight: 500; font-size: 0.75rem;">
+                                        <i class="fas ${pago.metodoPago === 'Efectivo' ? 'fa-money-bill-wave' : 'fa-mobile-alt'} me-1 opacity-50"></i>
+                                        ${pago.metodoPago}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al cargar pagos recientes:", error);
+                    tbody.html('<tr><td colspan="5" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error al conectar con el servidor</td></tr>');
                 }
             });
         }
