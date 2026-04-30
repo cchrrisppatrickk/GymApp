@@ -173,8 +173,8 @@
                                 <input type="text" class="form-control" id="NombreCompleto" required />
                             </div>
                             <div class="mb-3">
-                                <label for="Dni" class="form-label">DNI / Identificación</label>
-                                <input type="text" class="form-control" id="Dni" required />
+                                <label for="Dni" class="form-label">DNI / Identificación (Opcional)</label>
+                                <input type="text" class="form-control" id="Dni" />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Foto de Perfil</label>
@@ -192,11 +192,7 @@
                                 <label for="Telefono" class="form-label">Teléfono</label>
                                 <input type="text" class="form-control" id="Telefono" />
                             </div>
-                            <div class="mb-3">
-                                <label for="Password" class="form-label" id="lblPassword">Contraseña</label>
-                                <input type="password" class="form-control" id="Password" placeholder="Solo llenar si desea cambiarla" />
-                                <small class="text-muted" id="helpPassword">Obligatorio para nuevos usuarios.</small>
-                            </div>
+
                             <div class="form-check form-switch mt-4">
                                 <input class="form-check-input" type="checkbox" id="Estado" checked>
                                 <label class="form-check-label" for="Estado">Usuario Activo</label>
@@ -248,10 +244,6 @@
             document.getElementById('formUsuario').reset();
             document.getElementById('UserId').value = "0";
 
-            // UI para password
-            document.getElementById('Password').setAttribute('required', 'required');
-            document.getElementById('helpPassword').innerText = "Obligatorio para crear el usuario.";
-
             modalUsuario.show();
         }
 
@@ -275,10 +267,7 @@
                         // CORRECCIÓN: Para Checkbox se usa .checked, no .value
                         document.getElementById('Estado').checked = d.estado;
 
-                        // UI para password (opcional en edit)
-                        document.getElementById('Password').value = "";
-                        document.getElementById('Password').removeAttribute('required');
-                        document.getElementById('helpPassword').innerText = "Dejar en blanco para mantener la actual.";
+                        modalUsuario.show();
 
                         // Lógica para mostrar nombre de usuario si es diferente al DNI (Opcional)
                         // document.getElementById('txtUsuarioManual').value = d.nombreUsuario;
@@ -308,8 +297,7 @@
             formData.append("Telefono", document.getElementById("Telefono").value);
             formData.append("Estado", document.getElementById("Estado").checked);
             
-            var password = document.getElementById("Password").value;
-            if(password) formData.append("Password", password);
+
 
             var foto = document.getElementById("FotoArchivo").files[0];
             if(foto) formData.append("FotoArchivo", foto);

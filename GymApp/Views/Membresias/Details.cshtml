@@ -194,7 +194,6 @@
                                     <th class="ps-4">Fecha y Hora de Operación</th>
                                     <th>Monto Recibido</th>
                                     <th>Método de Pago</th>
-                                    @if (User.IsInRole("Admin")) { <th class="text-center">Acciones Críticas</th> }
                                 </tr>
                             </thead>
                             <tbody>
@@ -213,29 +212,13 @@
                                             </td>
                                             <td class="fw-bold @(pago.EsAnulado ? "text-decoration-line-through" : "text-success") font-monospace">@pago.Monto.ToString("C")</td>
                                             <td><span class="badge bg-white text-dark border px-2">@pago.MetodoPago</span></td>
-                                            @if (User.IsInRole("Admin"))
-                                            {
-                                                <td class="text-center">
-                                                    @if (!pago.EsAnulado)
-                                                    {
-                                                        <div class="btn-group">
-                                                            <button class="btn btn-sm btn-outline-warning" title="Editar Pago"><i class="bi bi-pencil"></i></button>
-                                                            <button class="btn btn-sm btn-outline-danger" title="Anular Pago"><i class="bi bi-trash"></i></button>
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-light text-muted border">Sin acciones</span>
-                                                    }
-                                                </td>
-                                            }
                                         </tr>
                                     }
                                 }
                                 else
                                 {
                                     <tr>
-                                        <td colspan="@(User.IsInRole("Admin") ? 4 : 3)" class="text-center py-5">
+                                        <td colspan="3" class="text-center py-5">
                                             <i class="bi bi-cash-stack text-muted opacity-25 display-4 d-block mb-3"></i>
                                             <p class="text-muted">No se registran pagos para este período.</p>
                                         </td>

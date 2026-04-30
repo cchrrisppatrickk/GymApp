@@ -152,7 +152,6 @@
                                     <td><small>@p.NombreEmpleado</small></td>
                                     <td class="text-end"><span class="fw-bold text-dark h6">$ @p.Monto.ToString("F2")</span></td>
                                     <td class="text-center">
-                                        <a href="/Pagos/Comprobante/@p.PagoId" target="_blank" class="btn btn-sm btn-light border"><i class="bi bi-printer"></i></a>
                                         @if (!p.EsAnulado)
                                         {
                                             <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">

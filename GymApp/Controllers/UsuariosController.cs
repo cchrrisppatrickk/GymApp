@@ -125,7 +125,7 @@ namespace GymApp.Controllers
                     string passwordFinal = string.IsNullOrEmpty(model.Password) ? model.Dni : model.Password;
 
                     await _usuarioService.CrearUsuarioAsync(nuevoUsuario, passwordFinal, model.FotoArchivo);
-                    return Json(new { success = true, message = "Usuario creado. Acceso con DNI." });
+                    return Json(new { success = true, message = "Usuario creado exitosamente." });
                 }
                 // --- EDITAR ---
                 else

@@ -66,3 +66,14 @@ rm -rf ./gym_data/fotos_usuarios/*
 
 # Construir y levantar todo de nuevo
 docker compose up --build
+docker compose up -d --build
+
+
+
+#Para descargar y ejecutar el modelo dentro del contenedor de Ollama, usa este comando en tu terminal:
+docker exec -it gym_ollama ollama run llama3.2:1b
+
+4. Acceder a tus servicios
+- Tu GymApp (.NET): http://localhost:5000
+- Tu orquestador (n8n): http://localhost:5678
+- Ollama (API interna): No tiene interfaz gráfica por defecto, pero n8n se conectará a él usando la URL interna http://gym_ollama:11434

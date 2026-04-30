@@ -43,7 +43,7 @@
                 
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                        <i class="bi bi-card-text text-muted me-2"></i> <strong>DNI:</strong> @Model.Dni
+                        <i class="bi bi-card-text text-muted me-2"></i> <strong>DNI:</strong> @(Model.Dni ?? "No registrado")
                     </li>
                     <li class="list-group-item">
                         <i class="bi bi-telephone text-muted me-2"></i> <strong>Teléfono:</strong> @(Model.Telefono ?? "No registrado")

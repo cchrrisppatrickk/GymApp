@@ -87,27 +87,33 @@ namespace GymApp.Services
             // --- NUEVO: GUARDAR FOTO ---
             if (fotoArchivo != null)
             {
-                usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoArchivo, usuario.Dni);
+                // Usamos el DNI si existe, si no, el NombreUsuario (que se generará abajo si es nulo), 
+                // pero necesitamos el identificador ya. Vamos a mover la lógica de indentificador arriba.
+                string identifier = !string.IsNullOrWhiteSpace(usuario.Dni) ? usuario.Dni : (!string.IsNullOrWhiteSpace(usuario.NombreUsuario) ? usuario.NombreUsuario : "user_" + Guid.NewGuid().ToString().Substring(0, 8));
+                usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoArchivo, identifier);
             }
 
-            // 1. Validar DNI único (Se mantiene igual)
-            if (await _usuarioRepository.ExisteDniAsync(usuario.Dni))
+            // 1. Validar DNI único (Solo si se proporcionó)
+            if (!string.IsNullOrWhiteSpace(usuario.Dni) && await _usuarioRepository.ExisteDniAsync(usuario.Dni))
                 throw new Exception("El DNI ya está registrado.");
 
-            // --- LÓGICA DE AUTO-COMPLETADO (NUEVO) ---
+            // --- LÓGICA DE AUTO-COMPLETADO ---
 
-            // A. Si no enviaron Nombre de Usuario, usamos el DNI
+            // A. Si no enviaron Nombre de Usuario, usamos el DNI o generamos uno
             if (string.IsNullOrWhiteSpace(usuario.NombreUsuario))
             {
-                usuario.NombreUsuario = usuario.Dni;
+                usuario.NombreUsuario = !string.IsNullOrWhiteSpace(usuario.Dni) 
+                                        ? usuario.Dni 
+                                        : "u_" + Guid.NewGuid().ToString().Substring(0, 8);
             }
 
-            // B. Si no enviaron Password (registro rápido), usamos el DNI como contraseña
+            // B. Si no enviaron Password, usamos el DNI o el NombreUsuario
             string passwordFinal = passwordRaw;
             if (string.IsNullOrWhiteSpace(passwordFinal))
             {
-                passwordFinal = usuario.Dni;
-                // Opcional: Podrías usar una constante como "Gym2025!" si prefieres.
+                passwordFinal = !string.IsNullOrWhiteSpace(usuario.Dni) 
+                                ? usuario.Dni 
+                                : usuario.NombreUsuario;
             }
             // ------------------------------------------
 
