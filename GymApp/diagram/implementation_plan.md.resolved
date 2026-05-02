@@ -1,0 +1,23 @@
+# Inicialización del Proyecto NestJS y Git (Fase 1.1)
+
+Este plan detalla los pasos para crear el backend con NestJS, asegurar la estructura de monorepo y realizar el primer push al repositorio remoto.
+
+## Cambios Propuestos
+
+### Backend (NestJS)
+#### [NEW] [backend](file:///home/patricklinux/Dev/Antigravity/Gym-App/backend)
+- Inicialización del proyecto usando `@nestjs/cli`.
+- Configuración de TypeScript en modo estricto (`"strict": true`).
+- Eliminación de la carpeta `.git` interna para mantener la integridad del monorepo.
+
+### Git
+- Inicialización en la raíz del workspace.
+- Configuración del remoto `https://github.com/cchrrisppatrickk/gym-app-v2.git`.
+- Primer commit y push a la rama `main`.
+
+## Plan de Verificación
+
+### Pruebas Automatizadas
+- Verificación de la estructura de carpetas.
+- Comprobación de que `tsconfig.json` tenga `"strict": true`.
+- Verificación del estado de Git y remoto.

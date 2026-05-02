@@ -1,0 +1,298 @@
+@startuml GymApp_Services_Layer
+title Capa de Servicios - GymApp
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FAFAFA
+skinparam class {
+    BackgroundColor White
+    BorderColor #555
+    ArrowColor #333
+    FontName Arial
+}
+skinparam interface {
+    BackgroundColor #EEF5FF
+    BorderColor #3366CC
+    FontName Arial
+}
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+}
+
+' ─────────────────────────────────────
+'  INTERFACES
+' ─────────────────────────────────────
+
+interface ICongelamientoService {
+    + CongelarAsync(dto)
+    + ListarHistorialAsync(membresiaId)
+    + DescongelarManualAsync(membresiaId)
+}
+
+interface IMembresiaService {
+    + ListarMembresiasAsync(filtro)
+    + CrearMembresiaAsync(dto)
+    + BuscarClientesAsync(termino)
+    + ObtenerDetallesAsync(id)
+    + ObtenerPropuestaRenovacionAsync(membresiaId)
+    + VerificarTurnoExistente(userId, turnoId)
+    + CongelarMembresiaAsync(membresiaId, empleadoId, fechaFin, motivo)
+    + TieneMembresiaActivaAsync(userId)
+    + TieneRenovacionProgramadaAsync(userId)
+    + EditarMembresiaAsync(dto)
+    + ObtenerMembresiasPaginadasAsync(buscar, mes, anio, pagina, filtro, tamanoPagina)
+    + ObtenerActivaParaAgenteAsync(userId)
+    + ObtenerHistorialParaAgenteAsync(userId)
+    + ObtenerAlertasParaAgenteAsync(diasPorVencer)
+    + EliminarMembresiaFisicamenteAsync(membresiaId)
+}
+
+interface IPagoService {
+    + ListarPagosAsync()
+    + ObtenerPagosPaginadosAsync(buscar, mes, anio, pagina, tamanoPagina)
+    + RegistrarPagoAsync(dto, empleadoId)
+    + ActualizarPagoAsync(dto, empleadoId)
+    + AnularPagoAsync(id, motivoAnulacion, empleadoId)
+    + BuscarDeudaClienteAsync(termino)
+    + ObtenerDeudaTotalParaAgenteAsync(userId)
+    + ObtenerHistorialUsuarioParaAgenteAsync(userId)
+    + ObtenerPagosPorRangoParaAgenteAsync(inicio, fin)
+}
+
+interface IPlaneService {
+    + ObtenerTodosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearPlanAsync(plan)
+    + ActualizarPlanAsync(plan)
+    + EliminarPlanAsync(id)
+}
+
+interface IProductoService {
+    + ListarProductosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearProductoAsync(producto)
+    + ActualizarProductoAsync(producto)
+    + EliminarProductoAsync(id)
+}
+
+interface IRoleService {
+    + ObtenerTodosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearRolAsync(role)
+    + ActualizarRolAsync(role)
+    + EliminarRolAsync(id) : Task<bool>
+}
+
+interface IReporteService {
+    + ObtenerReporteMensualAsync(mes, anio)
+    + ObtenerReporteMembresiasAsync(mes, anio)
+    + ObtenerEstadisticasUsuariosAsync()
+    + ObtenerEstadisticasFinancierasAsync()
+    + ObtenerPagosRecientesAsync(cantidad)
+}
+
+interface ITurnoService {
+    + ObtenerTodosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearTurnoAsync(turno)
+    + ActualizarTurnoAsync(turno)
+    + EliminarTurnoAsync(id)
+}
+
+interface IUsuarioService {
+    + ObtenerUsuariosPaginadosAsync(buscar, pagina, mes, anio, tamanoPagina)
+    + ObtenerTodosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearUsuarioAsync(usuario, passwordRaw, fotoArchivo)
+    + ActualizarUsuarioAsync(usuario, fotoArchivo)
+    + EliminarUsuarioAsync(id) : Task<bool>
+    + ValidarLoginAsync(dni, password)
+    + GenerarImagenQR(codigoQR)
+    + BuscarParaAgenteAsync(termino)
+    + ObtenerRecientesParaAgenteAsync(dias)
+    + ObtenerPorFechaExactaParaAgenteAsync(fecha)
+}
+
+interface IVentaService {
+    + RegistrarVentaAsync(dto, empleadoId)
+    + HistorialVentasAsync()
+}
+
+' ─────────────────────────────────────
+'  IMPLEMENTACIONES
+' ─────────────────────────────────────
+
+class CongelamientoService {
+    - _congelamientoRepo : ICongelamientoRepository
+    - _membresiaRepo : IMembresiaRepository
+    --
+    + CongelarAsync(dto)
+    + ListarHistorialAsync(membresiaId)
+    + DescongelarManualAsync(membresiaId)
+}
+
+class MembresiaService {
+    - _membresiaRepo : IMembresiaRepository
+    - _planRepo : IPlaneRepository
+    - _turnoRepo : ITurnoRepository
+    - _usuarioRepo : IGenericRepository<Usuario>
+    - _congelamientoRepo : IGenericRepository<Congelamiento>
+    - _context : GymDbContext
+    --
+    + CrearMembresiaAsync(dto)
+    + ListarMembresiasAsync(filtro)
+    + ObtenerMembresiasPaginadasAsync(buscar, mes, anio, pagina, filtro, tamanoPagina)
+    + ObtenerDetallesAsync(id)
+    + BuscarClientesAsync(termino)
+    + VerificarTurnoExistente(userId, nuevoTurnoId)
+    + EditarMembresiaAsync(dto)
+    + ObtenerPropuestaRenovacionAsync(membresiaId)
+    + CongelarMembresiaAsync(membresiaId, empleadoId, fechaFin, motivo)
+    + TieneMembresiaActivaAsync(userId)
+    + TieneRenovacionProgramadaAsync(userId)
+    + ObtenerActivaParaAgenteAsync(userId)
+    + ObtenerHistorialParaAgenteAsync(userId)
+    + ObtenerAlertasParaAgenteAsync(diasPorVencer)
+    + EliminarMembresiaFisicamenteAsync(membresiaId)
+}
+
+class PagoService {
+    - _pagoRepo : IPagoRepository
+    - _membresiaRepo : IMembresiaRepository
+    - _usuarioRepo : IUsuarioRepository
+    - _context : GymDbContext
+    --
+    + BuscarDeudaClienteAsync(termino)
+    + RegistrarPagoAsync(dto, empleadoId)
+    + ActualizarPagoAsync(dto, empleadoId)
+    + AnularPagoAsync(id, motivoAnulacion, empleadoId)
+    + ListarPagosAsync()
+    + ObtenerPagosPaginadosAsync(buscar, mes, anio, pagina, tamanoPagina)
+    + ObtenerDeudaTotalParaAgenteAsync(userId)
+    + ObtenerHistorialUsuarioParaAgenteAsync(userId)
+    + ObtenerPagosPorRangoParaAgenteAsync(inicio, fin)
+}
+
+class PlaneService {
+    - _planeRepository : IPlaneRepository
+    --
+    + ObtenerTodosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearPlanAsync(plan)
+    + ActualizarPlanAsync(plan)
+    + EliminarPlanAsync(id)
+    - ValidarPlan(plan)
+}
+
+class ProductoService {
+    - _productoRepo : IProductoRepository
+    --
+    + ListarProductosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearProductoAsync(producto)
+    + ActualizarProductoAsync(producto)
+    + EliminarProductoAsync(id)
+    - ValidarProducto(p)
+}
+
+class RoleService {
+    - _roleRepository : IRoleRepository
+    --
+    + ObtenerTodosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearRolAsync(role)
+    + ActualizarRolAsync(role)
+    + EliminarRolAsync(id) : Task<bool>
+}
+
+class ReporteService {
+    - _context : GymDbContext
+    --
+    + ObtenerReporteMensualAsync(mes, anio)
+    + ObtenerReporteMembresiasAsync(mes, anio)
+    + ObtenerEstadisticasUsuariosAsync()
+    + ObtenerEstadisticasFinancierasAsync()
+    + ObtenerPagosRecientesAsync(cantidad)
+}
+
+class TurnoService {
+    - _turnoRepository : ITurnoRepository
+    --
+    + ObtenerTodosAsync()
+    + ObtenerPorIdAsync(id)
+    + CrearTurnoAsync(turno)
+    + ActualizarTurnoAsync(turno)
+    + EliminarTurnoAsync(id)
+}
+
+class UsuarioService {
+    - _usuarioRepository : IUsuarioRepository
+    - _env : IWebHostEnvironment
+    - _context : GymDbContext
+    --
+    + ObtenerTodosAsync()
+    + ObtenerUsuariosPaginadosAsync(buscar, pagina, mes, anio, tamanoPagina)
+    + ObtenerPorIdAsync(id)
+    + CrearUsuarioAsync(usuario, passwordRaw, fotoArchivo)
+    + ActualizarUsuarioAsync(usuario, fotoArchivo)
+    + EliminarUsuarioAsync(id) : Task<bool>
+    + ValidarLoginAsync(inputLogin, password)
+    + GenerarImagenQR(codigoQR)
+    + BuscarParaAgenteAsync(termino)
+    + ObtenerRecientesParaAgenteAsync(dias)
+    + ObtenerPorFechaExactaParaAgenteAsync(fecha)
+    - ProcesarFotoPerfilAsync(fotoArchivo, dniUsuario)
+}
+
+class VentaService {
+    - _ventaRepo : IVentaRepository
+    - _productoRepo : IProductoRepository
+    - _detalleRepo : IGenericRepository<VentasDetalle>
+    --
+    + RegistrarVentaAsync(dto, empleadoId)
+    + HistorialVentasAsync()
+}
+
+' ─────────────────────────────────────
+'  RELACIONES DE IMPLEMENTACIÓN
+' ─────────────────────────────────────
+
+CongelamientoService  ..|> ICongelamientoService
+MembresiaService      ..|> IMembresiaService
+PagoService           ..|> IPagoService
+PlaneService          ..|> IPlaneService
+ProductoService       ..|> IProductoService
+RoleService           ..|> IRoleService
+ReporteService        ..|> IReporteService
+TurnoService          ..|> ITurnoService
+UsuarioService        ..|> IUsuarioService
+VentaService          ..|> IVentaService
+
+' ─────────────────────────────────────
+'  DEPENDENCIAS ENTRE SERVICIOS
+'  (uso de repositorios compartidos)
+' ─────────────────────────────────────
+
+note bottom of MembresiaService
+  Usa: IMembresiaRepository,
+  IPlaneRepository, ITurnoRepository,
+  IGenericRepository<Usuario>,
+  IGenericRepository<Congelamiento>,
+  GymDbContext
+end note
+
+note bottom of PagoService
+  Usa: IPagoRepository,
+  IMembresiaRepository,
+  IUsuarioRepository,
+  GymDbContext
+end note
+
+note bottom of VentaService
+  Usa: IVentaRepository,
+  IProductoRepository,
+  IGenericRepository<VentasDetalle>
+end note
+
+@enduml
+

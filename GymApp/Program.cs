@@ -90,11 +90,13 @@ app.UseAuthorization();
 //    name: "default",
 //    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Rutas
+// Rutas convencionales (MVC)
 app.MapControllerRoute(
     name: "default",
-    // Cambiamos el default para que vaya a la Presentación o Login
     pattern: "{controller=Auth}/{action=Login}/{id?}");
+
+// Rutas de Atributos (Web API)
+app.MapControllers();
 
 app.Run();
 

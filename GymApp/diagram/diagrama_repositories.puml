@@ -1,0 +1,217 @@
+@startuml GymApp_Repositories_Layer
+title Capa de Repositorios - GymApp
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FAFAFA
+skinparam class {
+    BackgroundColor White
+    BorderColor #555
+    ArrowColor #333
+    FontName Arial
+}
+skinparam interface {
+    BackgroundColor #EEF5FF
+    BorderColor #3366CC
+    FontName Arial
+}
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+}
+
+' ─────────────────────────────────────────────
+'  CONTEXTO DE BASE DE DATOS (referencia)
+' ─────────────────────────────────────────────
+
+class GymDbContext <<DbContext>> {
+}
+
+' ─────────────────────────────────────────────
+'  GENERIC REPOSITORY (BASE)
+' ─────────────────────────────────────────────
+
+interface "IGenericRepository<T>" as IGenericRepository {
+    + GetAllAsync() : Task<IEnumerable<T>>
+    + GetByIdAsync(id : object) : Task<T>
+    + InsertAsync(entity : T) : Task
+    + UpdateAsync(entity : T) : Task
+    + DeleteAsync(id : object) : Task
+    + SaveAsync() : Task
+}
+
+class "GenericRepository<T>" as GenericRepository {
+    - _context : GymDbContext
+    - _table : DbSet<T>
+    --
+    + GetAllAsync() : Task<IEnumerable<T>>
+    + GetByIdAsync(id : object) : Task<T>
+    + InsertAsync(entity : T) : Task
+    + UpdateAsync(entity : T) : Task
+    + DeleteAsync(id : object) : Task
+    + SaveAsync() : Task
+}
+
+GenericRepository ..|> IGenericRepository
+GenericRepository --> GymDbContext : usa
+
+' ─────────────────────────────────────────────
+'  CONGELAMIENTO
+' ─────────────────────────────────────────────
+
+interface ICongelamientoRepository {
+    + GetHistorialPorMembresiaAsync(membresiaId : int) : Task<IEnumerable<Congelamiento>>
+    + GetCongelamientoActivoAsync(membresiaId : int) : Task<Congelamiento?>
+}
+
+class CongelamientoRepository {
+    - _context : GymDbContext
+    --
+    + GetHistorialPorMembresiaAsync(membresiaId : int) : Task<IEnumerable<Congelamiento>>
+    + GetCongelamientoActivoAsync(membresiaId : int) : Task<Congelamiento?>
+}
+
+ICongelamientoRepository --|> IGenericRepository
+CongelamientoRepository ..|> ICongelamientoRepository
+CongelamientoRepository --|> GenericRepository
+CongelamientoRepository --> GymDbContext : usa
+
+' ─────────────────────────────────────────────
+'  MEMBRESIA
+' ─────────────────────────────────────────────
+
+interface IMembresiaRepository {
+    + ObtenerTodasConDetallesAsync() : Task<IEnumerable<Membresia>>
+    + ObtenerPorIdConDetallesAsync(id : int) : Task<Membresia?>
+    + GetLastActiveMembresiaByUserIdAsync(userId : int) : Task<Membresia?>
+}
+
+class MembresiaRepository {
+    - _context : GymDbContext
+    --
+    + ObtenerTodasConDetallesAsync() : Task<IEnumerable<Membresia>>
+    + ObtenerPorIdConDetallesAsync(id : int) : Task<Membresia?>
+    + GetLastActiveMembresiaByUserIdAsync(userId : int) : Task<Membresia?>
+}
+
+IMembresiaRepository --|> IGenericRepository
+MembresiaRepository ..|> IMembresiaRepository
+MembresiaRepository --|> GenericRepository
+MembresiaRepository --> GymDbContext : usa
+
+' ─────────────────────────────────────────────
+'  PAGO
+' ─────────────────────────────────────────────
+
+interface IPagoRepository {
+    + ObtenerHistorialCompletoAsync() : Task<IEnumerable<PagosMembresium>>
+    + GetTotalPagadoAsync(membresiaId : int) : Task<decimal>
+}
+
+class PagoRepository {
+    - _context : GymDbContext
+    --
+    + ObtenerHistorialCompletoAsync() : Task<IEnumerable<PagosMembresium>>
+    + GetTotalPagadoAsync(membresiaId : int) : Task<decimal>
+}
+
+IPagoRepository --|> IGenericRepository
+PagoRepository ..|> IPagoRepository
+PagoRepository --|> GenericRepository
+PagoRepository --> GymDbContext : usa
+
+' ─────────────────────────────────────────────
+'  USUARIO
+' ─────────────────────────────────────────────
+
+interface IUsuarioRepository {
+    + ObtenerPorDNIAsync(dni : string) : Task<Usuario>
+    + ExisteDniAsync(dni : string) : Task<bool>
+    + ObtenerPorQRAsync(codigoQR : Guid) : Task<Usuario>
+    + ObtenerConDetallesAsync(id : int) : Task<Usuario>
+    + ObtenerPorNombreUsuarioAsync(nombreUsuario : string) : Task<Usuario>
+    + ExisteNombreUsuarioAsync(nombreUsuario : string) : Task<bool>
+}
+
+class UsuarioRepository {
+    - _context : GymDbContext
+    --
+    + ObtenerPorDNIAsync(dni : string) : Task<Usuario>
+    + ExisteDniAsync(dni : string) : Task<bool>
+    + ObtenerPorQRAsync(codigoQR : Guid) : Task<Usuario>
+    + ObtenerConDetallesAsync(id : int) : Task<Usuario>
+    + ObtenerPorNombreUsuarioAsync(nombreUsuario : string) : Task<Usuario>
+    + ExisteNombreUsuarioAsync(nombreUsuario : string) : Task<bool>
+}
+
+IUsuarioRepository --|> IGenericRepository
+UsuarioRepository ..|> IUsuarioRepository
+UsuarioRepository --|> GenericRepository
+UsuarioRepository --> GymDbContext : usa
+
+' ─────────────────────────────────────────────
+'  VENTA
+' ─────────────────────────────────────────────
+
+interface IVentaRepository {
+    + ObtenerHistorialCompletoAsync() : Task<IEnumerable<VentasCabecera>>
+}
+
+class VentaRepository {
+    - _context : GymDbContext
+    --
+    + ObtenerHistorialCompletoAsync() : Task<IEnumerable<VentasCabecera>>
+}
+
+IVentaRepository --|> IGenericRepository
+VentaRepository ..|> IVentaRepository
+VentaRepository --|> GenericRepository
+VentaRepository --> GymDbContext : usa
+
+' ─────────────────────────────────────────────
+'  REPORTES (Servicio ubicado en Repositories)
+' ─────────────────────────────────────────────
+
+interface IReporteService {
+    + ObtenerReporteMensualAsync(mes : int, anio : int) : Task<List<ReporteIngresosDTO>>
+    + ObtenerReporteMembresiasAsync(mes : int, anio : int) : Task<List<ReporteMembresiaDTO>>
+    + ObtenerEstadisticasUsuariosAsync() : Task<DashboardUserStatsDTO>
+    + ObtenerEstadisticasFinancierasAsync() : Task<DashboardFinancialStatsDTO>
+    + ObtenerPagosRecientesAsync(cantidad : int) : Task<List<PagoRecienteDTO>>
+}
+
+note right of IReporteService
+  Ubicado físicamente en /Repositories 
+  aunque funcionalmente es un servicio.
+end note
+
+' ─────────────────────────────────────────────
+'  PLANES, PRODUCTOS, ROL, TURNO
+' ─────────────────────────────────────────────
+
+interface IPlaneRepository
+interface IProductoRepository
+interface IRoleRepository
+interface ITurnoRepository
+
+IPlaneRepository --|> IGenericRepository
+IProductoRepository --|> IGenericRepository
+IRoleRepository --|> IGenericRepository
+ITurnoRepository --|> IGenericRepository
+
+' ─────────────────────────────────────────────
+'  NOTAS ACLARATORIAS
+' ─────────────────────────────────────────────
+
+note top of IGenericRepository
+  Contrato genérico CRUD.
+  Toda interfaz específica lo extiende.
+end note
+
+note top of GenericRepository
+  Implementación base reutilizable.
+  Toda clase concreta hereda de aquí
+  y de su interfaz específica.
+end note
+
+@enduml
+

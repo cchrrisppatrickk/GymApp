@@ -1,0 +1,331 @@
+@startuml GymApp_Controllers_Layer
+title Capa de Controladores - GymApp
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FAFAFA
+skinparam class {
+    BackgroundColor White
+    BorderColor #555
+    ArrowColor #333
+    FontName Arial
+}
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+}
+
+' ─────────────────────────────────────────────
+'  CLASES EXTERNAS (Simplificadas, solo referencia)
+' ─────────────────────────────────────────────
+
+class ControllerBase <<ASP.NET Core>> {
+}
+
+class Controller <<ASP.NET Core>> {
+}
+
+Controller --|> ControllerBase
+
+' ─────────────────────────────────────────────
+'  BASE CONTROLLER
+' ─────────────────────────────────────────────
+
+class BaseController {
+    # CurrentUserId : int
+    # CurrentUserName : string
+    # CurrentUserRole : string
+}
+
+BaseController --|> Controller
+
+' ─────────────────────────────────────────────
+'  CONTROLLERS QUE NO EXTIENDEN BaseController
+' ─────────────────────────────────────────────
+
+class AuthController {
+    - _usuarioService : IUsuarioService
+    --
+    + Login() : IActionResult
+    + Login(dni, password) : Task<IActionResult>
+    + Logout() : Task<IActionResult>
+    + AccesoDenegado() : IActionResult
+}
+
+class HomeController {
+    - _logger : ILogger<HomeController>
+    --
+    + Index() : IActionResult
+    + Privacy() : IActionResult
+    + Error() : IActionResult
+}
+
+class ReportesController {
+    - _reporteService : IReporteService
+    --
+    + Index() : IActionResult
+    + ObtenerEstadisticasUsuarios() : Task<IActionResult>
+    + ObtenerEstadisticasFinancieras() : Task<IActionResult>
+    + ObtenerPagosRecientes() : Task<IActionResult>
+    + ObtenerIngresos(mes, anio) : Task<IActionResult>
+    + ExportarExcel(mes, anio) : Task<IActionResult>
+    + Membresias() : IActionResult
+    + ObtenerMembresias(mes, anio) : Task<IActionResult>
+    + ExportarMembresiasExcel(mes, anio) : Task<IActionResult>
+}
+
+class ApiAgentController {
+    - _reporteService : IReporteService
+    - _usuarioService : IUsuarioService
+    - _pagoService : IPagoService
+    - _membresiaService : IMembresiaService
+    --
+    + Ping() : IActionResult
+    + GetEstadisticasUsuarios() : Task<IActionResult>
+    + GetEstadisticasFinancieras() : Task<IActionResult>
+    + GetPagosRecientes() : Task<IActionResult>
+    + BuscarUsuarios(q) : Task<IActionResult>
+    + GetUsuariosNuevos(dias) : Task<IActionResult>
+    + GetUsuariosPorFecha(fecha) : Task<IActionResult>
+    + GetMembresiaActiva(userId) : Task<IActionResult>
+    + GetHistorialMembresias(userId) : Task<IActionResult>
+    + GetAlertasMembresias(dias) : Task<IActionResult>
+    + GetDeudaCliente(userId) : Task<IActionResult>
+    + GetHistorialPagosUsuario(userId) : Task<IActionResult>
+    + GetPagosHoy() : Task<IActionResult>
+    + GetPagosPorRango(inicio, fin) : Task<IActionResult>
+    + GetDeudores() : Task<IActionResult>
+}
+
+AuthController      --|> Controller
+HomeController      --|> Controller
+ReportesController  --|> Controller
+ApiAgentController  --|> ControllerBase
+
+' ─────────────────────────────────────────────
+'  CONTROLLERS QUE EXTIENDEN BaseController
+' ─────────────────────────────────────────────
+
+class AccesoController {
+    - _context : GymDbContext
+    --
+    + Index() : IActionResult
+    + RegistrarAsistencia(qrToken) : Task<IActionResult>
+}
+
+class ClienteHomeController {
+    + Index() : IActionResult
+}
+
+class CongelamientosController {
+    - _congelamientoService : ICongelamientoService
+    --
+    + Historial(id) : Task<IActionResult>
+    + Congelar(model) : Task<IActionResult>
+    + Descongelar(id) : Task<IActionResult>
+}
+
+class MembresiasController {
+    - _membresiaService : IMembresiaService
+    - _planeService : IPlaneService
+    - _turnoService : ITurnoService
+    --
+    + Index(buscar, mes, anio, pagina, userId, filtro) : Task<IActionResult>
+    + Crear(userId) : IActionResult
+    + Listar(filtro) : Task<IActionResult>
+    + ObtenerRecursosCreacion() : Task<IActionResult>
+    + BuscarUsuario(q) : Task<IActionResult>
+    + Crear(model) : Task<IActionResult>
+    + Details(id) : Task<IActionResult>
+    + Congelar(membresiaId, fechaFin, motivo) : Task<IActionResult>
+    + GetPropuestaRenovacion(id) : Task<IActionResult>
+    + Renovar(userId, planId, turnoId, fechaInicio) : Task<IActionResult>
+    + Editar(dto) : Task<IActionResult>
+    + EliminarFisicamente(id) : Task<IActionResult>
+}
+
+class PagosController {
+    - _pagoService : IPagoService
+    --
+    + Index(buscar, mes, anio, pagina) : Task<IActionResult>
+    + Comprobante(id) : IActionResult
+    + Listar() : Task<IActionResult>
+    + BuscarDeuda(termino) : Task<IActionResult>
+    + Registrar(model) : Task<IActionResult>
+    + ObtenerParaEdicion(id) : Task<IActionResult>
+    + Editar(model) : Task<IActionResult>
+    + Anular(id, motivo) : Task<IActionResult>
+}
+
+class PlanesController {
+    - _planeService : IPlaneService
+    --
+    + Index() : IActionResult
+    + Listar() : Task<IActionResult>
+    + Obtener(id) : Task<IActionResult>
+    + Guardar(plan) : Task<IActionResult>
+    + Eliminar(id) : Task<IActionResult>
+}
+
+class ProductosController {
+    - _productoService : IProductoService
+    --
+    + Index() : IActionResult
+    + Listar() : Task<IActionResult>
+    + Obtener(id) : Task<IActionResult>
+    + Guardar(model) : Task<IActionResult>
+    + Eliminar(id) : Task<IActionResult>
+}
+
+class RolesController {
+    - _roleService : IRoleService
+    --
+    + Index() : Task<IActionResult>
+    + GetRole(id) : Task<IActionResult>
+    + Create(model) : Task<IActionResult>
+    + Edit(model) : Task<IActionResult>
+    + Delete(id) : Task<IActionResult>
+}
+
+class TurnosController {
+    - _turnoService : ITurnoService
+    --
+    + Index() : IActionResult
+    + ListarTurnos() : Task<IActionResult>
+    + ObtenerTurno(id) : Task<IActionResult>
+    + Guardar(modelo) : Task<IActionResult>
+    + Eliminar(id) : Task<IActionResult>
+}
+
+class UsuariosController {
+    - _usuarioService : IUsuarioService
+    - _rolesRepository : IGenericRepository<Role>
+    --
+    + Index(buscar, mes, anio, pagina) : Task<IActionResult>
+    + Details(id) : Task<IActionResult>
+    + GetUsuario(id) : Task<IActionResult>
+    + Save(model) : Task<IActionResult>
+    + Delete(id) : Task<IActionResult>
+    + ObtenerQR(id) : Task<IActionResult>
+}
+
+class VentasController {
+    - _ventaService : IVentaService
+    --
+    + Index() : IActionResult
+    + Historial() : Task<IActionResult>
+    + Registrar(modelo) : Task<IActionResult>
+}
+
+' Herencia desde BaseController
+AccesoController        --|> BaseController
+ClienteHomeController   --|> BaseController
+CongelamientosController --|> BaseController
+MembresiasController    --|> BaseController
+PagosController         --|> BaseController
+PlanesController        --|> BaseController
+ProductosController     --|> BaseController
+RolesController         --|> BaseController
+TurnosController        --|> BaseController
+UsuariosController      --|> BaseController
+VentasController        --|> BaseController
+
+' ─────────────────────────────────────────────
+'  DEPENDENCIAS CON SERVICIOS (uso)
+' ─────────────────────────────────────────────
+
+AuthController          ..> IUsuarioService        : usa
+CongelamientosController ..> ICongelamientoService : usa
+MembresiasController    ..> IMembresiaService       : usa
+MembresiasController    ..> IPlaneService           : usa
+MembresiasController    ..> ITurnoService           : usa
+PagosController         ..> IPagoService            : usa
+PlanesController        ..> IPlaneService           : usa
+ProductosController     ..> IProductoService        : usa
+ReportesController      ..> IReporteService         : usa
+RolesController         ..> IRoleService            : usa
+TurnosController        ..> ITurnoService           : usa
+UsuariosController      ..> IUsuarioService         : usa
+VentasController        ..> IVentaService           : usa
+
+ApiAgentController      ..> IReporteService         : usa
+ApiAgentController      ..> IUsuarioService         : usa
+ApiAgentController      ..> IPagoService            : usa
+ApiAgentController      ..> IMembresiaService       : usa
+
+' ─────────────────────────────────────────────
+'  INTERFACES DE SERVICIOS (Solo nombres)
+' ─────────────────────────────────────────────
+
+interface IUsuarioService
+interface ICongelamientoService
+interface IMembresiaService
+interface IPagoService
+interface IPlaneService
+interface IProductoService
+interface IReporteService
+interface IRoleService
+interface ITurnoService
+interface IVentaService
+
+' ─────────────────────────────────────────────
+'  NOTAS DE AUTORIZACIÓN
+' ─────────────────────────────────────────────
+
+note top of ApiAgentController
+  [ApiKeyAuth]
+  Exclusivo para Agente IA
+end note
+
+note top of AccesoController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of ClienteHomeController
+  [Authorize(Roles="Cliente")]
+end note
+
+note top of CongelamientosController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of MembresiasController
+  [Authorize(Roles="Admin,Empleado")]
+  Editar(), EliminarFisicamente() → solo "Admin"
+end note
+
+note top of PagosController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of PlanesController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of ProductosController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of RolesController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of TurnosController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of UsuariosController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of VentasController
+  [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of BaseController
+  [Authorize] global
+  Provee CurrentUserId,
+  CurrentUserName, CurrentUserRole
+end note
+
+@enduml
+

@@ -1,0 +1,231 @@
+@startuml GymApp_Models_Layer
+title Capa de Modelos (Entidades) - GymApp
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FAFAFA
+skinparam class {
+    BackgroundColor White
+    BorderColor #555
+    ArrowColor #333
+    FontName Arial
+}
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #F9A825
+}
+
+' ─────────────────────────────────────────────
+'  ENTIDADES
+' ─────────────────────────────────────────────
+
+class Role {
+    + RoleId : int
+    + Nombre : string
+    + Descripcion : string?
+    --
+    + Usuarios : ICollection<Usuario>
+}
+
+class Usuario {
+    + UserId : int
+    + RoleId : int
+    + NombreCompleto : string
+    + NombreUsuario : string
+    + Dni : string?
+    + PasswordHash : string?
+    + Telefono : string?
+    + Email : string?
+    + CodigoQr : Guid?
+    + FechaRegistro : DateTime?
+    + Estado : bool?
+    + FotoUrl : string?
+    --
+    + Role : Role
+    + Asistencia : ICollection<Asistencia>
+    + Congelamientos : ICollection<Congelamiento>
+    + Membresia : ICollection<Membresia>
+    + PagosMembresia : ICollection<PagosMembresium>
+    + VentasCabeceraUsers : ICollection<VentasCabecera>
+    + VentasCabeceraUsuarioEmpleados : ICollection<VentasCabecera>
+}
+
+class Turno {
+    + TurnoId : int
+    + Nombre : string
+    + HoraInicio : TimeSpan
+    + HoraFin : TimeSpan
+    + Descripcion : string?
+    --
+    + Membresia : ICollection<Membresia>
+}
+
+class Plane {
+    + PlanId : int
+    + Nombre : string
+    + DuracionDias : int
+    + PrecioBase : decimal
+    + PermiteCongelar : bool?
+    --
+    + Membresia : ICollection<Membresia>
+}
+
+class Membresia {
+    + MembresiaId : int
+    + UserId : int
+    + PlanId : int
+    + TurnoId : int
+    + FechaInicio : DateOnly
+    + FechaVencimiento : DateOnly
+    + Estado : string?
+    + Observaciones : string?
+    + PrecioAcordado : decimal
+    --
+    + User : Usuario
+    + Plan : Plane
+    + Turno : Turno
+    + Congelamientos : ICollection<Congelamiento>
+    + PagosMembresia : ICollection<PagosMembresium>
+}
+
+class Congelamiento {
+    + CongelamientoId : int
+    + MembresiaId : int
+    + UsuarioEmpleadoId : int
+    + FechaInicio : DateOnly
+    + FechaFin : DateOnly
+    + Motivo : string?
+    + FechaRegistro : DateTime?
+    --
+    + Membresia : Membresia
+    + UsuarioEmpleado : Usuario
+}
+
+class PagosMembresium {
+    + PagoId : int
+    + MembresiaId : int
+    + UsuarioEmpleadoId : int
+    + Monto : decimal
+    + MetodoPago : string
+    + FechaPago : DateTime?
+    + Comprobante : string?
+    + EsAnulado : bool
+    + Observaciones : string?
+    --
+    + Membresia : Membresia
+    + UsuarioEmpleado : Usuario
+}
+
+class Asistencia {
+    + AsistenciaId : int
+    + UserId : int
+    + FechaHora : DateTime?
+    + AccesoPermitido : bool
+    + MotivoDenegacion : string?
+    --
+    + User : Usuario
+}
+
+class Producto {
+    + ProductoId : int
+    + Nombre : string
+    + PrecioVenta : decimal
+    + StockActual : int?
+    + CodigoBarras : string?
+    + Categoria : string
+    --
+    + VentasDetalles : ICollection<VentasDetalle>
+}
+
+class VentasCabecera {
+    + VentaId : int
+    + UserId : int?
+    + UsuarioEmpleadoId : int
+    + FechaVenta : DateTime?
+    + Total : decimal
+    + MetodoPago : string
+    --
+    + User : Usuario?
+    + UsuarioEmpleado : Usuario
+    + VentasDetalles : ICollection<VentasDetalle>
+}
+
+class VentasDetalle {
+    + DetalleId : int
+    + VentaId : int
+    + ProductoId : int
+    + Cantidad : int
+    + PrecioUnitario : decimal
+    + Subtotal : decimal
+    --
+    + Venta : VentasCabecera
+    + Producto : Producto
+}
+
+' ─────────────────────────────────────────────
+'  RELACIONES
+' ─────────────────────────────────────────────
+
+' Role → Usuario  (1 a muchos)
+Role "1" --o{ "N" Usuario : tiene >
+
+' Usuario → Membresia  (1 a muchos)
+Usuario "1" --o{ "N" Membresia : posee >
+
+' Usuario → Asistencia  (1 a muchos)
+Usuario "1" --o{ "N" Asistencia : registra >
+
+' Usuario → Congelamiento  (empleado autoriza)
+Usuario "1" --o{ "N" Congelamiento : autoriza >
+
+' Usuario → PagosMembresium  (empleado cobra)
+Usuario "1" --o{ "N" PagosMembresium : registra >
+
+' Usuario → VentasCabecera  (cliente y empleado)
+Usuario "1" --o{ "N" VentasCabecera : compra/vende >
+
+' Plane → Membresia  (1 a muchos)
+Plane "1" --o{ "N" Membresia : aplica a >
+
+' Turno → Membresia  (1 a muchos)
+Turno "1" --o{ "N" Membresia : asigna a >
+
+' Membresia → Congelamiento  (1 a muchos)
+Membresia "1" --o{ "N" Congelamiento : tiene >
+
+' Membresia → PagosMembresium  (1 a muchos)
+Membresia "1" --o{ "N" PagosMembresium : recibe >
+
+' VentasCabecera → VentasDetalle  (1 a muchos)
+VentasCabecera "1" --o{ "N" VentasDetalle : contiene >
+
+' Producto → VentasDetalle  (1 a muchos)
+Producto "1" --o{ "N" VentasDetalle : aparece en >
+
+' ─────────────────────────────────────────────
+'  NOTAS
+' ─────────────────────────────────────────────
+
+note right of Membresia
+  Estado: "Activa" | "Pendiente Pago"
+  | "Vencida" | "Congelada"
+  PrecioAcordado = precio fijo al momento
+  de la venta (puede diferir de PrecioBase)
+end note
+
+note right of VentasCabecera
+  UserId es nullable: permite ventas
+  a clientes no registrados (publico general)
+end note
+
+note right of Producto
+  Categoria: "General" | "Bebida"
+  | "Servicio" | "XB"
+  Solo descuenta stock si Categoria != "Servicio"
+end note
+
+note bottom of Asistencia
+  Control de acceso físico al gimnasio
+  via escáner de código QR
+end note
+
+@enduml

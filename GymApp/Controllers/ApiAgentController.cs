@@ -88,28 +88,73 @@ public class ApiAgentController : ControllerBase
     // -----------------------------------------------------------------------
 
     /// <summary>
-    /// Retorna los 15 pagos más recientes proyectados en un payload liviano.
-    /// Diseñado para no saturar la ventana de contexto del LLM (Ollama/n8n).
+    /// Retorna los 5 pagos más recientes registrados en el sistema.
     /// GET /api/agent/pagos/recientes
     /// </summary>
     [HttpGet("pagos/recientes")]
     public async Task<IActionResult> GetPagosRecientes()
     {
-        var todos = await _pagoService.ListarPagosAsync();
+        // Optimizamos: Pedimos pagos de los últimos 30 días para obtener los más recientes sin procesar toda la historia
+        var desde = DateTime.Today.AddDays(-30);
+        var todos = await _pagoService.ObtenerPagosPorRangoParaAgenteAsync(desde, DateTime.Now);
 
         var pagosFiltrados = todos
-            .OrderByDescending(p => p.FechaPago)   // más recientes primero
-            .Take(15)
+            .OrderByDescending(p => p.Fecha)
+            .Take(5)
             .Select(p => new
             {
-                id           = p.PagoId,
-                cliente      = p.NombreCliente,
-                monto        = p.Monto,
-                fecha        = p.FechaPago,
-                metodoPago   = p.MetodoPago
-            });
+                id         = p.Id,
+                cliente    = p.NombreCliente,
+                monto      = p.Monto,
+                fecha      = p.Fecha.ToString("s"),
+                metodoPago = p.MetodoPago
+            })
+            .ToList();
 
         return Ok(pagosFiltrados);
+    }
+
+    /// <summary>
+    /// Retorna un resumen de todos los pagos registrados durante el día de hoy.
+    /// GET /api/agent/pagos/hoy
+    /// </summary>
+    [HttpGet("pagos/hoy")]
+    public async Task<IActionResult> GetPagosHoy()
+    {
+        var hoy = DateTime.Today;
+        var finDelDia = hoy.AddDays(1).AddTicks(-1);
+
+        var listaPagos = await _pagoService.ObtenerPagosPorRangoParaAgenteAsync(hoy, finDelDia);
+
+        var pagosHoy = listaPagos
+            .Select(p => new
+            {
+                id         = p.Id,
+                cliente    = p.NombreCliente,
+                monto      = p.Monto,
+                fecha      = p.Fecha.ToString("s"),
+                metodoPago = p.MetodoPago
+            })
+            .ToList();
+
+        return Ok(new
+        {
+            fecha    = hoy.ToString("dd/MM/yyyy"),
+            totalMonto = pagosHoy.Sum(p => p.monto),
+            cantidad = pagosHoy.Count,
+            pagos    = pagosHoy
+        });
+    }
+
+    /// <summary>
+    /// Retorna la lista completa de deudores o membresías con pagos pendientes.
+    /// GET /api/agent/pagos/deudores
+    /// </summary>
+    [HttpGet("pagos/deudores")]
+    public async Task<IActionResult> GetDeudores()
+    {
+        var resultado = await _reporteService.ObtenerListaDeudoresAsync();
+        return Ok(resultado);
     }
 
     // -----------------------------------------------------------------------

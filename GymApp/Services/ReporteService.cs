@@ -274,5 +274,35 @@ namespace GymApp.Services
 
             return pagos;
         }
+
+        public async Task<List<DeudaInfoDTO>> ObtenerListaDeudoresAsync()
+        {
+            var deudores = await _context.Membresias
+                .Include(m => m.User)
+                .Include(m => m.Plan)
+                .AsNoTracking()
+                .Where(m => m.Estado == "Activa" || m.Estado == "Pendiente Pago")
+                .Select(m => new DeudaInfoDTO
+                {
+                    MembresiaId = m.MembresiaId,
+                    NombreCliente = m.User.NombreCompleto,
+                    DniCliente = m.User.Dni,
+                    NombrePlan = m.Plan.Nombre,
+                    Estado = m.Estado,
+                    PrecioTotal = m.PrecioAcordado,
+                    TotalPagado = m.PagosMembresia.Where(p => !p.EsAnulado).Sum(p => p.Monto)
+                })
+                .ToListAsync();
+
+            // Calculamos la deuda pendiente en memoria para facilitar la lógica
+            return deudores
+                .Select(d => {
+                    d.DeudaPendiente = d.PrecioTotal - d.TotalPagado;
+                    return d;
+                })
+                .Where(x => x.DeudaPendiente > 0)
+                .OrderByDescending(x => x.DeudaPendiente)
+                .ToList();
+        }
     }
 }
