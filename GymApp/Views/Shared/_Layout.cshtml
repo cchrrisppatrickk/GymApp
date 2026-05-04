@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -392,7 +392,7 @@
                     <li class="menu-item mt-3 mb-1 px-4 text-muted small fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">ADMINISTRACIÓN</li>
 
                     <li class="menu-item">
-                        <a href="#submenuConfig" class="menu-link submenu-toggle @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" ? "active" : "")">
+                        <a href="#submenuConfig" class="menu-link submenu-toggle @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "active" : "")">
                             <span class="menu-icon"><i class="bi bi-gear-fill"></i></span>
                             <span class="menu-text">Configuración</span>
                             <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
@@ -408,6 +408,9 @@
                             {
                                 <li class="submenu-item">
                                     <a asp-controller="Roles" asp-action="Index" class="submenu-link">Roles</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a asp-controller="Alertas" asp-action="Index" class="submenu-link">Alertas n8n</a>
                                 </li>
                             }
                             <li class="submenu-item">

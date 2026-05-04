@@ -1,0 +1,97 @@
+@model GymApp.Models.ConfiguracionAlerta
+@{
+    ViewData["Title"] = "Configuración de Alertas (n8n / Telegram)";
+    var diasGuardados = Model.DiasSemana?.Split(',') ?? Array.Empty<string>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-bell-fill text-primary me-2"></i> @ViewData["Title"]</h4>
+                <p class="text-muted small mt-1">Configure cuándo y qué información enviar automáticamente a n8n.</p>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Guardar" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="Activo" value="true" />
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label asp-for="HoraEnvio" class="form-label fw-bold">Hora de Envío</label>
+                            <input asp-for="HoraEnvio" type="time" class="form-control form-control-lg" required />
+                            <span asp-validation-for="HoraEnvio" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="ChatIdDestino" class="form-label fw-bold">ID de Chat Destino (Telegram)</label>
+                            <input asp-for="ChatIdDestino" type="text" class="form-control form-control-lg" placeholder="Ej: -10012345678" required />
+                            <span asp-validation-for="ChatIdDestino" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Días de Envío</label>
+                            <div class="d-flex flex-wrap gap-3">
+                                @foreach (var dia in new[] { 
+                                    new { Val = "1", Text = "Lunes" },
+                                    new { Val = "2", Text = "Martes" },
+                                    new { Val = "3", Text = "Miércoles" },
+                                    new { Val = "4", Text = "Jueves" },
+                                    new { Val = "5", Text = "Viernes" },
+                                    new { Val = "6", Text = "Sábado" },
+                                    new { Val = "0", Text = "Domingo" }
+                                })
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="diasSeleccionados" value="@dia.Val" id="dia_@dia.Val" @(diasGuardados.Contains(dia.Val) ? "checked" : "")>
+                                        <label class="form-check-label" for="dia_@dia.Val">
+                                            @dia.Text
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2">Contenido del Reporte</h5>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="EnviarNuevosMiembros">
+                                <label class="form-check-label" asp-for="EnviarNuevosMiembros">
+                                    <i class="bi bi-person-plus-fill text-success me-1"></i> Incluir Nuevos Miembros del Día
+                                </label>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="EnviarPagosHoy">
+                                <label class="form-check-label" asp-for="EnviarPagosHoy">
+                                    <i class="bi bi-cash-coin text-info me-1"></i> Incluir Total de Pagos Recibidos Hoy
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="EnviarProximosVencimientos">
+                                <label class="form-check-label" asp-for="EnviarProximosVencimientos">
+                                    <i class="bi bi-calendar-event text-warning me-1"></i> Incluir Próximos Vencimientos (3 días)
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="EnviarDeudasPendientes">
+                                <label class="form-check-label" asp-for="EnviarDeudasPendientes">
+                                    <i class="bi bi-exclamation-octagon text-danger me-1"></i> Incluir Deudas Pendientes
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-end">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
+                            <i class="bi bi-save me-2"></i> Guardar Configuración
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
