@@ -42,6 +42,10 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 // En Program.cs
 builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IConfiguracionAlertaRepository, ConfiguracionAlertaRepository>();
+
+// Webhook / n8n
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IWebhookService, WebhookService>();
 // ============================================================
 // 2. CONFIGURAR AUTENTICACIÓN (COOKIES)
 // ============================================================
