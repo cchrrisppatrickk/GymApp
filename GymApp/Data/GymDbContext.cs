@@ -38,6 +38,8 @@ public partial class GymDbContext : DbContext
 
     public virtual DbSet<VentasDetalle> VentasDetalles { get; set; }
 
+    public virtual DbSet<ConfiguracionAlerta> ConfiguracionAlertas { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Asistencia>(entity =>

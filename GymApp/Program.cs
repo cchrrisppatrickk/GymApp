@@ -41,6 +41,7 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 
 // En Program.cs
 builder.Services.AddScoped<IReporteService, ReporteService>();
+builder.Services.AddScoped<IConfiguracionAlertaRepository, ConfiguracionAlertaRepository>();
 // ============================================================
 // 2. CONFIGURAR AUTENTICACIÓN (COOKIES)
 // ============================================================
