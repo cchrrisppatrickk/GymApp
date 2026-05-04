@@ -1,8 +1,2 @@
-# Ignore bin and obj
-bin/
-obj/
-# Ignore sensitive files
-.env
-appsettings.json
-# But don't ignore diagram as it is documentation
-# diagram/ 
+diagram/
+
