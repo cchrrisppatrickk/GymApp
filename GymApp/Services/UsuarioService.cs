@@ -21,12 +21,14 @@ namespace GymApp.Services
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IWebHostEnvironment _env;
         private readonly GymDbContext _context;
+        private readonly IWebhookService _webhookService;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository, IWebHostEnvironment env, GymDbContext context)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IWebHostEnvironment env, GymDbContext context, IWebhookService webhookService)
         {
             _usuarioRepository = usuarioRepository;
             _env = env;
             _context = context;
+            _webhookService = webhookService;
         }
 
         public async Task<IEnumerable<Usuario>> ObtenerTodosAsync()
@@ -131,6 +133,12 @@ namespace GymApp.Services
 
             await _usuarioRepository.InsertAsync(usuario);
             await _usuarioRepository.SaveAsync();
+
+            await _webhookService.EnviarAlertaInstantaneaAsync("NuevoUsuario", new
+            {
+                NombreCompleto = usuario.NombreCompleto,
+                FechaRegistro = usuario.FechaRegistro
+            }, string.Empty);
 
             return usuario;
         }

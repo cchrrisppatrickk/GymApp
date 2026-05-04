@@ -17,13 +17,15 @@ namespace GymApp.Services
         private readonly IMembresiaRepository _membresiaRepo;
         private readonly IUsuarioRepository _usuarioRepo; // Necesitamos buscar user por DNI
         private readonly GymDbContext _context;
+        private readonly IWebhookService _webhookService;
 
-        public PagoService(IPagoRepository pagoRepo, IMembresiaRepository membresiaRepo, IUsuarioRepository usuarioRepo, GymDbContext context)
+        public PagoService(IPagoRepository pagoRepo, IMembresiaRepository membresiaRepo, IUsuarioRepository usuarioRepo, GymDbContext context, IWebhookService webhookService)
         {
             _pagoRepo = pagoRepo;
             _membresiaRepo = membresiaRepo;
             _usuarioRepo = usuarioRepo;
             _context = context;
+            _webhookService = webhookService;
         }
 
         public async Task<List<DeudaInfoDTO>> BuscarDeudaClienteAsync(string termino)
@@ -111,6 +113,13 @@ namespace GymApp.Services
 
             // 4. Guardar todo (Pago + Actualización de Membresía si hubo) en una transacción
             await _pagoRepo.SaveAsync();
+
+            await _webhookService.EnviarAlertaInstantaneaAsync("NuevoPago", new
+            {
+                Monto = dto.Monto,
+                Cliente = membresia.User.NombreCompleto,
+                MetodoPago = dto.MetodoPago
+            }, string.Empty);
 
             return nuevoPago.PagoId;
         }
