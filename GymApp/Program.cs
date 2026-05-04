@@ -4,6 +4,7 @@ using GymApp.Services;
 // 1. AGREGAR ESTE NAMESPACE
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Hangfire;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +43,17 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 // En Program.cs
 builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IConfiguracionAlertaRepository, ConfiguracionAlertaRepository>();
+
+// ============================================================
+// HANGFIRE
+// ============================================================
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHangfireServer();
 
 // Webhook / n8n
 builder.Services.AddHttpClient();
@@ -83,6 +95,16 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// ============================================================
+// HANGFIRE DASHBOARD Y RECURRING JOB
+// ============================================================
+app.UseHangfireDashboard();
+
+RecurringJob.AddOrUpdate<NotificacionProgramadaJob>(
+    "notificacion-programada",
+    job => job.EjecutarRevisionAsync(),
+    Cron.Minutely);
 
 // ============================================================
 // 3. ACTIVAR EL MIDDLEWARE (¡IMPORTANTE EL ORDEN!)
