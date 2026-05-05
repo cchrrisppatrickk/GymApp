@@ -1,97 +1,157 @@
-@model GymApp.Models.ConfiguracionAlerta
+@model IEnumerable<GymApp.Models.ConfiguracionAlerta>
 @{
-    ViewData["Title"] = "Configuración de Alertas (n8n / Telegram)";
-    var diasGuardados = Model.DiasSemana?.Split(',') ?? Array.Empty<string>();
+    ViewData["Title"] = "Gestión de Alertas Automáticas";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0 rounded-3">
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                <h4 class="mb-0 fw-bold"><i class="bi bi-bell-fill text-primary me-2"></i> @ViewData["Title"]</h4>
-                <p class="text-muted small mt-1">Configure cuándo y qué información enviar automáticamente a n8n.</p>
-            </div>
-            <div class="card-body p-4">
-                <form asp-action="Guardar" method="post">
-                    <input type="hidden" asp-for="Id" />
-                    <input type="hidden" asp-for="Activo" value="true" />
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">@ViewData["Title"]</h2>
+            <p class="text-muted mb-0">Configure y administre los reportes automáticos enviados a Telegram vía n8n.</p>
+        </div>
+        <a asp-action="Crear" class="btn btn-primary shadow-sm rounded-pill px-4 py-2">
+            <i class="bi bi-plus-circle-fill me-2"></i> Nueva Alerta
+        </a>
+    </div>
 
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <label asp-for="HoraEnvio" class="form-label fw-bold">Hora de Envío</label>
-                            <input asp-for="HoraEnvio" type="time" class="form-control form-control-lg" required />
-                            <span asp-validation-for="HoraEnvio" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label asp-for="ChatIdDestino" class="form-label fw-bold">ID de Chat Destino (Telegram)</label>
-                            <input asp-for="ChatIdDestino" type="text" class="form-control form-control-lg" placeholder="Ej: -10012345678" required />
-                            <span asp-validation-for="ChatIdDestino" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label fw-bold">Días de Envío</label>
-                            <div class="d-flex flex-wrap gap-3">
-                                @foreach (var dia in new[] { 
-                                    new { Val = "1", Text = "Lunes" },
-                                    new { Val = "2", Text = "Martes" },
-                                    new { Val = "3", Text = "Miércoles" },
-                                    new { Val = "4", Text = "Jueves" },
-                                    new { Val = "5", Text = "Viernes" },
-                                    new { Val = "6", Text = "Sábado" },
-                                    new { Val = "0", Text = "Domingo" }
-                                })
-                                {
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="diasSeleccionados" value="@dia.Val" id="dia_@dia.Val" @(diasGuardados.Contains(dia.Val) ? "checked" : "")>
-                                        <label class="form-check-label" for="dia_@dia.Val">
-                                            @dia.Text
-                                        </label>
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0" id="tablaAlertas">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 text-uppercase small fw-bold">Hora de Envío</th>
+                            <th class="py-3 text-uppercase small fw-bold">Días de Ejecución</th>
+                            <th class="py-3 text-uppercase small fw-bold">Chat Destino</th>
+                            <th class="py-3 text-uppercase small fw-bold">Reportes Activos</th>
+                            <th class="py-3 text-uppercase small fw-bold">Estado</th>
+                            <th class="pe-4 py-3 text-uppercase small fw-bold text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="bi bi-info-circle display-4 mb-3 d-block"></i>
+                                        <p class="mb-0">No hay alertas configuradas. ¡Crea la primera!</p>
                                     </div>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="col-12 mt-4">
-                            <h5 class="fw-bold mb-3 border-bottom pb-2">Contenido del Reporte</h5>
-                            
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" role="switch" asp-for="EnviarNuevosMiembros">
-                                <label class="form-check-label" asp-for="EnviarNuevosMiembros">
-                                    <i class="bi bi-person-plus-fill text-success me-1"></i> Incluir Nuevos Miembros del Día
-                                </label>
-                            </div>
-                            
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" role="switch" asp-for="EnviarPagosHoy">
-                                <label class="form-check-label" asp-for="EnviarPagosHoy">
-                                    <i class="bi bi-cash-coin text-info me-1"></i> Incluir Total de Pagos Recibidos Hoy
-                                </label>
-                            </div>
-
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" role="switch" asp-for="EnviarProximosVencimientos">
-                                <label class="form-check-label" asp-for="EnviarProximosVencimientos">
-                                    <i class="bi bi-calendar-event text-warning me-1"></i> Incluir Próximos Vencimientos (3 días)
-                                </label>
-                            </div>
-
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" role="switch" asp-for="EnviarDeudasPendientes">
-                                <label class="form-check-label" asp-for="EnviarDeudasPendientes">
-                                    <i class="bi bi-exclamation-octagon text-danger me-1"></i> Incluir Deudas Pendientes
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-5 text-end">
-                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
-                            <i class="bi bi-save me-2"></i> Guardar Configuración
-                        </button>
-                    </div>
-                </form>
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3">
+                                            <i class="bi bi-clock-fill"></i>
+                                        </div>
+                                        <span class="fw-bold fs-5">
+                                            @DateTime.Today.Add(item.HoraEnvio).ToString("hh:mm tt")
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    @{
+                                        var dias = item.DiasSemana?.Split(',') ?? Array.Empty<string>();
+                                        var diasNombres = new Dictionary<string, string> { 
+                                            { "1", "Lun" }, { "2", "Mar" }, { "3", "Mie" }, 
+                                            { "4", "Jue" }, { "5", "Vie" }, { "6", "Sab" }, { "0", "Dom" } 
+                                        };
+                                    }
+                                    @foreach (var dia in dias)
+                                    {
+                                        if (diasNombres.ContainsKey(dia))
+                                        {
+                                            <span class="badge border text-dark fw-normal me-1">@diasNombres[dia]</span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <code>@item.ChatIdDestino</code>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @if (item.EnviarNuevosMiembros) { <span class="badge bg-success bg-opacity-75">Miembros</span> }
+                                        @if (item.EnviarPagosHoy) { <span class="badge bg-info bg-opacity-75">Pagos</span> }
+                                        @if (item.EnviarProximosVencimientos) { <span class="badge bg-warning bg-dark bg-opacity-75 text-dark">Vencimientos</span> }
+                                        @if (item.EnviarDeudasPendientes) { <span class="badge bg-danger bg-opacity-75">Deudas</span> }
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.Activo)
+                                    {
+                                        <span class="badge rounded-pill bg-success px-3">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-secondary px-3">
+                                            <i class="bi bi-pause-fill me-1"></i> Inactivo
+                                        </span>
+                                    }
+                                </td>
+                                <td class="pe-4 text-center">
+                                    <div class="btn-group shadow-sm rounded-3 overflow-hidden">
+                                        <a asp-action="Editar" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm border-0" title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="eliminarAlerta(@item.Id)" title="Eliminar">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function eliminarAlerta(id) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción no se puede deshacer y detendrá este reporte automático.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Eliminar", "Alertas")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire(
+                                    '¡Eliminado!',
+                                    response.message,
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    response.message,
+                                    'error'
+                                );
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}
