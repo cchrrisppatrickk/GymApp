@@ -1,4 +1,5 @@
 using GymApp.Repositories;
+using GymApp.Services;
 using GymApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,4 @@
-﻿using GymApp.Data;
+using GymApp.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,8 +8,8 @@ namespace GymApp.Repositories
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         // Inyección de dependencias del Contexto de BD
-        private readonly GymDbContext _context;
-        private readonly DbSet<T> _table;
+        protected readonly GymDbContext _context;
+        protected readonly DbSet<T> _table;
 
         public GenericRepository(GymDbContext context)
         {
