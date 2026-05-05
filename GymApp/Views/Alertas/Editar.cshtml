@@ -29,7 +29,12 @@
 
                             <div class="mb-4">
                                 <label asp-for="ChatIdDestino" class="form-label fw-bold">ID de Chat Destino (Telegram)</label>
-                                <input asp-for="ChatIdDestino" type="text" class="form-control form-control-lg bg-light" placeholder="Ej: -10012345678" required />
+                                <div class="input-group">
+                                    <input asp-for="ChatIdDestino" type="text" class="form-control form-control-lg bg-light" placeholder="Ej: -10012345678" required />
+                                    <button type="button" class="btn btn-outline-info" id="btnProbarConexion">
+                                        <i class="bi bi-send me-1"></i> Probar Conexión
+                                    </button>
+                                </div>
                                 <div class="form-text text-muted small">
                                     <i class="bi bi-info-circle me-1"></i>
                                     Para obtener el ID de un grupo, agrega a <a href="#" class="text-decoration-none">@("@RawDataBot")</a> y copia el ID (con el signo menos si es grupo).
@@ -171,3 +176,43 @@
         height: 1.5em;
     }
 </style>
+
+@section Scripts {
+    <script>
+        document.getElementById('btnProbarConexion').addEventListener('click', async function () {
+            const chatId = document.getElementById('ChatIdDestino').value;
+            if (!chatId) {
+                Swal.fire('Atención', 'Por favor ingresa un ID de Chat primero.', 'warning');
+                return;
+            }
+
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Probando...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/Alertas/ProbarConexion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(chatId)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire('¡Éxito!', result.message, 'success');
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Ocurrió un problema al intentar conectar.', 'error');
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        });
+    </script>
+}

@@ -6,5 +6,6 @@ namespace GymApp.Services
     {
         Task EnviarAlertaInstantaneaAsync(string tipo, object datos, string chatId);
         Task EnviarReporteProgramadoAsync(object resumenDatos, string chatId);
+        Task<bool> EnviarMensajePruebaAsync(string chatId);
     }
 }

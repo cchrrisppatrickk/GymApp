@@ -47,17 +47,32 @@ namespace GymApp.Services
             await SendWebhookAsync(payload);
         }
 
-        private async Task SendWebhookAsync(object payload)
+        public async Task<bool> EnviarMensajePruebaAsync(string chatId)
+        {
+            if (string.IsNullOrEmpty(_webhookUrl)) return false;
+
+            var payload = new
+            {
+                chatId = chatId,
+                mensaje = "🟢 *Prueba Exitosa:* GymApp está conectado correctamente a este chat vía n8n."
+            };
+
+            return await SendWebhookAsync(payload);
+        }
+
+        private async Task<bool> SendWebhookAsync(object payload)
         {
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             try
             {
-                await _httpClient.PostAsync(_webhookUrl, content);
+                var response = await _httpClient.PostAsync(_webhookUrl, content);
+                return response.IsSuccessStatusCode;
             }
             catch
             {
+                return false;
                 // Manejar error o registrar log según sea necesario
             }
         }
