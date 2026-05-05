@@ -29,9 +29,9 @@ namespace GymApp.Services
 
             var payload = new
             {
-                Type = tipo,
-                Data = datos,
-                ChatId = chatId
+                Evento = tipo,
+                ChatId = chatId,
+                Datos = datos
             };
 
             await SendWebhookAsync(payload);
@@ -43,9 +43,9 @@ namespace GymApp.Services
 
             var payload = new
             {
-                Type = "ReporteProgramado",
-                Data = resumenDatos,
-                ChatId = chatId
+                Evento = "RESUMEN_PROGRAMADO",
+                ChatId = chatId,
+                Datos = resumenDatos
             };
 
             await SendWebhookAsync(payload);
@@ -61,8 +61,9 @@ namespace GymApp.Services
 
             var payload = new
             {
-                chatId = chatId,
-                mensaje = "🟢 *Prueba Exitosa:* GymApp está conectado a n8n."
+                Evento = "PING",
+                ChatId = chatId,
+                Datos = new { mensaje = "Prueba de conexión" }
             };
 
             var json = JsonSerializer.Serialize(payload);

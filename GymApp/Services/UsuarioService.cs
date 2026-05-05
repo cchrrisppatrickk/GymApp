@@ -134,7 +134,7 @@ namespace GymApp.Services
             await _usuarioRepository.InsertAsync(usuario);
             await _usuarioRepository.SaveAsync();
 
-            await _webhookService.EnviarAlertaInstantaneaAsync("NuevoUsuario", new
+            await _webhookService.EnviarAlertaInstantaneaAsync("NUEVO_USUARIO", new
             {
                 NombreCompleto = usuario.NombreCompleto,
                 FechaRegistro = usuario.FechaRegistro
