@@ -1,6 +1,7 @@
 using GymApp.Data;
 using GymApp.Repositories;
 using GymApp.Services;
+using GymApp.Configuration;
 // 1. AGREGAR ESTE NAMESPACE
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,7 @@ builder.Services.AddHangfireServer();
 
 // Webhook / n8n
 builder.Services.AddHttpClient();
+builder.Services.Configure<N8nSettings>(builder.Configuration.GetSection("N8nConfig"));
 builder.Services.AddScoped<IWebhookService, WebhookService>();
 // ============================================================
 // 2. CONFIGURAR AUTENTICACIÓN (COOKIES)

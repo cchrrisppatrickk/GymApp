@@ -3,6 +3,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using GymApp.Configuration;
 
 namespace GymApp.Services
 {
@@ -11,10 +13,10 @@ namespace GymApp.Services
         private readonly HttpClient _httpClient;
         private readonly string _webhookUrl;
 
-        public WebhookService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public WebhookService(IHttpClientFactory httpClientFactory, IOptions<N8nSettings> n8nSettings)
         {
             _httpClient = httpClientFactory.CreateClient();
-            _webhookUrl = configuration["n8n:WebhookUrl"] ?? string.Empty;
+            _webhookUrl = n8nSettings.Value.WebhookUrl;
         }
 
         public async Task EnviarAlertaInstantaneaAsync(string tipo, object datos, string chatId)
