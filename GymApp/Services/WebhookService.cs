@@ -7,6 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using GymApp.Configuration;
+using GymApp.Models;
+using GymApp.Repositories;
+using System.Linq;
 
 namespace GymApp.Services
 {

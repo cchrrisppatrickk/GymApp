@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using GymApp.Models;
 
 namespace GymApp.Services
 {
