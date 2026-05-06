@@ -1,4 +1,4 @@
-﻿using GymApp.Models;
+using GymApp.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymApp.Data
@@ -12,8 +12,8 @@ namespace GymApp.Data
             {
                 var context = serviceScope.ServiceProvider.GetService<GymDbContext>();
 
-                // 1. Asegurarse de que la BD exista (aplica migraciones pendientes si las hay)
-                context.Database.EnsureCreated();
+                // 1. Aplicar migraciones pendientes respetando el historial de EF Core
+                await context.Database.MigrateAsync();
 
                 // 2. CREAR ROLES POR DEFECTO
                 if (!context.Roles.Any())
