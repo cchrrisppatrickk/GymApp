@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace GymApp.Repositories
 {
-    public interface IConfiguracionAlertaRepository
+    public interface IConfiguracionAlertaRepository : IGenericRepository<ConfiguracionAlerta>
     {
-        Task<ConfiguracionAlerta> ObtenerConfiguracionGlobalAsync();
-        Task<bool> GuardarConfiguracionGlobalAsync(ConfiguracionAlerta configuracion);
         Task<IEnumerable<ConfiguracionAlerta>> ObtenerAlertasParaEjecutarAsync(TimeSpan horaActual, string diaSemana);
     }
 }
