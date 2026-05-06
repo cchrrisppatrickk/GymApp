@@ -118,10 +118,10 @@
                                 <label class="form-label fw-semibold d-block">Días de Ejecución</label>
                                 <div class="d-flex flex-wrap gap-2">
                                     @foreach (var dia in new[] {
-                                        new { Val = "1", Text = "Lun" }, new { Val = "2", Text = "Mar" },
-                                        new { Val = "3", Text = "Mié" }, new { Val = "4", Text = "Jue" },
-                                        new { Val = "5", Text = "Vie" }, new { Val = "6", Text = "Sáb" },
-                                        new { Val = "0", Text = "Dom" }
+                                        new { Val = "Lunes", Text = "Lun" }, new { Val = "Martes", Text = "Mar" },
+                                        new { Val = "Miércoles", Text = "Mié" }, new { Val = "Jueves", Text = "Jue" },
+                                        new { Val = "Viernes", Text = "Vie" }, new { Val = "Sábado", Text = "Sáb" },
+                                        new { Val = "Domingo", Text = "Dom" }
                                     })
                                     {
                                         <input type="checkbox" class="btn-check" name="diasSeleccionados"

@@ -13,11 +13,16 @@ namespace GymApp.Controllers
     {
         private readonly IConfiguracionAlertaRepository _configuracionAlertaRepository;
         private readonly IWebhookService _webhookService;
+        private readonly NotificacionProgramadaJob _programadaJob;
 
-        public AlertasController(IConfiguracionAlertaRepository configuracionAlertaRepository, IWebhookService webhookService)
+        public AlertasController(
+            IConfiguracionAlertaRepository configuracionAlertaRepository, 
+            IWebhookService webhookService,
+            NotificacionProgramadaJob programadaJob)
         {
             _configuracionAlertaRepository = configuracionAlertaRepository;
             _webhookService = webhookService;
+            _programadaJob = programadaJob;
         }
 
         public async Task<IActionResult> Index()
@@ -102,6 +107,18 @@ namespace GymApp.Controllers
             }
 
             return Json(new { success = false, message = "Error de conexión. Revisa n8n y tu Webhook." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EjecutarReporteManual(int id)
+        {
+            // Ejecutamos la revisión completa. 
+            // Nota: Esto respetará las validaciones de "Ya se ejecutó hoy" o "No es el día".
+            // Para una prueba REAL, el usuario debe asegurarse de que la config sea válida para hoy/ahora
+            // o podemos agregar un parámetro al job para "saltar validaciones".
+            await _programadaJob.EjecutarRevisionAsync();
+            
+            return Json(new { success = true, message = "Proceso de revisión de jobs iniciado. Revisa los logs o Telegram." });
         }
     }
 }

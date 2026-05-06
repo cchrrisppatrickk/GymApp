@@ -66,7 +66,7 @@
                                     @foreach (var dia in dias)
                                     {
                                         <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle" style="font-size: 0.7rem;">
-                                            @(dia == "1" ? "Lun" : dia == "2" ? "Mar" : dia == "3" ? "Mié" : dia == "4" ? "Jue" : dia == "5" ? "Vie" : dia == "6" ? "Sáb" : "Dom")
+                                            @(dia.Length > 3 ? dia.Substring(0, 3) : dia)
                                         </span>
                                     }
                                 </div>
@@ -87,6 +87,9 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 btnEjecutar" data-id="@item.Id">
+                                        <i class="bi bi-play-fill me-1"></i> Ejecutar
+                                    </button>
                                     <a asp-action="Editar" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3">
                                         <i class="bi bi-pencil-square me-1"></i> Editar
                                     </a>
@@ -127,3 +130,39 @@
         display: flex; align-items: center; justify-content: center;
     }
 </style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.btnEjecutar').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id = this.getAttribute('data-id');
+                const btnRef = this;
+                btnRef.disabled = true;
+
+                try {
+                    const response = await fetch(`/Alertas/EjecutarReporteManual/${id}`, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        Swal.fire({
+                            title: 'Procesado',
+                            text: result.message,
+                            icon: 'success',
+                            confirmButtonColor: '#4f46e5'
+                        });
+                    } else {
+                        Swal.fire('Error', 'No se pudo iniciar el proceso.', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'Ocurrió un error al conectar con el servidor.', 'error');
+                } finally {
+                    btnRef.disabled = false;
+                }
+            });
+        });
+    </script>
+}
