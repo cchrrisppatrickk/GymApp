@@ -45,6 +45,10 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IConfiguracionAlertaRepository, ConfiguracionAlertaRepository>();
 
+// Jobs
+builder.Services.AddScoped<NotificacionProgramadaJob>();
+builder.Services.AddScoped<AlertaVencimientoJob>();
+
 // ============================================================
 // HANGFIRE
 // ============================================================

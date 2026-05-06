@@ -5,8 +5,8 @@ namespace GymApp.Services
 {
     public interface IWebhookService
     {
-        Task EnviarAlertaInstantaneaAsync(string tipo, object datos, string chatId);
-        Task EnviarReporteProgramadoAsync(object resumenDatos, string chatId);
+        Task<bool> EnviarAlertaInstantaneaAsync(string tipo, object datos, string chatId);
+        Task<bool> EnviarReporteProgramadoAsync(object resumenDatos, string chatId);
         Task<bool> EnviarMensajePruebaAsync(string chatId);
         
         // Métodos de dominio que consultan configuraciones

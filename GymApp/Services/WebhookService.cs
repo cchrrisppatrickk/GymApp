@@ -79,9 +79,9 @@ namespace GymApp.Services
             }
         }
 
-        public async Task EnviarAlertaInstantaneaAsync(string tipo, object datos, string chatId)
+        public async Task<bool> EnviarAlertaInstantaneaAsync(string tipo, object datos, string chatId)
         {
-            if (string.IsNullOrEmpty(_webhookUrl)) return;
+            if (string.IsNullOrEmpty(_webhookUrl)) return false;
 
             var payload = new
             {
@@ -90,12 +90,12 @@ namespace GymApp.Services
                 Datos = datos
             };
 
-            await SendWebhookAsync(payload);
+            return await SendWebhookAsync(payload);
         }
 
-        public async Task EnviarReporteProgramadoAsync(object resumenDatos, string chatId)
+        public async Task<bool> EnviarReporteProgramadoAsync(object resumenDatos, string chatId)
         {
-            if (string.IsNullOrEmpty(_webhookUrl)) return;
+            if (string.IsNullOrEmpty(_webhookUrl)) return false;
 
             var payload = new
             {
@@ -104,7 +104,7 @@ namespace GymApp.Services
                 Datos = resumenDatos
             };
 
-            await SendWebhookAsync(payload);
+            return await SendWebhookAsync(payload);
         }
 
         public async Task<bool> EnviarMensajePruebaAsync(string chatId)

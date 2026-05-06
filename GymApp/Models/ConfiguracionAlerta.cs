@@ -28,4 +28,8 @@ public class ConfiguracionAlerta
     public bool Activo { get; set; }
 
     public DateTime? UltimaEjecucionVencimientos { get; set; }
+
+    public bool EnviarResumenFinanciero { get; set; }
+    
+    public DateTime? UltimaEjecucionReporte { get; set; }
 }
