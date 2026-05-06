@@ -90,22 +90,34 @@ namespace GymApp.Services
             await _membresiaRepo.InsertAsync(nuevaMembresia);
             await _membresiaRepo.SaveAsync();
 
-            // Notificar vía Webhook
-            var usuario = await _usuarioRepo.GetByIdAsync(dto.UserId);
             // --- NOTIFICACIÓN EN TIEMPO REAL ---
             var configs = await _configRepo.GetAllAsync();
-            foreach (var config in configs.Where(c => c.Activo && c.AvisarNuevaMembresia))
-            {
-                var payload = new 
-                { 
-                    ID = nuevaMembresia.MembresiaId, 
-                    Cliente = usuario.NombreCompleto, 
-                    Plan = plan.Nombre, 
-                    Precio = nuevaMembresia.PrecioAcordado,
-                    Vence = nuevaMembresia.FechaVencimiento.ToString("dd/MM/yyyy") 
-                };
+            var configsParaNotificar = configs.Where(c => c.Activo && c.AvisarNuevaMembresia).ToList();
 
-                await _webhookService.EnviarAlertaInstantaneaAsync("NUEVA_MEMBRESIA", payload, config.ChatIdDestino);
+            if (configsParaNotificar.Any())
+            {
+                var memDetalle = await _context.Membresias
+                    .Include(m => m.User)
+                    .Include(m => m.Plan)
+                    .FirstOrDefaultAsync(m => m.MembresiaId == nuevaMembresia.MembresiaId);
+
+                if (memDetalle != null)
+                {
+                    var payload = new 
+                    { 
+                        NombreCliente = memDetalle.User.NombreCompleto, 
+                        Plan = memDetalle.Plan.Nombre, 
+                        FechaInicio = memDetalle.FechaInicio, 
+                        FechaFin = memDetalle.FechaVencimiento, 
+                        Estado = memDetalle.Estado, 
+                        PrecioAcordado = memDetalle.PrecioAcordado 
+                    };
+
+                    foreach (var config in configsParaNotificar)
+                    {
+                        await _webhookService.EnviarAlertaInstantaneaAsync("NUEVA_MEMBRESIA", payload, config.ChatIdDestino);
+                    }
+                }
             }
 
             return nuevaMembresia.MembresiaId;
