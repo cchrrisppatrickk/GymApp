@@ -23,6 +23,7 @@ namespace GymApp.Services
         private readonly GymDbContext _context;
 
         private readonly IWebhookService _webhookService;
+        private readonly IConfiguracionAlertaRepository _configRepo;
 
         public MembresiaService(
             IMembresiaRepository membresiaRepo,
@@ -31,7 +32,8 @@ namespace GymApp.Services
             IGenericRepository<Usuario> usuarioRepo,
             IGenericRepository<Congelamiento> congelamientoRepo,
             GymDbContext context,
-            IWebhookService webhookService)
+            IWebhookService webhookService,
+            IConfiguracionAlertaRepository configRepo)
         {
             _membresiaRepo = membresiaRepo;
             _planRepo = planRepo;
@@ -40,6 +42,7 @@ namespace GymApp.Services
             _congelamientoRepo = congelamientoRepo;
             _context = context;
             _webhookService = webhookService;
+            _configRepo = configRepo;
         }
 
         public async Task<int> CrearMembresiaAsync(MembresiaCreateDTO dto)
@@ -89,7 +92,21 @@ namespace GymApp.Services
 
             // Notificar vía Webhook
             var usuario = await _usuarioRepo.GetByIdAsync(dto.UserId);
-            await _webhookService.NotificarNuevaMembresiaAsync(usuario.NombreCompleto, plan.Nombre, nuevaMembresia.PrecioAcordado);
+            // --- NOTIFICACIÓN EN TIEMPO REAL ---
+            var configs = await _configRepo.GetAllAsync();
+            foreach (var config in configs.Where(c => c.Activo && c.AvisarNuevaMembresia))
+            {
+                var payload = new 
+                { 
+                    ID = nuevaMembresia.MembresiaId, 
+                    Cliente = usuario.NombreCompleto, 
+                    Plan = plan.Nombre, 
+                    Precio = nuevaMembresia.PrecioAcordado,
+                    Vence = nuevaMembresia.FechaVencimiento.ToString("dd/MM/yyyy") 
+                };
+
+                await _webhookService.EnviarAlertaInstantaneaAsync("NUEVA_MEMBRESIA", payload, config.ChatIdDestino);
+            }
 
             return nuevaMembresia.MembresiaId;
         }

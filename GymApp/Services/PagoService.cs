@@ -18,14 +18,16 @@ namespace GymApp.Services
         private readonly IUsuarioRepository _usuarioRepo; // Necesitamos buscar user por DNI
         private readonly GymDbContext _context;
         private readonly IWebhookService _webhookService;
+        private readonly IConfiguracionAlertaRepository _configRepo;
 
-        public PagoService(IPagoRepository pagoRepo, IMembresiaRepository membresiaRepo, IUsuarioRepository usuarioRepo, GymDbContext context, IWebhookService webhookService)
+        public PagoService(IPagoRepository pagoRepo, IMembresiaRepository membresiaRepo, IUsuarioRepository usuarioRepo, GymDbContext context, IWebhookService webhookService, IConfiguracionAlertaRepository configRepo)
         {
             _pagoRepo = pagoRepo;
             _membresiaRepo = membresiaRepo;
             _usuarioRepo = usuarioRepo;
             _context = context;
             _webhookService = webhookService;
+            _configRepo = configRepo;
         }
 
         public async Task<List<DeudaInfoDTO>> BuscarDeudaClienteAsync(string termino)
@@ -114,7 +116,22 @@ namespace GymApp.Services
             // 4. Guardar todo (Pago + Actualización de Membresía si hubo) en una transacción
             await _pagoRepo.SaveAsync();
 
-            await _webhookService.NotificarNuevoPagoAsync(dto.Monto, membresia.User.NombreCompleto, dto.MetodoPago);
+            // --- NOTIFICACIÓN EN TIEMPO REAL ---
+            var configs = await _configRepo.GetAllAsync();
+            foreach (var config in configs.Where(c => c.Activo && c.AvisarNuevoPago))
+            {
+                var payload = new 
+                { 
+                    ID = nuevoPago.PagoId, 
+                    Cliente = membresia.User.NombreCompleto, 
+                    Monto = dto.Monto, 
+                    Metodo = dto.MetodoPago, 
+                    Plan = membresia.Plan.Nombre,
+                    Fecha = nuevoPago.FechaPago.ToString("dd/MM/yyyy HH:mm") 
+                };
+
+                await _webhookService.EnviarAlertaInstantaneaAsync("NUEVO_PAGO", payload, config.ChatIdDestino);
+            }
 
             return nuevoPago.PagoId;
         }

@@ -22,13 +22,15 @@ namespace GymApp.Services
         private readonly IWebHostEnvironment _env;
         private readonly GymDbContext _context;
         private readonly IWebhookService _webhookService;
+        private readonly IConfiguracionAlertaRepository _configRepo;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository, IWebHostEnvironment env, GymDbContext context, IWebhookService webhookService)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IWebHostEnvironment env, GymDbContext context, IWebhookService webhookService, IConfiguracionAlertaRepository configRepo)
         {
             _usuarioRepository = usuarioRepository;
             _env = env;
             _context = context;
             _webhookService = webhookService;
+            _configRepo = configRepo;
         }
 
         public async Task<IEnumerable<Usuario>> ObtenerTodosAsync()
@@ -134,7 +136,21 @@ namespace GymApp.Services
             await _usuarioRepository.InsertAsync(usuario);
             await _usuarioRepository.SaveAsync();
 
-            await _webhookService.NotificarNuevoUsuarioAsync(usuario);
+            // --- NOTIFICACIÓN EN TIEMPO REAL ---
+            var configs = await _configRepo.GetAllAsync();
+            foreach (var config in configs.Where(c => c.Activo && c.AvisarNuevoUsuario))
+            {
+                var payload = new 
+                { 
+                    ID = usuario.UserId, 
+                    Nombre = usuario.NombreCompleto, 
+                    Telefono = usuario.Telefono ?? "No registrado", 
+                    DNI = usuario.Dni ?? "No registrado", 
+                    Fecha = usuario.FechaRegistro?.ToString("dd/MM/yyyy HH:mm") 
+                };
+
+                await _webhookService.EnviarAlertaInstantaneaAsync("NUEVO_USUARIO", payload, config.ChatIdDestino);
+            }
 
             return usuario;
         }
