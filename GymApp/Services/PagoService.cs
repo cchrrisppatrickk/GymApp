@@ -118,19 +118,32 @@ namespace GymApp.Services
 
             // --- NOTIFICACIÓN EN TIEMPO REAL ---
             var configs = await _configRepo.GetAllAsync();
-            foreach (var config in configs.Where(c => c.Activo && c.AvisarNuevoPago))
-            {
-                var payload = new 
-                { 
-                    ID = nuevoPago.PagoId, 
-                    Cliente = membresia.User.NombreCompleto, 
-                    Monto = dto.Monto, 
-                    Metodo = dto.MetodoPago, 
-                    Plan = membresia.Plan.Nombre,
-                    Fecha = nuevoPago.FechaPago.ToString("dd/MM/yyyy HH:mm") 
-                };
+            var configsParaNotificar = configs.Where(c => c.Activo && c.AvisarNuevoPago).ToList();
 
-                await _webhookService.EnviarAlertaInstantaneaAsync("NUEVO_PAGO", payload, config.ChatIdDestino);
+            if (configsParaNotificar.Any())
+            {
+                var pagoDetalle = await _context.PagosMembresia
+                    .Include(p => p.Membresia)
+                    .ThenInclude(m => m.User)
+                    .FirstOrDefaultAsync(p => p.PagoId == nuevoPago.PagoId);
+
+                if (pagoDetalle != null)
+                {
+                    var payload = new 
+                    { 
+                        NombreCliente = pagoDetalle.Membresia.User.NombreCompleto, 
+                        PagoID = pagoDetalle.PagoId, 
+                        Monto = pagoDetalle.Monto, 
+                        MetodoPago = pagoDetalle.MetodoPago, 
+                        FechaHora = pagoDetalle.FechaPago, 
+                        Observaciones = pagoDetalle.Observaciones ?? "Ninguna" 
+                    };
+
+                    foreach (var config in configsParaNotificar)
+                    {
+                        await _webhookService.EnviarAlertaInstantaneaAsync("NUEVO_PAGO", payload, config.ChatIdDestino);
+                    }
+                }
             }
 
             return nuevoPago.PagoId;
