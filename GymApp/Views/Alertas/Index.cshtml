@@ -1,315 +1,119 @@
-@model GymApp.Models.ConfiguracionAlerta
+@model IEnumerable<GymApp.Models.ConfiguracionAlerta>
 @{
-    ViewData["Title"] = "Panel de Notificaciones";
-    var diasGuardados = Model?.DiasSemana?.Split(',') ?? Array.Empty<string>();
+    ViewData["Title"] = "Listado de Alertas";
 }
 
 <div class="container-fluid py-4 px-4">
-
-    @* --- CABECERA DEL PANEL --- *@
     <div class="d-flex align-items-center mb-4">
         <div class="notif-icon-header me-3">
             <i class="bi bi-bell-fill"></i>
         </div>
         <div>
-            <h2 class="fw-bold mb-0">Panel de Notificaciones</h2>
-            <p class="text-muted mb-0 small">Configura alertas en tiempo real y reportes programados vía n8n.</p>
+            <h2 class="fw-bold mb-0">Configuraciones de Alertas</h2>
+            <p class="text-muted mb-0 small">Gestiona múltiples destinos y horarios para tus notificaciones.</p>
         </div>
         <div class="ms-auto">
-            @if (Model.Activo)
-            {
-                <span class="badge rounded-pill bg-success-subtle text-success border border-success fs-6 px-3 py-2">
-                    <i class="bi bi-check-circle-fill me-1"></i> Sistema Activo
-                </span>
-            }
-            else
-            {
-                <span class="badge rounded-pill bg-secondary-subtle text-secondary border fs-6 px-3 py-2">
-                    <i class="bi bi-pause-circle-fill me-1"></i> Sistema Inactivo
-                </span>
-            }
+            <a asp-action="Crear" class="btn btn-primary btn-lg rounded-pill shadow-sm px-4 fw-bold">
+                <i class="bi bi-plus-lg me-2"></i> Nueva Configuración
+            </a>
         </div>
     </div>
 
-    @* --- ALERTAS TEMPDATA --- *@
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm" role="alert">
+        <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm" role="alert">
-            <i class="bi bi-x-circle-fill me-2"></i> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
 
-    @* ===== FORMULARIO UNIFICADO ===== *@
-    <form asp-action="Guardar" method="post" id="formAlertas">
-        <input type="hidden" asp-for="Id" />
-
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-
-            @* --- NAV TABS --- *@
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-                <ul class="nav nav-tabs nav-tabs-custom" id="alertasTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active fw-semibold" id="tab-realtime" data-bs-toggle="tab"
-                                data-bs-target="#panel-realtime" type="button" role="tab">
-                            <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
-                            General y Tiempo Real
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-semibold" id="tab-programado" data-bs-toggle="tab"
-                                data-bs-target="#panel-programado" type="button" role="tab">
-                            <i class="bi bi-calendar-check-fill text-primary me-2"></i>
-                            Reporte Diario Programado
-                        </button>
-                    </li>
-                </ul>
-            </div>
-
-            @* --- TAB CONTENT --- *@
-            <div class="card-body p-4 tab-content" id="alertasTabContent">
-
-                @* =============================================
-                   PESTAÑA 1: GENERAL Y TIEMPO REAL
-                   ============================================= *@
-                <div class="tab-pane fade show active" id="panel-realtime" role="tabpanel">
-
-                    @* Destino (Chat ID) *@
-                    <div class="section-block mb-5">
-                        <div class="section-header">
-                            <i class="bi bi-send-fill text-primary"></i>
-                            <span>Destino de las Alertas</span>
-                        </div>
-                        <div class="row align-items-end g-3">
-                            <div class="col-md-8">
-                                <label asp-for="ChatIdDestino" class="form-label fw-semibold">
-                                    Telegram Chat ID
-                                    <span class="ms-1 text-muted fw-normal small">(ID del grupo o canal)</span>
-                                </label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white">
-                                        <i class="bi bi-telegram text-primary"></i>
-                                    </span>
-                                    <input asp-for="ChatIdDestino" type="text" class="form-control"
-                                           placeholder="Ej: -100123456789" id="ChatIdDestino" />
-                                    <button type="button" class="btn btn-outline-primary px-4" id="btnProbarConexion">
-                                        <i class="bi bi-send me-1"></i> Probar
-                                    </button>
-                                </div>
-                                <div id="resultadoPrueba" class="form-text mt-2 d-none"></div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="toggle-card h-100 d-flex align-items-center justify-content-between p-3 rounded-3 border @(Model.Activo ? "border-success bg-success-subtle" : "bg-light")">
-                                    <div>
-                                        <div class="fw-semibold">Estado Maestro</div>
-                                        <small class="text-muted">Activa/desactiva todo el sistema</small>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Chat Destino</th>
+                        <th>Hora Programada</th>
+                        <th>Días</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted">#@item.Id</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="chat-icon-sm me-2 bg-primary-subtle text-primary">
+                                        <i class="bi bi-telegram"></i>
                                     </div>
-                                    <div class="form-check form-switch ms-3 mb-0">
-                                        <input class="form-check-input fs-4" type="checkbox" role="switch" asp-for="Activo" id="switchActivo">
-                                    </div>
+                                    <span class="fw-semibold">@item.ChatIdDestino</span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    @* Notificaciones Instantáneas *@
-                    <div class="section-block">
-                        <div class="section-header">
-                            <i class="bi bi-lightning-charge-fill text-warning"></i>
-                            <span>Notificaciones Instantáneas</span>
-                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-auto">Tiempo Real</span>
-                        </div>
-                        <p class="text-muted small mb-4">
-                            Se envían <strong>al instante</strong> cuando ocurre el evento en la aplicación.
-                            No requieren programación horaria.
-                        </p>
-                        <div class="switch-list">
-                            <div class="switch-item">
-                                <div class="switch-icon bg-success-subtle text-success">
-                                    <i class="bi bi-person-plus-fill"></i>
-                                </div>
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Aviso de Nuevo Usuario</div>
-                                    <small class="text-muted">Notificar cuando se registra un cliente nuevo.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevoUsuario">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-icon bg-primary-subtle text-primary">
-                                    <i class="bi bi-wallet2"></i>
-                                </div>
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Aviso de Nuevo Pago</div>
-                                    <small class="text-muted">Notificar cada vez que se registra un pago.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevoPago">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-icon bg-warning-subtle text-warning">
-                                    <i class="bi bi-card-checklist"></i>
-                                </div>
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Aviso de Nueva Membresía</div>
-                                    <small class="text-muted">Notificar al asignar o renovar un plan.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevaMembresia">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                @* =============================================
-                   PESTAÑA 2: REPORTE DIARIO PROGRAMADO
-                   ============================================= *@
-                <div class="tab-pane fade" id="panel-programado" role="tabpanel">
-
-                    @* Encabezado: Habilitar reporte *@
-                    <div class="section-block mb-5">
-                        <div class="section-header">
-                            <i class="bi bi-calendar-check-fill text-primary"></i>
-                            <span>Resumen Nocturno / Programado</span>
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-auto">Diario</span>
-                        </div>
-
-                        <div class="row g-4 align-items-stretch">
-                            @* Switch Activo *@
-                            <div class="col-md-4">
-                                <div class="toggle-card h-100 d-flex align-items-center justify-content-between p-3 rounded-3 border @(Model.Activo ? "border-primary bg-primary-subtle" : "bg-light")">
-                                    <div>
-                                        <div class="fw-semibold">Habilitar Reporte</div>
-                                        <small class="text-muted">Activa el envío automático diario.</small>
-                                    </div>
-                                    <div class="form-check form-switch ms-3 mb-0">
-                                        <input class="form-check-input fs-4" type="checkbox" role="switch" asp-for="Activo" id="switchActivoProgramado">
-                                    </div>
-                                </div>
-                            </div>
-
-                            @* Hora de Envío *@
-                            <div class="col-md-4">
-                                <label asp-for="HoraEnvio" class="form-label fw-semibold">Hora de Envío</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white">
-                                        <i class="bi bi-clock-fill text-primary"></i>
-                                    </span>
-                                    <input asp-for="HoraEnvio" type="time" class="form-control fs-5" />
-                                </div>
-                                <div class="form-text">Se ejecutará a esta hora todos los días seleccionados.</div>
-                            </div>
-
-                            @* Días de la semana *@
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold d-block">Días de Ejecución</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach (var dia in new[] {
-                                        new { Val = "1", Text = "Lun" }, new { Val = "2", Text = "Mar" },
-                                        new { Val = "3", Text = "Mié" }, new { Val = "4", Text = "Jue" },
-                                        new { Val = "5", Text = "Vie" }, new { Val = "6", Text = "Sáb" },
-                                        new { Val = "0", Text = "Dom" }
-                                    })
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border px-2 py-1">
+                                    <i class="bi bi-clock me-1"></i> @item.HoraEnvio.ToString(@"hh\:mm")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    @{
+                                        var dias = item.DiasSemana?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                                    }
+                                    @foreach (var dia in dias)
                                     {
-                                        <input type="checkbox" class="btn-check" name="diasSeleccionados"
-                                               id="dia_@dia.Val" value="@dia.Val"
-                                               @(diasGuardados.Contains(dia.Val) ? "checked" : "")>
-                                        <label class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold"
-                                               for="dia_@dia.Val">@dia.Text</label>
+                                        <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle" style="font-size: 0.7rem;">
+                                            @(dia == "1" ? "Lun" : dia == "2" ? "Mar" : dia == "3" ? "Mié" : dia == "4" ? "Jue" : dia == "5" ? "Vie" : dia == "6" ? "Sáb" : "Dom")
+                                        </span>
                                     }
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    @* Contenido del reporte *@
-                    <div class="section-block">
-                        <div class="section-header">
-                            <i class="bi bi-list-check text-info"></i>
-                            <span>Contenido del Reporte</span>
-                        </div>
-                        <p class="text-muted small mb-4">
-                            Selecciona qué información se incluirá en el resumen diario enviado a Telegram.
-                        </p>
-                        <div class="switch-list">
-                            <div class="switch-item">
-                                <div class="switch-icon bg-info-subtle text-info">
-                                    <i class="bi bi-cash-coin"></i>
+                            </td>
+                            <td class="text-center">
+                                @if (item.Activo)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Activo
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 rounded-pill">
+                                        <i class="bi bi-pause-circle-fill me-1"></i> Pausado
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-action="Editar" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                        <i class="bi bi-pencil-square me-1"></i> Editar
+                                    </a>
+                                    <form asp-action="Eliminar" asp-route-id="@item.Id" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta configuración?');" style="display:inline;">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            <i class="bi bi-trash3-fill me-1"></i> Eliminar
+                                        </button>
+                                    </form>
                                 </div>
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Pagos del Día</div>
-                                    <small class="text-muted">Resumen de ingresos recibidos en las últimas 24hs.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarPagosHoy">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-icon bg-success-subtle text-success">
-                                    <i class="bi bi-people-fill"></i>
-                                </div>
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Nuevos Miembros</div>
-                                    <small class="text-muted">Lista de clientes registrados en el día.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarNuevosMiembros">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-icon bg-warning-subtle text-warning">
-                                    <i class="bi bi-hourglass-split"></i>
-                                </div>
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Vencimientos Próximos</div>
-                                    <small class="text-muted">Membresías que vencen en los próximos días.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarProximosVencimientos">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-icon bg-danger-subtle text-danger">
-                                    <i class="bi bi-exclamation-triangle-fill"></i>
-                                </div>
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Deudas Pendientes</div>
-                                    <small class="text-muted">Clientes con saldos atrasados o impagos.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarDeudasPendientes">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @* ===== BOTÓN GUARDADO GLOBAL (fuera de los paneles) ===== *@
-            <div class="card-footer bg-white border-top px-4 py-3 d-flex align-items-center justify-content-between">
-                <p class="text-muted small mb-0">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Los cambios aplican a ambas pestañas al presionar guardar.
-                </p>
-                <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold rounded-pill shadow-sm">
-                    <i class="bi bi-save2-fill me-2"></i> Guardar Configuración General
-                </button>
-            </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                                No hay configuraciones de alertas creadas aún.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    </form>
+    </div>
 </div>
 
-@* ===== ESTILOS LOCALES ===== *@
 <style>
     .notif-icon-header {
         width: 52px; height: 52px;
@@ -317,119 +121,9 @@
         border-radius: 14px;
         display: flex; align-items: center; justify-content: center;
         font-size: 1.5rem; color: white;
-        flex-shrink: 0;
     }
-
-    /* Nav Tabs personalizados */
-    .nav-tabs-custom {
-        border-bottom: 2px solid #e9ecef;
-        gap: 0.25rem;
-    }
-    .nav-tabs-custom .nav-link {
-        border: none;
-        border-bottom: 3px solid transparent;
-        border-radius: 0;
-        color: #6c757d;
-        padding: 0.75rem 1.25rem;
-        margin-bottom: -2px;
-        transition: all 0.2s;
-    }
-    .nav-tabs-custom .nav-link:hover { color: #0d6efd; background: #f8f9ff; border-radius: 8px 8px 0 0; }
-    .nav-tabs-custom .nav-link.active {
-        color: #0d6efd;
-        border-bottom-color: #0d6efd;
-        font-weight: 600;
-        background: transparent;
-    }
-
-    /* Bloques de sección */
-    .section-block { padding: 0.5rem 0 1.5rem; }
-    .section-header {
-        display: flex; align-items: center; gap: 0.6rem;
-        font-size: 1.05rem; font-weight: 700;
-        color: #212529;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid #f0f0f0;
-        margin-bottom: 1.25rem;
-    }
-
-    /* Lista de switches */
-    .switch-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    .switch-item {
-        display: flex; align-items: center; gap: 1rem;
-        padding: 1rem 1.25rem;
-        background: #f8f9fa;
-        border-radius: 12px;
-        border: 1px solid #e9ecef;
-        transition: background 0.2s, border-color 0.2s;
-    }
-    .switch-item:hover { background: #f0f4ff; border-color: #c7d2fe; }
-
-    .switch-icon {
-        width: 42px; height: 42px; border-radius: 10px;
+    .chat-icon-sm {
+        width: 32px; height: 32px; border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.15rem; flex-shrink: 0;
     }
-    .switch-text { flex: 1; }
-
-    /* Switch grande */
-    .switch-lg { width: 3em !important; height: 1.6em !important; cursor: pointer; }
-
-    /* Tarjeta de toggle (Estado Maestro) */
-    .toggle-card { transition: background 0.3s, border-color 0.3s; }
 </style>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Sincronizar los dos switches "Activo" entre pestañas
-        const switchActivo = document.getElementById('switchActivo');
-        const switchActivoProgramado = document.getElementById('switchActivoProgramado');
-
-        if (switchActivo && switchActivoProgramado) {
-            switchActivo.addEventListener('change', () => { switchActivoProgramado.checked = switchActivo.checked; });
-            switchActivoProgramado.addEventListener('change', () => { switchActivo.checked = switchActivoProgramado.checked; });
-        }
-
-        // Botón Probar Conexión
-        document.getElementById('btnProbarConexion').addEventListener('click', async function () {
-            const chatId = document.getElementById('ChatIdDestino').value.trim();
-            const resultDiv = document.getElementById('resultadoPrueba');
-
-            if (!chatId) {
-                Swal.fire('Atención', 'Por favor ingresa un Chat ID primero.', 'warning');
-                return;
-            }
-
-            const btn = this;
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Enviando...';
-            btn.disabled = true;
-            resultDiv.classList.add('d-none');
-
-            try {
-                const response = await fetch('/Alertas/ProbarConexion', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(chatId)
-                });
-
-                const result = await response.json();
-
-                resultDiv.classList.remove('d-none');
-                if (result.success) {
-                    resultDiv.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i><span class="text-success fw-semibold">' + result.message + '</span>';
-                    Swal.fire('¡Éxito!', result.message, 'success');
-                } else {
-                    resultDiv.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-1"></i><span class="text-danger fw-semibold">' + result.message + '</span>';
-                    Swal.fire('Error', result.message, 'error');
-                }
-            } catch (error) {
-                Swal.fire('Error', 'Problema de conexión con la API.', 'error');
-            } finally {
-                btn.innerHTML = originalHtml;
-                btn.disabled = false;
-            }
-        });
-    </script>
-}

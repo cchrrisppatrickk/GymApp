@@ -7,5 +7,10 @@ namespace GymApp.Services
         Task EnviarAlertaInstantaneaAsync(string tipo, object datos, string chatId);
         Task EnviarReporteProgramadoAsync(object resumenDatos, string chatId);
         Task<bool> EnviarMensajePruebaAsync(string chatId);
+        
+        // Métodos de dominio que consultan configuraciones
+        Task NotificarNuevoUsuarioAsync(Usuario usuario);
+        Task NotificarNuevoPagoAsync(decimal monto, string cliente, string metodoPago);
+        Task NotificarNuevaMembresiaAsync(string cliente, string plan, decimal precio);
     }
 }

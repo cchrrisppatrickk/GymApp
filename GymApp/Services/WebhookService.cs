@@ -15,12 +15,65 @@ namespace GymApp.Services
         private readonly HttpClient _httpClient;
         private readonly string _webhookUrl;
         private readonly ILogger<WebhookService> _logger;
+        private readonly IConfiguracionAlertaRepository _configRepo;
 
-        public WebhookService(IHttpClientFactory httpClientFactory, IOptions<N8nSettings> n8nSettings, ILogger<WebhookService> logger)
+        public WebhookService(
+            IHttpClientFactory httpClientFactory, 
+            IOptions<N8nSettings> n8nSettings, 
+            ILogger<WebhookService> logger,
+            IConfiguracionAlertaRepository configRepo)
         {
             _httpClient = httpClientFactory.CreateClient();
             _webhookUrl = n8nSettings.Value.WebhookUrl;
             _logger = logger;
+            _configRepo = configRepo;
+        }
+
+        public async Task NotificarNuevoUsuarioAsync(Usuario usuario)
+        {
+            var configs = (await _configRepo.GetAllAsync())
+                .Where(c => c.Activo && c.AvisarNuevoUsuario);
+
+            foreach (var config in configs)
+            {
+                await EnviarAlertaInstantaneaAsync("NUEVO_USUARIO", new
+                {
+                    NombreCompleto = usuario.NombreCompleto,
+                    FechaRegistro = usuario.FechaRegistro
+                }, config.ChatIdDestino);
+            }
+        }
+
+        public async Task NotificarNuevoPagoAsync(decimal monto, string cliente, string metodoPago)
+        {
+            var configs = (await _configRepo.GetAllAsync())
+                .Where(c => c.Activo && c.AvisarNuevoPago);
+
+            foreach (var config in configs)
+            {
+                await EnviarAlertaInstantaneaAsync("NUEVO_PAGO", new
+                {
+                    Monto = monto,
+                    Cliente = cliente,
+                    MetodoPago = metodoPago
+                }, config.ChatIdDestino);
+            }
+        }
+
+        public async Task NotificarNuevaMembresiaAsync(string cliente, string plan, decimal precio)
+        {
+            var configs = (await _configRepo.GetAllAsync())
+                .Where(c => c.Activo && c.AvisarNuevaMembresia);
+
+            foreach (var config in configs)
+            {
+                await EnviarAlertaInstantaneaAsync("NUEVA_MEMBRESIA", new
+                {
+                    Cliente = cliente,
+                    Plan = plan,
+                    Precio = precio
+                }, config.ChatIdDestino);
+            }
         }
 
         public async Task EnviarAlertaInstantaneaAsync(string tipo, object datos, string chatId)

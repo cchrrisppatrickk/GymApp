@@ -1,0 +1,215 @@
+@model GymApp.Models.ConfiguracionAlerta
+@{
+    ViewData["Title"] = "Editar Configuración de Alerta";
+    var diasGuardados = Model?.DiasSemana?.Split(',') ?? Array.Empty<string>();
+}
+
+<div class="container-fluid py-4 px-4">
+    <div class="mb-4">
+        <a asp-action="Index" class="text-decoration-none text-muted small">
+            <i class="bi bi-arrow-left me-1"></i> Volver al listado
+        </a>
+        <h2 class="fw-bold mt-2">Editar Configuración #@Model.Id</h2>
+    </div>
+
+    <form asp-action="Editar" method="post" id="formAlertas">
+        <input type="hidden" asp-for="Id" />
+        
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                <ul class="nav nav-tabs nav-tabs-custom" id="alertasTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-semibold" id="tab-realtime" data-bs-toggle="tab"
+                                data-bs-target="#panel-realtime" type="button" role="tab">
+                            <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
+                            General y Tiempo Real
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-semibold" id="tab-programado" data-bs-toggle="tab"
+                                data-bs-target="#panel-programado" type="button" role="tab">
+                            <i class="bi bi-calendar-check-fill text-primary me-2"></i>
+                            Reporte Programado
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body p-4 tab-content" id="alertasTabContent">
+                @* Pestaña 1: Tiempo Real *@
+                <div class="tab-pane fade show active" id="panel-realtime" role="tabpanel">
+                    <div class="section-block mb-5">
+                        <div class="section-header">
+                            <i class="bi bi-send-fill text-primary"></i>
+                            <span>Destino y Estado</span>
+                        </div>
+                        <div class="row align-items-end g-3">
+                            <div class="col-md-8">
+                                <label asp-for="ChatIdDestino" class="form-label fw-semibold">Telegram Chat ID</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white"><i class="bi bi-telegram text-primary"></i></span>
+                                    <input asp-for="ChatIdDestino" class="form-control" placeholder="Ej: -100123456789" id="ChatIdDestino" />
+                                    <button type="button" class="btn btn-outline-primary px-4" id="btnProbarConexion">Probar</button>
+                                </div>
+                                <div id="resultadoPrueba" class="form-text mt-2 d-none"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="toggle-card p-3 rounded-3 border @(Model.Activo ? "border-success bg-success-subtle" : "bg-light") d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="fw-semibold">Activo</div>
+                                        <small class="text-muted">Habilitar esta config.</small>
+                                    </div>
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input fs-4" type="checkbox" role="switch" asp-for="Activo">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-block">
+                        <div class="section-header">
+                            <i class="bi bi-lightning-charge-fill text-warning"></i>
+                            <span>Notificaciones Instantáneas</span>
+                        </div>
+                        <div class="switch-list">
+                            <div class="switch-item">
+                                <div class="switch-text">
+                                    <div class="fw-semibold">Aviso de Nuevo Usuario</div>
+                                    <small class="text-muted">Al registrarse un cliente nuevo.</small>
+                                </div>
+                                <div class="form-check form-switch ms-auto mb-0">
+                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevoUsuario">
+                                </div>
+                            </div>
+                            <div class="switch-item">
+                                <div class="switch-text">
+                                    <div class="fw-semibold">Aviso de Nuevo Pago</div>
+                                    <small class="text-muted">Al registrarse un pago.</small>
+                                </div>
+                                <div class="form-check form-switch ms-auto mb-0">
+                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevoPago">
+                                </div>
+                            </div>
+                            <div class="switch-item">
+                                <div class="switch-text">
+                                    <div class="fw-semibold">Aviso de Nueva Membresía</div>
+                                    <small class="text-muted">Al asignar o renovar un plan.</small>
+                                </div>
+                                <div class="form-check form-switch ms-auto mb-0">
+                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevaMembresia">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Pestaña 2: Reporte Programado *@
+                <div class="tab-pane fade" id="panel-programado" role="tabpanel">
+                    <div class="section-block mb-5">
+                        <div class="section-header">
+                            <i class="bi bi-calendar-check-fill text-primary"></i>
+                            <span>Programación de Reporte</span>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label asp-for="HoraEnvio" class="form-label fw-semibold">Hora de Envío</label>
+                                <input asp-for="HoraEnvio" type="time" class="form-control form-control-lg" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold d-block">Días de Ejecución</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var dia in new[] {
+                                        new { Val = "1", Text = "Lun" }, new { Val = "2", Text = "Mar" },
+                                        new { Val = "3", Text = "Mié" }, new { Val = "4", Text = "Jue" },
+                                        new { Val = "5", Text = "Vie" }, new { Val = "6", Text = "Sáb" },
+                                        new { Val = "0", Text = "Dom" }
+                                    })
+                                    {
+                                        <input type="checkbox" class="btn-check" name="diasSeleccionados"
+                                               id="dia_@dia.Val" value="@dia.Val"
+                                               @(diasGuardados.Contains(dia.Val) ? "checked" : "")>
+                                        <label class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold"
+                                               for="dia_@dia.Val">@dia.Text</label>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-block">
+                        <div class="section-header">
+                            <i class="bi bi-list-check text-info"></i>
+                            <span>Contenido del Reporte</span>
+                        </div>
+                        <div class="switch-list">
+                            <div class="switch-item">
+                                <div class="switch-text"><div class="fw-semibold">Pagos del Día</div></div>
+                                <div class="form-check form-switch ms-auto mb-0">
+                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarPagosHoy">
+                                </div>
+                            </div>
+                            <div class="switch-item">
+                                <div class="switch-text"><div class="fw-semibold">Nuevos Miembros</div></div>
+                                <div class="form-check form-switch ms-auto mb-0">
+                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarNuevosMiembros">
+                                </div>
+                            </div>
+                            <div class="switch-item">
+                                <div class="switch-text"><div class="fw-semibold">Vencimientos Próximos</div></div>
+                                <div class="form-check form-switch ms-auto mb-0">
+                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarProximosVencimientos">
+                                </div>
+                            </div>
+                            <div class="switch-item">
+                                <div class="switch-text"><div class="fw-semibold">Deudas Pendientes</div></div>
+                                <div class="form-check form-switch ms-auto mb-0">
+                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarDeudasPendientes">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white border-top px-4 py-3 text-end">
+                <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold rounded-pill shadow-sm">
+                    <i class="bi bi-save2-fill me-2"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .nav-tabs-custom { border-bottom: 2px solid #e9ecef; gap: 0.25rem; }
+    .nav-tabs-custom .nav-link { border: none; border-bottom: 3px solid transparent; color: #6c757d; padding: 0.75rem 1.25rem; transition: all 0.2s; }
+    .nav-tabs-custom .nav-link.active { color: #0d6efd; border-bottom-color: #0d6efd; font-weight: 600; }
+    .section-header { display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem; font-weight: 700; color: #212529; padding-bottom: 0.75rem; border-bottom: 2px solid #f0f0f0; margin-bottom: 1.25rem; }
+    .switch-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .switch-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: #f8f9fa; border-radius: 12px; border: 1px solid #e9ecef; }
+    .switch-lg { width: 3em !important; height: 1.6em !important; cursor: pointer; }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('btnProbarConexion').addEventListener('click', async function () {
+            const chatId = document.getElementById('ChatIdDestino').value.trim();
+            if (!chatId) { Swal.fire('Atención', 'Ingresa un Chat ID.', 'warning'); return; }
+            const btn = this;
+            btn.disabled = true;
+            try {
+                const response = await fetch('/Alertas/ProbarConexion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(chatId)
+                });
+                const result = await response.json();
+                if (result.success) { Swal.fire('¡Éxito!', result.message, 'success'); }
+                else { Swal.fire('Error', result.message, 'error'); }
+            } catch (error) { Swal.fire('Error', 'Error de red.', 'error'); }
+            finally { btn.disabled = false; }
+        });
+    </script>
+}

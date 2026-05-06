@@ -22,13 +22,16 @@ namespace GymApp.Services
         private readonly IGenericRepository<Congelamiento> _congelamientoRepo;
         private readonly GymDbContext _context;
 
+        private readonly IWebhookService _webhookService;
+
         public MembresiaService(
             IMembresiaRepository membresiaRepo,
             IPlaneRepository planRepo,
             ITurnoRepository turnoRepo,
             IGenericRepository<Usuario> usuarioRepo,
             IGenericRepository<Congelamiento> congelamientoRepo,
-            GymDbContext context)
+            GymDbContext context,
+            IWebhookService webhookService)
         {
             _membresiaRepo = membresiaRepo;
             _planRepo = planRepo;
@@ -36,6 +39,7 @@ namespace GymApp.Services
             _usuarioRepo = usuarioRepo;
             _congelamientoRepo = congelamientoRepo;
             _context = context;
+            _webhookService = webhookService;
         }
 
         public async Task<int> CrearMembresiaAsync(MembresiaCreateDTO dto)
@@ -82,6 +86,10 @@ namespace GymApp.Services
 
             await _membresiaRepo.InsertAsync(nuevaMembresia);
             await _membresiaRepo.SaveAsync();
+
+            // Notificar vía Webhook
+            var usuario = await _usuarioRepo.GetByIdAsync(dto.UserId);
+            await _webhookService.NotificarNuevaMembresiaAsync(usuario.NombreCompleto, plan.Nombre, nuevaMembresia.PrecioAcordado);
 
             return nuevaMembresia.MembresiaId;
         }

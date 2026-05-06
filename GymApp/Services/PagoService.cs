@@ -114,12 +114,7 @@ namespace GymApp.Services
             // 4. Guardar todo (Pago + Actualización de Membresía si hubo) en una transacción
             await _pagoRepo.SaveAsync();
 
-            await _webhookService.EnviarAlertaInstantaneaAsync("NUEVO_PAGO", new
-            {
-                Monto = dto.Monto,
-                Cliente = membresia.User.NombreCompleto,
-                MetodoPago = dto.MetodoPago
-            }, string.Empty);
+            await _webhookService.NotificarNuevoPagoAsync(dto.Monto, membresia.User.NombreCompleto, dto.MetodoPago);
 
             return nuevoPago.PagoId;
         }

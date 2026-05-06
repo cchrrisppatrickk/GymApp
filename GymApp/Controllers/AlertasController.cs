@@ -22,39 +22,69 @@ namespace GymApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var config = await _configuracionAlertaRepository.ObtenerConfiguracionGlobalAsync();
-            return View(config);
+            var configs = await _configuracionAlertaRepository.GetAllAsync();
+            return View(configs);
+        }
+
+        public IActionResult Crear()
+        {
+            var model = new ConfiguracionAlerta
+            {
+                Activo = true,
+                HoraEnvio = new System.TimeSpan(20, 0, 0)
+            };
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Guardar(ConfiguracionAlerta modelo, string[] diasSeleccionados)
+        public async Task<IActionResult> Crear(ConfiguracionAlerta modelo, string[] diasSeleccionados)
         {
             if (ModelState.IsValid)
             {
-                if (diasSeleccionados != null && diasSeleccionados.Any())
-                {
-                    modelo.DiasSemana = string.Join(",", diasSeleccionados);
-                }
-                else
-                {
-                    modelo.DiasSemana = string.Empty;
-                }
+                modelo.DiasSemana = diasSeleccionados != null ? string.Join(",", diasSeleccionados) : string.Empty;
 
-                var exito = await _configuracionAlertaRepository.GuardarConfiguracionGlobalAsync(modelo);
-                
-                if (exito)
-                {
-                    TempData["Success"] = "Configuración global actualizada exitosamente.";
-                }
-                else
-                {
-                    TempData["Error"] = "No se pudo guardar la configuración.";
-                }
-                
+                await _configuracionAlertaRepository.InsertAsync(modelo);
+                await _configuracionAlertaRepository.SaveAsync();
+
+                TempData["Success"] = "Configuración creada exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
-            return View("Index", modelo);
+            return View(modelo);
+        }
+
+        public async Task<IActionResult> Editar(int id)
+        {
+            var model = await _configuracionAlertaRepository.GetByIdAsync(id);
+            if (model == null) return NotFound();
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(ConfiguracionAlerta modelo, string[] diasSeleccionados)
+        {
+            if (ModelState.IsValid)
+            {
+                modelo.DiasSemana = diasSeleccionados != null ? string.Join(",", diasSeleccionados) : string.Empty;
+
+                await _configuracionAlertaRepository.UpdateAsync(modelo);
+                await _configuracionAlertaRepository.SaveAsync();
+
+                TempData["Success"] = "Configuración actualizada exitosamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(modelo);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            await _configuracionAlertaRepository.DeleteAsync(id);
+            await _configuracionAlertaRepository.SaveAsync();
+            TempData["Success"] = "Configuración eliminada exitosamente.";
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
