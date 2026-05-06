@@ -26,4 +26,6 @@ public class ConfiguracionAlerta
     public string ChatIdDestino { get; set; } = string.Empty;
 
     public bool Activo { get; set; }
+
+    public DateTime? UltimaEjecucionVencimientos { get; set; }
 }

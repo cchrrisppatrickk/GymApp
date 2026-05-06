@@ -108,6 +108,11 @@ RecurringJob.AddOrUpdate<NotificacionProgramadaJob>(
     job => job.EjecutarRevisionAsync(),
     Cron.Minutely);
 
+RecurringJob.AddOrUpdate<AlertaVencimientoJob>(
+    "AvisoVencimientos",
+    job => job.EjecutarAlertasAsync(),
+    Cron.Hourly);
+
 // ============================================================
 // 3. ACTIVAR EL MIDDLEWARE (¡IMPORTANTE EL ORDEN!)
 // ============================================================
