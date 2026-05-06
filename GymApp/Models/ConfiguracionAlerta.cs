@@ -19,6 +19,9 @@ public class ConfiguracionAlerta
     public bool EnviarDeudasPendientes { get; set; }
 
     public bool EnviarPagosHoy { get; set; }
+    public bool AvisarNuevoUsuario { get; set; }
+    public bool AvisarNuevoPago { get; set; }
+    public bool AvisarNuevaMembresia { get; set; }
 
     public string ChatIdDestino { get; set; } = string.Empty;
 
