@@ -36,6 +36,7 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ConnectionStrings__DefaultConnection=Server=gym_sql_server,1433;Database=GymDB;User Id=sa;Password=PasswordSeguro123!;TrustServerCertificate=True;MultipleActiveResultSets=true
       - TZ=America/Lima
+      - N8nConfig__WebhookUrl=http://n8n:5678/webhook/gymapp-alertas
     ports:
       - "5000:8080"
     networks:
