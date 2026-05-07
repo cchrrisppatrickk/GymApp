@@ -156,11 +156,13 @@ Resumen de los pagos realizados en la fecha actual.
 }
 ```
 
-## 9. Deuda del Cliente (por ID)
-Retorna la deuda total de un usuario específico.
+## 9. Deuda del Cliente (Flexible)
+Retorna la deuda total de un usuario específico. Soporta ID directo o búsqueda por nombre/DNI.
 - **Método:** `GET`
-- **URL Completa:** `{{baseUrl}}/pagos/deuda/{userId}`
-- **Respuesta esperada:**
+- **URL Completa:** `{{baseUrl}}/pagos/deuda?userId={id}&q={valor}`
+- **Parámetros (Query):**
+  - `userId`: (Opcional) ID numérico del usuario.
+  - `q`: (Opcional) Nombre o DNI del usuario.
 ```json
 {
     "deudaTotal": 100.00,
@@ -169,9 +171,12 @@ Retorna la deuda total de un usuario específico.
 ```
 
 ## 10. Historial de Pagos de Usuario
+Retorna la lista de pagos realizados por el usuario. Soporta ID directo o búsqueda por nombre/DNI.
 - **Método:** `GET`
-- **URL Completa:** `{{baseUrl}}/pagos/usuario/{userId}`
-- **Respuesta esperada:**
+- **URL Completa:** `{{baseUrl}}/pagos/usuario?userId={id}&q={valor}`
+- **Parámetros (Query):**
+  - `userId`: (Opcional) ID numérico del usuario.
+  - `q`: (Opcional) Nombre o DNI del usuario.
 ```json
 [
     {
@@ -224,9 +229,12 @@ Obtiene una lista detallada de todos los clientes con pagos pendientes.
 ```
 
 ## 13. Historial de Membresías de Usuario
+Retorna el historial completo de membresías. Soporta ID directo o búsqueda por nombre/DNI.
 - **Método:** `GET`
-- **URL Completa:** `{{baseUrl}}/membresias/usuario/{userId}/historial`
-- **Respuesta esperada:**
+- **URL Completa:** `{{baseUrl}}/membresias/usuario/historial?userId={id}&q={valor}`
+- **Parámetros (Query):**
+  - `userId`: (Opcional) ID numérico del usuario.
+  - `q`: (Opcional) Nombre o DNI del usuario.
 ```json
 [
     {
@@ -262,17 +270,34 @@ Devuelve membresías que vencen en los próximos X días.
 ]
 ```
 
+## 15. Manejo de Ambigüedad (IMPORTANTE)
+Cuando se usa el parámetro `q` para buscar por nombre, si el sistema detecta múltiples usuarios que coinciden, retornará un `400 Bad Request` con sugerencias.
+
+- **Respuesta de Ambigüedad:**
+```json
+{
+  "error": "Ambigüedad detectada",
+  "mensaje": "Se encontraron 2 usuarios para 'Juan'...",
+  "sugerencias": [
+    { "id": 10, "nombreCompleto": "Juan Pérez", "dni": "12345678" },
+    { "id": 15, "nombreCompleto": "Juan García", "dni": "87654321" }
+  ]
+}
+```
+**Tip n8n:** Si recibes este error, el agente puede mostrar los nombres y DNIs al usuario final para que elija el correcto o proporcione el DNI exacto.
+
 ---
 
 ### Recomendación final para n8n
 Al configurar el nodo de **HTTP Request** en n8n:
-1. Para las URLs que terminan en `{userId}`: Usa las expresiones de n8n dentro del campo URL (ej: `http://localhost:5000/api/agent/pagos/deuda/{{$json.id}}`). **No** las envíes en Send Query Parameters.
-2. Para las consultas que usan parámetros (ej: `?q=`, `?dias=`, `?fecha=`, `?inicio=`, `?fin=`): Activa la opción de **Send Query Parameters** y pon la clave/valor en esos recuadros respectivos. Deja la URL "limpia" (ej: `.../usuarios/buscar`).
+1. **Búsqueda Flexible:** Para endpoints como `deuda`, `usuario` o `historial`, usa la opción **Send Query Parameters**. Puedes enviar `userId` (si lo tienes) o `q` (nombre o DNI).
+2. **URLs Dinámicas:** Las URLs ya no requieren inyectar el ID directamente en el path (ej: `/pagos/deuda/123`). Ahora se recomienda usar parámetros: `.../pagos/deuda?userId=123`.
+3. **Manejo de Errores:** Configura el nodo para que no falle inmediatamente ante un error 400, de modo que puedas procesar la respuesta de "Ambigüedad detectada" y guiar al usuario.
 
 ---
 ### Aspectos Clave a tener en cuenta para n8n:
 
 1. Asegúrate de agregar el Header `X-API-KEY` en todos los nodos HTTP con el valor de desarrollo.
-2. Cuando la API utilice Query Parameters (`?q=`, `?dias=`, etc.), es recomendable que en n8n habilites la opción de "Send Query Parameters", coloques la Key y el Value en sus campos respectivos, y dejes la "URL" limpia.
-3. Cuando la API requiere inyectar un ID dinámico (ejemplo: `/membresias/usuario/{userId}/activa`), inyéctalo directamente dentro de la URL del nodo en n8n mediante una expresión como `http://localhost:5000/api/agent/membresias/usuario/{{ $json.userId }}/activa`.
+2. Utiliza siempre la sección de **Query Parameters** en n8n para enviar `q`, `userId`, `dias`, etc. Esto evita errores de formato en la URL.
+3. Si el sistema devuelve "Ambigüedad detectada", el campo `sugerencias` contiene la lista de usuarios que debes mostrar para desambiguar.
 

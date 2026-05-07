@@ -209,12 +209,16 @@ public class ApiAgentController : ControllerBase
 
     /// <summary>
     /// Consulta el estado de la membresía activa o congelada de un usuario.
-    /// GET /api/agent/membresias/usuario/{userId}/activa
+    /// Soporta ID directo o búsqueda por nombre/DNI (?q=...)
+    /// GET /api/agent/membresias/usuario/activa
     /// </summary>
-    [HttpGet("membresias/usuario/{userId}/activa")]
-    public async Task<IActionResult> GetMembresiaActiva(int userId)
+    [HttpGet("membresias/usuario/activa")]
+    public async Task<IActionResult> GetMembresiaActiva([FromQuery] int? userId, [FromQuery] string? q)
     {
-        var resultado = await _membresiaService.ObtenerActivaParaAgenteAsync(userId);
+        var (targetId, action) = await ResolverUsuarioOAmbiguidad(userId, q);
+        if (action != null) return action;
+
+        var resultado = await _membresiaService.ObtenerActivaParaAgenteAsync(targetId.Value);
         if (resultado == null)
             return NotFound(new { error = "No hay membresía activa para este usuario" });
 
@@ -223,12 +227,16 @@ public class ApiAgentController : ControllerBase
 
     /// <summary>
     /// Retorna el historial de membresías de un usuario.
-    /// GET /api/agent/membresias/usuario/{userId}/historial
+    /// Soporta ID directo o búsqueda por nombre/DNI (?q=...)
+    /// GET /api/agent/membresias/usuario/historial
     /// </summary>
-    [HttpGet("membresias/usuario/{userId}/historial")]
-    public async Task<IActionResult> GetHistorialMembresias(int userId)
+    [HttpGet("membresias/usuario/historial")]
+    public async Task<IActionResult> GetHistorialMembresias([FromQuery] int? userId, [FromQuery] string? q)
     {
-        var resultado = await _membresiaService.ObtenerHistorialParaAgenteAsync(userId);
+        var (targetId, action) = await ResolverUsuarioOAmbiguidad(userId, q);
+        if (action != null) return action;
+
+        var resultado = await _membresiaService.ObtenerHistorialParaAgenteAsync(targetId.Value);
         return Ok(resultado);
     }
 
@@ -252,23 +260,31 @@ public class ApiAgentController : ControllerBase
 
     /// <summary>
     /// Retorna el consolidado de deuda de un cliente y la cantidad de membresías adeudadas.
-    /// GET /api/agent/pagos/deuda/{userId}
+    /// Soporta ID directo o búsqueda por nombre/DNI (?q=...)
+    /// GET /api/agent/pagos/deuda
     /// </summary>
-    [HttpGet("pagos/deuda/{userId}")]
-    public async Task<IActionResult> GetDeudaCliente(int userId)
+    [HttpGet("pagos/deuda")]
+    public async Task<IActionResult> GetDeudaCliente([FromQuery] int? userId, [FromQuery] string? q)
     {
-        var resultado = await _pagoService.ObtenerDeudaTotalParaAgenteAsync(userId);
+        var (targetId, action) = await ResolverUsuarioOAmbiguidad(userId, q);
+        if (action != null) return action;
+
+        var resultado = await _pagoService.ObtenerDeudaTotalParaAgenteAsync(targetId.Value);
         return Ok(resultado);
     }
 
     /// <summary>
     /// Retorna el historial de pagos de un cliente específico.
-    /// GET /api/agent/pagos/usuario/{userId}
+    /// Soporta ID directo o búsqueda por nombre/DNI (?q=...)
+    /// GET /api/agent/pagos/usuario
     /// </summary>
-    [HttpGet("pagos/usuario/{userId}")]
-    public async Task<IActionResult> GetHistorialPagosUsuario(int userId)
+    [HttpGet("pagos/usuario")]
+    public async Task<IActionResult> GetHistorialPagosUsuario([FromQuery] int? userId, [FromQuery] string? q)
     {
-        var resultado = await _pagoService.ObtenerHistorialUsuarioParaAgenteAsync(userId);
+        var (targetId, action) = await ResolverUsuarioOAmbiguidad(userId, q);
+        if (action != null) return action;
+
+        var resultado = await _pagoService.ObtenerHistorialUsuarioParaAgenteAsync(targetId.Value);
         
         // Retornamos lista vacía si no hay para no romper el flujo
         if (resultado == null || !resultado.Any())
@@ -289,5 +305,62 @@ public class ApiAgentController : ControllerBase
 
         var resultado = await _pagoService.ObtenerPagosPorRangoParaAgenteAsync(inicio, fin);
         return Ok(resultado);
+    }
+    // -----------------------------------------------------------------------
+    // MÉTODOS PRIVADOS DE APOYO
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Lógica centralizada para resolver un usuario ya sea por ID o por búsqueda (Nombre/DNI).
+    /// Si hay ambigüedad (múltiples resultados), retorna un BadRequest con la lista de sugerencias.
+    /// </summary>
+    private async Task<(int? id, IActionResult? action)> ResolverUsuarioOAmbiguidad(int? userId, string? q)
+    {
+        // 1. Si ya tenemos el ID, verificamos que existe
+        if (userId.HasValue)
+        {
+            var existe = await _usuarioService.ObtenerPorIdAsync(userId.Value);
+            if (existe == null) 
+                return (null, NotFound(new { error = $"Usuario con ID {userId} no encontrado." }));
+            
+            return (userId, null);
+        }
+
+        // 2. Si no hay ID ni búsqueda, error
+        if (string.IsNullOrWhiteSpace(q))
+        {
+            return (null, BadRequest(new { error = "Debes proporcionar el parámetro 'userId' o el término de búsqueda 'q'." }));
+        }
+
+        // 3. Buscamos por el término (Nombre o DNI)
+        var candidatos = await _usuarioService.BuscarParaAgenteAsync(q.Trim());
+
+        if (!candidatos.Any())
+        {
+            return (null, NotFound(new { error = $"No se encontró ningún usuario con el término '{q}'." }));
+        }
+
+        // 4. Si hay más de uno, intentamos buscar coincidencia EXACTA (para evitar ambigüedad innecesaria)
+        if (candidatos.Count() > 1)
+        {
+            // Primero intentamos por DNI exacto
+            var porDni = candidatos.FirstOrDefault(u => u.DNI == q.Trim());
+            if (porDni != null) return (porDni.Id, null);
+
+            // Luego por Nombre Completo exacto
+            var porNombre = candidatos.FirstOrDefault(u => u.NombreCompleto.Equals(q.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (porNombre != null) return (porNombre.Id, null);
+
+            // Si sigue habiendo ambigüedad, retornamos 400 con la lista de opciones
+            return (null, BadRequest(new 
+            { 
+                error       = "Ambigüedad detectada", 
+                mensaje     = $"Se encontraron {candidatos.Count()} usuarios para '{q}'. Por favor, usa el DNI o sé más específico.",
+                sugerencias = candidatos 
+            }));
+        }
+
+        // 5. Solo hay uno, perfecto
+        return (candidatos.First().Id, null);
     }
 }
