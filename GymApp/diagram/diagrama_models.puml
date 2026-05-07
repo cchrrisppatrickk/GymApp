@@ -161,6 +161,25 @@ class VentasDetalle {
     + Producto : Producto
 }
 
+class ConfiguracionAlerta {
+    + Id : int
+    + HoraEnvio : TimeSpan
+    + DiasSemana : string
+    + EnviarNuevosMiembros : bool
+    + EnviarProximosVencimientos : bool
+    + EnviarDeudasPendientes : bool
+    + EnviarPagosHoy : bool
+    + AvisarNuevoUsuario : bool
+    + AvisarNuevoPago : bool
+    + AvisarNuevaMembresia : bool
+    + ChatIdDestino : string
+    + Activo : bool
+    + UltimaEjecucionVencimientos : DateTime?
+    + EnviarResumenFinanciero : bool
+    + UltimaEjecucionReporte : DateTime?
+}
+
+
 ' ─────────────────────────────────────────────
 '  RELACIONES
 ' ─────────────────────────────────────────────
@@ -226,6 +245,13 @@ end note
 note bottom of Asistencia
   Control de acceso físico al gimnasio
   via escáner de código QR
+end note
+
+note bottom of ConfiguracionAlerta
+  Configuración global para envíos de reportes
+  y alertas automáticas vía Telegram (n8n).
+  Define qué eventos disparan notificaciones
+  y el horario de ejecución de reportes.
 end note
 
 @enduml

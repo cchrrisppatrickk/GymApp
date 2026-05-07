@@ -80,36 +80,104 @@ namespace GymApp.Services
 
                 _logger.LogInformation($"[HANGFIRE] Alerta {alerta.Id}: Construyendo payload y enviando a n8n...");
 
-                object miembros = null;
-                object pagos = null;
+                var hoy = DateTime.Today;
+                var hace7Dias = hoy.AddDays(-7);
+                var en7Dias = hoy.AddDays(7);
+                
+                // Para campos DateOnly (Membresia)
+                var hoyDate = DateOnly.FromDateTime(hoy);
+                var en7DiasDate = DateOnly.FromDateTime(en7Dias);
+
+                object nuevosMiembros = null;
+                object pagosRecientes = null;
+                object proximosVencimientos = null;
                 object deudas = null;
-                object vencimientos = null;
                 object finanzas = null;
 
-                if (alerta.EnviarNuevosMiembros)
-                    miembros = await _usuarioService.ObtenerRecientesParaAgenteAsync(1);
-
+                // 1. Pagos Estrictos (Últimos 7 días) - Excluyendo Anulados
                 if (alerta.EnviarPagosHoy)
-                    pagos = await _reporteService.ObtenerPagosRecientesAsync(10);
+                {
+                    pagosRecientes = await _context.PagosMembresia
+                        .Include(p => p.Membresia).ThenInclude(m => m.User)
+                        .Include(p => p.Membresia).ThenInclude(m => m.Plan)
+                        .Where(p => p.FechaPago.HasValue && p.FechaPago.Value.Date >= hace7Dias && p.FechaPago.Value.Date <= hoy && !p.EsAnulado)
+                        .Select(p => new {
+                            NombreCliente = p.Membresia.User.NombreCompleto,
+                            NombrePlan = p.Membresia.Plan.Nombre,
+                            Monto = p.Monto,
+                            FechaPago = p.FechaPago,
+                            MetodoPago = p.MetodoPago
+                        })
+                        .OrderByDescending(p => p.FechaPago)
+                        .ToListAsync();
+                }
 
+                // 2. Nuevos Miembros Estrictos (Últimos 7 días)
+                if (alerta.EnviarNuevosMiembros)
+                {
+                    nuevosMiembros = await _context.Usuarios
+                        .Where(u => u.FechaRegistro.HasValue && u.FechaRegistro.Value.Date >= hace7Dias && u.FechaRegistro.Value.Date <= hoy)
+                        .Select(u => new {
+                            u.UserId,
+                            u.NombreCompleto,
+                            u.Dni,
+                            u.Telefono,
+                            u.FechaRegistro
+                        })
+                        .OrderByDescending(u => u.FechaRegistro)
+                        .ToListAsync();
+                }
+
+                // 3. Vencimientos Reales (Entre hoy y 7 días)
+                if (alerta.EnviarProximosVencimientos)
+                {
+                    // A. Filtramos primero en la base de datos y lo traemos a memoria
+                    var vencimientosDb = await _context.Membresias
+                        .Include(m => m.User)
+                        .Include(m => m.Plan)
+                        .Where(m => m.Estado == "Activa" && m.FechaVencimiento >= hoyDate && m.FechaVencimiento <= en7DiasDate)
+                        .OrderBy(m => m.FechaVencimiento)
+                        .ToListAsync();
+
+                    // B. Calculamos los días restantes en memoria (C#) para evitar errores de traducción de EF Core
+                    proximosVencimientos = vencimientosDb.Select(m => new {
+                        NombreCliente = m.User.NombreCompleto,
+                        NombrePlan = m.Plan.Nombre,
+                        FechaVencimiento = m.FechaVencimiento,
+                        DiasRestantes = (m.FechaVencimiento.ToDateTime(TimeOnly.MinValue) - hoy).Days
+                    }).ToList();
+                }
+
+                // 4. Deudas (Usando el servicio existente por ahora, ya que es complejo)
                 if (alerta.EnviarDeudasPendientes)
                     deudas = await _reporteService.ObtenerListaDeudoresAsync();
 
+                // 5. Resumen Financiero Estricto (Sumatoria 7 días)
                 if (alerta.EnviarResumenFinanciero)
-                    finanzas = await _reporteService.ObtenerEstadisticasFinancierasAsync();
+                {
+                    var todosPagos7Dias = await _context.PagosMembresia
+                        .Where(p => p.FechaPago.HasValue && p.FechaPago.Value.Date >= hace7Dias && p.FechaPago.Value.Date <= hoy && !p.EsAnulado)
+                        .ToListAsync();
 
-                if (alerta.EnviarProximosVencimientos)
-                    vencimientos = new { Mensaje = "Revisar panel para detalles de vencimientos." };
+                    finanzas = new {
+                        TotalIngresos = todosPagos7Dias.Sum(p => p.Monto),
+                        IngresosPorMetodo = todosPagos7Dias.GroupBy(p => p.MetodoPago)
+                            .Select(g => new { Metodo = g.Key, Total = g.Sum(p => p.Monto) }),
+                        CantidadTransacciones = todosPagos7Dias.Count,
+                        PromedioPorPago = todosPagos7Dias.Any() ? todosPagos7Dias.Average(p => p.Monto) : 0
+                    };
+                }
 
                 var resumen = new
                 {
-                    Titulo = "Mega Reporte Programado",
-                    Fecha = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
-                    NuevosMiembros = miembros,
-                    PagosRecientes = pagos,
+                    Titulo = "Mega Reporte Programado (Últimos 7 Días)",
+                    FechaGeneracion = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
+                    Periodo = $"{hace7Dias:dd/MM/yyyy} al {hoy:dd/MM/yyyy}",
+                    NuevosMiembros = nuevosMiembros,
+                    PagosRecientes = pagosRecientes,
                     Deudores = deudas,
                     Finanzas = finanzas,
-                    ProximosVencimientos = vencimientos
+                    ProximosVencimientos = proximosVencimientos
                 };
 
                 bool exito = await _webhookService.EnviarReporteProgramadoAsync(resumen, alerta.ChatIdDestino);
@@ -118,7 +186,7 @@ namespace GymApp.Services
                 {
                     alerta.UltimaEjecucionReporte = DateTime.Now;
                     _context.Entry(alerta).Property(x => x.UltimaEjecucionReporte).IsModified = true;
-                    _logger.LogInformation($"[HANGFIRE] Alerta {alerta.Id}: Reporte enviado con éxito. UltimaEjecucion actualizada a {alerta.UltimaEjecucionReporte}");
+                    _logger.LogInformation($"[HANGFIRE] Alerta {alerta.Id}: Reporte enviado con éxito a n8n.");
                 }
                 else
                 {

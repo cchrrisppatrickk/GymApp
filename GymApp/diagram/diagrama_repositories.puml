@@ -168,6 +168,25 @@ VentaRepository --|> GenericRepository
 VentaRepository --> GymDbContext : usa
 
 ' ─────────────────────────────────────────────
+'  ALERTAS
+' ─────────────────────────────────────────────
+
+interface IConfiguracionAlertaRepository {
+    + ObtenerAlertasParaEjecutarAsync(horaActual : TimeSpan, diaSemana : string) : Task<IEnumerable<ConfiguracionAlerta>>
+}
+
+class ConfiguracionAlertaRepository {
+    - _context : GymDbContext
+    --
+    + ObtenerAlertasParaEjecutarAsync(horaActual : TimeSpan, diaSemana : string) : Task<IEnumerable<ConfiguracionAlerta>>
+}
+
+IConfiguracionAlertaRepository --|> IGenericRepository
+ConfiguracionAlertaRepository ..|> IConfiguracionAlertaRepository
+ConfiguracionAlertaRepository --|> GenericRepository
+ConfiguracionAlertaRepository --> GymDbContext : usa
+
+' ─────────────────────────────────────────────
 '  REPORTES (Servicio ubicado en Repositories)
 ' ─────────────────────────────────────────────
 
@@ -177,6 +196,7 @@ interface IReporteService {
     + ObtenerEstadisticasUsuariosAsync() : Task<DashboardUserStatsDTO>
     + ObtenerEstadisticasFinancierasAsync() : Task<DashboardFinancialStatsDTO>
     + ObtenerPagosRecientesAsync(cantidad : int) : Task<List<PagoRecienteDTO>>
+    + ObtenerListaDeudoresAsync() : Task<List<DeudaInfoDTO>>
 }
 
 note right of IReporteService
@@ -189,14 +209,29 @@ end note
 ' ─────────────────────────────────────────────
 
 interface IPlaneRepository
-interface IProductoRepository
-interface IRoleRepository
-interface ITurnoRepository
-
+class PlaneRepository
 IPlaneRepository --|> IGenericRepository
+PlaneRepository ..|> IPlaneRepository
+PlaneRepository --|> GenericRepository
+
+interface IProductoRepository
+class ProductoRepository
 IProductoRepository --|> IGenericRepository
+ProductoRepository ..|> IProductoRepository
+ProductoRepository --|> GenericRepository
+
+interface IRoleRepository
+class RoleRepository
 IRoleRepository --|> IGenericRepository
+RoleRepository ..|> IRoleRepository
+RoleRepository --|> GenericRepository
+
+interface ITurnoRepository
+class TurnoRepository
 ITurnoRepository --|> IGenericRepository
+TurnoRepository ..|> ITurnoRepository
+TurnoRepository --|> GenericRepository
+
 
 ' ─────────────────────────────────────────────
 '  NOTAS ACLARATORIAS

@@ -18,8 +18,9 @@
 | **Gestión de Usuarios** | CRUD completo con roles (Admin, Empleado, Cliente). Hashing de contraseñas con BCrypt. Foto de perfil con upload a sistema de archivos. Login por DNI o nombre de usuario. Generación de imagen QR en PNG. |
 | **Reportes e Ingresos** | Reporte mensual de ingresos por categoría (Bebidas, Libres, XB) y turno (Mañana/Tarde), desglosado por método de pago. Exportación a Excel con ClosedXML con formato profesional. |
 | **Reporte de Membresías** | Listado mensual de membresías con estado, pagos desglosados y exportación a Excel. |
-| **Dashboard Analítico** | Estadísticas en tiempo real: nuevos miembros del mes, vencidos sin renovar, por vencer en 7 días, usuarios con deuda, monto total deuda, membresías congeladas. Gráficos de ingresos mensuales y semanales (últimos 6 meses / 4 semanas). |
-| **Administración Catálogos** | CRUD de Planes, Turnos, Productos y Roles vía API JSON + modales. |
+| **Dashboard Analítico** | Estadísticas en tiempo real: nuevos miembros del mes, vencidos sin renovar, por vencer en 7 días, usuarios con deuda, monto total deuda, membresías congeladas. Gráficos de ingresos mensuales y semanales. |
+| **Notificaciones / n8n** | Integración con n8n vía Webhooks. Notificaciones instantáneas (Telegram/WhatsApp) para nuevos registros, pagos y membresías. Reportes automatizados programados. |
+| **Tareas Programadas** | Orquestación con Hangfire para envío diario de alertas de vencimiento y reportes de desempeño financiero/operativo sin intervención manual. |
 
 ---
 
@@ -35,6 +36,8 @@
 | **BCrypt.Net-Next** | 4.0.3 | Hashing seguro de contraseñas |
 | **QRCoder** | 1.7.0 | Generación de imágenes QR en PNG |
 | **ClosedXML** | 0.105.0 | Exportación de reportes a Excel (`.xlsx`) |
+| **Hangfire** | 1.8.23 | Orquestación de tareas en segundo plano (Jobs) |
+| **WebhookService** | — | Servicio custom para integración con n8n |
 
 ### Base de Datos
 | Tecnología | Versión | Rol |
@@ -94,6 +97,7 @@ La aplicación sigue una arquitectura en **N capas estrictamente separadas**, co
 | **Dependency Injection** | Toda dependencia se inyecta vía constructor (IoC nativo de .NET) |
 | **DTO Pattern** | ViewModels y DTOs separan las entidades del dominio de la capa de presentación |
 | **Unit of Work (implícito)** | `SaveAsync()` actúa como commit del contexto EF Core |
+| **Background Jobs** | Hangfire gestiona la ejecución de tareas asíncronas y programadas |
 
 ---
 
@@ -143,6 +147,7 @@ GymApp/
 │   ├── VentasCabecera.cs
 │   ├── VentasDetalle.cs
 │   ├── Asistencia.cs
+│   ├── ConfiguracionAlerta.cs    # Configuración de webhooks y alertas
 │   └── ErrorViewModel.cs
 │
 ├── ViewModels/                   # DTOs de entrada/salida
@@ -224,6 +229,29 @@ gym_sql_server:
 - **Roles:** `Admin`, `Empleado`, `Cliente`
 - **Autorización:** por atributo `[Authorize(Roles="...")]` en controladores
 - **BaseController:** provee `CurrentUserId`, `CurrentUserName`, `CurrentUserRole` a todos los controladores heredados
+
+---
+
+## 🔔 Sistema de Notificaciones e Integraciones
+
+GymApp implementa un sistema robusto de notificaciones basado en eventos y tareas programadas, centralizado en `WebhookService`.
+
+### ⚡ Notificaciones Instantáneas (Event-Driven)
+Se disparan inmediatamente cuando ocurre una acción relevante en el sistema:
+- **Nuevo Usuario:** Notifica el registro de un nuevo socio.
+- **Nuevo Pago:** Informa sobre la recepción de dinero (monto, cliente, método).
+- **Nueva Membresía:** Alerta sobre ventas de planes.
+
+### 📅 Tareas Programadas (Hangfire)
+Orquestadas mediante jobs recurrentes:
+1. **AlertaVencimientoJob:** Se ejecuta diariamente para identificar membresías que vencen en los próximos 7 días o que vencieron recientemente, enviando un listado al administrador.
+2. **NotificacionProgramadaJob:** Envía reportes de desempeño (Daily/Weekly) con estadísticas clave: ingresos por categoría, nuevos miembros, y lista de deudores.
+
+### 🔗 Integración con n8n
+La aplicación actúa como productor de datos para **n8n**. Los webhooks envían payloads JSON que n8n procesa para:
+- Enviar mensajes por **Telegram** o **WhatsApp**.
+- Registrar logs en hojas de cálculo externas.
+- Disparar flujos de retención de clientes.
 
 > [!NOTE]
 > `IReporteService.cs` está físicamente ubicada en la carpeta `Repositories/` en lugar de `Services/`, aunque su namespace es `GymApp.Services`. Esto es una inconsistencia menor que no afecta el funcionamiento.

@@ -208,6 +208,21 @@ class UsuariosController {
     + ObtenerQR(id) : Task<IActionResult>
 }
 
+class AlertasController {
+    - _configuracionAlertaRepository : IConfiguracionAlertaRepository
+    - _webhookService : IWebhookService
+    - _programadaJob : NotificacionProgramadaJob
+    --
+    + Index() : Task<IActionResult>
+    + Crear() : IActionResult
+    + Crear(modelo, diasSeleccionados) : Task<IActionResult>
+    + Editar(id) : Task<IActionResult>
+    + Editar(modelo, diasSeleccionados) : Task<IActionResult>
+    + Eliminar(id) : Task<IActionResult>
+    + ProbarConexion(chatId) : Task<IActionResult>
+    + EjecutarReporteManual(id) : Task<IActionResult>
+}
+
 class VentasController {
     - _ventaService : IVentaService
     --
@@ -218,6 +233,7 @@ class VentasController {
 
 ' Herencia desde BaseController
 AccesoController        --|> BaseController
+AlertasController       --|> BaseController
 ClienteHomeController   --|> BaseController
 CongelamientosController --|> BaseController
 MembresiasController    --|> BaseController
@@ -234,6 +250,9 @@ VentasController        --|> BaseController
 ' ─────────────────────────────────────────────
 
 AuthController          ..> IUsuarioService        : usa
+AlertasController       ..> IConfiguracionAlertaRepository : usa
+AlertasController       ..> IWebhookService         : usa
+AlertasController       ..> NotificacionProgramadaJob : usa
 CongelamientosController ..> ICongelamientoService : usa
 MembresiasController    ..> IMembresiaService       : usa
 MembresiasController    ..> IPlaneService           : usa
@@ -266,10 +285,16 @@ interface IReporteService
 interface IRoleService
 interface ITurnoService
 interface IVentaService
+interface IWebhookService
+interface IConfiguracionAlertaRepository
 
 ' ─────────────────────────────────────────────
 '  NOTAS DE AUTORIZACIÓN
 ' ─────────────────────────────────────────────
+
+note top of AlertasController
+  [Authorize(Roles="Admin")]
+end note
 
 note top of ApiAgentController
   [ApiKeyAuth]

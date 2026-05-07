@@ -89,6 +89,7 @@ interface IReporteService {
     + ObtenerEstadisticasUsuariosAsync()
     + ObtenerEstadisticasFinancierasAsync()
     + ObtenerPagosRecientesAsync(cantidad)
+    + ObtenerListaDeudoresAsync()
 }
 
 interface ITurnoService {
@@ -114,8 +115,17 @@ interface IUsuarioService {
 }
 
 interface IVentaService {
-    + RegistrarVentaAsync(dto, empleadoId)
+    + RegistrarVentaAsync(dto, empleadoId) : Task<int>
     + HistorialVentasAsync()
+}
+
+interface IWebhookService {
+    + EnviarAlertaInstantaneaAsync(tipo, datos, chatId)
+    + EnviarReporteProgramadoAsync(resumenDatos, chatId)
+    + EnviarMensajePruebaAsync(chatId)
+    + NotificarNuevoUsuarioAsync(usuario)
+    + NotificarNuevoPagoAsync(monto, cliente, metodoPago)
+    + NotificarNuevaMembresiaAsync(cliente, plan, precio)
 }
 
 ' ─────────────────────────────────────
@@ -138,6 +148,8 @@ class MembresiaService {
     - _usuarioRepo : IGenericRepository<Usuario>
     - _congelamientoRepo : IGenericRepository<Congelamiento>
     - _context : GymDbContext
+    - _webhookService : IWebhookService
+    - _configRepo : IConfiguracionAlertaRepository
     --
     + CrearMembresiaAsync(dto)
     + ListarMembresiasAsync(filtro)
@@ -161,6 +173,8 @@ class PagoService {
     - _membresiaRepo : IMembresiaRepository
     - _usuarioRepo : IUsuarioRepository
     - _context : GymDbContext
+    - _webhookService : IWebhookService
+    - _configRepo : IConfiguracionAlertaRepository
     --
     + BuscarDeudaClienteAsync(termino)
     + RegistrarPagoAsync(dto, empleadoId)
@@ -171,6 +185,7 @@ class PagoService {
     + ObtenerDeudaTotalParaAgenteAsync(userId)
     + ObtenerHistorialUsuarioParaAgenteAsync(userId)
     + ObtenerPagosPorRangoParaAgenteAsync(inicio, fin)
+    - SincronizarEstadoMembresiaAsync(membresiaId)
 }
 
 class PlaneService {
@@ -213,6 +228,7 @@ class ReporteService {
     + ObtenerEstadisticasUsuariosAsync()
     + ObtenerEstadisticasFinancierasAsync()
     + ObtenerPagosRecientesAsync(cantidad)
+    + ObtenerListaDeudoresAsync()
 }
 
 class TurnoService {
@@ -249,8 +265,48 @@ class VentaService {
     - _productoRepo : IProductoRepository
     - _detalleRepo : IGenericRepository<VentasDetalle>
     --
-    + RegistrarVentaAsync(dto, empleadoId)
+    + RegistrarVentaAsync(dto, empleadoId) : Task<int>
     + HistorialVentasAsync()
+}
+
+class WebhookService {
+    - _httpClient : HttpClient
+    - _webhookUrl : string
+    - _logger : ILogger
+    - _configRepo : IConfiguracionAlertaRepository
+    --
+    + EnviarAlertaInstantaneaAsync(tipo, datos, chatId)
+    + EnviarReporteProgramadoAsync(resumenDatos, chatId)
+    + EnviarMensajePruebaAsync(chatId)
+    + NotificarNuevoUsuarioAsync(usuario)
+    + NotificarNuevoPagoAsync(monto, cliente, metodoPago)
+    + NotificarNuevaMembresiaAsync(cliente, plan, precio)
+    - SendWebhookAsync(payload)
+}
+
+' ─────────────────────────────────────
+'  HANGFIRE JOBS
+' ─────────────────────────────────────
+
+class AlertaVencimientoJob {
+    - _context : GymDbContext
+    - _webhookService : IWebhookService
+    - _configRepo : IConfiguracionAlertaRepository
+    - _logger : ILogger
+    --
+    + EjecutarAlertasAsync()
+}
+
+class NotificacionProgramadaJob {
+    - _configRepo : IConfiguracionAlertaRepository
+    - _reporteService : IReporteService
+    - _usuarioService : IUsuarioService
+    - _webhookService : IWebhookService
+    - _context : GymDbContext
+    - _logger : ILogger
+    --
+    + EjecutarRevisionAsync()
+    - TraducirDiaAlEspanol(day)
 }
 
 ' ─────────────────────────────────────
@@ -267,32 +323,42 @@ ReporteService        ..|> IReporteService
 TurnoService          ..|> ITurnoService
 UsuarioService        ..|> IUsuarioService
 VentaService          ..|> IVentaService
+WebhookService        ..|> IWebhookService
 
 ' ─────────────────────────────────────
 '  DEPENDENCIAS ENTRE SERVICIOS
-'  (uso de repositorios compartidos)
 ' ─────────────────────────────────────
 
-note bottom of MembresiaService
-  Usa: IMembresiaRepository,
-  IPlaneRepository, ITurnoRepository,
-  IGenericRepository<Usuario>,
-  IGenericRepository<Congelamiento>,
-  GymDbContext
+MembresiaService --> IWebhookService
+MembresiaService --> IConfiguracionAlertaRepository
+PagoService --> IWebhookService
+PagoService --> IConfiguracionAlertaRepository
+
+AlertaVencimientoJob --> IWebhookService
+AlertaVencimientoJob --> IConfiguracionAlertaRepository
+AlertaVencimientoJob --> GymDbContext
+
+NotificacionProgramadaJob --> IConfiguracionAlertaRepository
+NotificacionProgramadaJob --> IReporteService
+NotificacionProgramadaJob --> IUsuarioService
+NotificacionProgramadaJob --> IWebhookService
+NotificacionProgramadaJob --> GymDbContext
+
+note bottom of WebhookService
+  Integración con n8n vía Webhooks.
+  Usa IConfiguracionAlertaRepository
+  para determinar destinatarios.
 end note
 
-note bottom of PagoService
-  Usa: IPagoRepository,
-  IMembresiaRepository,
-  IUsuarioRepository,
-  GymDbContext
+note bottom of AlertaVencimientoJob
+  Job diario de Hangfire.
+  Notifica vencimientos a 7 días.
 end note
 
-note bottom of VentaService
-  Usa: IVentaRepository,
-  IProductoRepository,
-  IGenericRepository<VentasDetalle>
+note bottom of NotificacionProgramadaJob
+  Job configurable de Hangfire.
+  Envía reportes semanales/diarios
+  con estadísticas de ventas, miembros y deudas.
 end note
 
 @enduml
-
