@@ -521,13 +521,9 @@
                     .then(json => {
                         if (json.success) {
                             bootstrap.Modal.getInstance(document.getElementById('modalMembresia')).hide();
-                            cargarMembresias('todas');
-                            Swal.fire('¡Creada!', 'La membresía está pendiente de pago.', 'success');
-                            document.getElementById('formMembresia').reset();
-                            actualizarInfoPrecio();
-                            // Limpiar estados visuales
-                            document.getElementById('usuarioFeedback').classList.add('d-none');
-                            document.getElementById('userIdSeleccionado').value = "";
+                            Swal.fire('¡Creada!', 'La membresía está pendiente de pago.', 'success').then(() => {
+                                location.reload();
+                            });
                         } else {
                             Swal.fire('Error', json.message, 'error');
                         }
@@ -620,8 +616,9 @@
                     .then(json => {
                         if (json.success) {
                             bootstrap.Modal.getInstance(document.getElementById('modalCongelar')).hide();
-                            cargarMembresias('todas');
-                            Swal.fire('¡Congelada!', json.message, 'success');
+                            Swal.fire('¡Congelada!', json.message, 'success').then(() => {
+                                location.reload();
+                            });
                         } else {
                             Swal.fire('Error', json.message, 'error');
                         }
@@ -644,8 +641,9 @@
                     .then(res => res.json())
                     .then(json => {
                         if (json.success) {
-                            cargarMembresias('todas');
-                            Swal.fire('¡Reactivada!', json.message, 'success');
+                            Swal.fire('¡Reactivada!', json.message, 'success').then(() => {
+                                location.reload();
+                            });
                         } else {
                             Swal.fire('Error', json.message, 'error');
                         }
