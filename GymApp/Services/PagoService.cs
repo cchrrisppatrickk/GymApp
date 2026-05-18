@@ -4,9 +4,12 @@ using GymApp.ViewModels;
 using GymApp.ViewModels.ApiAgent;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GymApp.Data;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymApp.Services
@@ -15,12 +18,20 @@ namespace GymApp.Services
     {
         private readonly IPagoRepository _pagoRepo;
         private readonly IMembresiaRepository _membresiaRepo;
-        private readonly IUsuarioRepository _usuarioRepo; // Necesitamos buscar user por DNI
+        private readonly IUsuarioRepository _usuarioRepo;
         private readonly GymDbContext _context;
         private readonly IWebhookService _webhookService;
         private readonly IConfiguracionAlertaRepository _configRepo;
+        private readonly IWebHostEnvironment _env;
 
-        public PagoService(IPagoRepository pagoRepo, IMembresiaRepository membresiaRepo, IUsuarioRepository usuarioRepo, GymDbContext context, IWebhookService webhookService, IConfiguracionAlertaRepository configRepo)
+        public PagoService(
+            IPagoRepository pagoRepo,
+            IMembresiaRepository membresiaRepo,
+            IUsuarioRepository usuarioRepo,
+            GymDbContext context,
+            IWebhookService webhookService,
+            IConfiguracionAlertaRepository configRepo,
+            IWebHostEnvironment env)
         {
             _pagoRepo = pagoRepo;
             _membresiaRepo = membresiaRepo;
@@ -28,6 +39,7 @@ namespace GymApp.Services
             _context = context;
             _webhookService = webhookService;
             _configRepo = configRepo;
+            _env = env;
         }
 
         public async Task<List<DeudaInfoDTO>> BuscarDeudaClienteAsync(string termino)
@@ -87,7 +99,9 @@ namespace GymApp.Services
             if (dto.Monto > deudaPendiente)
                 throw new Exception($"El monto excede la deuda. Solo debe: {deudaPendiente:C}");
 
-            // 2. Registrar el Pago (Inmutable)
+            // 2. Guardar comprobante (si aplica) y registrar el Pago
+            string? rutaComprobante = await ProcesarComprobanteAsync(dto, empleadoId);
+
             var nuevoPago = new PagosMembresium
             {
                 MembresiaId = dto.MembresiaId,
@@ -95,7 +109,7 @@ namespace GymApp.Services
                 Monto = dto.Monto,
                 MetodoPago = dto.MetodoPago,
                 FechaPago = dto.FechaPago ?? DateTime.Now,
-                Comprobante = Guid.NewGuid().ToString().Substring(0, 8).ToUpper()
+                Comprobante = rutaComprobante
             };
 
             await _pagoRepo.InsertAsync(nuevoPago);
@@ -379,6 +393,42 @@ namespace GymApp.Services
                 MetodoPago = p.MetodoPago ?? "Desconocido",
                 NombreCliente = p.Membresia.User.NombreCompleto
             });
+        }
+
+        // ── ALMACENAMIENTO FÍSICO DE COMPROBANTES ──────────────────────────────
+        /// <summary>
+        /// Persiste la imagen del comprobante en disco y retorna la ruta relativa
+        /// para almacenar en la base de datos. Retorna null si no hay comprobante.
+        /// </summary>
+        private async Task<string?> ProcesarComprobanteAsync(PagoCreateDTO dto, int empleadoId)
+        {
+            // Sin contenido → no hay comprobante que guardar
+            bool tieneBase64 = !string.IsNullOrWhiteSpace(dto.ComprobanteBase64);
+            bool tieneArchivo = dto.ComprobanteArchivo != null && dto.ComprobanteArchivo.Length > 0;
+
+            if (!tieneBase64 && !tieneArchivo) return null;
+
+            // Directorio destino: wwwroot/uploads/comprobantes
+            var dirFisico = Path.Combine(_env.WebRootPath, "uploads", "comprobantes");
+            Directory.CreateDirectory(dirFisico); // No-op si ya existe
+
+            var nombreArchivo = $"yape_{empleadoId}_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
+            var rutaFisica = Path.Combine(dirFisico, nombreArchivo);
+
+            if (tieneBase64)
+            {
+                // Eliminar prefijo "data:image/jpeg;base64," u otros
+                var base64Limpio = Regex.Replace(dto.ComprobanteBase64!, @"^data:image\/[a-zA-Z]+;base64,", string.Empty);
+                var bytes = Convert.FromBase64String(base64Limpio);
+                await File.WriteAllBytesAsync(rutaFisica, bytes);
+            }
+            else if (tieneArchivo)
+            {
+                using var stream = new FileStream(rutaFisica, FileMode.Create, FileAccess.Write);
+                await dto.ComprobanteArchivo!.CopyToAsync(stream);
+            }
+
+            return "/uploads/comprobantes/" + nombreArchivo;
         }
     }
 }
