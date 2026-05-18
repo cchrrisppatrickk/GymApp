@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 
@@ -7,6 +7,7 @@ namespace GymApp.ViewModels
     public class UsuarioViewModel
     {
         public IFormFile? FotoArchivo { get; set; }
+        public string? FotoBase64 { get; set; }
 
         public int UserId { get; set; }
 

@@ -5,6 +5,8 @@ using GymApp.ViewModels; // Importante
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace GymApp.Controllers
 {
@@ -90,6 +92,30 @@ namespace GymApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save([FromForm] UsuarioViewModel model)
         {
+            // Si no viene un archivo físico pero sí una foto en Base64 desde la webcam, la convertimos a IFormFile
+            if (model.FotoArchivo == null && !string.IsNullOrEmpty(model.FotoBase64))
+            {
+                try
+                {
+                    string base64Data = model.FotoBase64;
+                    if (base64Data.Contains(","))
+                    {
+                        base64Data = base64Data.Split(',')[1];
+                    }
+                    byte[] fileBytes = Convert.FromBase64String(base64Data);
+                    var stream = new MemoryStream(fileBytes);
+                    model.FotoArchivo = new FormFile(stream, 0, fileBytes.Length, "FotoArchivo", "webcam_photo.jpg")
+                    {
+                        Headers = new HeaderDictionary(),
+                        ContentType = "image/jpeg"
+                    };
+                }
+                catch (System.Exception)
+                {
+                    // Si ocurre un error convirtiendo el base64, dejamos pasar sin foto o manejamos silenciosamente
+                }
+            }
+
             // OJO: ModelState.IsValid podría fallar si tienes validaciones Required en el ViewModel. 
             // Como ya quitamos los Required de Password y Usuario en el paso 1, esto pasará bien.
             // Validamos solo lo básico (DNI, Nombre, Rol)
