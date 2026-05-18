@@ -23,6 +23,16 @@ namespace GymApp.ViewModels
         public string? Observaciones { get; set; }
         public bool EsAnulado { get; set; }
 
+        // ── Seguimiento de deuda ────────────────────────────────────────────
+        /// <summary>Precio acordado total de la membresía.</summary>
+        public decimal MontoTotal { get; set; }
+
+        /// <summary>Suma de todos los pagos válidos hasta e incluyendo este pago.</summary>
+        public decimal MontoPagadoAcumulado { get; set; }
+
+        /// <summary>Deuda que quedó pendiente después de registrar este pago.</summary>
+        public decimal DeudaRestante { get; set; }
+
         // ── Datos relacionales ──────────────────────────────────────────────
         public string NombreCliente { get; set; } = null!;
         public string? DniCliente { get; set; }

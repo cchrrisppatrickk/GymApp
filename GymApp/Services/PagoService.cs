@@ -403,26 +403,51 @@ namespace GymApp.Services
                     .ThenInclude(m => m.User)
                 .Include(p => p.Membresia)
                     .ThenInclude(m => m.Plan)
+                .Include(p => p.Membresia)
+                    .ThenInclude(m => m.PagosMembresia)   // todos los pagos de la membresía
                 .Include(p => p.UsuarioEmpleado)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.PagoId == pagoId);
 
             if (pago == null) return null;
 
+            // ── Cálculo de deuda ──────────────────────────────────────────────
+            // Tomamos solo los pagos NO anulados, ordenados cronológicamente.
+            // El acumulado de ESTE pago = suma de todos los pagos válidos cuyo
+            // (FechaPago, PagoId) es anterior o igual al pago consultado.
+            var pagosValidos = pago.Membresia.PagosMembresia
+                .Where(p2 => !p2.EsAnulado)
+                .OrderBy(p2 => p2.FechaPago)
+                .ThenBy(p2 => p2.PagoId)
+                .ToList();
+
+            decimal acumulado = 0m;
+            foreach (var p2 in pagosValidos)
+            {
+                acumulado += p2.Monto;
+                if (p2.PagoId == pagoId) break;   // nos detenemos al llegar a este pago
+            }
+
+            decimal montoTotal   = pago.Membresia.PrecioAcordado;
+            decimal deudaRestante = Math.Max(0m, montoTotal - acumulado);
+
             return new PagoDetalleDTO
             {
-                PagoId         = pago.PagoId,
-                Monto          = pago.Monto,
-                MetodoPago     = pago.MetodoPago,
-                FechaPago      = pago.FechaPago,
-                Comprobante    = pago.Comprobante,
-                Observaciones  = pago.Observaciones,
-                EsAnulado      = pago.EsAnulado,
-                MembresiaId    = pago.MembresiaId,
-                NombreCliente  = pago.Membresia.User.NombreCompleto,
-                DniCliente     = pago.Membresia.User.Dni,
-                NombreEmpleado = pago.UsuarioEmpleado.NombreCompleto,
-                PlanMembresia  = pago.Membresia.Plan.Nombre
+                PagoId               = pago.PagoId,
+                Monto                = pago.Monto,
+                MetodoPago           = pago.MetodoPago,
+                FechaPago            = pago.FechaPago,
+                Comprobante          = pago.Comprobante,
+                Observaciones        = pago.Observaciones,
+                EsAnulado            = pago.EsAnulado,
+                MembresiaId          = pago.MembresiaId,
+                NombreCliente        = pago.Membresia.User.NombreCompleto,
+                DniCliente           = pago.Membresia.User.Dni,
+                NombreEmpleado       = pago.UsuarioEmpleado.NombreCompleto,
+                PlanMembresia        = pago.Membresia.Plan.Nombre,
+                MontoTotal           = montoTotal,
+                MontoPagadoAcumulado = acumulado,
+                DeudaRestante        = deudaRestante
             };
         }
 
