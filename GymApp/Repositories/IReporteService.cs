@@ -12,5 +12,6 @@ namespace GymApp.Services
         Task<DashboardFinancialStatsDTO> ObtenerEstadisticasFinancierasAsync();
         Task<List<PagoRecienteDTO>> ObtenerPagosRecientesAsync(int cantidad = 7);
         Task<List<DeudaInfoDTO>> ObtenerListaDeudoresAsync();
+        Task<GraficoTendenciaDTO> ObtenerDatosGraficoTendenciaAsync(string temporalidad);
     }
 }

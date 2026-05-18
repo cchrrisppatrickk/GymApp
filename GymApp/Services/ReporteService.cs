@@ -304,5 +304,83 @@ namespace GymApp.Services
                 .OrderByDescending(x => x.DeudaPendiente)
                 .ToList();
         }
+        // ── GRÁFICO DE TENDENCIA (Ingresos + Matrículas) ─────────────────
+        /// <summary>
+        /// Devuelve tres listas paralelas (Etiquetas, Ingresos, Matriculas) para
+        /// el gráfico combinado del Dashboard. Soporta tres temporalidades:
+        ///   "Semana"  → últimos 7 días  (etiqueta: "dd/MM")
+        ///   "Mes"     → últimos 30 días (etiqueta: "dd/MM")
+        ///   "Anual"   → últimos 12 meses (etiqueta: "MMM yyyy")
+        /// </summary>
+        public async Task<GraficoTendenciaDTO> ObtenerDatosGraficoTendenciaAsync(string temporalidad)
+        {
+            var hoy     = DateTime.Now.Date;
+            var cultura = new System.Globalization.CultureInfo("es-ES");
+            var dto     = new GraficoTendenciaDTO();
+
+            // ── 1. Calcular rango y etiquetas ────────────────────
+            bool agruparPorMes = temporalidad.Equals("Anual", StringComparison.OrdinalIgnoreCase);
+            int  totalPeriodos = temporalidad.Equals("Semana", StringComparison.OrdinalIgnoreCase) ? 7
+                               : temporalidad.Equals("Mes",    StringComparison.OrdinalIgnoreCase) ? 30
+                               : 12;   // Anual
+
+            var periodos = new List<DateTime>();
+            if (agruparPorMes)
+            {
+                for (int i = totalPeriodos - 1; i >= 0; i--)
+                    periodos.Add(new DateTime(hoy.Year, hoy.Month, 1).AddMonths(-i));
+            }
+            else
+            {
+                for (int i = totalPeriodos - 1; i >= 0; i--)
+                    periodos.Add(hoy.AddDays(-i));
+            }
+
+            DateTime fechaInicio = periodos.First();
+
+            dto.Etiquetas = agruparPorMes
+                ? periodos.Select(p => p.ToString("MMM yyyy", cultura)).ToList()
+                : periodos.Select(p => p.ToString("dd/MM",    cultura)).ToList();
+
+            // ── 2. Traer datos de BD (proyección mínima) ─────────────────
+            var pagosRaw = await _context.PagosMembresia
+                .AsNoTracking()
+                .Where(p => !p.EsAnulado && p.FechaPago != null && p.FechaPago >= fechaInicio)
+                .Select(p => new { p.FechaPago, p.Monto })
+                .ToListAsync();
+
+            var matriculasRaw = await _context.Membresias
+                .AsNoTracking()
+                .Where(m => m.FechaInicio >= DateOnly.FromDateTime(fechaInicio))
+                .Select(m => new { m.FechaInicio })
+                .ToListAsync();
+
+            // ── 3. Agrupar en diccionarios clave→valor ────────────────────
+            Func<DateTime, DateTime> clave = agruparPorMes
+                ? (d => new DateTime(d.Year, d.Month, 1))
+                : (d => d.Date);
+
+            var ingresosDict = pagosRaw
+                .Where(p => p.FechaPago.HasValue)
+                .GroupBy(p => clave(p.FechaPago!.Value))
+                .ToDictionary(g => g.Key, g => g.Sum(p => p.Monto));
+
+            Func<DateOnly, DateTime> claveDate = agruparPorMes
+                ? (d => new DateTime(d.Year, d.Month, 1))
+                : (d => d.ToDateTime(TimeOnly.MinValue));
+
+            var matriculasDict = matriculasRaw
+                .GroupBy(m => claveDate(m.FechaInicio))
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            // ── 4. Sincronizar con la lista de períodos (relleno con ceros) ──
+            foreach (var periodo in periodos)
+            {
+                dto.Ingresos.Add(ingresosDict.TryGetValue(periodo, out var ing) ? ing : 0m);
+                dto.Matriculas.Add(matriculasDict.TryGetValue(periodo, out var mat) ? mat : 0);
+            }
+
+            return dto;
+        }
     }
 }
