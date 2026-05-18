@@ -14,6 +14,7 @@ namespace GymApp.Services
         Task ActualizarPagoAsync(PagoEditDTO dto, int empleadoId);
         Task AnularPagoAsync(int id, string motivoAnulacion, int empleadoId);
         Task<List<DeudaInfoDTO>> BuscarDeudaClienteAsync(string termino);
+        Task<PagoDetalleDTO?> ObtenerDetallePagoAsync(int pagoId);
 
         // --- Para ApiAgent ---
         Task<DeudaUsuarioAgenteDTO> ObtenerDeudaTotalParaAgenteAsync(int userId);

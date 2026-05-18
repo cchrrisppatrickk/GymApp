@@ -395,6 +395,37 @@ namespace GymApp.Services
             });
         }
 
+        // ── CONSULTA DE DETALLE ─────────────────────────────────────────────
+        public async Task<PagoDetalleDTO?> ObtenerDetallePagoAsync(int pagoId)
+        {
+            var pago = await _context.PagosMembresia
+                .Include(p => p.Membresia)
+                    .ThenInclude(m => m.User)
+                .Include(p => p.Membresia)
+                    .ThenInclude(m => m.Plan)
+                .Include(p => p.UsuarioEmpleado)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.PagoId == pagoId);
+
+            if (pago == null) return null;
+
+            return new PagoDetalleDTO
+            {
+                PagoId         = pago.PagoId,
+                Monto          = pago.Monto,
+                MetodoPago     = pago.MetodoPago,
+                FechaPago      = pago.FechaPago,
+                Comprobante    = pago.Comprobante,
+                Observaciones  = pago.Observaciones,
+                EsAnulado      = pago.EsAnulado,
+                MembresiaId    = pago.MembresiaId,
+                NombreCliente  = pago.Membresia.User.NombreCompleto,
+                DniCliente     = pago.Membresia.User.Dni,
+                NombreEmpleado = pago.UsuarioEmpleado.NombreCompleto,
+                PlanMembresia  = pago.Membresia.Plan.Nombre
+            };
+        }
+
         // ── ALMACENAMIENTO FÍSICO DE COMPROBANTES ──────────────────────────────
         /// <summary>
         /// Persiste la imagen del comprobante en disco y retorna la ruta relativa
