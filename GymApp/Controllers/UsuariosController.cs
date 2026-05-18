@@ -92,30 +92,6 @@ namespace GymApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save([FromForm] UsuarioViewModel model)
         {
-            // Si no viene un archivo físico pero sí una foto en Base64 desde la webcam, la convertimos a IFormFile
-            if (model.FotoArchivo == null && !string.IsNullOrEmpty(model.FotoBase64))
-            {
-                try
-                {
-                    string base64Data = model.FotoBase64;
-                    if (base64Data.Contains(","))
-                    {
-                        base64Data = base64Data.Split(',')[1];
-                    }
-                    byte[] fileBytes = Convert.FromBase64String(base64Data);
-                    var stream = new MemoryStream(fileBytes);
-                    model.FotoArchivo = new FormFile(stream, 0, fileBytes.Length, "FotoArchivo", "webcam_photo.jpg")
-                    {
-                        Headers = new HeaderDictionary(),
-                        ContentType = "image/jpeg"
-                    };
-                }
-                catch (System.Exception)
-                {
-                    // Si ocurre un error convirtiendo el base64, dejamos pasar sin foto o manejamos silenciosamente
-                }
-            }
-
             // OJO: ModelState.IsValid podría fallar si tienes validaciones Required en el ViewModel. 
             // Como ya quitamos los Required de Password y Usuario en el paso 1, esto pasará bien.
             // Validamos solo lo básico (DNI, Nombre, Rol)
@@ -141,16 +117,10 @@ namespace GymApp.Controllers
                         Email = model.Email,
                         Telefono = model.Telefono,
                         Estado = true,
-
-                        // LÓGICA AUTOMÁTICA:
-                        // Si el modelo viene sin usuario, usamos el DNI
-                        NombreUsuario = string.IsNullOrEmpty(model.NombreUsuario) ? model.Dni : model.NombreUsuario
+                        NombreUsuario = model.NombreUsuario
                     };
 
-                    // Si el password viene vacío, usamos el DNI
-                    string passwordFinal = string.IsNullOrEmpty(model.Password) ? model.Dni : model.Password;
-
-                    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, passwordFinal, model.FotoArchivo);
+                    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, model.Password, model.FotoArchivo, model.FotoBase64);
                     return Json(new { success = true, message = "Usuario creado exitosamente." });
                 }
                 // --- EDITAR ---
@@ -162,7 +132,13 @@ namespace GymApp.Controllers
                     // Mapeo de actualizaciones
                     usuarioExistente.RoleId = model.RoleId;
                     usuarioExistente.NombreCompleto = model.NombreCompleto;
-                    usuarioExistente.NombreUsuario = model.NombreUsuario; // <--- Mapeo
+                    
+                    // Solo actualizamos NombreUsuario si viene un valor no vacío (para no dejarlo nulo)
+                    if (!string.IsNullOrEmpty(model.NombreUsuario))
+                    {
+                        usuarioExistente.NombreUsuario = model.NombreUsuario;
+                    }
+                    
                     usuarioExistente.Dni = model.Dni;
                     usuarioExistente.Email = model.Email;
                     usuarioExistente.Telefono = model.Telefono;
@@ -174,7 +150,7 @@ namespace GymApp.Controllers
                         usuarioExistente.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
                     }
 
-                    await _usuarioService.ActualizarUsuarioAsync(usuarioExistente, model.FotoArchivo);
+                    await _usuarioService.ActualizarUsuarioAsync(usuarioExistente, model.FotoArchivo, model.FotoBase64);
                     return Json(new { success = true, message = "Usuario actualizado correctamente." });
                 }
             }

@@ -16,8 +16,8 @@ namespace GymApp.Services
         Task<Usuario> ObtenerPorIdAsync(int id);
         
         // Lógica de Negocio Compleja
-        Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null);
-        Task ActualizarUsuarioAsync(Usuario usuario, IFormFile? fotoArchivo = null);
+        Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null, string? fotoBase64 = null);
+        Task ActualizarUsuarioAsync(Usuario usuario, IFormFile? fotoArchivo = null, string? fotoBase64 = null);
         Task<bool> EliminarUsuarioAsync(int id);
 
         // Seguridad

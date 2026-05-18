@@ -86,15 +86,26 @@ namespace GymApp.Services
             return await _usuarioRepository.ObtenerConDetallesAsync(id);
         }
 
-        public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null)
+        public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null, string? fotoBase64 = null)
         {
+            // Normalizar DNI: convertir a null si está vacío o solo tiene espacios
+            usuario.Dni = string.IsNullOrWhiteSpace(usuario.Dni) ? null : usuario.Dni.Trim();
+
             // --- NUEVO: GUARDAR FOTO ---
-            if (fotoArchivo != null)
+            if (fotoArchivo != null || !string.IsNullOrEmpty(fotoBase64))
             {
                 // Usamos el DNI si existe, si no, el NombreUsuario (que se generará abajo si es nulo), 
-                // pero necesitamos el identificador ya. Vamos a mover la lógica de indentificador arriba.
+                // pero necesitamos el identificador ya.
                 string identifier = !string.IsNullOrWhiteSpace(usuario.Dni) ? usuario.Dni : (!string.IsNullOrWhiteSpace(usuario.NombreUsuario) ? usuario.NombreUsuario : "user_" + Guid.NewGuid().ToString().Substring(0, 8));
-                usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoArchivo, identifier);
+                
+                if (fotoArchivo != null)
+                {
+                    usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoArchivo, identifier);
+                }
+                else
+                {
+                    usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoBase64, identifier);
+                }
             }
 
             // 1. Validar DNI único (Solo si se proporcionó)
@@ -155,23 +166,55 @@ namespace GymApp.Services
             return usuario;
         }
 
-        public async Task ActualizarUsuarioAsync(Usuario usuario, IFormFile? fotoArchivo = null)
+        public async Task ActualizarUsuarioAsync(Usuario usuario, IFormFile? fotoArchivo = null, string? fotoBase64 = null)
         {
+            // Normalizar DNI: convertir a null si está vacío o solo tiene espacios
+            usuario.Dni = string.IsNullOrWhiteSpace(usuario.Dni) ? null : usuario.Dni.Trim();
+
             // --- NUEVO: GUARDAR FOTO ---
-            if (fotoArchivo != null)
+            if (fotoArchivo != null || !string.IsNullOrEmpty(fotoBase64))
             {
                 // Limpieza de foto anterior
                 if (!string.IsNullOrEmpty(usuario.FotoUrl))
                 {
-                    string oldPath = Path.Combine(_env.WebRootPath, "uploads", "fotos", usuario.FotoUrl);
+                    string oldFileName = Path.GetFileName(usuario.FotoUrl);
+                    string oldPath = Path.Combine(_env.WebRootPath, "uploads", "fotos", oldFileName);
                     if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
                 }
 
-                usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoArchivo, usuario.Dni);
+                // Si no hay DNI, usar el NombreUsuario como identificador para procesar la foto
+                string identifier = !string.IsNullOrWhiteSpace(usuario.Dni) ? usuario.Dni : usuario.NombreUsuario;
+                
+                if (fotoArchivo != null)
+                {
+                    usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoArchivo, identifier);
+                }
+                else
+                {
+                    usuario.FotoUrl = await ProcesarFotoPerfilAsync(fotoBase64, identifier);
+                }
             }
 
-            // IMPORTANTE: Al editar, deberíamos validar que si cambió el nombre de usuario,
-            // el nuevo no esté ocupado por otra persona. (Se puede refinar luego).
+            // Validar que el DNI no esté duplicado por otro usuario (excluyendo al usuario actual)
+            if (!string.IsNullOrWhiteSpace(usuario.Dni))
+            {
+                var usuarioConMismoDni = await _usuarioRepository.ObtenerPorDNIAsync(usuario.Dni);
+                if (usuarioConMismoDni != null && usuarioConMismoDni.UserId != usuario.UserId)
+                {
+                    throw new Exception("El DNI ya está registrado por otro usuario.");
+                }
+            }
+
+            // Validar que el NombreUsuario no esté duplicado por otro usuario (excluyendo al usuario actual)
+            if (!string.IsNullOrWhiteSpace(usuario.NombreUsuario))
+            {
+                var usuarioConMismoNombre = await _usuarioRepository.ObtenerPorNombreUsuarioAsync(usuario.NombreUsuario);
+                if (usuarioConMismoNombre != null && usuarioConMismoNombre.UserId != usuario.UserId)
+                {
+                    throw new Exception($"El usuario '{usuario.NombreUsuario}' ya está en uso.");
+                }
+            }
+
             await _usuarioRepository.UpdateAsync(usuario);
             await _usuarioRepository.SaveAsync();
         }
@@ -301,6 +344,39 @@ namespace GymApp.Services
                 }
 
                 return uniqueFileName;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private async Task<string?> ProcesarFotoPerfilAsync(string? fotoBase64, string dniUsuario)
+        {
+            if (string.IsNullOrEmpty(fotoBase64)) return null;
+
+            try
+            {
+                string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "fotos");
+
+                // Crear directorio si no existe
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                string base64Data = fotoBase64;
+                if (base64Data.Contains(","))
+                {
+                    base64Data = base64Data.Split(',')[1];
+                }
+
+                byte[] fileBytes = Convert.FromBase64String(base64Data);
+                string identifier = !string.IsNullOrWhiteSpace(dniUsuario) ? dniUsuario : "user_" + Guid.NewGuid().ToString().Substring(0, 8);
+                string uniqueFileName = $"perfil_{identifier}_{DateTime.Now.Ticks}.jpg";
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                await System.IO.File.WriteAllBytesAsync(filePath, fileBytes);
+
+                return $"/uploads/fotos/{uniqueFileName}";
             }
             catch (Exception)
             {

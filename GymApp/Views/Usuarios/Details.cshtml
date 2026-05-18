@@ -19,7 +19,10 @@
                 <div class="card-body text-center mt-3">
                     @if (!string.IsNullOrEmpty(Model.FotoUrl))
                     {
-                        <img src="~/uploads/fotos/@Model.FotoUrl" class="img-fluid rounded-circle mb-3 shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" alt="Foto de Perfil" />
+                        var fotoSrc = Model.FotoUrl.StartsWith("/") || Model.FotoUrl.Contains("/") 
+                            ? Url.Content("~" + Model.FotoUrl) 
+                            : Url.Content("~/uploads/fotos/" + Model.FotoUrl);
+                        <img src="@fotoSrc" class="img-fluid rounded-circle mb-3 shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" alt="Foto de Perfil" />
                     }
                     else
                     {
