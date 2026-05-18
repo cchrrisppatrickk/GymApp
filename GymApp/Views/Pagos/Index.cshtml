@@ -292,6 +292,50 @@
                         </div>
                     </div>
 
+                    <!-- === COMPROBANTE YAPE/PLIN (CONDICIONAL) === -->
+                    <div id="contenedorComprobante" class="mb-3 d-none">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-qr-code me-1" style="color:#720e9e"></i>Comprobante <span class="text-danger">*</span>
+                        </label>
+                        <p class="text-muted small mb-2">Obligatorio para Yape/Plin. Sube una imagen o captura con la cámara.</p>
+
+                        <!-- Subir archivo -->
+                        <div class="mb-2">
+                            <label class="form-label small text-secondary">📁 Subir desde archivo</label>
+                            <input type="file" class="form-control form-control-sm" id="ComprobanteArchivo" name="ComprobanteArchivo" accept="image/*">
+                        </div>
+
+                        <div class="text-center text-muted my-1"><small>— o —</small></div>
+
+                        <!-- Webcam -->
+                        <div>
+                            <label class="form-label small text-secondary">📷 Capturar con cámara</label>
+                            <video id="videoWebcamPago" class="d-none rounded border w-100 mb-2" autoplay playsinline style="max-height:180px;object-fit:cover;"></video>
+                            <canvas id="canvasPago" class="d-none"></canvas>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" id="btnActivarCamaraPago" onclick="activarCamaraPago()">
+                                    <i class="bi bi-camera me-1"></i>Activar Cámara
+                                </button>
+                                <button type="button" class="btn btn-sm flex-fill d-none" id="btnCapturarPago" onclick="capturarComprobante()" style="background:#720e9e;color:white;border-color:#720e9e;">
+                                    <i class="bi bi-camera-fill me-1"></i>Capturar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Preview -->
+                        <div id="previewComprobante" class="d-none mt-2 text-center">
+                            <img id="imgPreviewComprobante" src="" class="img-thumbnail" style="max-height:140px;">
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="limpiarComprobante()">
+                                    <i class="bi bi-trash me-1"></i>Quitar
+                                </button>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="ComprobanteBase64" name="ComprobanteBase64">
+                        <div class="form-text text-danger d-none" id="errorComprobante">El comprobante es obligatorio para pagos con Yape/Plin.</div>
+                    </div>
+
                     <div class="mb-3">
                         <label for="FechaPago" class="form-label fw-bold">Fecha de Pago (Opcional)</label>
                         <input type="datetime-local" id="txtFechaPago" name="FechaPago" class="form-control" />
@@ -508,27 +552,37 @@
             const metodoSeleccionado = document.querySelector('input[name="metodoPago"]:checked').value;
             const monto = parseFloat(document.getElementById("txtMonto").value);
             const fechaPago = document.getElementById("txtFechaPago").value;
+            const comprobanteBase64 = document.getElementById("ComprobanteBase64").value;
 
-            // Validaciones Cliente-Side
             if(isNaN(monto) || monto <= 0) {
                 Swal.fire('Error', 'El monto debe ser válido y mayor a 0', 'error');
                 return;
             }
             if(monto > deudaActual) {
-                 Swal.fire('Error', `El monto ($${monto}) supera la deuda pendiente ($${deudaActual})`, 'error');
-                 return;
+                Swal.fire('Error', `El monto ($${monto}) supera la deuda pendiente ($${deudaActual})`, 'error');
+                return;
             }
+
+            // Validar comprobante obligatorio para Yape/Plin
+            if (metodoSeleccionado === 'Yape/Plin' && !comprobanteBase64) {
+                document.getElementById('errorComprobante').classList.remove('d-none');
+                document.getElementById('contenedorComprobante').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                Swal.fire('Comprobante requerido', 'Debes subir o capturar el comprobante Yape/Plin antes de confirmar.', 'warning');
+                return;
+            }
+            document.getElementById('errorComprobante').classList.add('d-none');
 
             const data = {
                 MembresiaId: membresiaSeleccionada,
                 Monto: monto,
                 MetodoPago: metodoSeleccionado,
-                FechaPago: fechaPago ? fechaPago : null
+                FechaPago: fechaPago ? fechaPago : null,
+                ComprobanteBase64: comprobanteBase64 || null
             };
 
             Swal.fire({
                 title: '¿Confirmar cobro?',
-                html: `Monto: <b class="text-success fs-4">$${monto.toFixed(2)}</b><br>Método: ${metodoSeleccionado}${fechaPago ? `<br>Fecha: ${fechaPago}` : ''}`,
+                html: `Monto: <b class="text-success fs-4">$${monto.toFixed(2)}</b><br>Método: ${metodoSeleccionado}${comprobanteBase64 ? ' <i class="bi bi-check-circle text-success"></i>' : ''}${fechaPago ? `<br>Fecha: ${fechaPago}` : ''}`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#198754',
@@ -536,9 +590,7 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Bloquear botón para evitar doble click
                     document.getElementById("btnCobrar").disabled = true;
-
                     fetch('/Pagos/Registrar', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -547,10 +599,9 @@
                     .then(res => res.json())
                     .then(json => {
                         if (json.success) {
-                             const modal = bootstrap.Modal.getInstance(document.getElementById('modalPago'));
-                             modal.hide();
-                             window.location.reload(); // Recargar para ver el nuevo pago con los filtros actuales
-
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('modalPago'));
+                            modal.hide();
+                            window.location.reload();
                             Swal.fire({
                                 title: '¡Cobro Exitoso!',
                                 text: 'El pago se registró y el estado de la membresía se actualizó si corresponde.',
@@ -568,9 +619,7 @@
                             Swal.fire('Error', json.message, 'error');
                         }
                     })
-                    .catch(() => {
-                        document.getElementById("btnCobrar").disabled = false;
-                    });
+                    .catch(() => { document.getElementById("btnCobrar").disabled = false; });
                 }
             });
         }
@@ -586,13 +635,102 @@
             document.getElementById("txtMonto").value = "";
             document.getElementById("txtMonto").classList.remove("is-invalid");
             document.getElementById("errorMontoExcedido").classList.add("d-none");
-
             document.getElementById("infoMembresia").classList.add("d-none");
             document.getElementById("formPagoDetalle").classList.add("d-none");
             document.getElementById("btnCobrar").disabled = true;
             document.getElementById("resultados-busqueda").style.display = "none";
             membresiaSeleccionada = 0;
             deudaActual = 0;
+            // Resetear selección de método a Efectivo
+            const metodoEfectivo = document.getElementById('metodo1');
+            if(metodoEfectivo) metodoEfectivo.checked = true;
+            limpiarComprobante();
+            document.getElementById('contenedorComprobante').classList.add('d-none');
+        }
+
+        // ============================================
+        // LÓGICA COMPROBANTE: VISIBILIDAD, ARCHIVO Y WEBCAM
+        // ============================================
+        let streamCamaraPago = null;
+
+        // Mostrar/ocultar contenedor según método de pago
+        document.querySelectorAll('input[name="metodoPago"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const contenedor = document.getElementById('contenedorComprobante');
+                if (this.value === 'Yape/Plin') {
+                    contenedor.classList.remove('d-none');
+                } else {
+                    contenedor.classList.add('d-none');
+                    limpiarComprobante();
+                }
+            });
+        });
+
+        // Convertir archivo a Base64 al seleccionarlo
+        document.getElementById('ComprobanteArchivo').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const base64 = e.target.result;
+                document.getElementById('ComprobanteBase64').value = base64;
+                document.getElementById('imgPreviewComprobante').src = base64;
+                document.getElementById('previewComprobante').classList.remove('d-none');
+                document.getElementById('errorComprobante').classList.add('d-none');
+                // Detener cámara si estaba activa
+                detenerCamaraPago();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function activarCamaraPago() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+                .then(stream => {
+                    streamCamaraPago = stream;
+                    const video = document.getElementById('videoWebcamPago');
+                    video.srcObject = stream;
+                    video.classList.remove('d-none');
+                    document.getElementById('btnActivarCamaraPago').classList.add('d-none');
+                    document.getElementById('btnCapturarPago').classList.remove('d-none');
+                    document.getElementById('previewComprobante').classList.add('d-none');
+                })
+                .catch(() => Swal.fire('Error', 'No se pudo acceder a la cámara. Verifica los permisos del navegador.', 'error'));
+        }
+
+        function capturarComprobante() {
+            const video = document.getElementById('videoWebcamPago');
+            const canvas = document.getElementById('canvasPago');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const base64 = canvas.toDataURL('image/jpeg', 0.85);
+            document.getElementById('ComprobanteBase64').value = base64;
+            document.getElementById('imgPreviewComprobante').src = base64;
+            document.getElementById('previewComprobante').classList.remove('d-none');
+            document.getElementById('errorComprobante').classList.add('d-none');
+            // Apagar cámara para liberar memoria
+            detenerCamaraPago();
+        }
+
+        function detenerCamaraPago() {
+            if (streamCamaraPago) {
+                streamCamaraPago.getTracks().forEach(t => t.stop());
+                streamCamaraPago = null;
+            }
+            const video = document.getElementById('videoWebcamPago');
+            video.srcObject = null;
+            video.classList.add('d-none');
+            document.getElementById('btnCapturarPago').classList.add('d-none');
+            document.getElementById('btnActivarCamaraPago').classList.remove('d-none');
+        }
+
+        function limpiarComprobante() {
+            detenerCamaraPago();
+            document.getElementById('ComprobanteBase64').value = '';
+            document.getElementById('ComprobanteArchivo').value = '';
+            document.getElementById('previewComprobante').classList.add('d-none');
+            document.getElementById('imgPreviewComprobante').src = '';
+            document.getElementById('errorComprobante').classList.add('d-none');
         }
 
         // --- LÓGICA DE EDICIÓN DE PAGO ---
