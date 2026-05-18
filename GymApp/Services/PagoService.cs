@@ -403,23 +403,22 @@ namespace GymApp.Services
                     .ThenInclude(m => m.User)
                 .Include(p => p.Membresia)
                     .ThenInclude(m => m.Plan)
-                .Include(p => p.Membresia)
-                    .ThenInclude(m => m.PagosMembresia)   // todos los pagos de la membresía
                 .Include(p => p.UsuarioEmpleado)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.PagoId == pagoId);
 
             if (pago == null) return null;
 
-            // ── Cálculo de deuda ──────────────────────────────────────────────
-            // Tomamos solo los pagos NO anulados, ordenados cronológicamente.
-            // El acumulado de ESTE pago = suma de todos los pagos válidos cuyo
-            // (FechaPago, PagoId) es anterior o igual al pago consultado.
-            var pagosValidos = pago.Membresia.PagosMembresia
-                .Where(p2 => !p2.EsAnulado)
+            // ── Cálculo de deuda (query independiente para evitar ciclo EF Core) ────
+            // AsNoTracking prohíbe PagosMembresium→Membresia→PagosMembresia (ciclo),
+            // así que obtenemos los pagos de la membresía en una segunda consulta.
+            var pagosValidos = await _context.PagosMembresia
+                .Where(p2 => p2.MembresiaId == pago.MembresiaId && !p2.EsAnulado)
                 .OrderBy(p2 => p2.FechaPago)
                 .ThenBy(p2 => p2.PagoId)
-                .ToList();
+                .AsNoTracking()
+                .Select(p2 => new { p2.PagoId, p2.Monto })
+                .ToListAsync();
 
             decimal acumulado = 0m;
             foreach (var p2 in pagosValidos)
