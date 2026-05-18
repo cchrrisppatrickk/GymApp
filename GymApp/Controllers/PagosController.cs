@@ -75,8 +75,27 @@ namespace GymApp.Controllers
         {
             try
             {
+                // Validación: comprobante obligatorio para pagos con Yape/Plin
+                if (model.MetodoPago.Equals("Yape/Plin", StringComparison.OrdinalIgnoreCase) ||
+                    model.MetodoPago.Equals("Yape", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.IsNullOrWhiteSpace(model.ComprobanteBase64) && model.ComprobanteArchivo == null)
+                    {
+                        return BadRequest(new
+                        {
+                            success = false,
+                            message = "El comprobante es obligatorio para pagos con Yape/Plin. Por favor, sube o captura la imagen."
+                        });
+                    }
+                }
+                else
+                {
+                    // Limpieza defensiva: descartamos cualquier comprobante si el método no es Yape
+                    model.ComprobanteBase64 = null;
+                    model.ComprobanteArchivo = null;
+                }
+
                 // AUDITORÍA: Obtenemos el ID del empleado logueado desde la Cookie/Token
-                // Asumiendo que guardaste el UserID en los Claims al hacer Login
                 var empleadoIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 int empleadoId = int.Parse(empleadoIdClaim ?? "1"); // Fallback a 1 si es prueba
 
