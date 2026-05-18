@@ -46,6 +46,21 @@ namespace GymApp.Controllers
             return Content($"Vista de impresión del comprobante #{id}");
         }
 
+        // ── VISTA DE DETALLES ───────────────────────────────────────────────
+        [HttpGet]
+        public async Task<IActionResult> Detalles(int id)
+        {
+            var pago = await _pagoService.ObtenerDetallePagoAsync(id);
+
+            if (pago == null)
+            {
+                TempData["Error"] = "Pago no encontrado.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(pago);
+        }
+
         // API: Listar Historial
         [HttpGet]
         public async Task<IActionResult> Listar()
