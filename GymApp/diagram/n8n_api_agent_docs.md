@@ -228,27 +228,27 @@ Obtiene una lista detallada de todos los clientes con pagos pendientes.
 ]
 ```
 
-## 13. Historial de Membresías de Usuario
-Retorna el historial completo de membresías. Soporta ID directo o búsqueda por nombre/DNI.
-- **Método:** `GET`
-- **URL Completa:** `{{baseUrl}}/membresias/usuario/historial?userId={id}&q={valor}`
-- **Parámetros (Query):**
-  - `userId`: (Opcional) ID numérico del usuario.
-  - `q`: (Opcional) Nombre o DNI del usuario.
-```json
-[
-    {
-        "id": 173,
-        "nombrePlan": "1 MES - SOLO",
-        "estado": "Vencida",
-        "fechaInicio": "2026-03-31T00:00:00",
-        "fechaFin": "2026-04-30T00:00:00",
-        "diasRestantes": -2,
-        "comentarios": null,
-        "deudaPendiente": 0.00
-    }
-]
-```
+    ## 13. Historial de Membresías de Usuario
+    Retorna el historial completo de membresías. Soporta ID directo o búsqueda por nombre/DNI.
+    - **Método:** `GET`
+    - **URL Completa:** `{{baseUrl}}/membresias/usuario/historial?userId={id}&q={valor}`
+    - **Parámetros (Query):**
+    - `userId`: (Opcional) ID numérico del usuario.
+    - `q`: (Opcional) Nombre o DNI del usuario.
+    ```json
+    [
+        {
+            "id": 173,
+            "nombrePlan": "1 MES - SOLO",
+            "estado": "Vencida",
+            "fechaInicio": "2026-03-31T00:00:00",
+            "fechaFin": "2026-04-30T00:00:00",
+            "diasRestantes": -2,
+            "comentarios": null,
+            "deudaPendiente": 0.00
+        }
+    ]
+    ```
 
 ## 14. Alertas de Membresías (Próximos Vencimientos)
 Devuelve membresías que vencen en los próximos X días.

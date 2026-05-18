@@ -180,7 +180,16 @@ namespace GymApp.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                var fullMessage = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    fullMessage += " | Inner: " + ex.InnerException.Message;
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        fullMessage += " | Inner2: " + ex.InnerException.InnerException.Message;
+                    }
+                }
+                return Json(new { success = false, message = fullMessage });
             }
         }
 
