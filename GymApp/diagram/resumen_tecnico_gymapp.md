@@ -12,10 +12,10 @@
 |---|---|
 | **Gestión de Membresías** | Alta, edición y listado paginado de membresías. Soporte de renovación inteligente (la nueva membresía inicia el día siguiente al vencimiento anterior). Precio acordado fijo al momento de la venta (`PrecioAcordado`). |
 | **Congelamiento de Membresías** | Suspensión temporal de una membresía con extensión automática de la fecha de vencimiento por los días congelados. Requiere que el plan lo permita (`PermiteCongelar`). Historial de congelamientos. |
-| **Control de Pagos** | Registro de abonos parciales o totales con soporte para múltiples métodos de pago (Efectivo, Yape). Auditoría del empleado que registra cada cobro. Cálculo automático de deuda pendiente. |
+| **Control de Pagos** | Registro de abonos parciales o totales con soporte para múltiples métodos de pago (Efectivo, Yape/Plin, Tarjeta). **Captura obligatoria de comprobante** (imagen) para pagos con Yape/Plin, ya sea por carga de archivo local o captura en tiempo real vía WebRTC. Almacenamiento físico en disco bajo `wwwroot/uploads/comprobantes/`. Auditoría del empleado que registra cada cobro. Cálculo automático de deuda pendiente. |
 | **Control de Acceso QR** | Cada usuario tiene un código QR único (`Guid`). Un escáner de tablet valida el QR en tiempo real, verifica la membresía activa y registra la asistencia en la tabla `Asistencias`. |
 | **Ventas / POS** | Sistema de punto de venta (quiosco) para venta de productos y servicios. Descuento de stock automático para productos físicos. Precio editable en caja. Soporte de ventas a clientes no registrados. |
-| **Gestión de Usuarios** | CRUD completo con roles (Admin, Empleado, Cliente). Hashing de contraseñas con BCrypt. Foto de perfil con upload a sistema de archivos. Login por DNI o nombre de usuario. Generación de imagen QR en PNG. |
+| **Gestión de Usuarios** | CRUD completo con roles (Admin, Empleado, Cliente). Hashing de contraseñas con BCrypt. **Foto de perfil con doble vía de captura**: subida de archivo local o captura en tiempo real vía WebRTC (webcam). La imagen se convierte a Base64 en el frontend, se envía al servidor, se decodifica y se guarda físicamente en `wwwroot/uploads/fotos/`. Generación de imagen QR en PNG. Login por DNI o nombre de usuario. |
 | **Reportes e Ingresos** | Reporte mensual de ingresos por categoría (Bebidas, Libres, XB) y turno (Mañana/Tarde), desglosado por método de pago. Exportación a Excel con ClosedXML con formato profesional. |
 | **Reporte de Membresías** | Listado mensual de membresías con estado, pagos desglosados y exportación a Excel. |
 | **Dashboard Analítico** | Estadísticas en tiempo real: nuevos miembros del mes, vencidos sin renovar, por vencer en 7 días, usuarios con deuda, monto total deuda, membresías congeladas. Gráficos de ingresos mensuales y semanales. |
@@ -190,7 +190,9 @@ GymApp/
 ├── wwwroot/                      # Archivos estáticos
 │   ├── css/
 │   ├── js/
-│   └── uploads/fotos/            # Fotos de perfil de usuarios
+│   └── uploads/
+│       ├── fotos/                # Fotos de perfil de usuarios
+│       └── comprobantes/         # Comprobantes de pago Yape/Plin
 │
 ├── docker/
 │   └── Dockerfile                # Imagen Docker de la app
@@ -255,3 +257,144 @@ La aplicación actúa como productor de datos para **n8n**. Los webhooks envían
 
 > [!NOTE]
 > `IReporteService.cs` está físicamente ubicada en la carpeta `Repositories/` en lugar de `Services/`, aunque su namespace es `GymApp.Services`. Esto es una inconsistencia menor que no afecta el funcionamiento.
+
+---
+
+## 📸 Módulo de Gestión de Usuarios — Foto de Perfil
+
+### Flujo completo de captura de imagen
+
+El módulo de usuarios admite **dos formas de asociar una foto de perfil** a un usuario:
+
+#### Opción A — Subida de archivo local
+1. El empleado selecciona un archivo de imagen desde `<input type="file" id="FotoArchivo">`.
+2. El evento `change` del input dispara una lectura con `FileReader.readAsDataURL(file)`.
+3. El resultado en Base64 se asigna al input oculto `#FotoBase64` y se muestra en el `<img>` de preview.
+4. El formulario envía `FotoBase64` (string) al controlador.
+
+#### Opción B — Captura con webcam (WebRTC)
+1. El empleado hace clic en **"Activar Cámara"**.
+2. El navegador solicita permiso de cámara vía `navigator.mediaDevices.getUserMedia({ video: true })`.
+3. El stream se asigna a un elemento `<video id="videoWebcam" autoplay>`, que muestra la vista previa en vivo.
+4. Al hacer clic en **"Capturar"**, el frame actual del video se dibuja en un `<canvas>` oculto.
+5. `canvas.toDataURL('image/jpeg', 0.85)` genera la cadena Base64 con calidad optimizada.
+6. El stream de cámara se **detiene inmediatamente** (`stream.getTracks().forEach(t => t.stop())`) para liberar el hardware.
+7. La imagen resultante se asigna al input oculto `#FotoBase64` y se muestra en el preview.
+
+#### Procesamiento en el Backend (`UsuarioService`)
+```
+FotoBase64 (string) recibido en DTO
+  └─► ProcesarFotoPerfilAsync(dto, usuarioId)
+        ├─ Limpia prefijo "data:image/jpeg;base64,..."
+        ├─ Convert.FromBase64String() → byte[]
+        ├─ Genera nombre: "usr_{userId}_{yyyyMMdd_HHmmss}.jpg"
+        ├─ Directorio: wwwroot/uploads/fotos/  (creado si no existe)
+        ├─ File.WriteAllBytesAsync(rutaFísica, bytes)
+        └─ Retorna ruta relativa: "/uploads/fotos/usr_X_FECHA.jpg"
+```
+- La ruta relativa se almacena en `Usuario.FotoPerfil` en la base de datos.
+- La imagen es accesible desde el navegador en `http://host/uploads/fotos/nombre.jpg` gracias al middleware de archivos estáticos de ASP.NET Core.
+
+---
+
+## 💳 Módulo de Pagos — Comprobante Yape/Plin
+
+### Validación dinámica en el frontend
+
+El modal de registro de pagos (`#modalPago`) contiene un selector de método de pago con opciones: **Efectivo**, **Yape/Plin**, **Tarjeta**.
+
+Cuando el empleado selecciona **Yape/Plin**, el sistema activa automáticamente un contenedor condicional (`#contenedorComprobante`) que permanece oculto (`d-none`) para cualquier otro método.
+
+```js
+// Listener dinámico en radio buttons de método de pago
+document.querySelectorAll('input[name="metodoPago"]').forEach(radio => {
+    radio.addEventListener('change', function () {
+        if (this.value === 'Yape/Plin') contenedor.classList.remove('d-none');
+        else { contenedor.classList.add('d-none'); limpiarComprobante(); }
+    });
+});
+```
+
+### Flujo completo de captura del comprobante
+
+#### Opción A — Subir imagen desde archivo
+1. El empleado selecciona la imagen del comprobante Yape desde `<input type="file" id="ComprobanteArchivo" accept="image/*">`.
+2. `FileReader.readAsDataURL()` convierte el archivo a Base64.
+3. El resultado se asigna al input oculto `#ComprobanteBase64` y se muestra en el preview (`#previewComprobante`).
+4. Si la cámara estaba activa, se detiene automáticamente.
+
+#### Opción B — Capturar con webcam (WebRTC)
+1. El empleado hace clic en **"Activar Cámara"**.
+2. `navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })` solicita la cámara trasera (mobile) o frontal disponible.
+3. El stream se muestra en `<video id="videoWebcamPago" autoplay playsinline>`.
+4. Al hacer clic en **"Capturar"**, el frame se dibuja en `<canvas id="canvasPago">` y se exporta a Base64.
+5. El stream de la cámara se **apaga inmediatamente** (`detenerCamaraPago()`) para liberar memoria.
+6. La imagen queda en `#ComprobanteBase64` y se muestra en el preview.
+
+### Validación antes del envío
+
+```js
+// En procesarPago() — frontend
+if (metodoSeleccionado === 'Yape/Plin' && !comprobanteBase64) {
+    // Muestra mensaje de error, hace scroll al contenedor y bloquea el submit
+    Swal.fire('Comprobante requerido', '...', 'warning');
+    return; // Nunca llega al fetch
+}
+```
+
+### Validación en el Backend (`PagosController`)
+
+```csharp
+// Controllers/PagosController.cs — endpoint POST Registrar
+if (model.MetodoPago.Equals("Yape/Plin", StringComparison.OrdinalIgnoreCase))
+{
+    if (string.IsNullOrWhiteSpace(model.ComprobanteBase64) && model.ComprobanteArchivo == null)
+        return BadRequest(new { success = false, message = "Comprobante obligatorio..." });
+}
+else
+{
+    // Limpieza defensiva: otros métodos no deben almacenar imágenes
+    model.ComprobanteBase64 = null;
+    model.ComprobanteArchivo = null;
+}
+```
+
+### Almacenamiento físico (`PagoService`)
+
+```
+ComprobanteBase64 (string) recibido en PagoCreateDTO
+  └─► ProcesarComprobanteAsync(dto, empleadoId)
+        ├─ Verifica que haya contenido (Base64 o IFormFile)
+        ├─ Directorio: wwwroot/uploads/comprobantes/  (creado si no existe)
+        ├─ Genera nombre: "yape_{empleadoId}_{yyyyMMdd_HHmmss}.jpg"
+        ├─ Limpia prefijo Base64 con Regex: ^data:image\/[a-zA-Z]+;base64,
+        ├─ Convert.FromBase64String() → byte[]
+        ├─ File.WriteAllBytesAsync(rutaFísica, bytes)
+        └─ Retorna ruta relativa: "/uploads/comprobantes/yape_X_FECHA.jpg"
+```
+
+La ruta relativa se almacena en `PagosMembresium.Comprobante`. Para otros métodos de pago, el campo queda en `null`.
+
+### Diagrama de flujo resumido
+
+```
+[Frontend — Modal Pagos]
+    Selecciona Yape/Plin
+    └─► Muestra #contenedorComprobante
+          ├─ Archivo → FileReader → Base64 → #ComprobanteBase64
+          └─ Webcam → getUserMedia → canvas → Base64 → #ComprobanteBase64
+    procesarPago() valida Base64 no vacío
+    fetch POST /Pagos/Registrar { ..., ComprobanteBase64 }
+
+[Backend — PagosController]
+    Valida Base64 presente si MetodoPago == Yape/Plin
+    Limpia Base64 para otros métodos
+    Llama PagoService.RegistrarPagoAsync(dto, empleadoId)
+
+[Backend — PagoService]
+    ProcesarComprobanteAsync → guarda JPG en /uploads/comprobantes/
+    Crea PagosMembresium con Comprobante = "/uploads/comprobantes/yape_..."
+    InsertAsync + SaveAsync
+    Actualiza estado Membresía si deuda = 0
+    Envía notificación webhook (n8n)
+```
