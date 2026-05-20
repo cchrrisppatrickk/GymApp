@@ -28,6 +28,8 @@ public partial class GymDbContext : DbContext
 
     public virtual DbSet<Producto> Productos { get; set; }
 
+    public virtual DbSet<PaseDiario> PasesDiarios { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Turno> Turnos { get; set; }
@@ -259,6 +261,34 @@ public partial class GymDbContext : DbContext
                 .HasForeignKey(d => d.VentaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Detalle_Venta");
+        });
+
+        modelBuilder.Entity<PaseDiario>(entity =>
+        {
+            entity.HasKey(e => e.PaseDiarioId).HasName("PK_PasesDiarios");
+
+            entity.ToTable("PasesDiarios");
+
+            entity.Property(e => e.Monto).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.MetodoPago).HasMaxLength(50);
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Observacion).HasMaxLength(255);
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_PasesDiarios_Usuarios");
+
+            entity.HasOne(d => d.Turno).WithMany()
+                .HasForeignKey(d => d.TurnoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PasesDiarios_Turnos");
+
+            entity.HasOne(d => d.UsuarioEmpleado).WithMany()
+                .HasForeignKey(d => d.UsuarioEmpleadoId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_PasesDiarios_Empleado");
         });
 
         OnModelCreatingPartial(modelBuilder);
