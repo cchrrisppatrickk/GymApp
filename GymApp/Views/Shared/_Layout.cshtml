@@ -332,10 +332,23 @@
                     </li>
 
                     <li class="menu-item">
-                        <a asp-controller="Membresias" asp-action="Index" class="menu-link @(currentController == "Membresias" ? "active" : "")">
+                        <a href="#submenuSuscripciones" class="menu-link submenu-toggle @(currentController == "Membresias" || currentController == "PasesDiarios" ? "active" : "")">
                             <span class="menu-icon"><i class="bi bi-card-checklist"></i></span>
                             <span class="menu-text">Suscripciones</span>
+                            <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
                         </a>
+                        <ul class="submenu" id="submenuSuscripciones">
+                            <li class="submenu-item">
+                                <a asp-controller="Membresias" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-dot me-1"></i> Planes Regulares
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a asp-controller="PasesDiarios" asp-action="Index" class="submenu-link">
+                                    <i class="bi bi-dot me-1"></i> Pases Diarios
+                                </a>
+                            </li>
+                        </ul>
                     </li>
 
                     <li class="menu-item">
