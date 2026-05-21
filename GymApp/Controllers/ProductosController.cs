@@ -1,4 +1,4 @@
-﻿using GymApp.Models;
+using GymApp.Models;
 using GymApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin,Empleado")]
+    [Authorize(Policy = "RequiereVerProductos")]
     public class ProductosController : BaseController
     {
         private readonly IProductoService _productoService;
@@ -61,6 +61,7 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequiereEliminarProductos")]
         public async Task<IActionResult> Eliminar(int id)
         {
             try

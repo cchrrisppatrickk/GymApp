@@ -23,7 +23,7 @@ namespace GymApp.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Empleado")]
+        [Authorize(Policy = "RequiereVerVentas")]
         public async Task<IActionResult> ObtenerDatosGrafico(string temporalidad = "Mes")
         {
             try {

@@ -39,6 +39,7 @@ namespace GymApp.Controllers
         {
             ViewData["Title"] = "Gestión de Personal";
             var personal = await _usuarioService.ObtenerPersonalAsync();
+            await CargarViewBags(); // ← necesario para que el modal tenga roles y permisos
             return View(personal);
         }
 

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GymApp.Controllers;
 
-[Authorize(Roles = "Admin,Empleado")]
+[Authorize(Policy = "RequiereVerPasesDiarios")]
 public class PasesDiariosController : BaseController
 {
     private readonly IPaseDiarioService _paseDiarioService;

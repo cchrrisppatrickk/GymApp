@@ -1,4 +1,4 @@
-﻿// Controllers/AccesoController.cs
+// Controllers/AccesoController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GymApp.Data; // Tu namespace de datos
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin,Empleado")]
+    [Authorize(Policy = "RequiereVerAcceso")]
     public class AccesoController : BaseController
     {
         private readonly GymDbContext _context;

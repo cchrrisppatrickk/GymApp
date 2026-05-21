@@ -10,18 +10,16 @@ using Microsoft.AspNetCore.Http;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin,Empleado")]
+    [Authorize(Policy = "RequiereVerUsuarios")]
     public class UsuariosController : BaseController
     {
         private readonly IUsuarioService _usuarioService;
         private readonly IGenericRepository<Role> _rolesRepository;
-        private readonly IGenericRepository<Permiso> _permisosRepository;
 
-        public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository, IGenericRepository<Permiso> permisosRepository)
+        public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository)
         {
             _usuarioService = usuarioService;
             _rolesRepository = rolesRepository;
-            _permisosRepository = permisosRepository;
         }
 
         // ==========================================
@@ -37,14 +35,10 @@ namespace GymApp.Controllers
 
             var pagedResult = await _usuarioService.ObtenerUsuariosPaginadosAsync(buscar, pagina, mes, anio);
 
-            // CARGAMOS LOS ROLES AQUÍ para enviarlos a la vista y llenar el <select> del Modal
+            // CARGAMOS LOS ROLES para el <select> del Modal de socios
             var roles = await _rolesRepository.GetAllAsync();
             ViewBag.Roles = new SelectList(roles, "RoleId", "Nombre");
-            
-            // CARGAMOS LOS PERMISOS AGRUPADOS POR MÓDULO
-            var permisos = await _permisosRepository.GetAllAsync();
-            var permisosPorModulo = permisos.GroupBy(p => p.Modulo).ToDictionary(g => g.Key, g => g.ToList());
-            ViewBag.PermisosPorModulo = permisosPorModulo;
+
             
             ViewData["CurrentFilter"] = buscar;
             ViewBag.Mes = mes;
@@ -188,6 +182,7 @@ namespace GymApp.Controllers
         // 4. ELIMINAR (AJAX)
         // ==========================================
         [HttpPost]
+        [Authorize(Policy = "RequiereEliminarUsuarios")]
         public async Task<IActionResult> Delete(int id)
         {
             try

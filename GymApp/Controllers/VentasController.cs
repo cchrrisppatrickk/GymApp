@@ -1,4 +1,4 @@
-﻿using GymApp.Services;
+using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin,Empleado")]
+    [Authorize(Policy = "RequiereVerVentas")]
     public class VentasController : BaseController
     {
         private readonly IVentaService _ventaService;

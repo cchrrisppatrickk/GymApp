@@ -97,6 +97,69 @@ builder.Services.AddAuthorization(options => {
        
    options.AddPolicy("RequiereEliminarMembresias", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Membresias.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- VENTAS ---
+   options.AddPolicy("RequiereVerVentas", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Ventas.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarVentas", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Ventas.Anular") || context.User.HasClaim("Permiso", "Ventas.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- PRODUCTOS ---
+   options.AddPolicy("RequiereVerProductos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Productos.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarProductos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Productos.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- PLANES ---
+   options.AddPolicy("RequiereVerPlanes", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Planes.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarPlanes", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Planes.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- TURNOS ---
+   options.AddPolicy("RequiereVerTurnos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Turnos.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarTurnos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Turnos.Eliminar") || context.User.HasClaim("Permiso", "Turnos.Anular") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- CONGELAMIENTOS ---
+   options.AddPolicy("RequiereVerCongelamientos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Congelamientos.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarCongelamientos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Congelamientos.Eliminar") || context.User.HasClaim("Permiso", "Congelamientos.Anular") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- ACCESO ---
+   options.AddPolicy("RequiereVerAcceso", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Acceso.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarAcceso", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Acceso.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- PASES DIARIOS ---
+   options.AddPolicy("RequiereVerPasesDiarios", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "PasesDiarios.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarPasesDiarios", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "PasesDiarios.Eliminar") || context.User.HasClaim("Permiso", "PasesDiarios.Anular") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- USUARIOS ---
+   options.AddPolicy("RequiereVerUsuarios", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Usuarios.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarUsuarios", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Usuarios.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- ROLES ---
+   options.AddPolicy("RequiereVerRoles", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Roles.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarRoles", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Roles.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
 });
 // ============================================================
 

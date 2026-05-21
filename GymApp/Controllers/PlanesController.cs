@@ -1,4 +1,4 @@
-﻿using GymApp.Models;
+using GymApp.Models;
 using GymApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin,Empleado")]
+    [Authorize(Policy = "RequiereVerPlanes")]
     public class PlanesController : BaseController
     {
         private readonly IPlaneService _planeService;
@@ -67,6 +67,7 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequiereEliminarPlanes")]
         public async Task<IActionResult> Eliminar(int id)
         {
             try

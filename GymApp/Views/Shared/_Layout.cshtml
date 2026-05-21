@@ -324,82 +324,106 @@
                     <!-- ========== SECCIÓN: OPERACIONES ========== -->
                     <li class="menu-item mt-3 mb-1 px-4 text-muted small fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">OPERACIONES</li>
 
-                    <li class="menu-item">
-                        <a asp-controller="Usuarios" asp-action="Index" class="menu-link @(currentController == "Usuarios" ? "active" : "")">
-                            <span class="menu-icon"><i class="bi bi-people-fill"></i></span>
-                            <span class="menu-text">Socios / Clientes</span>
-                        </a>
-                    </li>
+                    @if (User.HasClaim("Permiso", "Usuarios.Ver") || User.IsInRole("Admin"))
+                    {
+                        <li class="menu-item">
+                            <a asp-controller="Usuarios" asp-action="Index" class="menu-link @(currentController == "Usuarios" ? "active" : "")">
+                                <span class="menu-icon"><i class="bi bi-people-fill"></i></span>
+                                <span class="menu-text">Socios / Clientes</span>
+                            </a>
+                        </li>
+                    }
 
-                    <li class="menu-item">
-                        <a href="#submenuSuscripciones" class="menu-link submenu-toggle @(currentController == "Membresias" || currentController == "PasesDiarios" ? "active" : "")">
-                            <span class="menu-icon"><i class="bi bi-card-checklist"></i></span>
-                            <span class="menu-text">Suscripciones</span>
-                            <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
-                        </a>
-                        <ul class="submenu" id="submenuSuscripciones">
-                            <li class="submenu-item">
-                                <a asp-controller="Membresias" asp-action="Index" class="submenu-link">
-                                    <i class="bi bi-dot me-1"></i> Planes Regulares
-                                </a>
-                            </li>
-                            <li class="submenu-item">
-                                <a asp-controller="PasesDiarios" asp-action="Index" class="submenu-link">
-                                    <i class="bi bi-dot me-1"></i> Pases Diarios
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if (User.HasClaim("Permiso", "Membresias.Ver") || User.HasClaim("Permiso", "PasesDiarios.Ver") || User.IsInRole("Admin"))
+                    {
+                        <li class="menu-item">
+                            <a href="#submenuSuscripciones" class="menu-link submenu-toggle @(currentController == "Membresias" || currentController == "PasesDiarios" ? "active" : "")">
+                                <span class="menu-icon"><i class="bi bi-card-checklist"></i></span>
+                                <span class="menu-text">Suscripciones</span>
+                                <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                            </a>
+                            <ul class="submenu" id="submenuSuscripciones">
+                                @if (User.HasClaim("Permiso", "Membresias.Ver") || User.IsInRole("Admin"))
+                                {
+                                    <li class="submenu-item">
+                                        <a asp-controller="Membresias" asp-action="Index" class="submenu-link">
+                                            <i class="bi bi-dot me-1"></i> Planes Regulares
+                                        </a>
+                                    </li>
+                                }
+                                @if (User.HasClaim("Permiso", "PasesDiarios.Ver") || User.IsInRole("Admin"))
+                                {
+                                    <li class="submenu-item">
+                                        <a asp-controller="PasesDiarios" asp-action="Index" class="submenu-link">
+                                            <i class="bi bi-dot me-1"></i> Pases Diarios
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    }
 
-                    <li class="menu-item">
-                        <a asp-controller="Pagos" asp-action="Index" class="menu-link @(currentController == "Pagos" ? "active" : "")">
-                            <span class="menu-icon"><i class="bi bi-cash-stack"></i></span>
-                            <span class="menu-text">Cajas</span>
-                        </a>
-                    </li>
+                    @if (User.HasClaim("Permiso", "Pagos.Ver") || User.IsInRole("Admin"))
+                    {
+                        <li class="menu-item">
+                            <a asp-controller="Pagos" asp-action="Index" class="menu-link @(currentController == "Pagos" ? "active" : "")">
+                                <span class="menu-icon"><i class="bi bi-cash-stack"></i></span>
+                                <span class="menu-text">Cajas</span>
+                            </a>
+                        </li>
+                    }
 
-                    <li class="menu-item">
-                        <a href="#submenuReportes" class="menu-link submenu-toggle @(currentController == "Reportes" ? "active" : "")">
-                            <span class="menu-icon"><i class="bi bi-graph-up-arrow"></i></span>
-                            <span class="menu-text">Reportes</span>
-                            <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
-                        </a>
-                        <ul class="submenu" id="submenuReportes">
-                            <li class="submenu-item">
-                                <a asp-controller="Reportes" asp-action="Index" class="submenu-link">
-                                    <i class="bi bi-dot me-1"></i> Control de Ingresos General
-                                </a>
-                            </li>
-                            <li class="submenu-item">
-                                <a asp-controller="Reportes" asp-action="Membresias" class="submenu-link">
-                                    <i class="bi bi-dot me-1"></i> Control de Membresías
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="menu-item">
+                            <a href="#submenuReportes" class="menu-link submenu-toggle @(currentController == "Reportes" ? "active" : "")">
+                                <span class="menu-icon"><i class="bi bi-graph-up-arrow"></i></span>
+                                <span class="menu-text">Reportes</span>
+                                <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                            </a>
+                            <ul class="submenu" id="submenuReportes">
+                                <li class="submenu-item">
+                                    <a asp-controller="Reportes" asp-action="Index" class="submenu-link">
+                                        <i class="bi bi-dot me-1"></i> Control de Ingresos General
+                                    </a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a asp-controller="Reportes" asp-action="Membresias" class="submenu-link">
+                                        <i class="bi bi-dot me-1"></i> Control de Membresías
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
 
-                    <li class="menu-item">
-                        <a asp-controller="Ventas" asp-action="Index" class="menu-link @(currentController == "Ventas" ? "active" : "")">
-                            <span class="menu-icon"><i class="bi bi-cart-fill"></i></span>
-                            <span class="menu-text">Ventas</span>
-                        </a>
-                    </li>
+                    @if (User.HasClaim("Permiso", "Ventas.Ver") || User.IsInRole("Admin"))
+                    {
+                        <li class="menu-item">
+                            <a asp-controller="Ventas" asp-action="Index" class="menu-link @(currentController == "Ventas" ? "active" : "")">
+                                <span class="menu-icon"><i class="bi bi-cart-fill"></i></span>
+                                <span class="menu-text">Ventas</span>
+                            </a>
+                        </li>
+                    }
 
-                    <li class="menu-item">
-                        <a href="#submenuAcceso" class="menu-link submenu-toggle @(currentController == "Acceso" ? "active" : "")">
-                            <span class="menu-icon"><i class="bi bi-qr-code-scan"></i></span>
-                            <span class="menu-text">Control de Acceso</span>
-                            <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
-                        </a>
-                        <ul class="submenu" id="submenuAcceso">
-                            <li class="submenu-item">
-                                <a asp-controller="Acceso" asp-action="Index" class="submenu-link">Escáner QR</a>
-                            </li>
-                            <li class="submenu-item">
-                                <a asp-controller="Acceso" asp-action="Historial" class="submenu-link">Historial Visitas</a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if (User.HasClaim("Permiso", "Acceso.Ver") || User.IsInRole("Admin"))
+                    {
+                        <li class="menu-item">
+                            <a href="#submenuAcceso" class="menu-link submenu-toggle @(currentController == "Acceso" ? "active" : "")">
+                                <span class="menu-icon"><i class="bi bi-qr-code-scan"></i></span>
+                                <span class="menu-text">Control de Acceso</span>
+                                <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                            </a>
+                            <ul class="submenu" id="submenuAcceso">
+                                <li class="submenu-item">
+                                    <a asp-controller="Acceso" asp-action="Index" class="submenu-link">Escáner QR</a>
+                                </li>
+                                <li class="submenu-item">
+                                    <a asp-controller="Acceso" asp-action="Historial" class="submenu-link">Historial Visitas</a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
 
                     <!-- ========== SECCIÓN: ADMINISTRACIÓN ========== -->
                     <li class="menu-item mt-3 mb-1 px-4 text-muted small fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">ADMINISTRACIÓN</li>
@@ -417,35 +441,47 @@
                         </li>
                     }
 
-                    <li class="menu-item">
-                        <a href="#submenuConfig" class="menu-link submenu-toggle @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "active" : "")">
-                            <span class="menu-icon"><i class="bi bi-gear-fill"></i></span>
-                            <span class="menu-text">Configuración</span>
-                            <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
-                        </a>
-                        <ul class="submenu" id="submenuConfig">
-                            <li class="submenu-item">
-                                <a asp-controller="Planes" asp-action="Index" class="submenu-link">Planes y Precios</a>
-                            </li>
-                            <li class="submenu-item">
-                                <a asp-controller="Turnos" asp-action="Index" class="submenu-link">Horarios</a>
-                            </li>
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="submenu-item">
-                                    <a asp-controller="Roles" asp-action="Index" class="submenu-link">Roles</a>
-                                </li>
-                                <li class="submenu-item">
-                                    <a asp-controller="Alertas" asp-action="Index" class="submenu-link">Alertas n8n</a>
-                                </li>
-                            }
-                            <li class="submenu-item">
-                                <a asp-controller="Productos" asp-action="Index" class="submenu-link">
-                                    <i class="bi bi-dot me-1"></i> Productos
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if (User.HasClaim("Permiso", "Planes.Ver") || User.HasClaim("Permiso", "Turnos.Ver") || User.HasClaim("Permiso", "Productos.Ver") || User.IsInRole("Admin"))
+                    {
+                        <li class="menu-item">
+                            <a href="#submenuConfig" class="menu-link submenu-toggle @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "active" : "")">
+                                <span class="menu-icon"><i class="bi bi-gear-fill"></i></span>
+                                <span class="menu-text">Configuración</span>
+                                <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                            </a>
+                            <ul class="submenu" id="submenuConfig">
+                                @if (User.HasClaim("Permiso", "Planes.Ver") || User.IsInRole("Admin"))
+                                {
+                                    <li class="submenu-item">
+                                        <a asp-controller="Planes" asp-action="Index" class="submenu-link">Planes y Precios</a>
+                                    </li>
+                                }
+                                @if (User.HasClaim("Permiso", "Turnos.Ver") || User.IsInRole("Admin"))
+                                {
+                                    <li class="submenu-item">
+                                        <a asp-controller="Turnos" asp-action="Index" class="submenu-link">Horarios</a>
+                                    </li>
+                                }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li class="submenu-item">
+                                        <a asp-controller="Roles" asp-action="Index" class="submenu-link">Roles</a>
+                                    </li>
+                                    <li class="submenu-item">
+                                        <a asp-controller="Alertas" asp-action="Index" class="submenu-link">Alertas n8n</a>
+                                    </li>
+                                }
+                                @if (User.HasClaim("Permiso", "Productos.Ver") || User.IsInRole("Admin"))
+                                {
+                                    <li class="submenu-item">
+                                        <a asp-controller="Productos" asp-action="Index" class="submenu-link">
+                                            <i class="bi bi-dot me-1"></i> Productos
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    }
 
                 }
 

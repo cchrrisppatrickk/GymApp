@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin,Empleado")]
+    [Authorize(Policy = "RequiereVerCongelamientos")]
     public class CongelamientosController : BaseController
     {
         private readonly ICongelamientoService _congelamientoService;
