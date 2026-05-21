@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -30,6 +30,11 @@ namespace GymApp.Controllers
         protected string CurrentUserRole
         {
             get { return User.FindFirst(ClaimTypes.Role)?.Value ?? ""; }
+        }
+
+        protected bool TienePermiso(string permisoId)
+        {
+            return User.IsInRole("Admin") || User.HasClaim("Permiso", permisoId);
         }
     }
 }

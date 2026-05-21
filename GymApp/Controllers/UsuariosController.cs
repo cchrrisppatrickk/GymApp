@@ -37,6 +37,10 @@ namespace GymApp.Controllers
 
             // CARGAMOS LOS ROLES para el <select> del Modal de socios
             var roles = await _rolesRepository.GetAllAsync();
+            if (!User.IsInRole("Admin"))
+            {
+                roles = roles.Where(r => r.Nombre != "Admin").ToList();
+            }
             ViewBag.Roles = new SelectList(roles, "RoleId", "Nombre");
 
             
@@ -94,13 +98,33 @@ namespace GymApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save([FromForm] UsuarioViewModel model)
         {
+            // Prevención de Escalada de Privilegios
+            var rolSeleccionado = await _rolesRepository.GetByIdAsync(model.RoleId);
+            if (rolSeleccionado != null && rolSeleccionado.Nombre == "Admin" && !User.IsInRole("Admin"))
+            {
+                ModelState.AddModelError("RoleId", "No tienes permisos para crear o modificar usuarios con rol de Administrador.");
+            }
+
+            if (model.UserId > 0)
+            {
+                var usuarioExistenteParaValidar = await _usuarioService.ObtenerPorIdAsync(model.UserId);
+                if (usuarioExistenteParaValidar != null)
+                {
+                    var rolOriginal = await _rolesRepository.GetByIdAsync(usuarioExistenteParaValidar.RoleId);
+                    if (rolOriginal != null && rolOriginal.Nombre == "Admin" && !User.IsInRole("Admin"))
+                    {
+                        ModelState.AddModelError("RoleId", "No tienes permisos para editar a un Administrador.");
+                    }
+                }
+            }
+
             // OJO: ModelState.IsValid podría fallar si tienes validaciones Required en el ViewModel. 
             // Como ya quitamos los Required de Password y Usuario en el paso 1, esto pasará bien.
             // Validamos solo lo básico (DNI, Nombre, Rol)
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                return Json(new { success = false, message = "Datos incompletos", errors = errors });
+                return Json(new { success = false, message = "Datos incompletos o permisos insuficientes", errors = errors });
             }
             try
             {
