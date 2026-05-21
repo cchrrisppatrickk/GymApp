@@ -42,6 +42,10 @@ public partial class GymDbContext : DbContext
 
     public virtual DbSet<ConfiguracionAlerta> ConfiguracionAlertas { get; set; }
 
+    public virtual DbSet<Permiso> Permisos { get; set; }
+
+    public virtual DbSet<UsuarioPermiso> UsuarioPermisos { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Asistencia>(entity =>
@@ -289,6 +293,48 @@ public partial class GymDbContext : DbContext
                 .HasForeignKey(d => d.UsuarioEmpleadoId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_PasesDiarios_Empleado");
+        });
+
+        modelBuilder.Entity<Permiso>(entity =>
+        {
+            entity.HasKey(e => e.PermisoId);
+            entity.Property(e => e.PermisoId).HasMaxLength(50);
+            entity.Property(e => e.Modulo).HasMaxLength(50);
+            entity.Property(e => e.Descripcion).HasMaxLength(200);
+
+            entity.HasData(
+                new Permiso { PermisoId = "Usuarios.Ver", Modulo = "Usuarios", Descripcion = "Ver listado y detalles de usuarios" },
+                new Permiso { PermisoId = "Usuarios.Crear", Modulo = "Usuarios", Descripcion = "Crear nuevos usuarios" },
+                new Permiso { PermisoId = "Usuarios.Editar", Modulo = "Usuarios", Descripcion = "Editar usuarios existentes" },
+                new Permiso { PermisoId = "Usuarios.Eliminar", Modulo = "Usuarios", Descripcion = "Eliminar usuarios" },
+                new Permiso { PermisoId = "Membresias.Ver", Modulo = "Membresias", Descripcion = "Ver listado y detalles de membresías" },
+                new Permiso { PermisoId = "Membresias.Crear", Modulo = "Membresias", Descripcion = "Crear/Renovar membresías" },
+                new Permiso { PermisoId = "Membresias.Editar", Modulo = "Membresias", Descripcion = "Editar detalles de membresías" },
+                new Permiso { PermisoId = "Membresias.Eliminar", Modulo = "Membresias", Descripcion = "Eliminar membresías físicamente" },
+                new Permiso { PermisoId = "Pagos.Ver", Modulo = "Pagos", Descripcion = "Ver listado y detalles de pagos" },
+                new Permiso { PermisoId = "Pagos.Crear", Modulo = "Pagos", Descripcion = "Registrar nuevos pagos" },
+                new Permiso { PermisoId = "Pagos.Editar", Modulo = "Pagos", Descripcion = "Editar detalles de pagos" },
+                new Permiso { PermisoId = "Pagos.Anular", Modulo = "Pagos", Descripcion = "Anular pagos y recalcular deudas" },
+                new Permiso { PermisoId = "PasesDiarios.Ver", Modulo = "PasesDiarios", Descripcion = "Ver listado de pases diarios" },
+                new Permiso { PermisoId = "PasesDiarios.Crear", Modulo = "PasesDiarios", Descripcion = "Crear pases diarios" },
+                new Permiso { PermisoId = "PasesDiarios.Editar", Modulo = "PasesDiarios", Descripcion = "Editar pases diarios" },
+                new Permiso { PermisoId = "PasesDiarios.Eliminar", Modulo = "PasesDiarios", Descripcion = "Eliminar pases diarios" }
+            );
+        });
+
+        modelBuilder.Entity<UsuarioPermiso>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.PermisoId });
+
+            entity.HasOne(d => d.Usuario)
+                .WithMany(p => p.UsuarioPermisos)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.Permiso)
+                .WithMany(p => p.UsuarioPermisos)
+                .HasForeignKey(d => d.PermisoId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         OnModelCreatingPartial(modelBuilder);

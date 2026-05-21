@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace GymApp.Models;
@@ -42,4 +42,6 @@ public partial class Usuario
     public virtual ICollection<VentasCabecera> VentasCabeceraUsers { get; set; } = new List<VentasCabecera>();
 
     public virtual ICollection<VentasCabecera> VentasCabeceraUsuarioEmpleados { get; set; } = new List<VentasCabecera>();
+
+    public virtual ICollection<UsuarioPermiso> UsuarioPermisos { get; set; } = new List<UsuarioPermiso>();
 }
