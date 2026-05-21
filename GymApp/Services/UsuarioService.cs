@@ -251,6 +251,14 @@ namespace GymApp.Services
             return passwordCorrecto ? usuario : null;
         }
 
+        public async Task<List<string>> ObtenerPermisosUsuarioAsync(int userId)
+        {
+            return await _context.UsuarioPermisos
+                .Where(up => up.UserId == userId)
+                .Select(up => up.PermisoId)
+                .ToListAsync();
+        }
+
         public byte[] GenerarImagenQR(Guid codigoQR)
         {
             // Usamos la librería QRCoder

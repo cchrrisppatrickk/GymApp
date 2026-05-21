@@ -1,4 +1,4 @@
-﻿using GymApp.Services;
+using GymApp.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -57,6 +57,21 @@ namespace GymApp.Controllers
                     new Claim(ClaimTypes.Email, usuario.Email ?? "")
                 };
 
+                // === NUEVO: OBTENER PERMISOS DINÁMICOS ===
+                if (usuario.Role.Nombre == "Admin")
+                {
+                    // Admin tiene acceso a todo
+                    claims.Add(new Claim("Permiso", "AdminAccesoTotal"));
+                }
+                else
+                {
+                    var permisos = await _usuarioService.ObtenerPermisosUsuarioAsync(usuario.UserId);
+                    foreach (var permiso in permisos)
+                    {
+                        claims.Add(new Claim("Permiso", permiso));
+                    }
+                }
+
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                 // 4. Configurar la Cookie
@@ -74,10 +89,6 @@ namespace GymApp.Controllers
                     authProperties);
 
                 // 6. Redirigir al Panel Principal
-                await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);
 
                 // === NUEVA LÓGICA DE REDIRECCIÓN ===
                 if (usuario.Role.Nombre == "Admin" || usuario.Role.Nombre == "Empleado")

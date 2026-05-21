@@ -22,6 +22,7 @@ namespace GymApp.Services
 
         // Seguridad
         Task<Usuario> ValidarLoginAsync(string dni, string password);
+        Task<List<string>> ObtenerPermisosUsuarioAsync(int userId);
 
         // Funciones Extra
         byte[] GenerarImagenQR(Guid codigoQR); // Devuelve la imagen en bytes
