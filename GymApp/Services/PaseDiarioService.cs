@@ -48,6 +48,6 @@ public class PaseDiarioService : IPaseDiarioService
             NombreEmpleado = p.UsuarioEmpleado.NombreCompleto ?? p.UsuarioEmpleado.NombreUsuario,
             Fecha = p.FechaCreacion,
             Observacion = p.Observacion
-        }).OrderByDescending(p => p.FechaCreacion).ToList();
+        }).OrderByDescending(p => p.Fecha).ToList();
     }
 }
