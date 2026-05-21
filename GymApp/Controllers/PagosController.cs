@@ -9,7 +9,7 @@ using GymApp.Data;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin,Empleado")]
+    [Authorize(Policy = "RequiereVerPagos")]
     public class PagosController : BaseController
     {
         private readonly IPagoService _pagoService;
@@ -159,6 +159,7 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequiereAnularPagos")]
         public async Task<IActionResult> Anular(int id, [FromBody] string motivo)
         {
             try

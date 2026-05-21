@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin,Empleado")]
+    [Authorize(Policy = "RequiereVerMembresias")]
     public class MembresiasController : BaseController
     {
         private readonly IMembresiaService _membresiaService;
@@ -189,7 +189,7 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "RequiereEliminarMembresias")]
         public async Task<IActionResult> EliminarFisicamente(int id)
         {
             try

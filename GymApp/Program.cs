@@ -81,6 +81,24 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
 // ============================================================
+// 4. CONFIGURAR AUTORIZACIÓN (POLÍTICAS Y CLAIMS)
+// ============================================================
+builder.Services.AddAuthorization(options => {
+   // --- PAGOS ---
+   options.AddPolicy("RequiereVerPagos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Pagos.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereAnularPagos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Pagos.Anular") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   // --- MEMBRESÍAS ---
+   options.AddPolicy("RequiereVerMembresias", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Membresias.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+       
+   options.AddPolicy("RequiereEliminarMembresias", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Membresias.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+});
+// ============================================================
 
 var app = builder.Build();
 
