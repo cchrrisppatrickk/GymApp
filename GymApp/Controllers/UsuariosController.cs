@@ -15,11 +15,13 @@ namespace GymApp.Controllers
     {
         private readonly IUsuarioService _usuarioService;
         private readonly IGenericRepository<Role> _rolesRepository;
+        private readonly IGenericRepository<Permiso> _permisosRepository;
 
-        public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository)
+        public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository, IGenericRepository<Permiso> permisosRepository)
         {
             _usuarioService = usuarioService;
             _rolesRepository = rolesRepository;
+            _permisosRepository = permisosRepository;
         }
 
         // ==========================================
@@ -38,6 +40,11 @@ namespace GymApp.Controllers
             // CARGAMOS LOS ROLES AQUÍ para enviarlos a la vista y llenar el <select> del Modal
             var roles = await _rolesRepository.GetAllAsync();
             ViewBag.Roles = new SelectList(roles, "RoleId", "Nombre");
+            
+            // CARGAMOS LOS PERMISOS AGRUPADOS POR MÓDULO
+            var permisos = await _permisosRepository.GetAllAsync();
+            var permisosPorModulo = permisos.GroupBy(p => p.Modulo).ToDictionary(g => g.Key, g => g.ToList());
+            ViewBag.PermisosPorModulo = permisosPorModulo;
             
             ViewData["CurrentFilter"] = buscar;
             ViewBag.Mes = mes;
@@ -79,6 +86,7 @@ namespace GymApp.Controllers
                 Email = u.Email,
                 Telefono = u.Telefono,
                 Estado = u.Estado ?? false,
+                PermisosSeleccionados = (await _usuarioService.ObtenerPermisosUsuarioAsync(id)).ToArray()
                 // Password se deja vacío por seguridad
             };
 
@@ -120,7 +128,11 @@ namespace GymApp.Controllers
                         NombreUsuario = model.NombreUsuario
                     };
 
-                    await _usuarioService.CrearUsuarioAsync(nuevoUsuario, model.Password, model.FotoArchivo, model.FotoBase64);
+                    var usuarioCreado = await _usuarioService.CrearUsuarioAsync(nuevoUsuario, model.Password, model.FotoArchivo, model.FotoBase64);
+                    
+                    // Actualizamos siempre, incluso si es null (para vaciar si desmarcan todo)
+                    await _usuarioService.ActualizarPermisosUsuarioAsync(usuarioCreado.UserId, model.PermisosSeleccionados ?? Array.Empty<string>());
+
                     return Json(new { success = true, message = "Usuario creado exitosamente." });
                 }
                 // --- EDITAR ---
@@ -144,13 +156,16 @@ namespace GymApp.Controllers
                     usuarioExistente.Telefono = model.Telefono;
                     usuarioExistente.Estado = model.Estado;
 
-                    // Solo si el usuario escribió algo en el campo Password, lo actualizamos
                     if (!string.IsNullOrEmpty(model.Password))
                     {
                         usuarioExistente.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
                     }
 
                     await _usuarioService.ActualizarUsuarioAsync(usuarioExistente, model.FotoArchivo, model.FotoBase64);
+                    
+                    // Actualizamos siempre, incluso si es null (para vaciar si desmarcan todo)
+                    await _usuarioService.ActualizarPermisosUsuarioAsync(usuarioExistente.UserId, model.PermisosSeleccionados ?? Array.Empty<string>());
+
                     return Json(new { success = true, message = "Usuario actualizado correctamente." });
                 }
             }

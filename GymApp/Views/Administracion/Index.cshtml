@@ -1,0 +1,529 @@
+@model List<GymApp.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Gestión de Personal";
+    var permisosPorModulo = ViewBag.PermisosPorModulo as IEnumerable<IGrouping<string, GymApp.Models.Permiso>>;
+}
+
+<div class="container-fluid mt-4">
+
+    <!-- ── Encabezado ──────────────────────────────────────────── -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">
+                <i class="bi bi-shield-lock-fill text-danger me-2"></i>Panel de Administración
+            </h2>
+            <p class="text-muted small mb-0">Gestión exclusiva del personal del gimnasio</p>
+        </div>
+        <button class="btn btn-danger shadow-sm fw-bold" onclick="abrirModalCrear()">
+            <i class="bi bi-person-plus-fill me-1"></i> Nuevo Empleado
+        </button>
+    </div>
+
+    <!-- ── Tabla de Personal ───────────────────────────────────── -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white d-flex align-items-center gap-2">
+            <i class="bi bi-people-fill"></i>
+            <span class="fw-bold">Personal Activo</span>
+            <span class="badge bg-secondary ms-auto">@Model.Count registros</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:50px"></th>
+                            <th>Nombre</th>
+                            <th>DNI</th>
+                            <th>Rol</th>
+                            <th>Usuario</th>
+                            <th>Permisos</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    No hay personal registrado.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var empleado in Model)
+                        {
+                            var badgeRol = empleado.Role?.Nombre == "Admin" ? "danger" : "primary";
+                            var totalPermisos = empleado.UsuarioPermisos?.Count ?? 0;
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(empleado.FotoUrl))
+                                    {
+                                        <img src="@empleado.FotoUrl" class="rounded-circle" width="38" height="38" style="object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold"
+                                             style="width:38px;height:38px;font-size:1rem;">
+                                            @(empleado.NombreCompleto?.FirstOrDefault())
+                                        </div>
+                                    }
+                                </td>
+                                <td class="fw-semibold">@empleado.NombreCompleto</td>
+                                <td class="text-muted">@empleado.Dni</td>
+                                <td>
+                                    <span class="badge bg-@badgeRol">@empleado.Role?.Nombre</span>
+                                </td>
+                                <td><code class="small">@empleado.NombreUsuario</code></td>
+                                <td>
+                                    @if (empleado.Role?.Nombre == "Admin")
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-infinity me-1"></i>Acceso Total</span>
+                                    }
+                                    else if (totalPermisos == 0)
+                                    {
+                                        <span class="badge bg-secondary">Sin permisos</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info text-dark">@totalPermisos permisos asignados</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge @(empleado.Estado == true ? "bg-success" : "bg-secondary")">
+                                        @(empleado.Estado == true ? "Activo" : "Inactivo")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary"
+                                                onclick="abrirModalEditar(@empleado.UserId)"
+                                                title="Editar empleado y permisos">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        @if (empleado.Role?.Nombre != "Admin")
+                                        {
+                                            <button class="btn btn-outline-danger"
+                                                    onclick="confirmarEliminar(@empleado.UserId, '@Html.Raw(empleado.NombreCompleto)')"
+                                                    title="Eliminar empleado">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL: FORMULARIO DE PERSONAL
+══════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalPersonal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-shield-lock-fill me-2"></i>
+                    <span id="modalTitulo">Nuevo Empleado</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form id="formPersonal" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="fUserId" name="UserId" value="0" />
+
+                    <div class="row g-3">
+
+                        <!-- ── Col izquierda: Datos del empleado ─── -->
+                        <div class="col-md-5">
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">
+                                <i class="bi bi-person-badge me-1"></i> Datos del Empleado
+                            </h6>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nombre Completo <span class="text-danger">*</span></label>
+                                <input type="text" id="fNombreCompleto" name="NombreCompleto" class="form-control" required />
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">DNI</label>
+                                    <input type="text" id="fDni" name="Dni" class="form-control" maxlength="15" />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">Teléfono</label>
+                                    <input type="text" id="fTelefono" name="Telefono" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" id="fEmail" name="Email" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Rol <span class="text-danger">*</span></label>
+                                @{
+                                    var rolesSelectList = ViewBag.Roles as SelectList;
+                                }
+                                <select id="fRoleId" name="RoleId" class="form-select" onchange="onRolChange()">
+                                    @if (rolesSelectList != null)
+                                    {
+                                        @foreach (SelectListItem item in rolesSelectList)
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <hr class="my-3" />
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">
+                                <i class="bi bi-key me-1"></i> Credenciales de Acceso
+                            </h6>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nombre de Usuario <span class="text-danger">*</span></label>
+                                <input type="text" id="fNombreUsuario" name="NombreUsuario" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Contraseña <span id="passHint" class="text-muted small fw-normal">(dejar en blanco para mantener)</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" id="fPassword" name="Password" class="form-control"
+                                           placeholder="Nueva contraseña..." />
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            onclick="togglePass()">
+                                        <i class="bi bi-eye" id="iconoOjo"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Estado</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="fEstado" name="Estado"
+                                           value="true" checked />
+                                    <label class="form-check-label" for="fEstado">Activo</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Divisor vertical ─── -->
+                        <div class="col-md-1 d-flex justify-content-center">
+                            <div class="vr opacity-25"></div>
+                        </div>
+
+                        <!-- ── Col derecha: Matriz de Permisos ─── -->
+                        <div class="col-md-6">
+                            <div id="panelPermisos">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="text-uppercase text-muted fw-bold small mb-0">
+                                        <i class="bi bi-shield-check me-1"></i> Matriz de Permisos
+                                    </h6>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-success" onclick="seleccionarTodos()">
+                                            <i class="bi bi-check-all"></i> Todos
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="deseleccionarTodos()">
+                                            <i class="bi bi-x-lg"></i> Ninguno
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="accordion accordion-flush" id="accordionPermisos">
+                                    @if (permisosPorModulo != null)
+                                    {
+                                        var moduloIdx = 0;
+                                        foreach (var grupo in permisosPorModulo)
+                                        {
+                                            <div class="accordion-item border rounded mb-2">
+                                                <h2 class="accordion-header">
+                                                    <button class="accordion-button @(moduloIdx > 0 ? "collapsed" : "")"
+                                                            type="button"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#modulo_@moduloIdx">
+                                                        <i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>
+                                                        <strong>@grupo.Key</strong>
+                                                        <span class="badge bg-primary ms-2 rounded-pill">@grupo.Count()</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="modulo_@moduloIdx"
+                                                     class="accordion-collapse collapse @(moduloIdx == 0 ? "show" : "")"
+                                                     data-bs-parent="#accordionPermisos">
+                                                    <div class="accordion-body py-2 px-3">
+                                                        @foreach (var permiso in grupo)
+                                                        {
+                                                            var badgeClass = permiso.NivelPeligro switch
+                                                            {
+                                                                GymApp.Models.NivelPeligro.Alto => "danger",
+                                                                GymApp.Models.NivelPeligro.Medio => "warning text-dark",
+                                                                _ => "success"
+                                                            };
+                                                            var iconoPeligro = permiso.NivelPeligro switch
+                                                            {
+                                                                GymApp.Models.NivelPeligro.Alto => "bi-exclamation-triangle-fill",
+                                                                GymApp.Models.NivelPeligro.Medio => "bi-pencil-fill",
+                                                                _ => "bi-eye-fill"
+                                                            };
+                                                            <div class="d-flex align-items-center justify-content-between py-1 border-bottom">
+                                                                <div class="form-check mb-0">
+                                                                    <input class="form-check-input permiso-check"
+                                                                           type="checkbox"
+                                                                           name="PermisosSeleccionados"
+                                                                           value="@permiso.PermisoId"
+                                                                           id="perm_@permiso.PermisoId.Replace(".", "_")" />
+                                                                    <label class="form-check-label small"
+                                                                           for="perm_@permiso.PermisoId.Replace(".", "_")">
+                                                                        @permiso.Descripcion
+                                                                    </label>
+                                                                </div>
+                                                                <span class="badge bg-@badgeClass" title="@permiso.NivelPeligro">
+                                                                    <i class="bi @iconoPeligro"></i>
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            moduloIdx++;
+                                        }
+                                    }
+                                </div>
+
+                                <!-- Alerta Admin -->
+                                <div id="alertaAdminPermisos" class="alert alert-danger d-none mt-3 py-2">
+                                    <i class="bi bi-shield-exclamation me-1"></i>
+                                    <strong>Rol Admin:</strong> acceso total garantizado sin importar los permisos aquí marcados.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-danger fw-bold px-4" id="btnGuardar" onclick="guardarPersonal()">
+                    <span class="spinner-border spinner-border-sm me-1 d-none" id="spinnerGuardar"></span>
+                    <i class="bi bi-floppy me-1"></i>Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal confirmación eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-trash3-fill me-2"></i>Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar a <strong id="nombreEliminar"></strong>?</p>
+                <p class="text-danger small"><i class="bi bi-exclamation-triangle me-1"></i>Esta acción también eliminará todos sus permisos asignados.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-danger fw-bold" id="btnConfirmarEliminar">
+                    <i class="bi bi-trash3"></i> Eliminar Definitivamente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // ─── URLs ─────────────────────────────────────────────────────────────────
+    const URL_GUARDAR   = '@Url.Action("GuardarPersonal", "Administracion")';
+    const URL_OBTENER   = '@Url.Action("EditarPersonal", "Administracion")';
+    const URL_ELIMINAR  = '@Url.Action("EliminarPersonal", "Administracion")';
+    const URL_INDEX     = '@Url.Action("Index", "Administracion")';
+
+    let idEliminarActual = null;
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+    function resetForm() {
+        document.getElementById('formPersonal').reset();
+        document.getElementById('fUserId').value = '0';
+        document.getElementById('passHint').textContent = '(obligatoria para nuevo empleado)';
+        deseleccionarTodos();
+        ocultarAlertaAdmin();
+    }
+
+    function togglePass() {
+        const input = document.getElementById('fPassword');
+        const ico   = document.getElementById('iconoOjo');
+        if (input.type === 'password') {
+            input.type = 'text';
+            ico.className = 'bi bi-eye-slash';
+        } else {
+            input.type = 'password';
+            ico.className = 'bi bi-eye';
+        }
+    }
+
+    function seleccionarTodos() {
+        document.querySelectorAll('.permiso-check').forEach(c => c.checked = true);
+    }
+
+    function deseleccionarTodos() {
+        document.querySelectorAll('.permiso-check').forEach(c => c.checked = false);
+    }
+
+    function onRolChange() {
+        const selEl   = document.getElementById('fRoleId');
+        const texto   = selEl.options[selEl.selectedIndex]?.text || '';
+        const esAdmin = texto.toLowerCase() === 'admin';
+        document.getElementById('alertaAdminPermisos').classList.toggle('d-none', !esAdmin);
+    }
+
+    function ocultarAlertaAdmin() {
+        document.getElementById('alertaAdminPermisos').classList.add('d-none');
+    }
+
+    // ─── Abrir Modal CREAR ────────────────────────────────────────────────────
+    function abrirModalCrear() {
+        resetForm();
+        document.getElementById('modalTitulo').textContent = 'Nuevo Empleado';
+        document.getElementById('passHint').textContent = '(obligatoria)';
+        new bootstrap.Modal(document.getElementById('modalPersonal')).show();
+    }
+
+    // ─── Abrir Modal EDITAR ───────────────────────────────────────────────────
+    async function abrirModalEditar(userId) {
+        resetForm();
+        document.getElementById('modalTitulo').textContent = 'Editar Empleado';
+        document.getElementById('passHint').textContent = '(dejar en blanco para no cambiar)';
+
+        try {
+            // Obtenemos la vista parcial como JSON desde el servidor
+            const resp = await fetch(`@Url.Action("EditarPersonal","Administracion")?id=${userId}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (!resp.ok) throw new Error('No se pudo cargar los datos.');
+
+            const data = await resp.json();
+
+            document.getElementById('fUserId').value         = data.userId;
+            document.getElementById('fNombreCompleto').value = data.nombreCompleto;
+            document.getElementById('fDni').value            = data.dni ?? '';
+            document.getElementById('fEmail').value          = data.email ?? '';
+            document.getElementById('fTelefono').value       = data.telefono ?? '';
+            document.getElementById('fNombreUsuario').value  = data.nombreUsuario ?? '';
+            document.getElementById('fRoleId').value         = data.roleId;
+            document.getElementById('fEstado').checked       = data.estado;
+
+            // Marcar permisos
+            deseleccionarTodos();
+            (data.permisos || []).forEach(pid => {
+                const el = document.querySelector(`.permiso-check[value="${pid}"]`);
+                if (el) el.checked = true;
+            });
+
+            onRolChange();
+            new bootstrap.Modal(document.getElementById('modalPersonal')).show();
+        } catch (err) {
+            showToast('Error al cargar datos: ' + err.message, 'danger');
+        }
+    }
+
+    // ─── Guardar ──────────────────────────────────────────────────────────────
+    async function guardarPersonal() {
+        const btn     = document.getElementById('btnGuardar');
+        const spinner = document.getElementById('spinnerGuardar');
+        btn.disabled  = true;
+        spinner.classList.remove('d-none');
+
+        const formData = new FormData(document.getElementById('formPersonal'));
+
+        // Asegurar que el estado se envíe correcto (checkbox)
+        const estadoCheck = document.getElementById('fEstado');
+        formData.set('Estado', estadoCheck.checked ? 'true' : 'false');
+
+        try {
+            const resp = await fetch(URL_GUARDAR, { method: 'POST', body: formData });
+            const data = await resp.json();
+
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('modalPersonal')).hide();
+                showToast(data.message, 'success');
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                showToast(data.message || 'Error al guardar.', 'danger');
+            }
+        } catch (err) {
+            showToast('Error de red: ' + err.message, 'danger');
+        } finally {
+            btn.disabled = false;
+            spinner.classList.add('d-none');
+        }
+    }
+
+    // ─── Eliminar ─────────────────────────────────────────────────────────────
+    function confirmarEliminar(id, nombre) {
+        idEliminarActual = id;
+        document.getElementById('nombreEliminar').textContent = nombre;
+        new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+    }
+
+    document.getElementById('btnConfirmarEliminar').addEventListener('click', async () => {
+        if (!idEliminarActual) return;
+
+        const formData = new FormData();
+        formData.append('id', idEliminarActual);
+        formData.append('__RequestVerificationToken',
+            document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+        try {
+            const resp = await fetch(URL_ELIMINAR, { method: 'POST', body: formData });
+            const data = await resp.json();
+            bootstrap.Modal.getInstance(document.getElementById('modalEliminar')).hide();
+
+            if (data.success) {
+                showToast(data.message, 'success');
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                showToast(data.message, 'danger');
+            }
+        } catch (err) {
+            showToast('Error al eliminar: ' + err.message, 'danger');
+        }
+    });
+
+    // ─── Toast ────────────────────────────────────────────────────────────────
+    function showToast(msg, tipo = 'success') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position:fixed;top:1.5rem;right:1.5rem;z-index:9999;';
+            document.body.appendChild(container);
+        }
+        const icons = { success: 'bi-check-circle-fill', danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill' };
+        const id = 'toast_' + Date.now();
+        container.insertAdjacentHTML('beforeend', `
+            <div id="${id}" class="toast align-items-center text-bg-${tipo} border-0 show mb-2 shadow" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body fw-semibold">
+                        <i class="bi ${icons[tipo] || icons.success} me-2"></i>${msg}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            onclick="document.getElementById('${id}').remove()"></button>
+                </div>
+            </div>`);
+        setTimeout(() => { const el = document.getElementById(id); if (el) el.remove(); }, 4000);
+    }
+</script>
+}

@@ -34,5 +34,7 @@ namespace GymApp.ViewModels
         public string? Email { get; set; }
         public string? Telefono { get; set; }
         public bool Estado { get; set; }
+
+        public string[]? PermisosSeleccionados { get; set; }
     }
 }

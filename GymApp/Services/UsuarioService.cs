@@ -38,6 +38,59 @@ namespace GymApp.Services
             return await _usuarioRepository.GetAllAsync();
         }
 
+        /// <summary>Solo personal: Admin + Empleado, con sus permisos cargados.</summary>
+        public async Task<List<Usuario>> ObtenerPersonalAsync()
+        {
+            return await _context.Usuarios
+                .Include(u => u.Role)
+                .Include(u => u.UsuarioPermisos)
+                .Where(u => u.Role.Nombre == "Admin" || u.Role.Nombre == "Empleado")
+                .OrderByDescending(u => u.UserId)
+                .ToListAsync();
+        }
+
+        /// <summary>Solo socios (rol Cliente), paginados.</summary>
+        public async Task<PagedResult<UsuarioViewModel>> ObtenerSociosPaginadosAsync(string? buscar, int pagina, int? mes = null, int? anio = null, int tamanoPagina = 20)
+        {
+            var query = _context.Usuarios
+                .Include(u => u.Role)
+                .Where(u => u.Role.Nombre == "Cliente")
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(buscar))
+                query = query.Where(u => u.NombreCompleto.Contains(buscar) || (u.Dni != null && u.Dni.Contains(buscar)));
+            else if (mes.HasValue && anio.HasValue)
+                query = query.Where(u => u.FechaRegistro.HasValue && u.FechaRegistro.Value.Month == mes.Value && u.FechaRegistro.Value.Year == anio.Value);
+
+            int count = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(count / (double)tamanoPagina);
+
+            var items = await query
+                .OrderByDescending(u => u.UserId)
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .Select(u => new UsuarioViewModel
+                {
+                    UserId = u.UserId,
+                    NombreCompleto = u.NombreCompleto,
+                    Dni = u.Dni,
+                    NombreRol = u.Role.Nombre,
+                    Email = u.Email,
+                    Telefono = u.Telefono,
+                    Estado = u.Estado ?? false,
+                    NombreUsuario = u.NombreUsuario
+                })
+                .ToListAsync();
+
+            return new PagedResult<UsuarioViewModel>
+            {
+                Items = items,
+                TotalPages = totalPages,
+                CurrentPage = pagina,
+                SearchTerm = buscar
+            };
+        }
+
         public async Task<PagedResult<UsuarioViewModel>> ObtenerUsuariosPaginadosAsync(string? buscar, int pagina, int? mes = null, int? anio = null, int tamanoPagina = 20)
         {
             var query = _context.Usuarios.Include(u => u.Role).AsQueryable();
@@ -257,6 +310,20 @@ namespace GymApp.Services
                 .Where(up => up.UserId == userId)
                 .Select(up => up.PermisoId)
                 .ToListAsync();
+        }
+
+        public async Task ActualizarPermisosUsuarioAsync(int userId, string[] permisos)
+        {
+            var permisosActuales = await _context.UsuarioPermisos.Where(up => up.UserId == userId).ToListAsync();
+            _context.UsuarioPermisos.RemoveRange(permisosActuales);
+            
+            if (permisos != null && permisos.Any())
+            {
+                var nuevosPermisos = permisos.Select(p => new UsuarioPermiso { UserId = userId, PermisoId = p });
+                await _context.UsuarioPermisos.AddRangeAsync(nuevosPermisos);
+            }
+            
+            await _context.SaveChangesAsync();
         }
 
         public byte[] GenerarImagenQR(Guid codigoQR)
