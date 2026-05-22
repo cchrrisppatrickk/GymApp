@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GymApp.ViewModels.RoleViewModel>
+@model IEnumerable<GymApp.ViewModels.RoleViewModel>
 
 @{
     ViewData["Title"] = "Gestión de Roles";
@@ -10,9 +10,12 @@
             <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-shield-check text-primary me-2"></i>Roles y Permisos</h2>
             <p class="text-muted small mb-0">Define los niveles de acceso al sistema.</p>
         </div>
-        <button type="button" class="btn btn-primary shadow-sm" onclick="abrirModalCrear()">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo Rol
-        </button>
+        @if (User.HasClaim("Permiso", "Roles.Crear") || User.IsInRole("Admin"))
+        {
+            <button type="button" class="btn btn-primary shadow-sm" onclick="abrirModalCrear()">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo Rol
+            </button>
+        }
     </div>
 
     <div class="row g-4">
@@ -50,15 +53,21 @@
                             </p>
 
                             <div class="border-top pt-3 mt-2 d-flex justify-content-end gap-2">
-                                <button class="btn btn-sm btn-outline-secondary" onclick="abrirModalEditar(@item.RoleId)">
-                                    <i class="bi bi-pencil me-1"></i> Editar
-                                </button>
+                                @if (User.HasClaim("Permiso", "Roles.Editar") || User.IsInRole("Admin"))
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="abrirModalEditar(@item.RoleId)">
+                                        <i class="bi bi-pencil me-1"></i> Editar
+                                    </button>
+                                }
 
                                 @if (item.Nombre.ToLower() != "admin")
                                 {
-                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarRol(@item.RoleId)">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    @if (User.HasClaim("Permiso", "Roles.Eliminar") || User.IsInRole("Admin"))
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarRol(@item.RoleId)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
                                 }
                                 else
                                 {

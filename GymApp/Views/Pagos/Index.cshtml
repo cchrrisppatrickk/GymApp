@@ -18,9 +18,12 @@
                 <i class="bi bi-printer me-1"></i> Cierre de Caja
             </button> 
             *@
-            <button class="btn btn-success shadow-sm" onclick="abrirModalPago()">
-                <i class="bi bi-plus-lg me-1"></i> Registrar Ingreso
-            </button>
+            @if (User.HasClaim("Permiso", "Pagos.Crear") || User.IsInRole("Admin"))
+            {
+                <button class="btn btn-success shadow-sm" onclick="abrirModalPago()">
+                    <i class="bi bi-plus-lg me-1"></i> Registrar Ingreso
+                </button>
+            }
         </div>
     </div>
     

@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Horarios y Turnos";
 }
 
@@ -8,9 +8,12 @@
             <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-clock-history text-warning me-2"></i>Horarios y Turnos</h2>
             <p class="text-muted small mb-0">Define los bloques de acceso al gimnasio.</p>
         </div>
-        <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo Turno
-        </button>
+        @if (User.HasClaim("Permiso", "Turnos.Crear") || User.IsInRole("Admin"))
+        {
+            <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo Turno
+            </button>
+        }
     </div>
 
     <div class="card border-0 shadow-sm">
@@ -97,6 +100,9 @@
                         return;
                     }
 
+                    const puedeEditar = @(User.HasClaim("Permiso", "Turnos.Editar") || User.IsInRole("Admin") ? "true" : "false");
+                    const puedeEliminar = @(User.HasClaim("Permiso", "Turnos.Eliminar") || User.IsInRole("Admin") ? "true" : "false");
+
                     json.data.forEach(t => {
                         // Calcular duración simple (visual)
                         // Aquí asumimos formato HH:mm:ss
@@ -108,8 +114,8 @@
                                 <td><span class="badge bg-light text-dark border"><i class="bi bi-moon me-1"></i>${t.horaFin}</span></td>
                                 <td><small class="text-muted">Calculado por sistema</small></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-light border me-1" onclick="editarTurno(${t.turnoId})"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-light border text-danger" onclick="eliminarTurno(${t.turnoId})"><i class="bi bi-trash"></i></button>
+                                    ${puedeEditar ? `<button class="btn btn-sm btn-light border me-1" onclick="editarTurno(${t.turnoId})"><i class="bi bi-pencil"></i></button>` : ''}
+                                    ${puedeEliminar ? `<button class="btn btn-sm btn-light border text-danger" onclick="eliminarTurno(${t.turnoId})"><i class="bi bi-trash"></i></button>` : ''}
                                 </td>
                             </tr>
                         `;

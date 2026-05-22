@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Planes y Precios";
 }
 
@@ -8,9 +8,12 @@
             <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-tags-fill text-primary me-2"></i>Planes de Suscripción</h2>
             <p class="text-muted small mb-0">Configura los paquetes que ofreces a tus socios.</p>
         </div>
-        <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
-            <i class="bi bi-plus-lg me-1"></i> Nuevo Plan
-        </button>
+        @if (User.HasClaim("Permiso", "Planes.Crear") || User.IsInRole("Admin"))
+        {
+            <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo Plan
+            </button>
+        }
     </div>
 
     <div class="row g-4" id="contenedorPlanes">
@@ -96,6 +99,9 @@
                             ? `<span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3"><i class="bi bi-snow2 me-1"></i>Congelable</span>`
                             : `<span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">No Congelable</span>`;
 
+                        const puedeEditar = @(User.HasClaim("Permiso", "Planes.Editar") || User.IsInRole("Admin") ? "true" : "false");
+                        const puedeEliminar = @(User.HasClaim("Permiso", "Planes.Eliminar") || User.IsInRole("Admin") ? "true" : "false");
+
                         html += `
                             <div class="col-md-4 col-lg-3">
                                 <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
@@ -109,12 +115,14 @@
                                         </div>
 
                                         <div class="mt-auto pt-3 border-top d-flex justify-content-center gap-2">
+                                            ${puedeEditar ? `
                                             <button class="btn btn-sm btn-outline-primary" onclick="editarPlan(${p.planId})">
                                                 <i class="bi bi-pencil me-1"></i> Editar
-                                            </button>
+                                            </button>` : ''}
+                                            ${puedeEliminar ? `
                                             <button class="btn btn-sm btn-outline-danger" onclick="eliminarPlan(${p.planId})">
                                                 <i class="bi bi-trash"></i>
-                                            </button>
+                                            </button>` : ''}
                                         </div>
                                     </div>
                                 </div>
