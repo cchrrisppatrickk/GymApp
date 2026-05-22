@@ -98,6 +98,9 @@ builder.Services.AddAuthorization(options => {
    options.AddPolicy("RequiereEliminarMembresias", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Membresias.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
 
+   options.AddPolicy("RequiereEditarMembresias", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Membresias.Editar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
    // --- VENTAS ---
    options.AddPolicy("RequiereVerVentas", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Ventas.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
@@ -160,6 +163,10 @@ builder.Services.AddAuthorization(options => {
        
    options.AddPolicy("RequiereEliminarRoles", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Roles.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   // --- DASHBOARD ---
+   options.AddPolicy("RequiereVerDashboard", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Dashboard.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
 });
 // ============================================================
 

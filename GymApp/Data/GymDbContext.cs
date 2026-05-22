@@ -317,8 +317,8 @@ public partial class GymDbContext : DbContext
                 new Permiso { PermisoId = "Pagos.Anular", Modulo = "Pagos", Descripcion = "Anular pagos y recalcular deudas" },
                 new Permiso { PermisoId = "PasesDiarios.Ver", Modulo = "PasesDiarios", Descripcion = "Ver listado de pases diarios" },
                 new Permiso { PermisoId = "PasesDiarios.Crear", Modulo = "PasesDiarios", Descripcion = "Crear pases diarios" },
-                new Permiso { PermisoId = "PasesDiarios.Editar", Modulo = "PasesDiarios", Descripcion = "Editar pases diarios" },
-                new Permiso { PermisoId = "PasesDiarios.Eliminar", Modulo = "PasesDiarios", Descripcion = "Eliminar pases diarios" }
+                new Permiso { PermisoId = "PasesDiarios.Eliminar", Modulo = "PasesDiarios", Descripcion = "Eliminar pases diarios" },
+                new Permiso { PermisoId = "Dashboard.Ver", Modulo = "Dashboard", Descripcion = "Visualizar métricas y gráficos del dashboard" }
             );
         });
 

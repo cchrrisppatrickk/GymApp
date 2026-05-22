@@ -172,7 +172,7 @@ namespace GymApp.Controllers
             }
         }
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "RequiereEditarMembresias")]
         public async Task<IActionResult> Editar(MembresiaEditDTO dto)
         {
             try

@@ -45,11 +45,23 @@
             <i class="bi bi-arrow-repeat me-1"></i> Renovar Membresía
         </button>
 
-        @if (User.IsInRole("Admin"))
+        @if (User.HasClaim("Permiso", "Membresias.Editar") || User.IsInRole("Admin"))
         {
             <button class="btn btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEditarMembresia">
                 <i class="bi bi-pencil-square me-1"></i> Editar Membresía
             </button>
+        }
+        @if (User.HasClaim("Permiso", "Membresias.Eliminar") || User.IsInRole("Admin"))
+        {
+            <button type="button" class="btn btn-outline-danger shadow-sm btn-hard-delete-details" data-id="@Model.MembresiaId" title="Eliminar Físicamente">
+                <i class="bi bi-trash-fill me-1"></i> Eliminar Membresía
+            </button>
+        }
+        @if (deuda > 0 && (User.HasClaim("Permiso", "Pagos.Crear") || User.IsInRole("Admin")))
+        {
+            <a href="/Pagos/Index?buscar=@Model.User.Dni" class="btn btn-success shadow-sm" title="Registrar Pago">
+                <i class="bi bi-cash-coin me-1"></i> Registrar Pago
+            </a>
         }
     </div>
 
@@ -441,6 +453,52 @@
 
         new bootstrap.Modal(document.getElementById('modalRenovacion')).show();
     }
+
+    // LÓGICA DE BORRADO FÍSICO (EXCLUSIVO ADMIN / PERMISO)
+    $(document).on('click', '.btn-hard-delete-details', function() {
+        const id = $(this).data('id');
+        
+        Swal.fire({
+            title: '¿ELIMINACIÓN DEFINITIVA?',
+            text: "Esta acción borrará permanentemente la membresía, todos sus PAGOS y CONGELAMIENTOS asociados. ¡No se puede deshacer!",
+            icon: 'warning',
+            input: 'text',
+            inputPlaceholder: 'Escribe ELIMINAR para confirmar',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Sí, borrar todo',
+            cancelButtonText: 'Cancelar',
+            preConfirm: (inputValue) => {
+                if (inputValue.trim().toUpperCase() !== 'ELIMINAR') {
+                    Swal.showValidationMessage('Debes escribir ELIMINAR para proceder');
+                    return false;
+                }
+                return true;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Procesando...',
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                fetch(`/Membresias/EliminarFisicamente/${id}`, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) {
+                            Swal.fire('Eliminado', json.message, 'success').then(() => {
+                                window.location.href = '/Membresias';
+                            });
+                        } else {
+                            Swal.fire('Error', json.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', 'No se pudo completar la operación.', 'error');
+                    });
+            }
+        });
+    });
 </script>
 
 <style>
