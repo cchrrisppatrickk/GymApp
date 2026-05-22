@@ -34,7 +34,7 @@ namespace GymApp.Controllers
 
         protected bool TienePermiso(string permisoId)
         {
-            return User.IsInRole("Admin") || User.HasClaim("Permiso", permisoId);
+            return User.IsInRole("Admin") || User.HasClaim("Permiso", "AdminAccesoTotal") || User.HasClaim("Permiso", permisoId);
         }
     }
 }

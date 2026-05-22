@@ -88,6 +88,12 @@ builder.Services.AddAuthorization(options => {
    options.AddPolicy("RequiereVerPagos", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Pagos.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
        
+   options.AddPolicy("RequiereCrearPagos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Pagos.Crear") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   options.AddPolicy("RequiereEditarPagos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Pagos.Editar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
    options.AddPolicy("RequiereAnularPagos", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Pagos.Anular") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
        
@@ -95,6 +101,9 @@ builder.Services.AddAuthorization(options => {
    options.AddPolicy("RequiereVerMembresias", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Membresias.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
        
+   options.AddPolicy("RequiereCrearMembresias", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Membresias.Crear") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
    options.AddPolicy("RequiereEliminarMembresias", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Membresias.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
 
@@ -133,6 +142,9 @@ builder.Services.AddAuthorization(options => {
    options.AddPolicy("RequiereVerCongelamientos", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Congelamientos.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
        
+   options.AddPolicy("RequiereCrearCongelamientos", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Congelamientos.Crear") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
    options.AddPolicy("RequiereEliminarCongelamientos", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Congelamientos.Eliminar") || context.User.HasClaim("Permiso", "Congelamientos.Anular") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
 
@@ -153,7 +165,13 @@ builder.Services.AddAuthorization(options => {
    // --- USUARIOS ---
    options.AddPolicy("RequiereVerUsuarios", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Usuarios.Ver") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
-       
+
+   options.AddPolicy("RequiereCrearUsuarios", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Usuarios.Crear") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
+   options.AddPolicy("RequiereEditarUsuarios", policy => 
+       policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Usuarios.Editar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
+
    options.AddPolicy("RequiereEliminarUsuarios", policy => 
        policy.RequireAssertion(context => context.User.HasClaim("Permiso", "Usuarios.Eliminar") || context.User.HasClaim("Permiso", "AdminAccesoTotal") || context.User.IsInRole("Admin")));
 

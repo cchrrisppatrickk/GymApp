@@ -78,8 +78,11 @@ namespace GymApp.Controllers
 
         // API: Crear
         [HttpPost]
+        [Authorize(Policy = "RequiereCrearMembresias")]
         public async Task<IActionResult> Crear([FromBody] MembresiaCreateDTO model)
         {
+            if (!TienePermiso("Membresias.Crear")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para crear membresías." });
+
             try
             {
                 if (await _membresiaService.TieneMembresiaActivaAsync(model.UserId))
@@ -118,8 +121,11 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequiereCrearCongelamientos")]
         public async Task<IActionResult> Congelar(int membresiaId, DateTime fechaFin, string motivo)
         {
+            if (!TienePermiso("Congelamientos.Crear")) return Forbid();
+
             try
             {
                 var dateFin = DateOnly.FromDateTime(fechaFin);
@@ -142,8 +148,11 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequiereCrearMembresias")]
         public async Task<IActionResult> Renovar(int userId, int planId, int turnoId, DateTime fechaInicio)
         {
+            if (!TienePermiso("Membresias.Crear")) return Forbid();
+
             try
             {
                 if (await _membresiaService.TieneRenovacionProgramadaAsync(userId))
@@ -175,6 +184,8 @@ namespace GymApp.Controllers
         [Authorize(Policy = "RequiereEditarMembresias")]
         public async Task<IActionResult> Editar(MembresiaEditDTO dto)
         {
+            if (!TienePermiso("Membresias.Editar")) return Forbid();
+
             try
             {
                 await _membresiaService.EditarMembresiaAsync(dto);
@@ -192,6 +203,8 @@ namespace GymApp.Controllers
         [Authorize(Policy = "RequiereEliminarMembresias")]
         public async Task<IActionResult> EliminarFisicamente(int id)
         {
+            if (!TienePermiso("Membresias.Eliminar")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para eliminar membresías." });
+
             try
             {
                 await _membresiaService.EliminarMembresiaFisicamenteAsync(id);

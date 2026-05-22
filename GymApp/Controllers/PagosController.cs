@@ -86,8 +86,11 @@ namespace GymApp.Controllers
 
         // API: Registrar Cobro
         [HttpPost]
+        [Authorize(Policy = "RequiereCrearPagos")]
         public async Task<IActionResult> Registrar([FromBody] PagoCreateDTO model)
         {
+            if (!TienePermiso("Pagos.Crear")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para registrar pagos." });
+
             try
             {
                 // Validación: comprobante obligatorio para pagos con Yape/Plin
@@ -141,8 +144,11 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "RequiereEditarPagos")]
         public async Task<IActionResult> Editar([FromBody] PagoEditDTO model)
         {
+            if (!TienePermiso("Pagos.Editar")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para editar pagos." });
+
             try
             {
                 var empleadoIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -162,6 +168,8 @@ namespace GymApp.Controllers
         [Authorize(Policy = "RequiereAnularPagos")]
         public async Task<IActionResult> Anular(int id, [FromBody] string motivo)
         {
+            if (!TienePermiso("Pagos.Anular")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para anular pagos." });
+
             try
             {
                 var empleadoIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

@@ -98,6 +98,22 @@ namespace GymApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save([FromForm] UsuarioViewModel model)
         {
+            if (model.UserId == 0)
+            {
+                if (!TienePermiso("Usuarios.Crear"))
+                {
+                    return Json(new { success = false, message = "No tienes permiso para crear usuarios." });
+                }
+            }
+            else
+            {
+                if (!TienePermiso("Usuarios.Editar"))
+                {
+                    return Json(new { success = false, message = "No tienes permiso para editar usuarios." });
+                }
+            }
+
+
             // Prevención de Escalada de Privilegios
             var rolSeleccionado = await _rolesRepository.GetByIdAsync(model.RoleId);
             if (rolSeleccionado != null && rolSeleccionado.Nombre == "Admin" && !User.IsInRole("Admin"))
