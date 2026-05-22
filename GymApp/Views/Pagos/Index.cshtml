@@ -159,12 +159,18 @@
                                         </a>
                                         @if (!p.EsAnulado)
                                         {
-                                            <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="anularPago(@p.PagoId)" title="Anular">
-                                                <i class="bi bi-x-circle"></i>
-                                            </button>
+                                            @if (User.HasClaim("Permiso", "Pagos.Editar") || User.IsInRole("Admin"))
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            }
+                                            @if (User.HasClaim("Permiso", "Pagos.Eliminar") || User.IsInRole("Admin"))
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="anularPago(@p.PagoId)" title="Anular">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            }
                                         }
                                     </td>
                                 </tr>
