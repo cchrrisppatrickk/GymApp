@@ -13,9 +13,12 @@
             <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-card-checklist text-danger me-2"></i>Suscripciones</h2>
             <p class="text-muted small mb-0">Administra los accesos, renovaciones y deudas.</p>
         </div>
-        <button class="btn btn-primary shadow-sm" onclick="abrirModal()">
-            <i class="bi bi-plus-lg me-1"></i> Nueva Suscripción
-        </button>
+        @if (User.HasClaim("Permiso", "Membresias.Crear") || User.IsInRole("Admin"))
+        {
+            <button class="btn btn-primary shadow-sm" onclick="abrirModal()">
+                <i class="bi bi-plus-lg me-1"></i> Nueva Suscripción
+            </button>
+        }
     </div>
 
     @if (!string.IsNullOrEmpty(filtro))
@@ -164,7 +167,7 @@
                                             <a href="/Membresias/Details/@item.MembresiaId" class="btn btn-sm btn-info text-white shadow-sm" title="Ver Detalles">
                                                 <i class="bi bi-eye"></i> Detalles
                                             </a>
-                                            @if (item.DeudaPendiente > 0)
+                                            @if (item.DeudaPendiente > 0 && (User.HasClaim("Permiso", "Pagos.Crear") || User.IsInRole("Admin")))
                                             {
                                                 <a href="/Pagos/Index?buscar=@item.Dni" class="btn btn-sm btn-success shadow-sm" title="Registrar Pago">
                                                     <i class="bi bi-cash-coin"></i> Pagar
