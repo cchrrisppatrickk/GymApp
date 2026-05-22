@@ -57,4 +57,19 @@ public class PasesDiariosController : BaseController
         TempData["SuccessMessage"] = "Pase Diario registrado correctamente.";
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpDelete]
+    [Authorize(Policy = "RequiereEliminarPasesDiarios")]
+    public async Task<IActionResult> EliminarFisicamente(int id)
+    {
+        try
+        {
+            await _paseDiarioService.EliminarFisicamenteAsync(id);
+            return Json(new { success = true, message = "Pase Diario eliminado físicamente." });
+        }
+        catch (System.Exception ex)
+        {
+            return Json(new { success = false, message = "Error al eliminar: " + ex.Message });
+        }
+    }
 }

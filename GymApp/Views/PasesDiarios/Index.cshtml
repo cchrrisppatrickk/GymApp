@@ -25,6 +25,7 @@
                         <th>Monto</th>
                         <th>Atendido por</th>
                         <th>Observación</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,6 +50,14 @@
                             <td class="fw-bold text-success">S/ @item.Monto.ToString("0.00")</td>
                             <td><small class="text-muted">@item.NombreEmpleado</small></td>
                             <td>@item.Observacion</td>
+                            <td>
+                                @if (User.HasClaim("Permiso", "PasesDiarios.Eliminar") || User.IsInRole("Admin"))
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-hard-delete-pase" data-id="@item.PaseDiarioId" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -71,6 +80,44 @@
                     url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
                 },
                 order: [[0, 'desc']]
+            });
+
+            // Lógica para Borrado Físico con SweetAlert
+            $('.btn-hard-delete-pase').on('click', function () {
+                const id = $(this).data('id');
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará permanentemente el pase diario. ¡No se puede deshacer!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/PasesDiarios/EliminarFisicamente/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Eliminado!', data.message, 'success')
+                                .then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', data.message || 'No se pudo eliminar el pase diario.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Error', 'Hubo un problema al procesar la solicitud.', 'error');
+                        });
+                    }
+                });
             });
         });
     </script>

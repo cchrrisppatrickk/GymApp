@@ -50,4 +50,14 @@ public class PaseDiarioService : IPaseDiarioService
             Observacion = p.Observacion
         }).OrderByDescending(p => p.Fecha).ToList();
     }
+
+    public async Task EliminarFisicamenteAsync(int id)
+    {
+        var pase = await _paseDiarioRepository.GetByIdAsync(id);
+        if (pase != null)
+        {
+            await _paseDiarioRepository.DeleteAsync(id);
+            await _paseDiarioRepository.SaveAsync();
+        }
+    }
 }
