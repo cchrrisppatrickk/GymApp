@@ -58,7 +58,7 @@ public class PasesDiariosController : BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpDelete]
+    [HttpPost]
     [Authorize(Policy = "RequiereEliminarPasesDiarios")]
     public async Task<IActionResult> EliminarFisicamente(int id)
     {
