@@ -45,6 +45,11 @@ namespace GymApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Guardar([FromBody] Plane plan)
         {
+            if (plan.PlanId == 0 && !TienePermiso("Planes.Crear"))
+                return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para crear planes." });
+            if (plan.PlanId > 0 && !TienePermiso("Planes.Editar"))
+                return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para editar planes." });
+
             if (!ModelState.IsValid) return BadRequest(new { success = false, message = "Datos inválidos" });
 
             try
@@ -70,6 +75,8 @@ namespace GymApp.Controllers
         [Authorize(Policy = "RequiereEliminarPlanes")]
         public async Task<IActionResult> Eliminar(int id)
         {
+            if (!TienePermiso("Planes.Eliminar")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para eliminar planes." });
+
             try
             {
                 await _planeService.EliminarPlanAsync(id);

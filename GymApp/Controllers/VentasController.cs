@@ -35,6 +35,8 @@ namespace GymApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Registrar([FromBody] VentaCreateDTO modelo)
         {
+            if (!TienePermiso("Ventas.Crear")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para registrar ventas." });
+
             try
             {
                 // Obtener ID del empleado logueado

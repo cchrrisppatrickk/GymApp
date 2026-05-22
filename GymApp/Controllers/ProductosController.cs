@@ -43,6 +43,11 @@ namespace GymApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Guardar([FromBody] Producto model)
         {
+            if (model.ProductoId == 0 && !TienePermiso("Productos.Crear"))
+                return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para crear productos." });
+            if (model.ProductoId > 0 && !TienePermiso("Productos.Editar"))
+                return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para editar productos." });
+
             if (!ModelState.IsValid) return BadRequest(new { success = false, message = "Datos inválidos" });
 
             try
@@ -64,6 +69,8 @@ namespace GymApp.Controllers
         [Authorize(Policy = "RequiereEliminarProductos")]
         public async Task<IActionResult> Eliminar(int id)
         {
+            if (!TienePermiso("Productos.Eliminar")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para eliminar productos." });
+
             try
             {
                 await _productoService.EliminarProductoAsync(id);
