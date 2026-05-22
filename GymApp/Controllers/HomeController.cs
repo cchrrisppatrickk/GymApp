@@ -17,7 +17,7 @@ namespace GymApp.Controllers
             _reporteService = reporteService;
         }
 
-        [Authorize(Policy = "RequiereVerDashboard")]
+        [Authorize]
         public IActionResult Index()
         {
             return View();

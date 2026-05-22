@@ -94,6 +94,8 @@
     </style>
 }
 
+@if (User.HasClaim("Permiso", "Dashboard.Ver") || User.HasClaim("Permiso", "AdminAccesoTotal") || User.IsInRole("Admin"))
+{
 <div class="container-fluid mt-4">
     <!-- ================= SECCIÓN USUARIOS ================= -->
     <div class="mb-4">
@@ -509,4 +511,17 @@
             });
         }
     </script>
+}
+}
+else
+{
+    <div class="container-fluid mt-5">
+        <div class="p-5 mb-4 bg-white rounded-4 shadow-sm border text-center">
+            <div class="container-fluid py-5">
+                <i class="fas fa-dumbbell fa-4x text-primary mb-3 opacity-75"></i>
+                <h1 class="display-5 fw-bold text-dark">Bienvenido a GymApp</h1>
+                <p class="col-md-8 mx-auto fs-4 text-muted">Selecciona una opción del menú lateral para comenzar a operar en el sistema.</p>
+            </div>
+        </div>
+    </div>
 }
