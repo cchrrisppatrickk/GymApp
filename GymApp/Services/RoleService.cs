@@ -1,3 +1,4 @@
+using GymApp.Constants;
 ﻿using GymApp.Repositories;
 using GymApp.Models;
 
@@ -44,7 +45,7 @@ namespace GymApp.Services
 
             // --- REGLA DE NEGOCIO CRÍTICA ---
             // Evitar borrar roles base del sistema
-            if (rol.Nombre == "Admin" || rol.Nombre == "Portero" || rol.Nombre == "Cliente")
+            if (rol.Nombre == AppRoles.Admin || rol.Nombre == "Portero" || rol.Nombre == "Cliente")
             {
                 // No permitimos borrar estos roles porque romperían la lógica del Login
                 throw new InvalidOperationException("No se pueden eliminar los roles del sistema.");

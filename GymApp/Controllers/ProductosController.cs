@@ -2,12 +2,13 @@ using GymApp.Models;
 using GymApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using System;
 using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Policy = "RequiereVerProductos")]
+    [Authorize(Policy = AppPoliticas.RequiereVerProductos)]
     public class ProductosController : BaseController
     {
         private readonly IProductoService _productoService;
@@ -43,9 +44,9 @@ namespace GymApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Guardar([FromBody] Producto model)
         {
-            if (model.ProductoId == 0 && !TienePermiso("Productos.Crear"))
+            if (model.ProductoId == 0 && !TienePermiso(AppPermisos.ProductosCrear))
                 return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para crear productos." });
-            if (model.ProductoId > 0 && !TienePermiso("Productos.Editar"))
+            if (model.ProductoId > 0 && !TienePermiso(AppPermisos.ProductosEditar))
                 return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para editar productos." });
 
             if (!ModelState.IsValid) return BadRequest(new { success = false, message = "Datos inválidos" });
@@ -66,10 +67,10 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequiereEliminarProductos")]
+        [Authorize(Policy = AppPoliticas.RequiereEliminarProductos)]
         public async Task<IActionResult> Eliminar(int id)
         {
-            if (!TienePermiso("Productos.Eliminar")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para eliminar productos." });
+            if (!TienePermiso(AppPermisos.ProductosEliminar)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para eliminar productos." });
 
             try
             {

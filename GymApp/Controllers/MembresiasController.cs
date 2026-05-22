@@ -2,13 +2,14 @@ using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Policy = "RequiereVerMembresias")]
+    [Authorize(Policy = AppPoliticas.RequiereVerMembresias)]
     public class MembresiasController : BaseController
     {
         private readonly IMembresiaService _membresiaService;
@@ -78,10 +79,10 @@ namespace GymApp.Controllers
 
         // API: Crear
         [HttpPost]
-        [Authorize(Policy = "RequiereCrearMembresias")]
+        [Authorize(Policy = AppPoliticas.RequiereCrearMembresias)]
         public async Task<IActionResult> Crear([FromBody] MembresiaCreateDTO model)
         {
-            if (!TienePermiso("Membresias.Crear")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para crear membresías." });
+            if (!TienePermiso(AppPermisos.MembresiasCrear)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para crear membresías." });
 
             try
             {
@@ -121,10 +122,10 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequiereCrearCongelamientos")]
+        [Authorize(Policy = AppPoliticas.RequiereCrearCongelamientos)]
         public async Task<IActionResult> Congelar(int membresiaId, DateTime fechaFin, string motivo)
         {
-            if (!TienePermiso("Congelamientos.Crear")) return Forbid();
+            if (!TienePermiso(AppPermisos.CongelamientosCrear)) return Forbid();
 
             try
             {
@@ -148,10 +149,10 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequiereCrearMembresias")]
+        [Authorize(Policy = AppPoliticas.RequiereCrearMembresias)]
         public async Task<IActionResult> Renovar(int userId, int planId, int turnoId, DateTime fechaInicio)
         {
-            if (!TienePermiso("Membresias.Crear")) return Forbid();
+            if (!TienePermiso(AppPermisos.MembresiasCrear)) return Forbid();
 
             try
             {
@@ -181,10 +182,10 @@ namespace GymApp.Controllers
             }
         }
         [HttpPost]
-        [Authorize(Policy = "RequiereEditarMembresias")]
+        [Authorize(Policy = AppPoliticas.RequiereEditarMembresias)]
         public async Task<IActionResult> Editar(MembresiaEditDTO dto)
         {
-            if (!TienePermiso("Membresias.Editar")) return Forbid();
+            if (!TienePermiso(AppPermisos.MembresiasEditar)) return Forbid();
 
             try
             {
@@ -200,10 +201,10 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequiereEliminarMembresias")]
+        [Authorize(Policy = AppPoliticas.RequiereEliminarMembresias)]
         public async Task<IActionResult> EliminarFisicamente(int id)
         {
-            if (!TienePermiso("Membresias.Eliminar")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para eliminar membresías." });
+            if (!TienePermiso(AppPermisos.MembresiasEliminar)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para eliminar membresías." });
 
             try
             {

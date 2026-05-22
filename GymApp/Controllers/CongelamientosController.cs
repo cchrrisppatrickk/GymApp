@@ -2,13 +2,14 @@ using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Policy = "RequiereVerCongelamientos")]
+    [Authorize(Policy = AppPoliticas.RequiereVerCongelamientos)]
     public class CongelamientosController : BaseController
     {
         private readonly ICongelamientoService _congelamientoService;

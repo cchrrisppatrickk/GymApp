@@ -48,6 +48,8 @@ namespace GymApp.Constants
 
         // Turnos
         public const string TurnosVer = "Turnos.Ver";
+        public const string TurnosCrear = "Turnos.Crear";
+        public const string TurnosEditar = "Turnos.Editar";
         public const string TurnosEliminar = "Turnos.Eliminar";
         public const string TurnosAnular = "Turnos.Anular";
 
@@ -63,6 +65,7 @@ namespace GymApp.Constants
 
         // Pases Diarios
         public const string PasesDiariosVer = "PasesDiarios.Ver";
+        public const string PasesDiariosCrear = "PasesDiarios.Crear";
         public const string PasesDiariosEliminar = "PasesDiarios.Eliminar";
         public const string PasesDiariosAnular = "PasesDiarios.Anular";
 
@@ -74,6 +77,8 @@ namespace GymApp.Constants
 
         // Roles
         public const string RolesVer = "Roles.Ver";
+        public const string RolesCrear = "Roles.Crear";
+        public const string RolesEditar = "Roles.Editar";
         public const string RolesEliminar = "Roles.Eliminar";
 
         // Dashboard

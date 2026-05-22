@@ -3,11 +3,12 @@ using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GymApp.Controllers;
 
-[Authorize(Policy = "RequiereVerPasesDiarios")]
+[Authorize(Policy = AppPoliticas.RequiereVerPasesDiarios)]
 public class PasesDiariosController : BaseController
 {
     private readonly IPaseDiarioService _paseDiarioService;
@@ -59,7 +60,7 @@ public class PasesDiariosController : BaseController
     }
 
     [HttpPost]
-    [Authorize(Policy = "RequiereEliminarPasesDiarios")]
+    [Authorize(Policy = AppPoliticas.RequiereEliminarPasesDiarios)]
     public async Task<IActionResult> EliminarFisicamente(int id)
     {
         try

@@ -1,3 +1,4 @@
+using GymApp.Constants;
 using GymApp.Data;
 using GymApp.Models;
 using GymApp.Repositories;
@@ -15,7 +16,7 @@ namespace GymApp.Controllers
     /// Gestiona el personal (Empleados/Admins) y su matriz de permisos.
     /// Los socios (Clientes) se gestionan en UsuariosController.
     /// </summary>
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = AppRoles.Admin)]
     public class AdministracionController : BaseController
     {
         private readonly IUsuarioService _usuarioService;
@@ -190,7 +191,7 @@ namespace GymApp.Controllers
         {
             // Solo roles de personal (Admin y Empleado)
             var todos = await _rolesRepository.GetAllAsync();
-            var rolesPersonal = todos.Where(r => r.Nombre == "Admin" || r.Nombre == "Empleado").ToList();
+            var rolesPersonal = todos.Where(r => r.Nombre == AppRoles.Admin || r.Nombre == "Empleado").ToList();
             ViewBag.Roles = new SelectList(rolesPersonal, "RoleId", "Nombre");
 
             // Permisos agrupados con NivelPeligro para colorear la UI

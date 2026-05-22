@@ -3,10 +3,11 @@ using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Policy = "RequiereVerRoles")]
+    [Authorize(Policy = AppPoliticas.RequiereVerRoles)]
     public class RolesController : BaseController
     {
         private readonly IRoleService _roleService;
@@ -98,7 +99,7 @@ namespace GymApp.Controllers
 
         // POST: Eliminar
         [HttpPost]
-        [Authorize(Policy = "RequiereEliminarRoles")]
+        [Authorize(Policy = AppPoliticas.RequiereEliminarRoles)]
         public async Task<IActionResult> Delete(int id)
         {
             try

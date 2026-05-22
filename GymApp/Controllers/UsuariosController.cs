@@ -4,13 +4,14 @@ using GymApp.Services;
 using GymApp.ViewModels; // Importante
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Policy = "RequiereVerUsuarios")]
+    [Authorize(Policy = AppPoliticas.RequiereVerUsuarios)]
     public class UsuariosController : BaseController
     {
         private readonly IUsuarioService _usuarioService;
@@ -37,9 +38,9 @@ namespace GymApp.Controllers
 
             // CARGAMOS LOS ROLES para el <select> del Modal de socios
             var roles = await _rolesRepository.GetAllAsync();
-            if (!User.IsInRole("Admin"))
+            if (!User.IsInRole(AppRoles.Admin))
             {
-                roles = roles.Where(r => r.Nombre != "Admin").ToList();
+                roles = roles.Where(r => r.Nombre != AppRoles.Admin).ToList();
             }
             ViewBag.Roles = new SelectList(roles, "RoleId", "Nombre");
 
@@ -100,14 +101,14 @@ namespace GymApp.Controllers
         {
             if (model.UserId == 0)
             {
-                if (!TienePermiso("Usuarios.Crear"))
+                if (!TienePermiso(AppPermisos.UsuariosCrear))
                 {
                     return Json(new { success = false, message = "No tienes permiso para crear usuarios." });
                 }
             }
             else
             {
-                if (!TienePermiso("Usuarios.Editar"))
+                if (!TienePermiso(AppPermisos.UsuariosEditar))
                 {
                     return Json(new { success = false, message = "No tienes permiso para editar usuarios." });
                 }
@@ -116,7 +117,7 @@ namespace GymApp.Controllers
 
             // Prevención de Escalada de Privilegios
             var rolSeleccionado = await _rolesRepository.GetByIdAsync(model.RoleId);
-            if (rolSeleccionado != null && rolSeleccionado.Nombre == "Admin" && !User.IsInRole("Admin"))
+            if (rolSeleccionado != null && rolSeleccionado.Nombre == AppRoles.Admin && !User.IsInRole(AppRoles.Admin))
             {
                 ModelState.AddModelError("RoleId", "No tienes permisos para crear o modificar usuarios con rol de Administrador.");
             }
@@ -127,7 +128,7 @@ namespace GymApp.Controllers
                 if (usuarioExistenteParaValidar != null)
                 {
                     var rolOriginal = await _rolesRepository.GetByIdAsync(usuarioExistenteParaValidar.RoleId);
-                    if (rolOriginal != null && rolOriginal.Nombre == "Admin" && !User.IsInRole("Admin"))
+                    if (rolOriginal != null && rolOriginal.Nombre == AppRoles.Admin && !User.IsInRole(AppRoles.Admin))
                     {
                         ModelState.AddModelError("RoleId", "No tienes permisos para editar a un Administrador.");
                     }
@@ -222,7 +223,7 @@ namespace GymApp.Controllers
         // 4. ELIMINAR (AJAX)
         // ==========================================
         [HttpPost]
-        [Authorize(Policy = "RequiereEliminarUsuarios")]
+        [Authorize(Policy = AppPoliticas.RequiereEliminarUsuarios)]
         public async Task<IActionResult> Delete(int id)
         {
             try

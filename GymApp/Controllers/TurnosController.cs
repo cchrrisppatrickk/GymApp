@@ -3,13 +3,14 @@ using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Policy = "RequiereVerTurnos")]
+    [Authorize(Policy = AppPoliticas.RequiereVerTurnos)]
     public class TurnosController : BaseController
     {
         private readonly ITurnoService _turnoService;
@@ -98,7 +99,7 @@ namespace GymApp.Controllers
 
         // POST: Eliminar
         [HttpPost]
-        [Authorize(Policy = "RequiereEliminarTurnos")]
+        [Authorize(Policy = AppPoliticas.RequiereEliminarTurnos)]
         public async Task<IActionResult> Eliminar(int id)
         {
             try

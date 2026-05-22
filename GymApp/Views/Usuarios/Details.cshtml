@@ -1,4 +1,5 @@
 @model GymApp.Models.Usuario
+@using GymApp.Constants
 
 @{
     ViewData["Title"] = "Detalles del Socio";
@@ -30,7 +31,7 @@
                     }
 
                     <h4 class="card-title fw-bold">@Model.NombreCompleto</h4>
-                    <span class="badge @(Model.Role?.Nombre == "Admin" ? "bg-danger" : Model.Role?.Nombre == "Empleado" ? "bg-warning text-dark" : "bg-success") px-3 py-2 fs-6 mb-3">
+                    <span class="badge @(Model.Role?.Nombre == AppRoles.Admin ? "bg-danger" : Model.Role?.Nombre == "Empleado" ? "bg-warning text-dark" : "bg-success") px-3 py-2 fs-6 mb-3">
                         @Model.Role?.Nombre
                     </span>
                     

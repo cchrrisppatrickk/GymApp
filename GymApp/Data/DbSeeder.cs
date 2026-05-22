@@ -1,3 +1,4 @@
+using GymApp.Constants;
 using GymApp.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +31,7 @@ namespace GymApp.Data
                 // 3. CREAR USUARIO ADMIN POR DEFECTO
                 if (!context.Usuarios.Any(u => u.NombreUsuario == "admin"))
                 {
-                    var adminRole = await context.Roles.FirstOrDefaultAsync(r => r.Nombre == "Admin");
+                    var adminRole = await context.Roles.FirstOrDefaultAsync(r => r.Nombre == AppRoles.Admin);
 
                     var adminUser = new Usuario
                     {
@@ -90,4 +91,4 @@ namespace GymApp.Data
             }
         }
     }
-}
+}

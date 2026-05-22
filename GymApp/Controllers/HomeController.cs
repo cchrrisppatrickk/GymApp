@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using GymApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using Microsoft.AspNetCore.Authorization;
 using GymApp.Services;
 
@@ -24,7 +25,7 @@ namespace GymApp.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "RequiereVerVentas")]
+        [Authorize(Policy = AppPoliticas.RequiereVerVentas)]
         public async Task<IActionResult> ObtenerDatosGrafico(string temporalidad = "Mes")
         {
             try {

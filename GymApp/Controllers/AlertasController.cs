@@ -1,3 +1,4 @@
+using GymApp.Constants;
 using GymApp.Repositories;
 using GymApp.Services;
 using GymApp.Models;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = AppRoles.Admin)]
     public class AlertasController : BaseController
     {
         private readonly IConfiguracionAlertaRepository _configuracionAlertaRepository;

@@ -1,4 +1,5 @@
 @model GymApp.ViewModels.PagedResult<GymApp.ViewModels.MembresiaListDTO>
+@using GymApp.Constants
 @{
     ViewData["Title"] = "Gestión de Membresías";
     var buscar = ViewBag.Buscar as string;
@@ -13,7 +14,7 @@
             <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-card-checklist text-danger me-2"></i>Suscripciones</h2>
             <p class="text-muted small mb-0">Administra los accesos, renovaciones y deudas.</p>
         </div>
-        @if (User.HasClaim("Permiso", "Membresias.Crear") || User.IsInRole("Admin"))
+        @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasCrear) || User.IsInRole(AppRoles.Admin))
         {
             <button class="btn btn-primary shadow-sm" onclick="abrirModal()">
                 <i class="bi bi-plus-lg me-1"></i> Nueva Suscripción
@@ -167,13 +168,13 @@
                                             <a href="/Membresias/Details/@item.MembresiaId" class="btn btn-sm btn-info text-white shadow-sm" title="Ver Detalles">
                                                 <i class="bi bi-eye"></i> Detalles
                                             </a>
-                                            @if (item.DeudaPendiente > 0 && (User.HasClaim("Permiso", "Pagos.Crear") || User.IsInRole("Admin")))
+                                            @if (item.DeudaPendiente > 0 && (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosCrear) || User.IsInRole(AppRoles.Admin)))
                                             {
                                                 <a href="/Pagos/Index?buscar=@item.Dni" class="btn btn-sm btn-success shadow-sm" title="Registrar Pago">
                                                     <i class="bi bi-cash-coin"></i> Pagar
                                                 </a>
                                             }
-                                            @if (User.HasClaim("Permiso", "Membresias.Eliminar") || User.IsInRole("Admin"))
+                                            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasEliminar) || User.IsInRole(AppRoles.Admin))
                                             {
                                                 <button type="button" class="btn btn-sm btn-outline-danger shadow-sm btn-hard-delete" data-id="@item.MembresiaId" title="Eliminar Físicamente">
                                                     <i class="bi bi-trash-fill"></i>

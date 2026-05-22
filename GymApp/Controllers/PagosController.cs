@@ -2,6 +2,7 @@ using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization; // Necesario para identificar quién cobra
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using System;
 using System.Security.Claims; // Para leer los Claims del usuario
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using GymApp.Data;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Policy = "RequiereVerPagos")]
+    [Authorize(Policy = AppPoliticas.RequiereVerPagos)]
     public class PagosController : BaseController
     {
         private readonly IPagoService _pagoService;
@@ -86,10 +87,10 @@ namespace GymApp.Controllers
 
         // API: Registrar Cobro
         [HttpPost]
-        [Authorize(Policy = "RequiereCrearPagos")]
+        [Authorize(Policy = AppPoliticas.RequiereCrearPagos)]
         public async Task<IActionResult> Registrar([FromBody] PagoCreateDTO model)
         {
-            if (!TienePermiso("Pagos.Crear")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para registrar pagos." });
+            if (!TienePermiso(AppPermisos.PagosCrear)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para registrar pagos." });
 
             try
             {
@@ -144,10 +145,10 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequiereEditarPagos")]
+        [Authorize(Policy = AppPoliticas.RequiereEditarPagos)]
         public async Task<IActionResult> Editar([FromBody] PagoEditDTO model)
         {
-            if (!TienePermiso("Pagos.Editar")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para editar pagos." });
+            if (!TienePermiso(AppPermisos.PagosEditar)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para editar pagos." });
 
             try
             {
@@ -165,10 +166,10 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "RequiereAnularPagos")]
+        [Authorize(Policy = AppPoliticas.RequiereAnularPagos)]
         public async Task<IActionResult> Anular(int id, [FromBody] string motivo)
         {
-            if (!TienePermiso("Pagos.Anular")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para anular pagos." });
+            if (!TienePermiso(AppPermisos.PagosAnular)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para anular pagos." });
 
             try
             {

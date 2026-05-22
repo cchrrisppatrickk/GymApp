@@ -2,13 +2,14 @@ using GymApp.Services;
 using GymApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GymApp.Constants;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace GymApp.Controllers
 {
-    [Authorize(Policy = "RequiereVerVentas")]
+    [Authorize(Policy = AppPoliticas.RequiereVerVentas)]
     public class VentasController : BaseController
     {
         private readonly IVentaService _ventaService;
@@ -35,7 +36,7 @@ namespace GymApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Registrar([FromBody] VentaCreateDTO modelo)
         {
-            if (!TienePermiso("Ventas.Crear")) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para registrar ventas." });
+            if (!TienePermiso(AppPermisos.VentasCrear)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para registrar ventas." });
 
             try
             {

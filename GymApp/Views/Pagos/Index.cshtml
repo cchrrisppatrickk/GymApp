@@ -1,4 +1,5 @@
 @model GymApp.ViewModels.PagedResult<GymApp.ViewModels.PagoListDTO>
+@using GymApp.Constants
 @{
     ViewData["Title"] = "Caja y Pagos";
     var buscar = ViewBag.Buscar as string;
@@ -18,7 +19,7 @@
                 <i class="bi bi-printer me-1"></i> Cierre de Caja
             </button> 
             *@
-            @if (User.HasClaim("Permiso", "Pagos.Crear") || User.IsInRole("Admin"))
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosCrear) || User.IsInRole(AppRoles.Admin))
             {
                 <button class="btn btn-success shadow-sm" onclick="abrirModalPago()">
                     <i class="bi bi-plus-lg me-1"></i> Registrar Ingreso
@@ -162,13 +163,13 @@
                                         </a>
                                         @if (!p.EsAnulado)
                                         {
-                                            @if (User.HasClaim("Permiso", "Pagos.Editar") || User.IsInRole("Admin"))
+                                            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosEditar) || User.IsInRole(AppRoles.Admin))
                                             {
                                                 <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
                                             }
-                                            @if (User.HasClaim("Permiso", "Pagos.Anular") || User.IsInRole("Admin"))
+                                            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosAnular) || User.IsInRole(AppRoles.Admin))
                                             {
                                                 <button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="anularPago(@p.PagoId)" title="Anular">
                                                     <i class="bi bi-x-circle"></i>

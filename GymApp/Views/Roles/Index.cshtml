@@ -1,4 +1,5 @@
 @model IEnumerable<GymApp.ViewModels.RoleViewModel>
+@using GymApp.Constants
 
 @{
     ViewData["Title"] = "Gestión de Roles";
@@ -10,7 +11,7 @@
             <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-shield-check text-primary me-2"></i>Roles y Permisos</h2>
             <p class="text-muted small mb-0">Define los niveles de acceso al sistema.</p>
         </div>
-        @if (User.HasClaim("Permiso", "Roles.Crear") || User.IsInRole("Admin"))
+        @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesCrear) || User.IsInRole(AppRoles.Admin))
         {
             <button type="button" class="btn btn-primary shadow-sm" onclick="abrirModalCrear()">
                 <i class="bi bi-plus-lg me-1"></i> Nuevo Rol
@@ -53,7 +54,7 @@
                             </p>
 
                             <div class="border-top pt-3 mt-2 d-flex justify-content-end gap-2">
-                                @if (User.HasClaim("Permiso", "Roles.Editar") || User.IsInRole("Admin"))
+                                @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesEditar) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <button class="btn btn-sm btn-outline-secondary" onclick="abrirModalEditar(@item.RoleId)">
                                         <i class="bi bi-pencil me-1"></i> Editar
@@ -62,7 +63,7 @@
 
                                 @if (item.Nombre.ToLower() != "admin")
                                 {
-                                    @if (User.HasClaim("Permiso", "Roles.Eliminar") || User.IsInRole("Admin"))
+                                    @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesEliminar) || User.IsInRole(AppRoles.Admin))
                                     {
                                         <button class="btn btn-sm btn-outline-danger" onclick="eliminarRol(@item.RoleId)">
                                             <i class="bi bi-trash"></i>

@@ -1,3 +1,4 @@
+using GymApp.Constants;
 using GymApp.Models;
 using GymApp.Repositories;
 using QRCoder;
@@ -44,7 +45,7 @@ namespace GymApp.Services
             return await _context.Usuarios
                 .Include(u => u.Role)
                 .Include(u => u.UsuarioPermisos)
-                .Where(u => u.Role.Nombre == "Admin" || u.Role.Nombre == "Empleado")
+                .Where(u => u.Role.Nombre == AppRoles.Admin || u.Role.Nombre == "Empleado")
                 .OrderByDescending(u => u.UserId)
                 .ToListAsync();
         }

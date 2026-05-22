@@ -1,3 +1,4 @@
+@using GymApp.Constants
 @{
     ViewData["Title"] = "Dashboard de Estadísticas";
 }
@@ -94,7 +95,7 @@
     </style>
 }
 
-@if (User.HasClaim("Permiso", "Dashboard.Ver") || User.HasClaim("Permiso", "AdminAccesoTotal") || User.IsInRole("Admin"))
+@if (User.HasClaim(TipoClaim.Permiso, AppPermisos.DashboardVer) || User.HasClaim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal) || User.IsInRole(AppRoles.Admin))
 {
 <div class="container-fluid mt-4">
     <!-- ================= SECCIÓN USUARIOS ================= -->

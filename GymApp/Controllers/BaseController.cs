@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using GymApp.Constants;
 
 namespace GymApp.Controllers
 {
@@ -34,7 +35,7 @@ namespace GymApp.Controllers
 
         protected bool TienePermiso(string permisoId)
         {
-            return User.IsInRole("Admin") || User.HasClaim("Permiso", "AdminAccesoTotal") || User.HasClaim("Permiso", permisoId);
+            return User.IsInRole(AppRoles.Admin) || User.HasClaim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal) || User.HasClaim(TipoClaim.Permiso, permisoId);
         }
     }
 }

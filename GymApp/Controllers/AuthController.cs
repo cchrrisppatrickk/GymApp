@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using GymApp.Constants;
 
 namespace GymApp.Controllers
 {
@@ -58,17 +59,17 @@ namespace GymApp.Controllers
                 };
 
                 // === NUEVO: OBTENER PERMISOS DINÁMICOS ===
-                if (usuario.Role.Nombre == "Admin")
+                if (usuario.Role.Nombre == AppRoles.Admin)
                 {
                     // Admin tiene acceso a todo
-                    claims.Add(new Claim("Permiso", "AdminAccesoTotal"));
+                    claims.Add(new Claim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal));
                 }
                 else
                 {
                     var permisos = await _usuarioService.ObtenerPermisosUsuarioAsync(usuario.UserId);
                     foreach (var permiso in permisos)
                     {
-                        claims.Add(new Claim("Permiso", permiso));
+                        claims.Add(new Claim(TipoClaim.Permiso, permiso));
                     }
                 }
 
@@ -91,7 +92,7 @@ namespace GymApp.Controllers
                 // 6. Redirigir al Panel Principal
 
                 // === NUEVA LÓGICA DE REDIRECCIÓN ===
-                if (usuario.Role.Nombre == "Admin" || usuario.Role.Nombre == "Empleado")
+                if (usuario.Role.Nombre == AppRoles.Admin || usuario.Role.Nombre == "Empleado")
                 {
                     return RedirectToAction("Index", "Home"); // Dashboard completo
                 }

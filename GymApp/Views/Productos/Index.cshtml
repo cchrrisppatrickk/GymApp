@@ -1,3 +1,4 @@
+@using GymApp.Constants
 @{
     ViewData["Title"] = "Inventario de Productos";
 }
@@ -8,7 +9,7 @@
             <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-box-seam-fill text-primary me-2"></i>Inventario</h2>
             <p class="text-muted small mb-0">Gestiona el stock, bebidas y pases diarios.</p>
         </div>
-        @if (User.HasClaim("Permiso", "Productos.Crear") || User.IsInRole("Admin"))
+        @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosCrear) || User.IsInRole(AppRoles.Admin))
         {
             <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
                 <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
@@ -175,8 +176,8 @@
 
             document.getElementById("emptyState").classList.add("d-none");
 
-            const puedeEditar = @(User.HasClaim("Permiso", "Productos.Editar") || User.IsInRole("Admin") ? "true" : "false");
-            const puedeEliminar = @(User.HasClaim("Permiso", "Productos.Eliminar") || User.IsInRole("Admin") ? "true" : "false");
+            const puedeEditar = @(User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosEditar) || User.IsInRole(AppRoles.Admin) ? "true" : "false");
+            const puedeEliminar = @(User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosEliminar) || User.IsInRole(AppRoles.Admin) ? "true" : "false");
 
             datos.forEach(p => {
                 // 1. Estilos por Categoría

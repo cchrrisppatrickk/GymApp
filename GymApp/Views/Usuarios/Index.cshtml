@@ -1,4 +1,5 @@
 @model GymApp.ViewModels.PagedResult<GymApp.ViewModels.UsuarioViewModel>
+@using GymApp.Constants
 
 @{
     ViewData["Title"] = "Gestión de Usuarios";
@@ -11,7 +12,7 @@
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0"><i class="bi bi-people"></i> @ViewData["TituloListado"]</h2>
-        @if (User.HasClaim("Permiso", "Usuarios.Crear") || User.IsInRole("Admin"))
+        @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosCrear) || User.IsInRole(AppRoles.Admin))
         {
             <button class="btn btn-success shadow-sm" onclick="abrirModalCrear()">
                 <i class="bi bi-person-plus"></i> Nuevo Usuario
@@ -104,14 +105,14 @@
                                     <i class="bi bi-qr-code"></i>
                                 </button>
                                 <!-- Botón Editar -->
-                                @if (User.HasClaim("Permiso", "Usuarios.Editar") || User.IsInRole("Admin"))
+                                @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEditar) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <button class="btn btn-sm btn-warning me-1" onclick="abrirModalEditar(@item.UserId)">
                                         <i class="bi bi-pencil"></i>
                                     </button>
                                 }
                                 <!-- Botón Eliminar -->
-                                @if (User.HasClaim("Permiso", "Usuarios.Eliminar") || User.IsInRole("Admin"))
+                                @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEliminar) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(@item.UserId)">
                                         <i class="bi bi-trash"></i>

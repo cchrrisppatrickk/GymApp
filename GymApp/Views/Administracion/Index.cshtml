@@ -1,4 +1,5 @@
 @model List<GymApp.Models.Usuario>
+@using GymApp.Constants
 
 @{
     ViewData["Title"] = "Gestión de Personal";
@@ -54,7 +55,7 @@
                         }
                         @foreach (var empleado in Model)
                         {
-                            var badgeRol = empleado.Role?.Nombre == "Admin" ? "danger" : "primary";
+                            var badgeRol = empleado.Role?.Nombre == AppRoles.Admin ? "danger" : "primary";
                             var totalPermisos = empleado.UsuarioPermisos?.Count ?? 0;
                             <tr>
                                 <td>
@@ -77,7 +78,7 @@
                                 </td>
                                 <td><code class="small">@empleado.NombreUsuario</code></td>
                                 <td>
-                                    @if (empleado.Role?.Nombre == "Admin")
+                                    @if (empleado.Role?.Nombre == AppRoles.Admin)
                                     {
                                         <span class="badge bg-danger"><i class="bi bi-infinity me-1"></i>Acceso Total</span>
                                     }
@@ -102,7 +103,7 @@
                                                 title="Editar empleado y permisos">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        @if (empleado.Role?.Nombre != "Admin")
+                                        @if (empleado.Role?.Nombre != AppRoles.Admin)
                                         {
                                             <button class="btn btn-outline-danger"
                                                     onclick="confirmarEliminar(@empleado.UserId, '@Html.Raw(empleado.NombreCompleto)')"
