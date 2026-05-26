@@ -13,5 +13,8 @@ namespace GymApp.Services
         Task<List<PagoRecienteDTO>> ObtenerPagosRecientesAsync(int cantidad = 7);
         Task<List<DeudaInfoDTO>> ObtenerListaDeudoresAsync();
         Task<GraficoTendenciaDTO> ObtenerDatosGraficoTendenciaAsync(string temporalidad);
+
+        /// <summary>Datos de tendencia de Pases Diarios segmentados por turno (Mañana/Tarde).</summary>
+        Task<GraficoPaseDiarioDTO> ObtenerGraficoPasesDiariosAsync(string temporalidad);
     }
 }

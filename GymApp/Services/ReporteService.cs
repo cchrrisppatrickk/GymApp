@@ -382,5 +382,94 @@ namespace GymApp.Services
 
             return dto;
         }
+
+        // ── GRÁFICO DE PASES DIARIOS (por turno Mañana / Tarde) ──────────
+        /// <summary>
+        /// Devuelve listas paralelas (Etiquetas, TotalGeneral, TurnoMañana, TurnoTarde)
+        /// para el gráfico de tendencia de Pases Diarios en el Dashboard.
+        /// Clasifica el turno según el nombre: contiene "mañana" → Mañana, "tarde" → Tarde.
+        /// </summary>
+        public async Task<GraficoPaseDiarioDTO> ObtenerGraficoPasesDiariosAsync(string temporalidad)
+        {
+            var hoy     = DateTime.Now.Date;
+            var cultura = new System.Globalization.CultureInfo("es-ES");
+            var dto     = new GraficoPaseDiarioDTO();
+
+            // ── 1. Calcular rango y etiquetas ─────────────────────────────
+            bool agruparPorMes = temporalidad.Equals("Anual", StringComparison.OrdinalIgnoreCase);
+            int totalPeriodos  = temporalidad.Equals("Semana", StringComparison.OrdinalIgnoreCase) ? 7
+                               : temporalidad.Equals("Mes",    StringComparison.OrdinalIgnoreCase) ? 30
+                               : 12; // Anual
+
+            var periodos = new List<DateTime>();
+            if (agruparPorMes)
+            {
+                for (int i = totalPeriodos - 1; i >= 0; i--)
+                    periodos.Add(new DateTime(hoy.Year, hoy.Month, 1).AddMonths(-i));
+            }
+            else
+            {
+                for (int i = totalPeriodos - 1; i >= 0; i--)
+                    periodos.Add(hoy.AddDays(-i));
+            }
+
+            DateTime fechaInicio = periodos.First();
+
+            dto.Etiquetas = agruparPorMes
+                ? periodos.Select(p => p.ToString("MMM yyyy", cultura)).ToList()
+                : periodos.Select(p => p.ToString("dd/MM",    cultura)).ToList();
+
+            // ── 2. Traer pases diarios con su turno ──────────────────────
+            var pasesRaw = await _context.PasesDiarios
+                .AsNoTracking()
+                .Include(p => p.Turno)
+                .Where(p => p.FechaCreacion >= fechaInicio)
+                .Select(p => new
+                {
+                    p.FechaCreacion,
+                    p.Monto,
+                    NombreTurno = p.Turno.Nombre
+                })
+                .ToListAsync();
+
+            // ── 3. Función clave de agrupación ───────────────────────────
+            Func<DateTime, DateTime> clave = agruparPorMes
+                ? (d => new DateTime(d.Year, d.Month, 1))
+                : (d => d.Date);
+
+            // ── 4. Construir diccionarios por turno ──────────────────────
+            var totalDict = pasesRaw
+                .GroupBy(p => clave(p.FechaCreacion))
+                .ToDictionary(g => g.Key, g => g.Sum(p => p.Monto));
+
+            var mananaDict = pasesRaw
+                .Where(p => p.NombreTurno.Contains("ma", StringComparison.OrdinalIgnoreCase)
+                         || p.NombreTurno.Contains("mañ", StringComparison.OrdinalIgnoreCase))
+                .GroupBy(p => clave(p.FechaCreacion))
+                .ToDictionary(g => g.Key, g => g.Sum(p => p.Monto));
+
+            var tardeDict = pasesRaw
+                .Where(p => p.NombreTurno.Contains("tard", StringComparison.OrdinalIgnoreCase))
+                .GroupBy(p => clave(p.FechaCreacion))
+                .ToDictionary(g => g.Key, g => g.Sum(p => p.Monto));
+
+            // ── 5. Llenar listas paralelas ────────────────────────────────
+            foreach (var periodo in periodos)
+            {
+                dto.TotalGeneral.Add(totalDict.TryGetValue(periodo, out var tot)  ? tot  : 0m);
+                dto.TurnoManana.Add(mananaDict.TryGetValue(periodo, out var man)  ? man  : 0m);
+                dto.TurnoTarde.Add(tardeDict.TryGetValue(periodo,  out var tard) ? tard : 0m);
+            }
+
+            // ── 6. Totales de conteo por turno ────────────────────────────
+            dto.TotalPasesManana = pasesRaw.Count(p =>
+                p.NombreTurno.Contains("ma", StringComparison.OrdinalIgnoreCase) ||
+                p.NombreTurno.Contains("mañ", StringComparison.OrdinalIgnoreCase));
+
+            dto.TotalPasesTarde = pasesRaw.Count(p =>
+                p.NombreTurno.Contains("tard", StringComparison.OrdinalIgnoreCase));
+
+            return dto;
+        }
     }
 }
