@@ -20,4 +20,13 @@ public class PaseDiarioRepository : GenericRepository<PaseDiario>, IPaseDiarioRe
             .Include(p => p.UsuarioEmpleado)
             .ToListAsync();
     }
+
+    public async Task<PaseDiario?> ObtenerPorIdConDetallesAsync(int id)
+    {
+        return await _context.PasesDiarios
+            .Include(p => p.User)
+            .Include(p => p.Turno)
+            .Include(p => p.UsuarioEmpleado)
+            .FirstOrDefaultAsync(p => p.PaseDiarioId == id);
+    }
 }

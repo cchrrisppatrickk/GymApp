@@ -59,6 +59,18 @@ public class PasesDiariosController : BaseController
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
+    {
+        var pase = await _paseDiarioService.ObtenerDetallesPaseAsync(id);
+        if (pase == null)
+        {
+            return NotFound();
+        }
+
+        return View(pase);
+    }
+
     [HttpPost]
     [Authorize(Policy = AppPoliticas.RequiereEliminarPasesDiarios)]
     public async Task<IActionResult> EliminarFisicamente(int id)

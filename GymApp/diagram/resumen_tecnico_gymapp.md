@@ -223,14 +223,21 @@ gym_sql_server:
 
 ---
 
-## 🔐 Sistema de Autenticación
+## 🔐 Sistema de Autenticación y Seguridad (PBAC)
 
-- **Tipo:** Cookie Authentication (ASP.NET Core)
-- **Login:** por DNI o NombreUsuario
-- **Hashing:** BCrypt con salt automático
-- **Roles:** `Admin`, `Empleado`, `Cliente`
-- **Autorización:** por atributo `[Authorize(Roles="...")]` en controladores
-- **BaseController:** provee `CurrentUserId`, `CurrentUserName`, `CurrentUserRole` a todos los controladores heredados
+GymApp implementa una sólida arquitectura de seguridad híbrida que evolucionó hacia un **Control de Acceso Basado en Políticas (PBAC)**:
+
+- **Autenticación Base:** Cookie Authentication nativo de ASP.NET Core. Login seguro con BCrypt (soporta ingreso por DNI o NombreUsuario).
+- **Manejo de Identidad:** Eliminación de "Magic Strings". Toda la seguridad se administra mediante la clase `SeguridadConstants.cs` (`AppRoles`, `AppPermisos`, `TipoClaim`, `AppPoliticas`).
+- **Inyección de Claims Dinámicos:** 
+  - El administrador recibe un Claim maestro: `AdminAccesoTotal`.
+  - El empleado recibe Claims dinámicos (tipo `Permiso`) iterados desde la base de datos (Ej: `Membresias.Ver`, `Pagos.Anular`).
+- **Doble Validación de Accesos:**
+  1. **Protección de Ruta (Filtro):** Decoradores `[Authorize(Policy = AppPoliticas.RequiereVerPagos)]` bloquean peticiones HTTP no autorizadas.
+  2. **Protección Lógica (Controlador):** Helper `if (!TienePermiso("..."))` en métodos transaccionales para respuestas seguras en llamadas AJAX (evitando renderizado 403 HTML).
+  3. **Ocultamiento de UI (Razor):** Condicionales con `User.HasClaim()` u ocultamiento de botones peligrosos en las vistas para no frustrar al usuario.
+- **Manejo de Errores (UX):** Redirección amigable mediante middleware hacia `/Auth/AccesoDenegado` ante violaciones de políticas (HTTP 403).
+- **BaseController:** Inyecta helpers globales (`CurrentUserId`, `CurrentUserName`, `CurrentUserRole`, `TienePermiso()`) a todos los controladores hijos.
 
 ---
 

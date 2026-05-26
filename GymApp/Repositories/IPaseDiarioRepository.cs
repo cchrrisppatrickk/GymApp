@@ -7,4 +7,5 @@ namespace GymApp.Repositories;
 public interface IPaseDiarioRepository : IGenericRepository<PaseDiario>
 {
     Task<IEnumerable<PaseDiario>> ObtenerTodosConDetallesAsync();
+    Task<PaseDiario?> ObtenerPorIdConDetallesAsync(int id);
 }

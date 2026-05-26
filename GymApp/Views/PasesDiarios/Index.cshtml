@@ -52,6 +52,9 @@
                             <td><small class="text-muted">@item.NombreEmpleado</small></td>
                             <td>@item.Observacion</td>
                             <td>
+                                <a asp-action="Details" asp-route-id="@item.PaseDiarioId" class="btn btn-sm btn-outline-info" title="Ver Detalles">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PasesDiariosEliminar) || User.HasClaim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <button type="button" class="btn btn-sm btn-outline-danger btn-hard-delete-pase" data-id="@item.PaseDiarioId" title="Eliminar">

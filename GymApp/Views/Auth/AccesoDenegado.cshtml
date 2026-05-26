@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Acceso Denegado";
+}
+
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 text-danger mb-4"><i class="fas fa-exclamation-triangle"></i></h1>
+            <h2 class="fw-bold mb-3">Acceso Denegado</h2>
+            <p class="lead mb-4">Lo sentimos, no tienes los permisos necesarios para acceder a esta sección o realizar esta acción.</p>
+            <div class="alert alert-warning d-inline-block text-start mb-5">
+                <p class="mb-0"><i class="fas fa-info-circle me-2"></i><strong>Nota:</strong> Si acabas de actualizar tus permisos, intenta cerrar sesión y volver a ingresar para que los cambios surtan efecto.</p>
+            </div>
+            
+            <div>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-primary px-4 py-2 me-2">
+                    <i class="fas fa-home me-2"></i> Volver al Inicio
+                </a>
+                <button onclick="history.back()" class="btn btn-outline-secondary px-4 py-2">
+                    <i class="fas fa-arrow-left me-2"></i> Regresar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

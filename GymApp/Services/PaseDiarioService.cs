@@ -60,4 +60,22 @@ public class PaseDiarioService : IPaseDiarioService
             await _paseDiarioRepository.SaveAsync();
         }
     }
+
+    public async Task<PaseDiarioListDTO?> ObtenerDetallesPaseAsync(int id)
+    {
+        var p = await _paseDiarioRepository.ObtenerPorIdConDetallesAsync(id);
+        if (p == null) return null;
+
+        return new PaseDiarioListDTO
+        {
+            PaseDiarioId = p.PaseDiarioId,
+            NombreCliente = p.User != null ? (p.User.NombreCompleto ?? p.User.NombreUsuario) : "Público General",
+            NombreTurno = p.Turno.Nombre,
+            Monto = p.Monto,
+            MetodoPago = p.MetodoPago,
+            NombreEmpleado = p.UsuarioEmpleado.NombreCompleto ?? p.UsuarioEmpleado.NombreUsuario,
+            Fecha = p.FechaCreacion,
+            Observacion = p.Observacion
+        };
+    }
 }
