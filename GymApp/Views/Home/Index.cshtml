@@ -510,8 +510,10 @@
 
                     // Actualizar badges resumen
                     const fmt = v => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(v);
-                    const totalManana = data.ingresosPorManana.reduce((a, b) => a + b, 0);
-                    const totalTarde  = data.ingresosPorTarde.reduce((a, b) => a + b, 0);
+                    const turnoManana = data.turnoManana || [];
+                    const turnoTarde  = data.turnoTarde  || [];
+                    const totalManana = turnoManana.reduce((a, b) => a + b, 0);
+                    const totalTarde  = turnoTarde.reduce((a, b) => a + b, 0);
                     document.getElementById('pasMañanaTotal').textContent = fmt(totalManana);
                     document.getElementById('pasTardeTotal').textContent  = fmt(totalTarde);
 
@@ -519,11 +521,11 @@
                     pasesDiariosChartInstance = new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: data.etiquetas,
+                            labels: data.etiquetas || [],
                             datasets: [
                                 {
                                     label: 'Total Pases (S/)',
-                                    data: data.ingresosTotal,
+                                    data: data.totalGeneral || [],
                                     borderColor: '#720e9e',
                                     backgroundColor: 'rgba(114,14,158,0.08)',
                                     borderWidth: 3,
@@ -536,7 +538,7 @@
                                 },
                                 {
                                     label: 'Turno Mañana (S/)',
-                                    data: data.ingresosPorManana,
+                                    data: turnoManana,
                                     borderColor: '#f59e0b',
                                     backgroundColor: 'rgba(245,158,11,0.08)',
                                     borderWidth: 2,
@@ -550,7 +552,7 @@
                                 },
                                 {
                                     label: 'Turno Tarde (S/)',
-                                    data: data.ingresosPorTarde,
+                                    data: turnoTarde,
                                     borderColor: '#3b82f6',
                                     backgroundColor: 'rgba(59,130,246,0.08)',
                                     borderWidth: 2,
