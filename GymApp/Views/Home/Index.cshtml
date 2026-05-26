@@ -214,6 +214,53 @@
         </div>
     </div>
 
+    <!-- ================= SECCIÓN GRÁFICO PASES DIARIOS ================= -->
+    <div class="mb-4 mt-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-door-open fa-xl" style="color:#720e9e;"></i>
+                <h3 class="fw-semibold m-0">Tendencia Pases Diarios</h3>
+                <span class="badge bg-opacity-25 text-dark" style="background-color:rgba(114,14,158,0.18);">Ingresos por Turno</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <!-- Resumen rápido -->
+                <div class="d-flex gap-2" id="pasesResumenBadges">
+                    <span class="badge rounded-pill border" style="background:rgba(245,158,11,0.12);color:#92400e;border-color:#f59e0b !important;">
+                        <i class="fas fa-sun me-1"></i><span id="pasMañanaTotal">-</span>
+                    </span>
+                    <span class="badge rounded-pill border" style="background:rgba(59,130,246,0.12);color:#1e3a8a;border-color:#3b82f6 !important;">
+                        <i class="fas fa-moon me-1"></i><span id="pasTardeTotal">-</span>
+                    </span>
+                </div>
+                <!-- Filtro temporalidad -->
+                <div class="btn-group btn-group-sm" role="group" aria-label="Filtro pases diarios">
+                    <input type="radio" class="btn-check" name="btnTempPases" id="pasesSemana" value="Semana" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="pasesSemana" style="--bs-btn-border-color:#720e9e;--bs-btn-hover-bg:#720e9e;--bs-btn-hover-color:#fff;">Semana</label>
+
+                    <input type="radio" class="btn-check" name="btnTempPases" id="pasesMes" value="Mes" autocomplete="off" checked>
+                    <label class="btn btn-outline-secondary" for="pasesMes" style="--bs-btn-border-color:#720e9e;--bs-btn-hover-bg:#720e9e;--bs-btn-hover-color:#fff;">Mes</label>
+
+                    <input type="radio" class="btn-check" name="btnTempPases" id="pasesAnual" value="Anual" autocomplete="off">
+                    <label class="btn btn-outline-secondary" for="pasesAnual" style="--bs-btn-border-color:#720e9e;--bs-btn-hover-bg:#720e9e;--bs-btn-hover-color:#fff;">Anual</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 mb-4 p-3" style="border-top: 3px solid #720e9e !important;">
+            <div class="card-body p-0">
+                <div style="height: 340px; position: relative;">
+                    <div id="pasesDiariosLoader" class="d-flex align-items-center justify-content-center h-100" style="display:flex !important;">
+                        <div class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm mb-2" style="color:#720e9e;"></div>
+                            <div class="small">Cargando datos...</div>
+                        </div>
+                    </div>
+                    <canvas id="pasesDiariosChart" style="display:none;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= SECCIÓN PAGOS RECIENTES ================= -->
     <div class="mb-4 mt-5">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -252,9 +299,14 @@
             cargarEstadisticas();
             cargarGraficoTendencia('Mes');
             cargarPagosRecientes();
+            cargarGraficoPasesDiarios('Mes');
 
             $('input[name="btnTemporalidad"]').change(function() {
                 cargarGraficoTendencia(this.value);
+            });
+
+            $('input[name="btnTempPases"]').change(function() {
+                cargarGraficoPasesDiarios(this.value);
             });
         });
 
@@ -266,7 +318,9 @@
             const temporalidad = $('input[name="btnTemporalidad"]:checked').val() || 'Mes';
             cargarGraficoTendencia(temporalidad);
             cargarPagosRecientes();
-            
+            const tempPases = $('input[name="btnTempPases"]:checked').val() || 'Mes';
+            cargarGraficoPasesDiarios(tempPases);
+
             setTimeout(() => icon.removeClass('fa-spin'), 1000);
         }
 
@@ -429,6 +483,126 @@
                     });
                 })
                 .catch(error => console.error("Error al cargar tendencia:", error));
+        }
+
+        // ---- Gráfico Pases Diarios por Turno ----
+        let pasesDiariosChartInstance = null;
+
+        function cargarGraficoPasesDiarios(temporalidad) {
+            const canvas  = document.getElementById('pasesDiariosChart');
+            const loader  = document.getElementById('pasesDiariosLoader');
+
+            canvas.style.display = 'none';
+            loader.style.display = 'flex';
+
+            fetch(`/Home/ObtenerGraficoPasesDiarios?temporalidad=${temporalidad}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                    return response.json();
+                })
+                .then(data => {
+                    loader.style.display = 'none';
+                    canvas.style.display = 'block';
+
+                    if (pasesDiariosChartInstance) {
+                        pasesDiariosChartInstance.destroy();
+                    }
+
+                    // Actualizar badges resumen
+                    const fmt = v => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(v);
+                    const totalManana = data.ingresosPorManana.reduce((a, b) => a + b, 0);
+                    const totalTarde  = data.ingresosPorTarde.reduce((a, b) => a + b, 0);
+                    document.getElementById('pasMañanaTotal').textContent = fmt(totalManana);
+                    document.getElementById('pasTardeTotal').textContent  = fmt(totalTarde);
+
+                    const ctx = canvas.getContext('2d');
+                    pasesDiariosChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.etiquetas,
+                            datasets: [
+                                {
+                                    label: 'Total Pases (S/)',
+                                    data: data.ingresosTotal,
+                                    borderColor: '#720e9e',
+                                    backgroundColor: 'rgba(114,14,158,0.08)',
+                                    borderWidth: 3,
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointBackgroundColor: '#720e9e',
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Turno Mañana (S/)',
+                                    data: data.ingresosPorManana,
+                                    borderColor: '#f59e0b',
+                                    backgroundColor: 'rgba(245,158,11,0.08)',
+                                    borderWidth: 2,
+                                    borderDash: [5, 3],
+                                    tension: 0.4,
+                                    fill: false,
+                                    pointBackgroundColor: '#f59e0b',
+                                    pointRadius: 3,
+                                    pointHoverRadius: 5,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Turno Tarde (S/)',
+                                    data: data.ingresosPorTarde,
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'rgba(59,130,246,0.08)',
+                                    borderWidth: 2,
+                                    borderDash: [5, 3],
+                                    tension: 0.4,
+                                    fill: false,
+                                    pointBackgroundColor: '#3b82f6',
+                                    pointRadius: 3,
+                                    pointHoverRadius: 5,
+                                    yAxisID: 'y'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { usePointStyle: true, pointStyleWidth: 10, padding: 16 }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return ` ${context.dataset.label}: ` +
+                                                new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(context.raw);
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    type: 'linear',
+                                    position: 'left',
+                                    title: { display: true, text: 'Ingresos (S/)' },
+                                    grid: { color: 'rgba(0,0,0,0.05)' },
+                                    ticks: {
+                                        callback: v => 'S/ ' + v.toLocaleString('es-PE')
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    loader.innerHTML = '<div class="text-danger text-center"><i class="fas fa-exclamation-triangle me-2"></i>Error al cargar el gráfico</div>';
+                    console.error('Error al cargar gráfico pases diarios:', error);
+                });
         }
 
         function cargarPagosRecientes() {
