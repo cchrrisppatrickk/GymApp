@@ -39,9 +39,13 @@
                             {
                                 <span class="badge bg-success"><i class="bi bi-cash"></i> Efectivo</span>
                             }
+                            else if(Model.MetodoPago == "Tarjeta")
+                            {
+                                <span class="badge bg-warning text-dark"><i class="bi bi-credit-card"></i> Tarjeta</span>
+                            }
                             else
                             {
-                                <span class="badge bg-primary"><i class="bi bi-phone"></i> Yape</span>
+                                <span class="badge" style="background-color: #720e9e;"><i class="bi bi-phone"></i> @Model.MetodoPago</span>
                             }
                         </dd>
                     </dl>
@@ -72,6 +76,18 @@
                     </dl>
                 </div>
             </div>
+
+            @if (!string.IsNullOrEmpty(Model.ComprobanteRuta))
+            {
+                <div class="col-md-12 mt-4 text-center">
+                    <div class="p-3 border rounded bg-light">
+                        <h6 class="text-uppercase text-muted mb-3"><i class="bi bi-image me-2"></i>Comprobante de Pago</h6>
+                        <a href="@Model.ComprobanteRuta" target="_blank" title="Haz clic para ver tamaño completo">
+                            <img src="@Model.ComprobanteRuta" class="img-fluid rounded shadow-sm" style="max-height: 400px; object-fit: contain;" alt="Comprobante de @Model.MetodoPago" />
+                        </a>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>

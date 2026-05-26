@@ -12,4 +12,5 @@ public class PaseDiarioListDTO
     public string NombreEmpleado { get; set; } = null!;
     public DateTime Fecha { get; set; }
     public string? Observacion { get; set; }
+    public string? ComprobanteRuta { get; set; }
 }

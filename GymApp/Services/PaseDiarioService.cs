@@ -55,7 +55,8 @@ public class PaseDiarioService : IPaseDiarioService
             MetodoPago = p.MetodoPago,
             NombreEmpleado = p.UsuarioEmpleado.NombreCompleto ?? p.UsuarioEmpleado.NombreUsuario,
             Fecha = p.FechaCreacion,
-            Observacion = p.Observacion
+            Observacion = p.Observacion,
+            ComprobanteRuta = p.ComprobanteRuta
         }).OrderByDescending(p => p.Fecha).ToList();
     }
 
@@ -83,7 +84,8 @@ public class PaseDiarioService : IPaseDiarioService
             MetodoPago = p.MetodoPago,
             NombreEmpleado = p.UsuarioEmpleado.NombreCompleto ?? p.UsuarioEmpleado.NombreUsuario,
             Fecha = p.FechaCreacion,
-            Observacion = p.Observacion
+            Observacion = p.Observacion,
+            ComprobanteRuta = p.ComprobanteRuta
         };
     }
 

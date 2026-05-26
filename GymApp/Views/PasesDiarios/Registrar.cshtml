@@ -10,7 +10,7 @@
                 <h5 class="mb-0 text-primary fw-bold"><i class="bi bi-plus-circle me-2"></i>Registrar Pase Diario</h5>
             </div>
             <div class="card-body p-4">
-                <form asp-action="Registrar" method="post">
+                <form asp-action="Registrar" method="post" enctype="multipart/form-data">
                     
                     <div class="row mb-3">
                         <div class="col-md-12 form-group">
@@ -40,12 +40,57 @@
                     <div class="row mb-3">
                         <div class="col-md-12 form-group">
                             <label asp-for="MetodoPago" class="form-label fw-bold">Método de Pago <span class="text-danger">*</span></label>
-                            <select asp-for="MetodoPago" class="form-select" required>
+                            <select asp-for="MetodoPago" class="form-select" id="MetodoPago" required>
                                 <option value="Efectivo">Efectivo</option>
-                                <option value="Yape">Yape</option>
+                                <option value="Yape/Plin">Yape/Plin</option>
+                                <option value="Tarjeta">Tarjeta</option>
                             </select>
                             <span asp-validation-for="MetodoPago" class="text-danger small"></span>
                         </div>
+                    </div>
+                    
+                    <!-- === COMPROBANTE YAPE/PLIN (CONDICIONAL) === -->
+                    <div id="contenedorComprobante" class="mb-3 d-none">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-qr-code me-1" style="color:#720e9e"></i>Comprobante <span class="text-danger">*</span>
+                        </label>
+                        <p class="text-muted small mb-2">Obligatorio para Yape/Plin. Sube una imagen o captura con la cámara.</p>
+
+                        <!-- Subir archivo -->
+                        <div class="mb-2">
+                            <label class="form-label small text-secondary">📁 Subir desde archivo</label>
+                            <input type="file" class="form-control form-control-sm" id="ComprobanteArchivo" name="ComprobanteArchivo" accept="image/*">
+                        </div>
+
+                        <div class="text-center text-muted my-1"><small>— o —</small></div>
+
+                        <!-- Webcam -->
+                        <div>
+                            <label class="form-label small text-secondary">📷 Capturar con cámara</label>
+                            <video id="videoWebcamPago" class="d-none rounded border w-100 mb-2" autoplay playsinline style="max-height:180px;object-fit:cover;"></video>
+                            <canvas id="canvasPago" class="d-none"></canvas>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" id="btnActivarCamaraPago" onclick="activarCamaraPago()">
+                                    <i class="bi bi-camera me-1"></i>Activar Cámara
+                                </button>
+                                <button type="button" class="btn btn-sm flex-fill d-none" id="btnCapturarPago" onclick="capturarComprobante()" style="background:#720e9e;color:white;border-color:#720e9e;">
+                                    <i class="bi bi-camera-fill me-1"></i>Capturar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Preview -->
+                        <div id="previewComprobante" class="d-none mt-2 text-center">
+                            <img id="imgPreviewComprobante" src="" class="img-thumbnail" style="max-height:140px;">
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="limpiarComprobante()">
+                                    <i class="bi bi-trash me-1"></i>Quitar
+                                </button>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="ComprobanteBase64" name="ComprobanteBase64">
+                        <div class="form-text text-danger d-none" id="errorComprobante">El comprobante es obligatorio para pagos con Yape/Plin.</div>
                     </div>
 
                     <div class="mb-4 form-group">
@@ -76,6 +121,92 @@
                 placeholder: 'Buscar cliente por nombre...',
                 allowClear: true
             });
+
+            // LÓGICA COMPROBANTE: VISIBILIDAD, ARCHIVO Y WEBCAM
+            const metodoPagoSelect = document.getElementById('MetodoPago');
+            const contenedorComprobante = document.getElementById('contenedorComprobante');
+
+            function toggleComprobante() {
+                if (metodoPagoSelect.value === 'Yape/Plin' || metodoPagoSelect.value === 'Yape') {
+                    contenedorComprobante.classList.remove('d-none');
+                } else {
+                    contenedorComprobante.classList.add('d-none');
+                    limpiarComprobante();
+                }
+            }
+
+            metodoPagoSelect.addEventListener('change', toggleComprobante);
+            // Ejecutar al inicio por si ya está seleccionado Yape (p.ej. luego de error de validación)
+            toggleComprobante();
+
+            // Convertir archivo a Base64 al seleccionarlo
+            document.getElementById('ComprobanteArchivo').addEventListener('change', function () {
+                const file = this.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const base64 = e.target.result;
+                    document.getElementById('ComprobanteBase64').value = base64;
+                    document.getElementById('imgPreviewComprobante').src = base64;
+                    document.getElementById('previewComprobante').classList.remove('d-none');
+                    document.getElementById('errorComprobante').classList.add('d-none');
+                    // Detener cámara si estaba activa
+                    detenerCamaraPago();
+                };
+                reader.readAsDataURL(file);
+            });
         });
+
+        let streamCamaraPago = null;
+
+        function activarCamaraPago() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+                .then(stream => {
+                    streamCamaraPago = stream;
+                    const video = document.getElementById('videoWebcamPago');
+                    video.srcObject = stream;
+                    video.classList.remove('d-none');
+                    document.getElementById('btnActivarCamaraPago').classList.add('d-none');
+                    document.getElementById('btnCapturarPago').classList.remove('d-none');
+                    document.getElementById('previewComprobante').classList.add('d-none');
+                })
+                .catch(() => Swal.fire('Error', 'No se pudo acceder a la cámara. Verifica los permisos del navegador.', 'error'));
+        }
+
+        function capturarComprobante() {
+            const video = document.getElementById('videoWebcamPago');
+            const canvas = document.getElementById('canvasPago');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const base64 = canvas.toDataURL('image/jpeg', 0.85);
+            document.getElementById('ComprobanteBase64').value = base64;
+            document.getElementById('imgPreviewComprobante').src = base64;
+            document.getElementById('previewComprobante').classList.remove('d-none');
+            document.getElementById('errorComprobante').classList.add('d-none');
+            // Apagar cámara para liberar memoria
+            detenerCamaraPago();
+        }
+
+        function detenerCamaraPago() {
+            if (streamCamaraPago) {
+                streamCamaraPago.getTracks().forEach(t => t.stop());
+                streamCamaraPago = null;
+            }
+            const video = document.getElementById('videoWebcamPago');
+            video.srcObject = null;
+            video.classList.add('d-none');
+            document.getElementById('btnCapturarPago').classList.add('d-none');
+            document.getElementById('btnActivarCamaraPago').classList.remove('d-none');
+        }
+
+        function limpiarComprobante() {
+            detenerCamaraPago();
+            document.getElementById('ComprobanteBase64').value = '';
+            document.getElementById('ComprobanteArchivo').value = '';
+            document.getElementById('previewComprobante').classList.add('d-none');
+            document.getElementById('imgPreviewComprobante').src = '';
+            document.getElementById('errorComprobante').classList.add('d-none');
+        }
     </script>
 }
