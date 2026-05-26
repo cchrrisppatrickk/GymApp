@@ -18,4 +18,8 @@ public class PaseDiarioCreateDTO
 
     [StringLength(255)]
     public string? Observacion { get; set; }
+
+    public string? ComprobanteBase64 { get; set; }
+
+    public IFormFile? ComprobanteArchivo { get; set; }
 }

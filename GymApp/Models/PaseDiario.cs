@@ -22,6 +22,9 @@ public partial class PaseDiario
 
     public string? Observacion { get; set; }
 
+    [StringLength(500)]
+    public string? ComprobanteRuta { get; set; }
+
     public virtual Usuario? User { get; set; }
 
     public virtual Turno Turno { get; set; } = null!;

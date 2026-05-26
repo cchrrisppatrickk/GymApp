@@ -45,6 +45,20 @@ public class PasesDiariosController : BaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Registrar(PaseDiarioCreateDTO model)
     {
+        if (model.MetodoPago.Equals("Yape/Plin", System.StringComparison.OrdinalIgnoreCase) ||
+            model.MetodoPago.Equals("Yape", System.StringComparison.OrdinalIgnoreCase))
+        {
+            if (string.IsNullOrWhiteSpace(model.ComprobanteBase64) && model.ComprobanteArchivo == null)
+            {
+                ModelState.AddModelError("", "El comprobante es obligatorio para pagos con Yape/Plin. Por favor, sube o captura la imagen.");
+            }
+        }
+        else
+        {
+            model.ComprobanteBase64 = null;
+            model.ComprobanteArchivo = null;
+        }
+
         if (!ModelState.IsValid)
         {
             var turnos = await _turnoService.ObtenerTodosAsync();

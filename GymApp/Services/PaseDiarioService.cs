@@ -1,24 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GymApp.Models;
 using GymApp.Repositories;
 using GymApp.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 
 namespace GymApp.Services;
 
 public class PaseDiarioService : IPaseDiarioService
 {
     private readonly IPaseDiarioRepository _paseDiarioRepository;
+    private readonly IWebHostEnvironment _env;
 
-    public PaseDiarioService(IPaseDiarioRepository paseDiarioRepository)
+    public PaseDiarioService(IPaseDiarioRepository paseDiarioRepository, IWebHostEnvironment env)
     {
         _paseDiarioRepository = paseDiarioRepository;
+        _env = env;
     }
 
     public async Task RegistrarPaseAsync(PaseDiarioCreateDTO dto, int empleadoId)
     {
+        string? rutaComprobante = await ProcesarComprobanteAsync(dto, empleadoId);
+
         var pase = new PaseDiario
         {
             UserId = dto.UserId,
@@ -27,7 +34,8 @@ public class PaseDiarioService : IPaseDiarioService
             Monto = dto.Monto,
             MetodoPago = dto.MetodoPago,
             Observacion = dto.Observacion,
-            FechaCreacion = DateTime.Now
+            FechaCreacion = DateTime.Now,
+            ComprobanteRuta = rutaComprobante
         };
 
         await _paseDiarioRepository.InsertAsync(pase);
@@ -77,5 +85,36 @@ public class PaseDiarioService : IPaseDiarioService
             Fecha = p.FechaCreacion,
             Observacion = p.Observacion
         };
+    }
+
+    private async Task<string?> ProcesarComprobanteAsync(PaseDiarioCreateDTO dto, int empleadoId)
+    {
+        // Sin contenido → no hay comprobante que guardar
+        bool tieneBase64 = !string.IsNullOrWhiteSpace(dto.ComprobanteBase64);
+        bool tieneArchivo = dto.ComprobanteArchivo != null && dto.ComprobanteArchivo.Length > 0;
+
+        if (!tieneBase64 && !tieneArchivo) return null;
+
+        // Directorio destino: wwwroot/uploads/comprobantediario
+        var dirFisico = Path.Combine(_env.WebRootPath, "uploads", "comprobantediario");
+        Directory.CreateDirectory(dirFisico); // No-op si ya existe
+
+        var nombreArchivo = $"pasediario_{empleadoId}_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
+        var rutaFisica = Path.Combine(dirFisico, nombreArchivo);
+
+        if (tieneBase64)
+        {
+            // Eliminar prefijo "data:image/jpeg;base64," u otros
+            var base64Limpio = Regex.Replace(dto.ComprobanteBase64!, @"^data:image\/[a-zA-Z]+;base64,", string.Empty);
+            var bytes = Convert.FromBase64String(base64Limpio);
+            await File.WriteAllBytesAsync(rutaFisica, bytes);
+        }
+        else if (tieneArchivo)
+        {
+            using var stream = new FileStream(rutaFisica, FileMode.Create, FileAccess.Write);
+            await dto.ComprobanteArchivo!.CopyToAsync(stream);
+        }
+
+        return "/uploads/comprobantediario/" + nombreArchivo;
     }
 }
