@@ -5,127 +5,213 @@
     ViewData["Title"] = "Detalles del Socio";
 }
 
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-person-vcard text-primary me-2"></i>Ficha de Socio</h2>
-        <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Volver a Usuarios
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-4 mb-1">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                    <i class="bi bi-person-vcard text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-display font-extrabold text-slate-950 tracking-tight m-0">Ficha de Socio</h1>
+            </div>
+            <p class="text-slate-600 text-sm font-medium ml-1">Consulta y gestiona el historial completo del usuario</p>
+        </div>
+        
+        <a asp-action="Index" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 transition-all active:scale-95">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver a Usuarios</span>
         </a>
     </div>
 
-    <div class="row">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Columna Izquierda: Perfil -->
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body text-center mt-3">
-                    @if (!string.IsNullOrEmpty(Model.FotoUrl))
-                    {
-                        var fotoSrc = Model.FotoUrl.StartsWith("/") || Model.FotoUrl.Contains("/") 
-                            ? Url.Content("~" + Model.FotoUrl) 
-                            : Url.Content("~/uploads/fotos/" + Model.FotoUrl);
-                        <img src="@fotoSrc" class="img-fluid rounded-circle mb-3 shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" alt="Foto de Perfil" />
-                    }
-                    else
-                    {
-                        <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.NombreCompleto)&background=random&size=150" class="img-fluid rounded-circle mb-3 shadow-sm" style="width: 150px; height: 150px; object-fit: cover;" alt="Default User" />
-                    }
-
-                    <h4 class="card-title fw-bold">@Model.NombreCompleto</h4>
-                    <span class="badge @(Model.Role?.Nombre == AppRoles.Admin ? "bg-danger" : Model.Role?.Nombre == "Empleado" ? "bg-warning text-dark" : "bg-success") px-3 py-2 fs-6 mb-3">
-                        @Model.Role?.Nombre
-                    </span>
-                    
-                    @if (Model.Estado == true)
-                    {
-                        <div class="badge bg-success mb-3"><i class="bi bi-check-circle"></i> Activo</div>
-                    }
-                    else
-                    {
-                        <div class="badge bg-danger mb-3"><i class="bi bi-x-circle"></i> Inactivo</div>
-                    }
-                </div>
+        <aside class="lg:col-span-1 space-y-8">
+            <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden relative group">
+                <!-- Decoración superior -->
+                <div class="h-24 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-emerald-500/10"></div>
                 
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <i class="bi bi-card-text text-muted me-2"></i> <strong>DNI:</strong> @(Model.Dni ?? "No registrado")
-                    </li>
-                    <li class="list-group-item">
-                        <i class="bi bi-telephone text-muted me-2"></i> <strong>Teléfono:</strong> @(Model.Telefono ?? "No registrado")
-                    </li>
-                    <li class="list-group-item">
-                        <i class="bi bi-envelope text-muted me-2"></i> <strong>Email:</strong> @(Model.Email ?? "No registrado")
-                    </li>
-                    <li class="list-group-item">
-                        <i class="bi bi-calendar-date text-muted me-2"></i> <strong>Fecha Reg.:</strong> @(Model.FechaRegistro?.ToString("dd/MM/yyyy") ?? "Desconocida")
-                    </li>
-                </ul>
-            </div>
-        </div>
+                <div class="px-6 pb-8 text-center -mt-12">
+                    <!-- Foto de Perfil -->
+                    <div class="relative inline-block mb-4">
+                        <div class="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        @if (!string.IsNullOrEmpty(Model.FotoUrl))
+                        {
+                            var fotoSrc = Model.FotoUrl.StartsWith("/") || Model.FotoUrl.Contains("/") 
+                                ? Url.Content("~" + Model.FotoUrl) 
+                                : Url.Content("~/uploads/fotos/" + Model.FotoUrl);
+                            <img src="@fotoSrc" class="relative w-32 h-32 rounded-[2rem] border-4 border-white shadow-xl object-cover transition-transform duration-500 group-hover:scale-105" alt="Foto de Perfil" />
+                        }
+                        else
+                        {
+                            <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.NombreCompleto)&background=4f46e5&color=fff&size=128" class="relative w-32 h-32 rounded-[2rem] border-4 border-white shadow-xl object-cover transition-transform duration-500 group-hover:scale-105" alt="Default User" />
+                        }
+                        
+                        <!-- Badge Estado -->
+                        <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl border-4 border-white flex items-center justify-center shadow-lg @(Model.Estado == true ? "bg-emerald-500" : "bg-rose-500")" title="@(Model.Estado == true ? "Activo" : "Inactivo")">
+                            <i class="bi @(Model.Estado == true ? "bi-check-lg" : "bi-x-lg") text-white text-[10px] font-bold"></i>
+                        </div>
+                    </div>
 
-        <!-- Columna Derecha: Membresías -->
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 text-primary fw-bold"><i class="bi bi-card-checklist me-2"></i>Historial de Membresías</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3">Plan</th>
-                                    <th>Fecha Inicio</th>
-                                    <th>Fecha Fin</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model.Membresia != null && Model.Membresia.Any())
-                                {
-                                    @foreach (var membership in Model.Membresia.OrderByDescending(m => m.FechaVencimiento))
-                                    {
-                                        <tr>
-                                            <td class="ps-3 fw-medium">@membership.Plan?.Nombre</td>
-                                            <td>@membership.FechaInicio.ToString("dd/MM/yyyy")</td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    @membership.FechaVencimiento.ToString("dd/MM/yyyy")
-                                                    @if (membership.FechaVencimiento >= DateOnly.FromDateTime(DateTime.Today))
-                                                    {
-                                                        var dias = membership.FechaVencimiento.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber;
-                                                        <span class="ms-2 text-success fw-bold" title="Días restantes">
-                                                            (@dias días)
-                                                        </span>
-                                                    }
-                                                </div>
-                                            </td>
-                                            <td>
-                                                @if (membership.FechaVencimiento >= DateOnly.FromDateTime(DateTime.Today))
-                                                {
-                                                    <span class="badge bg-success">Activa</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-danger">Vencida</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="4" class="text-center py-4 text-muted">
-                                            <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
-                                            No hay registros de membresías para este usuario.
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                    <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight mb-2">@Model.NombreCompleto</h2>
+                    
+                    <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
+                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest @(Model.Role?.Nombre == AppRoles.Admin ? "bg-rose-50 text-rose-700 border border-rose-100" : Model.Role?.Nombre == "Empleado" ? "bg-amber-50 text-amber-700 border border-amber-100" : "bg-indigo-50 text-indigo-700 border border-indigo-100")">
+                            @Model.Role?.Nombre
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest @(Model.Estado == true ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-rose-50 text-rose-700 border border-rose-100")">
+                            @(Model.Estado == true ? "Socio Activo" : "Socio Inactivo")
+                        </span>
+                    </div>
+
+                    <!-- Datos Detallados -->
+                    <div class="space-y-4 text-left bg-slate-50/80 rounded-3xl p-6 border border-slate-100">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 shadow-sm">
+                                <i class="bi bi-card-text"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">DNI / Identificación</p>
+                                <p class="text-sm font-bold text-slate-900 font-mono">@(Model.Dni ?? "No registrado")</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 shadow-sm">
+                                <i class="bi bi-telephone"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Teléfono Movil</p>
+                                <p class="text-sm font-bold text-slate-900">@(Model.Telefono ?? "No registrado")</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 shadow-sm">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Email de Contacto</p>
+                                <p class="text-sm font-bold text-slate-900 truncate max-w-[180px]">@(Model.Email ?? "No registrado")</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 shadow-sm">
+                                <i class="bi bi-calendar-date"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Fecha de Registro</p>
+                                <p class="text-sm font-bold text-slate-900">@(Model.FechaRegistro?.ToString("dd 'de' MMMM, yyyy") ?? "Desconocida")</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </aside>
+
+        <!-- Columna Derecha: Membresías -->
+        <main class="lg:col-span-2 space-y-8">
+            <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
+                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm">
+                            <i class="bi bi-card-checklist text-xl"></i>
+                        </div>
+                        <h2 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Historial de Membresías</h2>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">@((Model.Membresia?.Count ?? 0)) registros</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100">
+                                <th class="px-8 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Plan Suscrito</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Inicio / Fin</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Estado</th>
+                                <th class="px-8 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100/80">
+                            @if (Model.Membresia != null && Model.Membresia.Any())
+                            {
+                                @foreach (var membership in Model.Membresia.OrderByDescending(m => m.FechaVencimiento))
+                                {
+                                    bool isExpired = membership.FechaVencimiento < DateOnly.FromDateTime(DateTime.Today);
+                                    <tr class="group hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-8 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center border border-slate-200 group-hover:bg-white group-hover:text-indigo-600 group-hover:border-indigo-100 transition-all">
+                                                    <i class="bi bi-lightning-charge-fill"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-bold text-slate-900">@membership.Plan?.Nombre</div>
+                                                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Membresía</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex flex-col gap-0.5">
+                                                <div class="text-xs font-bold text-slate-700">@membership.FechaInicio.ToString("dd/MM/yyyy") - @membership.FechaVencimiento.ToString("dd/MM/yyyy")</div>
+                                                @if (!isExpired)
+                                                {
+                                                    var dias = membership.FechaVencimiento.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber;
+                                                    <div class="flex items-center gap-1 @(dias <= 3 ? "text-rose-500" : dias <= 7 ? "text-amber-500" : "text-emerald-500")">
+                                                        <i class="bi bi-clock-history text-[10px]"></i>
+                                                        <span class="text-[10px] font-bold uppercase tracking-wider">Restan @dias días</span>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="text-rose-500 flex items-center gap-1 opacity-60">
+                                                        <i class="bi bi-calendar-x text-[10px]"></i>
+                                                        <span class="text-[10px] font-bold uppercase tracking-wider">Venció hace @(DateOnly.FromDateTime(DateTime.Today).DayNumber - membership.FechaVencimiento.DayNumber) días</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if (!isExpired)
+                                            {
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                    Activa
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">
+                                                    Vencida
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="px-8 py-4 text-right">
+                                            <button class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="px-8 py-20 text-center">
+                                        <div class="max-w-xs mx-auto">
+                                            <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                                                <i class="bi bi-inbox text-slate-300 text-3xl"></i>
+                                            </div>
+                                            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-2">Sin Historial</h3>
+                                            <p class="text-xs text-slate-500 leading-relaxed font-medium">Este socio aún no cuenta con registros de membresías vinculadas a su cuenta.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
 </div>
