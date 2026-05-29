@@ -109,8 +109,8 @@
                                     <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
                                         <i class="bi bi-receipt text-slate-300 text-3xl"></i>
                                     </div>
-                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-2">Sin Movimientos</h3>
-                                    <p class="text-xs text-slate-500 leading-relaxed font-medium">No se encontraron pagos que coincidan con los criterios.</p>
+                                    <h3 class="text-sm font-bold text-slate-950 uppercase tracking-widest mb-2">Sin Movimientos</h3>
+                                    <p class="text-xs text-slate-700 leading-relaxed font-medium">No se encontraron pagos que coincidan con los criterios.</p>
                                 </div>
                             </td>
                         </tr>
@@ -127,8 +127,8 @@
                                         var hora = partes.Length > 1 ? partes[1] : "";
                                     }
                                     <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-slate-900">@fecha</span>
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase">@hora</span>
+                                        <span class="text-sm font-bold text-slate-950">@fecha</span>
+                                        <span class="text-[10px] font-bold text-slate-700 uppercase">@hora</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -140,7 +140,7 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-xs font-medium text-slate-600">@p.NombrePlan</span>
+                                    <span class="text-xs font-medium text-slate-700">@p.NombrePlan</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider @(p.MetodoPago == "Efectivo" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : p.MetodoPago == "Tarjeta" ? "bg-indigo-50 text-indigo-700 border border-indigo-100" : "bg-purple-50 text-purple-700 border border-purple-100")">
@@ -151,27 +151,27 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="text-xs font-medium text-slate-400 italic">@p.NombreEmpleado</span>
+                                    <span class="text-xs font-medium text-slate-700 italic">@p.NombreEmpleado</span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <span class="text-sm font-bold font-mono tracking-tight @(p.EsAnulado ? "text-slate-400 line-through" : "text-slate-900")">S/ @p.Monto.ToString("F2")</span>
+                                    <span class="text-sm font-bold font-mono tracking-tight @(p.EsAnulado ? "text-slate-600 line-through" : "text-slate-950")">S/ @p.Monto.ToString("F2")</span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        <a href="/Pagos/Detalles?id=@p.PagoId" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200" title="Ver Detalles">
+                                        <a href="/Pagos/Detalles?id=@p.PagoId" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200" title="Ver Detalles">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         @if (!p.EsAnulado)
                                         {
                                             @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosEditar) || User.IsInRole(AppRoles.Admin))
                                             {
-                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
+                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
                                             }
                                             @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosAnular) || User.IsInRole(AppRoles.Admin))
                                             {
-                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200" onclick="anularPago(@p.PagoId)" title="Anular">
+                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200" onclick="anularPago(@p.PagoId)" title="Anular">
                                                     <i class="bi bi-x-circle"></i>
                                                 </button>
                                             }
@@ -196,7 +196,7 @@
         <div class="flex items-center justify-center gap-2 mt-8 pb-12">
             @if (Model.HasPreviousPage)
             {
-                <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
+                <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
                     <i class="bi bi-chevron-left"></i>
                     <span class="hidden sm:inline">Anterior</span>
                 </a>
@@ -218,22 +218,22 @@
                     }
                     else if (i <= 3 || i > Model.TotalPages - 3 || (i >= Model.CurrentPage - 1 && i <= Model.CurrentPage + 1))
                     {
-                        <a class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">@i</a>
+                        <a class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">@i</a>
                     }
                     else if (i == 4 && Model.CurrentPage > 5)
                     {
-                        <div class="w-10 h-10 flex items-center justify-center text-slate-400">...</div>
+                        <div class="w-10 h-10 flex items-center justify-center text-slate-700">...</div>
                     }
                     else if (i == Model.TotalPages - 3 && Model.CurrentPage < Model.TotalPages - 4)
                     {
-                        <div class="w-10 h-10 flex items-center justify-center text-slate-400">...</div>
+                        <div class="w-10 h-10 flex items-center justify-center text-slate-700">...</div>
                     }
                 }
             </div>
 
             @if (Model.HasNextPage)
             {
-                <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
+                <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
                     <span class="hidden sm:inline">Siguiente</span>
                     <i class="bi bi-chevron-right"></i>
                 </a>
@@ -250,7 +250,7 @@
 </div>
 
 <!-- ========================= -->
-<!-- MODAL DE COBRO (NUEVO) -->
+<!-- MODAL DE COBRO -->
 <!-- ========================= -->
 <div class="modal fade" id="modalPago" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
@@ -262,24 +262,24 @@
                     </div>
                     <div>
                         <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Registrar Cobro</h5>
-                        <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Ingreso a caja por membresía</p>
+                        <p class="text-slate-700 text-[10px] font-bold uppercase tracking-widest mt-1">Ingreso a caja por membresía</p>
                     </div>
                 </div>
-                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
             <div class="modal-body p-8 space-y-8">
                 <!-- Búsqueda -->
-                <div class="space-y-3">
+                <div class="space-y-3 relative">
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">1. Buscar Deuda del Socio</label>
                     <div class="relative group">
-                        <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-2xl pl-5 pr-14 py-4 text-sm font-bold text-slate-900 transition-all placeholder:text-slate-400" id="txtDniBuscar" placeholder="DNI o Nombre del Socio..." autocomplete="off">
+                        <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-2xl pl-5 pr-14 py-4 text-sm font-bold text-slate-950 transition-all placeholder:text-slate-600" id="txtDniBuscar" placeholder="DNI o Nombre del Socio..." autocomplete="off">
                         <button class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95" type="button" onclick="buscarDeuda()" id="btnBuscar">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
-                    <div id="resultados-busqueda" class="absolute left-8 right-8 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 divide-y divide-slate-100 overflow-hidden" style="display:none; max-height: 250px; overflow-y: auto;"></div>
+                    <div id="resultados-busqueda" class="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 divide-y divide-slate-100 overflow-hidden" style="display:none; max-height: 250px; overflow-y: auto;"></div>
                 </div>
 
                 <!-- Info de Membresía -->
@@ -294,7 +294,7 @@
 
                     <div class="space-y-2">
                         <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
-                            <span class="text-slate-400">Progreso de Pago</span>
+                            <span class="text-slate-700">Progreso de Pago</span>
                             <span class="text-emerald-600" id="lblPorcentaje">0%</span>
                         </div>
                         <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
@@ -304,15 +304,15 @@
 
                     <div class="grid grid-cols-3 gap-1 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                         <div class="p-3 text-center border-r border-slate-100">
-                            <small class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">TOTAL</small>
+                            <small class="block text-[8px] font-black text-slate-700 uppercase tracking-widest mb-1">TOTAL</small>
                             <span class="text-xs font-bold text-slate-950 font-mono" id="lblPrecioTotal">$0.00</span>
                         </div>
                         <div class="p-3 text-center border-r border-slate-100 bg-emerald-50/20">
-                            <small class="block text-[8px] font-black text-emerald-600/70 uppercase tracking-widest mb-1">PAGADO</small>
-                            <span class="text-xs font-bold text-emerald-600 font-mono" id="lblTotalPagado">$0.00</span>
+                            <small class="block text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-1">PAGADO</small>
+                            <span class="text-xs font-bold text-emerald-700 font-mono" id="lblTotalPagado">$0.00</span>
                         </div>
                         <div class="p-3 text-center bg-rose-50/20">
-                            <small class="block text-[8px] font-black text-rose-600/70 uppercase tracking-widest mb-1">DEUDA</small>
+                            <small class="block text-[8px] font-black text-rose-600 uppercase tracking-widest mb-1">DEUDA</small>
                             <span class="text-xs font-bold text-rose-600 font-mono" id="lblDeudaPendiente">$0.00</span>
                         </div>
                     </div>
@@ -336,21 +336,21 @@
                         <div class="grid grid-cols-3 gap-3">
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="metodoPago" id="metodo1" value="Efectivo" class="peer sr-only" checked>
-                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-emerald-50 peer-checked:border-emerald-500 peer-checked:ring-1 peer-checked:ring-emerald-500 text-slate-400 peer-checked:text-emerald-600 transition-all">
+                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-emerald-50 peer-checked:border-emerald-500 peer-checked:ring-1 peer-checked:ring-emerald-500 text-slate-600 peer-checked:text-emerald-600 transition-all">
                                     <i class="bi bi-cash-stack text-2xl"></i>
                                     <span class="text-[10px] font-black uppercase tracking-widest">Efectivo</span>
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="metodoPago" id="metodo2" value="Yape/Plin" class="peer sr-only">
-                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-purple-50 peer-checked:border-purple-500 peer-checked:ring-1 peer-checked:ring-purple-500 text-slate-400 peer-checked:text-purple-600 transition-all">
+                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-purple-50 peer-checked:border-purple-500 peer-checked:ring-1 peer-checked:ring-purple-500 text-slate-600 peer-checked:text-purple-600 transition-all">
                                     <i class="bi bi-phone-vibrate text-2xl"></i>
                                     <span class="text-[10px] font-black uppercase tracking-widest">Yape/Plin</span>
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="metodoPago" id="metodo3" value="Tarjeta" class="peer sr-only">
-                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:ring-1 peer-checked:ring-indigo-500 text-slate-400 peer-checked:text-indigo-600 transition-all">
+                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:ring-1 peer-checked:ring-indigo-500 text-slate-600 peer-checked:text-indigo-600 transition-all">
                                     <i class="bi bi-credit-card text-2xl"></i>
                                     <span class="text-[10px] font-black uppercase tracking-widest">Tarjeta</span>
                                 </div>
@@ -368,21 +368,21 @@
                         </div>
                         
                         <div class="space-y-4">
-                            <input type="file" id="ComprobanteArchivo" name="ComprobanteArchivo" accept="image/*" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-white file:text-indigo-600 hover:file:bg-indigo-50 transition-all cursor-pointer border border-indigo-100/50 rounded-2xl bg-white/50 p-2 shadow-sm" />
+                            <input type="file" id="ComprobanteArchivo" name="ComprobanteArchivo" accept="image/*" class="block w-full text-[10px] text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-white file:text-indigo-600 hover:file:bg-indigo-50 transition-all cursor-pointer border border-indigo-100/50 rounded-2xl bg-white/50 p-2 shadow-sm" />
                             
                             <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center shadow-inner group/cam">
-                                <video id="videoWebcamPago" class="absolute inset-0 w-full h-full object-cover d-none" autoplay playsinline></video>
+                                <video id="videoWebcamPago" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline></video>
                                 <div id="pagoCamPlaceholder" class="text-center p-6 transition-all duration-300">
                                     <i class="bi bi-camera text-slate-700 text-4xl mb-2"></i>
-                                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Cámara Inactiva</p>
+                                    <p class="text-[9px] font-bold text-slate-700 uppercase tracking-widest">Cámara Inactiva</p>
                                 </div>
-                                <img id="imgPreviewComprobante" src="" class="absolute inset-0 w-full h-full object-contain bg-slate-950 d-none" />
+                                <img id="imgPreviewComprobante" src="" class="absolute inset-0 w-full h-full object-contain bg-slate-950 hidden" />
                             </div>
 
                             <div class="flex gap-2">
                                 <button type="button" id="btnActivarCamaraPago" onclick="activarCamaraPago()" class="flex-1 px-3 py-2.5 bg-white border border-indigo-100 text-indigo-600 rounded-xl hover:bg-indigo-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm">Activar</button>
-                                <button type="button" id="btnCapturarPago" onclick="capturarComprobante()" class="flex-1 px-3 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/20 d-none">Capturar</button>
-                                <button type="button" class="flex-1 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all text-[10px] font-bold uppercase tracking-widest border border-rose-100 d-none" onclick="limpiarComprobante()">Limpiar</button>
+                                <button type="button" id="btnCapturarPago" onclick="capturarComprobante()" class="flex-1 px-3 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/20 hidden">Capturar</button>
+                                <button type="button" id="btnQuitarComprobante" class="flex-1 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all text-[10px] font-bold uppercase tracking-widest border border-rose-100 hidden" onclick="limpiarComprobante()">Limpiar</button>
                             </div>
                         </div>
 
@@ -393,13 +393,13 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-3 ml-1">4. Fecha Retroactiva (Opcional)</label>
-                        <input type="datetime-local" id="txtFechaPago" name="FechaPago" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 transition-all" />
-                        <p class="mt-2 text-[9px] text-slate-400 font-medium">Usar solo para regularizar pagos de días anteriores.</p>
+                        <input type="datetime-local" id="txtFechaPago" name="FechaPago" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-950 transition-all" />
+                        <p class="mt-2 text-[9px] text-slate-700 font-medium">Usar solo para regularizar pagos de días anteriores.</p>
                     </div>
                 </div>
             </div>
             <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
-                <button type="button" class="px-6 py-2.5 text-slate-400 hover:text-slate-600 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="px-6 py-2.5 text-slate-700 hover:text-slate-950 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-xl shadow-emerald-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" id="btnCobrar" onclick="procesarPago()" disabled>
                     <i class="bi bi-check-lg text-base"></i>Confirmar Pago
                 </button>
@@ -408,7 +408,7 @@
     </div>
 </div>
 
-<!-- Modal para Editar Pago -->
+<!-- Modal Editar Pago -->
 <div class="modal fade" id="modalEditarPago" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
@@ -419,29 +419,27 @@
                     </div>
                     <div>
                         <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Editar Pago</h5>
-                        <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Corrección de montos o métodos</p>
+                        <p class="text-slate-700 text-[10px] font-bold uppercase tracking-widest mt-1">Corrección de montos o métodos</p>
                     </div>
                 </div>
-                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
             <div class="p-8">
                 <form id="formEditarPago" class="space-y-6">
                     <input type="hidden" id="editPagoId" name="Id" />
-                    
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Nuevo Monto</label>
                         <div class="relative">
                             <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">S/</div>
-                            <input type="number" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-slate-900" id="editMonto" name="Monto" step="0.01" required>
+                            <input type="number" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-slate-950" id="editMonto" name="Monto" step="0.01" required>
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Método de Pago</label>
                         <div class="relative">
-                            <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none" id="editMetodoPago" name="MetodoPago" required>
+                            <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-950 appearance-none" id="editMetodoPago" name="MetodoPago" required>
                                 <option value="Efectivo">Efectivo</option>
                                 <option value="Yape/Plin">Yape/Plin</option>
                                 <option value="Tarjeta">Tarjeta</option>
@@ -451,15 +449,14 @@
                             </div>
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Observaciones</label>
-                        <textarea class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-400" id="editObservaciones" name="Observaciones" rows="3" placeholder="Motivo de la edición..."></textarea>
+                        <textarea class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-950 transition-all placeholder:text-slate-600" id="editObservaciones" name="Observaciones" rows="3" placeholder="Motivo de la edición..."></textarea>
                     </div>
                 </form>
             </div>
             <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
-                <button type="button" class="px-6 py-2.5 text-slate-400 hover:text-slate-600 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="px-6 py-2.5 text-slate-700 hover:text-slate-950 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" id="btnGuardarEdicion" onclick="guardarEdicionPago()">
                     <i class="bi bi-save"></i>Guardar Cambios
                 </button>
@@ -471,48 +468,87 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        let deudaActual = 0; // Variable global para validación
+        // ============================================
+        // VARIABLES GLOBALES Y ESTADO
+        // ============================================
+        let deudaActual = 0;
+        let membresiaSeleccionada = 0;
+        let streamCamaraPago = null;
+        let modalEditar = null;
 
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
         document.addEventListener("DOMContentLoaded", () => {
-            // document.getElementById('filtroFecha').valueAsDate = new Date();
-            // cargarHistorial();
-        });
+            // Eventos de búsqueda
+            const txtBuscar = document.getElementById("txtDniBuscar");
+            if(txtBuscar) {
+                txtBuscar.addEventListener("keyup", function(event) {
+                    if (event.key === "Enter") buscarDeuda();
+                });
+            }
 
-        // Eventos
-        document.getElementById("txtDniBuscar").addEventListener("keyup", function(event) {
-            if (event.key === "Enter") buscarDeuda();
-        });
+            // Validación de monto
+            const txtMonto = document.getElementById("txtMonto");
+            if(txtMonto) {
+                txtMonto.addEventListener("input", function() {
+                    const valor = parseFloat(this.value);
+                    const errorMsg = document.getElementById("errorMontoExcedido");
+                    const btn = document.getElementById("btnCobrar");
 
-        // Validación visual de monto excedido
-        document.getElementById("txtMonto").addEventListener("input", function() {
-            const valor = parseFloat(this.value);
-            const errorMsg = document.getElementById("errorMontoExcedido");
-            const btn = document.getElementById("btnCobrar");
+                    if(valor > deudaActual) {
+                        errorMsg.classList.remove("d-none");
+                        this.classList.add("!border-rose-500");
+                        btn.disabled = true;
+                    } else {
+                        errorMsg.classList.add("d-none");
+                        this.classList.remove("!border-rose-500");
+                        btn.disabled = isNaN(valor) || valor <= 0;
+                    }
+                });
+            }
 
-            if(valor > deudaActual) {
-                errorMsg.classList.remove("d-none");
-                this.classList.add("!border-rose-500");
-                btn.disabled = true;
-            } else {
-                errorMsg.classList.add("d-none");
-                this.classList.remove("!border-rose-500");
-                btn.disabled = isNaN(valor) || valor <= 0;
+            // Lógica de visibilidad del comprobante
+            document.querySelectorAll('input[name="metodoPago"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const contenedor = document.getElementById('contenedorComprobante');
+                    if (this.value === 'Yape/Plin') {
+                        contenedor.classList.remove('d-none');
+                    } else {
+                        contenedor.classList.add('d-none');
+                        limpiarComprobante();
+                    }
+                });
+            });
+
+            // Carga de archivo comprobante
+            const compArchivo = document.getElementById('ComprobanteArchivo');
+            if(compArchivo) {
+                compArchivo.addEventListener('change', function () {
+                    const file = this.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const base64 = e.target.result;
+                        document.getElementById('ComprobanteBase64').value = base64;
+                        const img = document.getElementById('imgPreviewComprobante');
+                        img.src = base64;
+                        img.classList.remove('hidden');
+                        document.getElementById('errorComprobante').classList.add('d-none');
+                        document.getElementById('btnQuitarComprobante')?.classList.remove('hidden');
+                        detenerCamaraPago();
+                    };
+                    reader.readAsDataURL(file);
+                });
             }
         });
 
-
-
         // ============================================
-        // LÓGICA DE BÚSQUEDA DE DEUDA (ACTUALIZADA)
+        // FUNCIONES DE BÚSQUEDA
         // ============================================
-        let membresiaSeleccionada = 0;
-
         function buscarDeuda() {
             const termino = document.getElementById("txtDniBuscar").value;
-            if(!termino) {
-                Swal.fire('Atención', 'Ingresa un término para buscar', 'warning');
-                return;
-            }
+            if(!termino) return Swal.fire('Atención', 'Ingresa un término para buscar', 'warning');
 
             const btn = document.getElementById("btnBuscar");
             const iconOriginal = btn.innerHTML;
@@ -524,54 +560,33 @@
                 .then(json => {
                     btn.innerHTML = iconOriginal;
                     btn.disabled = false;
-
                     const contenedorResultados = document.getElementById("resultados-busqueda");
                     contenedorResultados.innerHTML = "";
-                    
                     document.getElementById("infoMembresia").classList.add("d-none");
                     document.getElementById("formPagoDetalle").classList.add("d-none");
 
                     if (json.success && json.data.length > 0) {
                         contenedorResultados.style.display = "block";
                         json.data.forEach(item => {
-                            const dniDisplay = item.dniCliente ? item.dniCliente : "S/ DNI";
                             const link = document.createElement("a");
                             link.href = "#";
                             link.className = "flex flex-col gap-1 px-5 py-4 hover:bg-slate-50 transition-colors group";
-                            link.dataset.id = item.membresiaId;
-                            
-                            // Guardamos toda la data para usarla al hacer click
-                            link.dataset.completo = JSON.stringify(item);
-
                             link.innerHTML = `
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">${item.nombreCliente}</span>
+                                    <span class="text-sm font-bold text-slate-950 group-hover:text-indigo-600 transition-colors">${item.nombreCliente}</span>
                                     <span class="text-[10px] font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-100">$${item.deudaPendiente.toFixed(2)}</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${dniDisplay}</span>
-                                    <span class="text-[9px] font-medium text-slate-300">•</span>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${item.nombrePlan}</span>
-                                </div>
-                            `;
-                            
-                            link.addEventListener("click", function (e) {
-                                e.preventDefault();
-                                seleccionarCliente(JSON.parse(this.dataset.completo));
-                            });
+                                <div class="flex items-center gap-2 text-[9px] font-bold text-slate-700 uppercase tracking-widest">
+                                    <span>${item.dniCliente || 'S/ DNI'}</span> • <span>${item.nombrePlan}</span>
+                                </div>`;
+                            link.addEventListener("click", (e) => { e.preventDefault(); seleccionarCliente(item); });
                             contenedorResultados.appendChild(link);
                         });
                     } else {
                         contenedorResultados.style.display = "none";
-                        Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No se encontraron deudas para ese término.' });
+                        Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No se encontraron deudas pendientes.' });
                         limpiarModal(false);
                     }
-                })
-                .catch(err => {
-                    console.error(err);
-                    btn.innerHTML = iconOriginal;
-                    btn.disabled = false;
-                    Swal.fire('Error', 'No se pudo consultar la deuda', 'error');
                 });
         }
 
@@ -580,219 +595,100 @@
             membresiaSeleccionada = data.membresiaId;
             deudaActual = data.deudaPendiente;
 
-            // 1. Llenar Datos Básicos
             document.getElementById("lblCliente").innerText = data.nombreCliente;
             document.getElementById("lblPlan").innerText = data.nombrePlan;
-
-            // 2. Configurar Badge de Estado
             const lblBadge = document.getElementById("lblEstadoBadge");
             lblBadge.innerText = data.estado;
-            if(data.estado === 'Activa') {
-                lblBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-100';
-            } else if(data.estado === 'Pendiente Pago') {
-                lblBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border border-amber-100';
-            } else {
-                lblBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-rose-50 text-rose-700 border border-rose-100';
-            }
+            lblBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ' + 
+                (data.estado === 'Activa' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100');
 
-            // 3. Llenar Datos Financieros
-            const total = data.precioTotal || 0;
-            const pagado = data.totalPagado || 0;
-            const deuda = data.deudaPendiente || 0;
+            document.getElementById("lblPrecioTotal").innerText = "$ " + (data.precioTotal || 0).toFixed(2);
+            document.getElementById("lblTotalPagado").innerText = "$ " + (data.totalPagado || 0).toFixed(2);
+            document.getElementById("lblDeudaPendiente").innerText = "$ " + deudaActual.toFixed(2);
 
-            document.getElementById("lblPrecioTotal").innerText = "$ " + total.toFixed(2);
-            document.getElementById("lblTotalPagado").innerText = "$ " + pagado.toFixed(2);
-            document.getElementById("lblDeudaPendiente").innerText = "$ " + deuda.toFixed(2);
+            let porc = data.precioTotal > 0 ? (data.totalPagado / data.precioTotal) * 100 : 100;
+            document.getElementById("progressBarPago").style.width = porc + "%";
+            document.getElementById("lblPorcentaje").innerText = Math.round(porc) + "%";
 
-            // 4. Barra de Progreso
-            let porcentaje = 0;
-            if(total > 0) porcentaje = (pagado / total) * 100;
-            document.getElementById("progressBarPago").style.width = porcentaje + "%";
-            document.getElementById("lblPorcentaje").innerText = Math.round(porcentaje) + "%";
-
-            // 5. Configurar Input de Monto (Autofill)
-            const inputMonto = document.getElementById("txtMonto");
-            if(deuda > 0) {
-                inputMonto.value = deuda.toFixed(2); 
-                inputMonto.max = deuda.toFixed(2); 
-                inputMonto.disabled = false;
+            if(deudaActual > 0) {
+                document.getElementById("txtMonto").value = deudaActual.toFixed(2);
                 document.getElementById("btnCobrar").disabled = false;
-
                 document.getElementById("infoMembresia").classList.remove("d-none");
                 document.getElementById("formPagoDetalle").classList.remove("d-none");
-                inputMonto.focus();
+                setTimeout(() => document.getElementById("txtMonto").focus(), 300);
             } else {
-                Swal.fire('¡Al día!', `El cliente ${data.nombreCliente} no tiene deuda pendiente.`, 'success');
+                Swal.fire('¡Al día!', 'El cliente no tiene deuda pendiente.', 'success');
                 limpiarModal(false);
             }
         }
 
+        // ============================================
+        // PROCESAMIENTO DE PAGO
+        // ============================================
         function procesarPago() {
-            const metodoSeleccionado = document.querySelector('input[name="metodoPago"]:checked').value;
+            const metodo = document.querySelector('input[name="metodoPago"]:checked').value;
             const monto = parseFloat(document.getElementById("txtMonto").value);
-            const fechaPago = document.getElementById("txtFechaPago").value;
-            const comprobanteBase64 = document.getElementById("ComprobanteBase64").value;
+            const comp64 = document.getElementById("ComprobanteBase64").value;
 
-            if(isNaN(monto) || monto <= 0) {
-                Swal.fire('Error', 'El monto debe ser válido y mayor a 0', 'error');
-                return;
-            }
-            if(monto > deudaActual) {
-                Swal.fire('Error', `El monto ($${monto}) supera la deuda pendiente ($${deudaActual})`, 'error');
-                return;
-            }
-
-            // Validar comprobante obligatorio para Yape/Plin
-            if (metodoSeleccionado === 'Yape/Plin' && !comprobanteBase64) {
-                document.getElementById('errorComprobante').classList.remove('d-none');
-                document.getElementById('contenedorComprobante').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                Swal.fire('Comprobante requerido', 'Debes subir o capturar el comprobante Yape/Plin antes de confirmar.', 'warning');
-                return;
-            }
-            document.getElementById('errorComprobante').classList.add('d-none');
-
-            const data = {
-                MembresiaId: membresiaSeleccionada,
-                Monto: monto,
-                MetodoPago: metodoSeleccionado,
-                FechaPago: fechaPago ? fechaPago : null,
-                ComprobanteBase64: comprobanteBase64 || null
-            };
+            if(isNaN(monto) || monto <= 0) return Swal.fire('Error', 'Monto inválido', 'error');
+            if(metodo === 'Yape/Plin' && !comp64) return Swal.fire('Comprobante requerido', 'Adjunta el comprobante para Yape/Plin.', 'warning');
 
             Swal.fire({
                 title: '¿Confirmar cobro?',
-                html: `Monto: <b class="text-emerald-600 font-display font-black text-2xl">S/ ${monto.toFixed(2)}</b><br><span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Método: ${metodoSeleccionado}</span>`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, cobrar',
-                cancelButtonText: 'Cancelar',
-                customClass: {
-                    confirmButton: 'px-8 py-3 bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest text-xs mx-2',
-                    cancelButton: 'px-8 py-3 bg-slate-100 text-slate-600 rounded-xl font-black uppercase tracking-widest text-xs mx-2'
-                },
+                html: `<div class="text-center"><p class="text-emerald-600 font-display font-black text-3xl mb-1">S/ ${monto.toFixed(2)}</p><p class="text-[10px] font-bold uppercase tracking-widest text-slate-700">Vía ${metodo}</p></div>`,
+                icon: 'question', showCancelButton: true, confirmButtonText: 'Sí, cobrar', cancelButtonText: 'Cancelar',
+                customClass: { confirmButton: 'px-8 py-3 bg-emerald-600 text-white rounded-xl font-black uppercase text-xs mx-2', cancelButton: 'px-8 py-3 bg-slate-100 text-slate-700 rounded-xl font-black uppercase text-xs mx-2' },
                 buttonsStyling: false
-            }).then((result) => {
-                if (result.isConfirmed) {
+            }).then((res) => {
+                if (res.isConfirmed) {
                     document.getElementById("btnCobrar").disabled = true;
                     fetch('/Pagos/Registrar', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
+                        body: JSON.stringify({ MembresiaId: membresiaSeleccionada, Monto: monto, MetodoPago: metodo, FechaPago: document.getElementById("txtFechaPago").value || null, ComprobanteBase64: comp64 || null })
                     })
-                    .then(res => res.json())
-                    .then(json => {
-                        if (json.success) {
-                            const modalElement = document.getElementById('modalPago');
-                            const modal = bootstrap.Modal.getInstance(modalElement);
-                            if (modal) modal.hide();
-                            
-                            Swal.fire({
-                                title: '¡Cobro Exitoso!',
-                                text: 'El pago se registró correctamente.',
-                                icon: 'success',
-                                showCancelButton: true,
-                                confirmButtonText: 'Imprimir Ticket',
-                                cancelButtonText: 'Cerrar',
-                                customClass: {
-                                    confirmButton: 'px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase mx-2',
-                                    cancelButton: 'px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs uppercase mx-2'
-                                },
-                                buttonsStyling: false
-                            }).then((printResult) => {
-                                window.location.reload();
-                                if (printResult.isConfirmed) {
-                                    window.open(`/Pagos/Comprobante/${json.pagoId}`, '_blank');
-                                }
-                            });
+                    .then(r => r.json())
+                    .then(j => {
+                        if (j.success) {
+                            Swal.fire({ title: '¡Éxito!', text: 'Pago registrado.', icon: 'success', showCancelButton: true, confirmButtonText: 'Ticket', cancelButtonText: 'Cerrar' })
+                            .then((pr) => { window.location.reload(); if (pr.isConfirmed) window.open(`/Pagos/Comprobante/${j.pagoId}`, '_blank'); });
                         } else {
                             document.getElementById("btnCobrar").disabled = false;
-                            Swal.fire('Error', json.message, 'error');
+                            Swal.fire('Error', j.message, 'error');
                         }
-                    })
-                    .catch(() => { document.getElementById("btnCobrar").disabled = false; });
+                    });
                 }
             });
         }
 
-        function abrirModalPago() {
-            limpiarModal(true);
-            new bootstrap.Modal(document.getElementById('modalPago')).show();
-            setTimeout(() => document.getElementById("txtDniBuscar").focus(), 500);
-        }
-
-        function limpiarModal(fullClear) {
-            if(fullClear) document.getElementById("txtDniBuscar").value = "";
-            document.getElementById("txtMonto").value = "";
-            document.getElementById("txtMonto").classList.remove("!border-rose-500");
-            document.getElementById("errorMontoExcedido").classList.add("d-none");
-            document.getElementById("infoMembresia").classList.add("d-none");
-            document.getElementById("formPagoDetalle").classList.add("d-none");
-            document.getElementById("btnCobrar").disabled = true;
-            document.getElementById("resultados-busqueda").style.display = "none";
-            membresiaSeleccionada = 0;
-            deudaActual = 0;
-            // Resetear selección de método a Efectivo
-            const metodoEfectivo = document.getElementById('metodo1');
-            if(metodoEfectivo) metodoEfectivo.checked = true;
-            limpiarComprobante();
-            document.getElementById('contenedorComprobante').classList.add('d-none');
-        }
-
-        // --- LÓGICA COMPROBANTE ---
-        document.querySelectorAll('input[name="metodoPago"]').forEach(radio => {
-            radio.addEventListener('change', function () {
-                const contenedor = document.getElementById('contenedorComprobante');
-                if (this.value === 'Yape/Plin') {
-                    contenedor.classList.remove('d-none');
-                } else {
-                    contenedor.classList.add('d-none');
-                    limpiarComprobante();
-                }
-            });
-        });
-
-        document.getElementById('ComprobanteArchivo').addEventListener('change', function () {
-            const file = this.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const base64 = e.target.result;
-                document.getElementById('ComprobanteBase64').value = base64;
-                const img = document.getElementById('imgPreviewComprobante');
-                img.src = base64;
-                img.classList.remove('d-none');
-                document.getElementById('errorComprobante').classList.add('d-none');
-                detenerCamaraPago();
-            };
-            reader.readAsDataURL(file);
-        });
-
+        // ============================================
+        // GESTIÓN DE CÁMARA
+        // ============================================
         function activarCamaraPago() {
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
                 .then(stream => {
                     streamCamaraPago = stream;
-                    const video = document.getElementById('videoWebcamPago');
-                    video.srcObject = stream;
-                    video.classList.remove('d-none');
-                    document.getElementById('pagoCamPlaceholder').classList.add('d-none');
-                    document.getElementById('btnActivarCamaraPago').classList.add('d-none');
-                    document.getElementById('btnCapturarPago').classList.remove('d-none');
-                    document.getElementById('previewComprobante')?.classList.add('d-none');
+                    const v = document.getElementById('videoWebcamPago');
+                    v.srcObject = stream;
+                    v.classList.remove('hidden');
+                    document.getElementById('pagoCamPlaceholder').classList.add('hidden');
+                    document.getElementById('btnActivarCamaraPago').classList.add('hidden');
+                    document.getElementById('btnCapturarPago').classList.remove('hidden');
+                    document.getElementById('imgPreviewComprobante').classList.add('hidden');
                 })
                 .catch(() => Swal.fire('Error', 'No se pudo acceder a la cámara.', 'error'));
         }
 
         function capturarComprobante() {
-            const video = document.getElementById('videoWebcamPago');
-            const canvas = document.getElementById('canvasPago');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const base64 = canvas.toDataURL('image/jpeg', 0.85);
-            document.getElementById('ComprobanteBase64').value = base64;
+            const v = document.getElementById('videoWebcamPago');
+            const c = document.getElementById('canvasPago');
+            c.width = v.videoWidth; c.height = v.videoHeight;
+            c.getContext('2d').drawImage(v, 0, 0);
+            const b64 = c.toDataURL('image/jpeg', 0.85);
+            document.getElementById('ComprobanteBase64').value = b64;
             const img = document.getElementById('imgPreviewComprobante');
-            img.src = base64;
-            img.classList.remove('d-none');
+            img.src = b64; img.classList.remove('hidden');
+            document.getElementById('btnQuitarComprobante')?.classList.remove('hidden');
             detenerCamaraPago();
         }
 
@@ -801,73 +697,74 @@
                 streamCamaraPago.getTracks().forEach(t => t.stop());
                 streamCamaraPago = null;
             }
-            const video = document.getElementById('videoWebcamPago');
-            video.srcObject = null;
-            video.classList.add('d-none');
-            document.getElementById('btnCapturarPago').classList.add('d-none');
-            document.getElementById('btnActivarCamaraPago').classList.remove('d-none');
-            document.getElementById('pagoCamPlaceholder').classList.remove('d-none');
+            const v = document.getElementById('videoWebcamPago');
+            if(v) {
+                v.srcObject = null;
+                v.classList.add('hidden');
+            }
+            document.getElementById('pagoCamPlaceholder')?.classList.remove('hidden');
+            document.getElementById('btnCapturarPago')?.classList.add('hidden');
+            document.getElementById('btnActivarCamaraPago')?.classList.remove('hidden');
         }
 
         function limpiarComprobante() {
             detenerCamaraPago();
             document.getElementById('ComprobanteBase64').value = '';
             document.getElementById('ComprobanteArchivo').value = '';
-            document.getElementById('imgPreviewComprobante').classList.add('d-none');
-            document.getElementById('imgPreviewComprobante').src = '';
-            document.getElementById('errorComprobante').classList.add('d-none');
+            const img = document.getElementById('imgPreviewComprobante');
+            if(img) { img.src = ''; img.classList.add('hidden'); }
+            document.getElementById('btnQuitarComprobante')?.classList.add('hidden');
         }
 
-        // --- LÓGICA DE EDICIÓN Y ANULACIÓN ---
+        // ============================================
+        // UTILIDADES MODAL
+        // ============================================
+        function abrirModalPago() {
+            limpiarModal(true);
+            new bootstrap.Modal(document.getElementById('modalPago')).show();
+            setTimeout(() => document.getElementById("txtDniBuscar").focus(), 500);
+        }
+
+        function limpiarModal(full) {
+            if(full) document.getElementById("txtDniBuscar").value = "";
+            document.getElementById("txtMonto").value = "";
+            document.getElementById("infoMembresia").classList.add("d-none");
+            document.getElementById("formPagoDetalle").classList.add("d-none");
+            document.getElementById("btnCobrar").disabled = true;
+            document.getElementById("resultados-busqueda").style.display = "none";
+            membresiaSeleccionada = 0; deudaActual = 0;
+            limpiarComprobante();
+            document.getElementById('contenedorComprobante').classList.add('d-none');
+            const m1 = document.getElementById('metodo1'); if(m1) m1.checked = true;
+        }
+
+        // ============================================
+        // EDICIÓN Y ANULACIÓN
+        // ============================================
         function abrirModalEditarPago(id) {
-            fetch(`/Pagos/ObtenerParaEdicion/${id}`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('editPagoId').value = data.id;
-                    document.getElementById('editMonto').value = data.monto;
-                    document.getElementById('editMetodoPago').value = data.metodoPago;
-                    document.getElementById('editObservaciones').value = data.observaciones || '';
-                    new bootstrap.Modal(document.getElementById('modalEditarPago')).show();
-                });
+            fetch(`/Pagos/ObtenerParaEdicion/${id}`).then(r => r.json()).then(d => {
+                document.getElementById('editPagoId').value = d.id;
+                document.getElementById('editMonto').value = d.monto;
+                document.getElementById('editMetodoPago').value = d.metodoPago;
+                document.getElementById('editObservaciones').value = d.observaciones || '';
+                if(!modalEditar) modalEditar = new bootstrap.Modal(document.getElementById('modalEditarPago'));
+                modalEditar.show();
+            });
         }
 
         function guardarEdicionPago() {
-            const data = {
-                Id: parseInt(document.getElementById('editPagoId').value),
-                Monto: parseFloat(document.getElementById('editMonto').value),
-                MetodoPago: document.getElementById('editMetodoPago').value,
-                Observaciones: document.getElementById('editObservaciones').value
-            };
-            fetch('/Pagos/Editar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            }).then(() => window.location.reload());
+            const data = { Id: parseInt(document.getElementById('editPagoId').value), Monto: parseFloat(document.getElementById('editMonto').value), MetodoPago: document.getElementById('editMetodoPago').value, Observaciones: document.getElementById('editObservaciones').value };
+            fetch('/Pagos/Editar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(() => window.location.reload());
         }
 
         function anularPago(id) {
-            Swal.fire({
-                title: '¿Anular Pago?',
-                text: "Esta acción no se puede deshacer.",
-                input: 'textarea',
-                inputPlaceholder: 'Motivo de anulación...',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, Anular'
-            }).then((result) => {
-                if (result.isConfirmed && result.value) {
-                    fetch(`/Pagos/Anular/${id}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(result.value)
-                    }).then(() => window.location.reload());
-                }
-            });
+            Swal.fire({ title: '¿Anular Pago?', text: "Esta acción es definitiva.", input: 'textarea', inputPlaceholder: 'Motivo...', icon: 'warning', showCancelButton: true, confirmButtonText: 'Anular' })
+            .then((r) => { if (r.isConfirmed && r.value) fetch(`/Pagos/Anular/${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(r.value) }).then(() => window.location.reload()); });
         }
     </script>
 }
 
 <style>
-    .animate-fade-in { animation: fadeIn 0.3s ease-in; }
+    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
     @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
