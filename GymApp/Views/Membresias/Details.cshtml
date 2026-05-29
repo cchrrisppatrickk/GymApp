@@ -29,22 +29,25 @@
 
     <!-- Botones de Acción Global -->
     <div class="mb-4 d-flex gap-2">
-        @if (Model.Plan?.PermiteCongelar == true)
+        @if (Model.Plan?.PermiteCongelar == true && (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasCongelar) || User.IsInRole(AppRoles.Admin)))
         {
             <button class="btn btn-info text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCongelar">
                 <i class="bi bi-snow2 me-1"></i> Congelar Cuenta
             </button>
         }
-        else
+        else if (Model.Plan?.PermiteCongelar != true)
         {
             <button class="btn btn-info text-white shadow-sm opacity-50" disabled title="El plan no permite congelar">
                 <i class="bi bi-snow2 me-1"></i> El plan no permite congelar
             </button>
         }
         
-        <button class="btn btn-primary shadow-sm" style="background-color: #276CF5;" onclick="abrirModalRenovacion()">
-            <i class="bi bi-arrow-repeat me-1"></i> Renovar Membresía
-        </button>
+        @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasRenovar) || User.IsInRole(AppRoles.Admin))
+        {
+            <button class="btn btn-primary shadow-sm" style="background-color: #276CF5;" onclick="abrirModalRenovacion()">
+                <i class="bi bi-arrow-repeat me-1"></i> Renovar Membresía
+            </button>
+        }
 
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasEditar) || User.IsInRole(AppRoles.Admin))
         {
