@@ -48,10 +48,11 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
 - [ ] **Control de Acceso (Escáner QR)**
   - [ ] Vista del Escáner
   - [ ] Historial de Visitas
-- [x] **Administración y Configuración**
+- [x] Administración y Configuración
   - [x] Planes y Precios (`Planes/Index.cshtml`)
-  - [ ] Turnos (Horarios)
-  - [ ] Roles
+  - [x] Turnos (Horarios) (`Turnos/Index.cshtml`)
+  - [x] Roles (`Roles/Index.cshtml`)
+
   - [ ] Empleados (Gestión de Personal)
   - [ ] Alertas (n8n)
 - [ ] **Portal del Cliente (ClienteHome)**
