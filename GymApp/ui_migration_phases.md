@@ -21,7 +21,7 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
 ## Fase 3: Actualización Módulo por Módulo (Vistas)
 *Esta fase implica ir a las carpetas dentro de `Views/` y reemplazar las clases de Bootstrap por las de Tailwind, mejorando la estética según el `design.md`.*
 
-- [ ] **Home / Dashboard** (`Views/Home/Index.cshtml`)
+- [x] **Home / Dashboard** (`Views/Home/Index.cshtml`)
 - [ ] **Auth / Login** (`Views/Auth/Login.cshtml`)
 - [ ] **Usuarios / Clientes**
   - [ ] Lista de Usuarios (`Index.cshtml`)

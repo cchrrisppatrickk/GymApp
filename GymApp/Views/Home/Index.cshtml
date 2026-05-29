@@ -5,74 +5,8 @@
 
 @section Styles {
     <style>
-        .card-stats {
-            border: none;
-            border-radius: 1.5rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.03), 0 2px 6px rgba(0,0,0,0.05);
-            background: white;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-stats:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1);
-        }
-
-        .card-stats::after {
-            content: 'Ver detalles \2192';
-            position: absolute;
-            bottom: 10px;
-            right: 20px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            color: inherit;
-        }
-
-        .card-stats:hover::after {
-            opacity: 0.7;
-        }
-
-        .stat-icon {
-            width: 52px;
-            height: 52px;
-            background: rgba(13, 110, 253, 0.12);
-            border-radius: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: #0d6efd;
-            transition: transform 0.3s ease;
-        }
-
-        .card-stats:hover .stat-icon {
-            transform: scale(1.1) rotate(5deg);
-        }
-
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-            color: #1e2f41;
-        }
-
-        .btn-refresh {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .btn-refresh:hover {
-            transform: rotate(180deg);
+        .counter-value {
+            font-variant-numeric: tabular-nums;
         }
 
         .loading-shimmer {
@@ -86,210 +20,247 @@
             100% { background-position: 468px 0; }
         }
 
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .text-transparent { color: transparent !important; }
     </style>
 }
 
 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.DashboardVer) || User.HasClaim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal) || User.IsInRole(AppRoles.Admin))
 {
-<div class="container-fluid mt-4">
+<div class="space-y-12 mt-6">
     <!-- ================= SECCIÓN USUARIOS ================= -->
-    <div class="mb-4">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-users fa-xl text-primary"></i>
-                <h3 class="fw-semibold m-0">Panel de Usuarios</h3>
-                <span class="badge bg-secondary bg-opacity-25 text-dark">Membresías · Deudas · Vencimientos</span>
+    <section>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                        <i class="bi bi-people-fill text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-display font-bold text-slate-800 tracking-tight m-0">Panel de Usuarios</h2>
+                </div>
+                <p class="text-slate-500 text-sm font-medium ml-1">Estado de membresías, deudas y nuevos registros</p>
             </div>
-            <button class="btn btn-outline-primary btn-refresh border-0" onclick="actualizarDashboard()" title="Actualizar datos">
-                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+            <button class="group inline-flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm transition-all duration-300 active:scale-95" onclick="actualizarDashboard()" title="Actualizar datos">
+                <i class="bi bi-arrow-clockwise text-xl transition-transform duration-500 group-hover:rotate-180" id="refreshIcon"></i>
             </button>
         </div>
 
-        <div class="row g-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             <!-- Nuevos registros del mes -->
-            <div class="col-md-3 col-sm-6">
-                <div class="card-stats card h-100 p-4 border-start border-4 border-success" onclick="location.href='/Usuarios/Index'">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div class="stat-label">NUEVOS MIEMBROS</div>
-                            <div class="stat-value counter" id="newUsersCount">0</div>
-                            <small class="text-success fw-medium"><i class="fas fa-user-plus me-1"></i>registrados este mes</small>
+            <div class="group relative bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1.5 hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer overflow-hidden" onclick="location.href='/Usuarios/Index'">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-100 group-hover:shadow-sm">
+                            <i class="bi bi-person-plus-fill text-xl"></i>
                         </div>
-                        <div class="stat-icon text-success" style="background: rgba(25, 135, 84, 0.12);"><i class="fas fa-user-check"></i></div>
+                        <span class="text-[10px] font-bold tracking-widest uppercase text-emerald-600/70 bg-emerald-50 px-2 py-1 rounded-lg group-hover:bg-emerald-100 transition-colors">Este mes</span>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-emerald-900" id="newUsersCount">0</div>
+                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-emerald-600/60 transition-colors">Nuevos Socios</div>
                     </div>
                 </div>
             </div>
 
             <!-- Membresías vencidas SIN renovar -->
-            <div class="col-md-3 col-sm-6">
-                <div class="card-stats card h-100 p-4 border-start border-4 border-secondary" onclick="location.href='/Membresias/Index?filtro=vencidas'">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div class="stat-label">SIN RENOVAR (VENCIDOS)</div>
-                            <div class="stat-value counter" id="expiredNoRenewCount">0</div>
-                            <small class="text-muted"><i class="fas fa-hourglass-end me-1"></i>no han renovado</small>
+            <div class="group relative bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-xl hover:shadow-slate-500/10 transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-400 hover:bg-slate-50 cursor-pointer overflow-hidden" onclick="location.href='/Membresias/Index?filtro=vencidas'">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-slate-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center border border-slate-200/50 transition-all duration-300 group-hover:scale-110 group-hover:bg-slate-200 group-hover:shadow-sm">
+                            <i class="bi bi-person-x-fill text-xl"></i>
                         </div>
-                        <div class="stat-icon text-secondary" style="background: rgba(108, 117, 125, 0.12);"><i class="fas fa-user-slash"></i></div>
+                        <span class="text-[10px] font-bold tracking-widest uppercase text-slate-400 bg-slate-50 px-2 py-1 rounded-lg group-hover:bg-slate-200 transition-colors">Acción req.</span>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-slate-900" id="expiredNoRenewCount">0</div>
+                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-slate-500 transition-colors">Sin Renovar</div>
                     </div>
                 </div>
             </div>
 
             <!-- Membresías Congeladas -->
-            <div class="col-md-4 col-sm-6">
-                <div class="card-stats card h-100 p-4 border-start border-4 border-primary" onclick="location.href='/Membresias/Index?filtro=congeladas'">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div class="stat-label">MEMBRESÍAS CONGELADAS</div>
-                            <div class="stat-value counter" id="frozenCount">0</div>
-                            <small class="text-primary fw-medium"><i class="fas fa-snowflake me-1"></i>pausa temporal</small>
+            <div class="group relative bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-300 hover:bg-blue-50/30 cursor-pointer overflow-hidden" onclick="location.href='/Membresias/Index?filtro=congeladas'">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/50 transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-100 group-hover:shadow-sm">
+                            <i class="bi bi-snow text-xl"></i>
                         </div>
-                        <div class="stat-icon text-primary" style="background: rgba(13, 110, 253, 0.12);"><i class="fas fa-ice-cream"></i></div>
+                        <span class="text-[10px] font-bold tracking-widest uppercase text-blue-600/70 bg-blue-50 px-2 py-1 rounded-lg group-hover:bg-blue-100 transition-colors">En Pausa</span>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-blue-900" id="frozenCount">0</div>
+                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-blue-600/60 transition-colors">Congeladas</div>
                     </div>
                 </div>
             </div>
 
             <!-- Por vencer en 7 días -->
-            <div class="col-md-4 col-sm-6">
-                <div class="card-stats card h-100 p-4 border-start border-4 border-warning" onclick="location.href='/Membresias/Index?filtro=porVencer'">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div class="stat-label">PRÓXIMO VENCIMIENTO (7d)</div>
-                            <div class="stat-value counter" id="expiringWeekCount">0</div>
-                            <small class="text-warning fw-bold"><i class="fas fa-calendar-week me-1"></i>por vencer pronto</small>
+            <div class="group relative bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-300 hover:bg-amber-50/30 cursor-pointer overflow-hidden" onclick="location.href='/Membresias/Index?filtro=porVencer'">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/50 transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-100 group-hover:shadow-sm">
+                            <i class="bi bi-clock-history text-xl"></i>
                         </div>
-                        <div class="stat-icon text-warning" style="background: rgba(255, 193, 7, 0.12);"><i class="fas fa-clock"></i></div>
+                        <span class="text-[10px] font-bold tracking-widest uppercase text-amber-600/70 bg-amber-50 px-2 py-1 rounded-lg group-hover:bg-amber-100 transition-colors">Prox. 7 días</span>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-amber-900" id="expiringWeekCount">0</div>
+                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-amber-600/60 transition-colors">Por Vencer</div>
                     </div>
                 </div>
             </div>
 
             <!-- Usuarios con deudas pendientes -->
-            <div class="col-md-4 col-sm-6">
-                <div class="card-stats card h-100 p-4 border-start border-4 border-danger" onclick="location.href='/Membresias/Index?filtro=deudores'">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <div class="stat-label">CON DEUDAS PENDIENTES</div>
-                            <div class="stat-value counter" id="debtUsersCount">0</div>
-                            <small class="text-danger fw-bold" id="debtAlertText">
-                                <i class="fas fa-coins me-1"></i> Total adeudado: <strong id="totalDebtAmount">S/. 0.00</strong>
-                            </small>
+            <div class="group relative bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-300 hover:-translate-y-1.5 hover:border-rose-300 hover:bg-rose-50/30 cursor-pointer overflow-hidden sm:col-span-2 lg:col-span-1" onclick="location.href='/Membresias/Index?filtro=deudores'">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rose-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="flex flex-col h-full justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100/50 transition-all duration-300 group-hover:scale-110 group-hover:bg-rose-100 group-hover:shadow-sm">
+                            <i class="bi bi-wallet2 text-xl"></i>
                         </div>
-                        <div class="stat-icon text-danger" style="background: rgba(220, 53, 69, 0.12);"><i class="fas fa-file-invoice-dollar"></i></div>
+                        <div class="text-right">
+                            <div class="text-[10px] font-bold tracking-widest uppercase text-rose-600/70 bg-rose-50 px-2 py-1 rounded-lg mb-1 inline-block group-hover:bg-rose-100 transition-colors">Deuda Total</div>
+                            <div class="text-sm font-bold text-rose-600 transition-all group-hover:scale-110 group-hover:origin-right" id="totalDebtAmount">S/. 0.00</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-rose-900" id="debtUsersCount">0</div>
+                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-rose-600/60 transition-colors">Socios con Deuda</div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
     <!-- ================= SECCIÓN RENDIMIENTO FINANCIERO ================= -->
-    <div class="mb-4 mt-5">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-chart-line fa-xl text-success"></i>
-                <h3 class="fw-semibold m-0">Tendencia Financiera y Matrículas</h3>
-                <span class="badge bg-success bg-opacity-25 text-dark">Ingresos vs Nuevos Miembros</span>
-            </div>
-            <div class="btn-group btn-group-sm" role="group" aria-label="Filtro de temporalidad">
-                <input type="radio" class="btn-check" name="btnTemporalidad" id="btnSemana" value="Semana" autocomplete="off">
-                <label class="btn btn-outline-success" for="btnSemana">Semana</label>
-
-                <input type="radio" class="btn-check" name="btnTemporalidad" id="btnMes" value="Mes" autocomplete="off" checked>
-                <label class="btn btn-outline-success" for="btnMes">Mes</label>
-
-                <input type="radio" class="btn-check" name="btnTemporalidad" id="btnAnual" value="Anual" autocomplete="off">
-                <label class="btn btn-outline-success" for="btnAnual">Anual</label>
-            </div>
-        </div>
-
-        <div class="card border-0 shadow-sm rounded-4 mb-4 p-3">
-            <div class="card-body p-0">
-                <div style="height: 350px;">
-                    <canvas id="tendenciaChart"></canvas>
+    <section>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm">
+                        <i class="bi bi-graph-up-arrow text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-display font-bold text-slate-800 tracking-tight m-0">Tendencia Financiera</h2>
                 </div>
+                <p class="text-slate-500 text-sm font-medium ml-1">Ingresos vs Nuevos Miembros</p>
+            </div>
+            
+            <div class="inline-flex bg-slate-100 p-1 rounded-2xl border border-slate-200/60 shadow-inner">
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="btnTemporalidad" value="Semana" class="peer sr-only">
+                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Semana</span>
+                </label>
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="btnTemporalidad" value="Mes" class="peer sr-only" checked>
+                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Mes</span>
+                </label>
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="btnTemporalidad" value="Anual" class="peer sr-only">
+                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Anual</span>
+                </label>
             </div>
         </div>
-    </div>
+
+        <div class="bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 shadow-sm">
+            <div class="h-[350px]">
+                <canvas id="tendenciaChart"></canvas>
+            </div>
+        </div>
+    </section>
 
     <!-- ================= SECCIÓN GRÁFICO PASES DIARIOS ================= -->
-    <div class="mb-4 mt-5">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-door-open fa-xl" style="color:#720e9e;"></i>
-                <h3 class="fw-semibold m-0">Tendencia Pases Diarios</h3>
-                <span class="badge bg-opacity-25 text-dark" style="background-color:rgba(114,14,158,0.18);">Ingresos por Turno</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <!-- Resumen rápido -->
-                <div class="d-flex gap-2" id="pasesResumenBadges">
-                    <span class="badge rounded-pill border" style="background:rgba(245,158,11,0.12);color:#92400e;border-color:#f59e0b !important;">
-                        <i class="fas fa-sun me-1"></i><span id="pasMañanaTotal">-</span>
-                    </span>
-                    <span class="badge rounded-pill border" style="background:rgba(59,130,246,0.12);color:#1e3a8a;border-color:#3b82f6 !important;">
-                        <i class="fas fa-moon me-1"></i><span id="pasTardeTotal">-</span>
-                    </span>
-                </div>
-                <!-- Filtro temporalidad -->
-                <div class="btn-group btn-group-sm" role="group" aria-label="Filtro pases diarios">
-                    <input type="radio" class="btn-check" name="btnTempPases" id="pasesSemana" value="Semana" autocomplete="off">
-                    <label class="btn btn-outline-secondary" for="pasesSemana" style="--bs-btn-border-color:#720e9e;--bs-btn-hover-bg:#720e9e;--bs-btn-hover-color:#fff;">Semana</label>
-
-                    <input type="radio" class="btn-check" name="btnTempPases" id="pasesMes" value="Mes" autocomplete="off" checked>
-                    <label class="btn btn-outline-secondary" for="pasesMes" style="--bs-btn-border-color:#720e9e;--bs-btn-hover-bg:#720e9e;--bs-btn-hover-color:#fff;">Mes</label>
-
-                    <input type="radio" class="btn-check" name="btnTempPases" id="pasesAnual" value="Anual" autocomplete="off">
-                    <label class="btn btn-outline-secondary" for="pasesAnual" style="--bs-btn-border-color:#720e9e;--bs-btn-hover-bg:#720e9e;--bs-btn-hover-color:#fff;">Anual</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="card border-0 shadow-sm rounded-4 mb-4 p-3" style="border-top: 3px solid #720e9e !important;">
-            <div class="card-body p-0">
-                <div style="height: 340px; position: relative;">
-                    <div id="pasesDiariosLoader" class="d-flex align-items-center justify-content-center h-100 w-100 rounded-4" style="position: absolute; top: 0; left: 0; background: rgba(255,255,255,0.85); z-index: 5; transition: opacity 0.3s ease;">
-                        <div class="text-center text-muted">
-                            <div class="spinner-border spinner-border-sm mb-2" style="color:#720e9e;"></div>
-                            <div class="small">Cargando datos...</div>
-                        </div>
+    <section>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100/50 shadow-sm">
+                        <i class="bi bi-door-open-fill text-xl"></i>
                     </div>
-                    <canvas id="pasesDiariosChart"></canvas>
+                    <h2 class="text-2xl font-display font-bold text-slate-800 tracking-tight m-0">Tendencia Pases Diarios</h2>
+                </div>
+                <p class="text-slate-500 text-sm font-medium ml-1">Ingresos por Turno (Mañana/Tarde)</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Resumen rápido -->
+                <div class="flex gap-2 mr-2">
+                    <div class="flex items-center gap-2 bg-amber-50 border border-amber-100/50 px-3 py-1.5 rounded-xl">
+                        <i class="bi bi-sun-fill text-amber-500 text-xs"></i>
+                        <span id="pasMañanaTotal" class="text-xs font-bold text-amber-700">-</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-blue-50 border border-blue-100/50 px-3 py-1.5 rounded-xl">
+                        <i class="bi bi-moon-stars-fill text-blue-500 text-xs"></i>
+                        <span id="pasTardeTotal" class="text-xs font-bold text-blue-700">-</span>
+                    </div>
+                </div>
+
+                <!-- Filtro temporalidad -->
+                <div class="inline-flex bg-slate-100 p-1 rounded-2xl border border-slate-200/60 shadow-inner">
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="btnTempPases" value="Semana" class="peer sr-only">
+                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Semana</span>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="btnTempPases" value="Mes" class="peer sr-only" checked>
+                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Mes</span>
+                    </label>
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="btnTempPases" value="Anual" class="peer sr-only">
+                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Anual</span>
+                    </label>
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 shadow-sm relative overflow-hidden">
+            <!-- Loader sutil -->
+            <div id="pasesDiariosLoader" class="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-10 flex items-center justify-center transition-opacity duration-300 pointer-events-none opacity-0">
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-8 h-8 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin"></div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Cargando</span>
+                </div>
+            </div>
+            <div class="h-[340px]">
+                <canvas id="pasesDiariosChart"></canvas>
+            </div>
+        </div>
+    </section>
 
     <!-- ================= SECCIÓN PAGOS RECIENTES ================= -->
-    <div class="mb-4 mt-5">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fas fa-history fa-xl text-info"></i>
-                <h3 class="fw-semibold m-0">Pagos Recientes</h3>
-                <span class="badge bg-info bg-opacity-25 text-dark">Últimos 7 movimientos</span>
+    <section class="pb-12">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/50 shadow-sm">
+                        <i class="bi bi-clock-history text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-display font-bold text-slate-800 tracking-tight m-0">Pagos Recientes</h2>
+                </div>
+                <p class="text-slate-500 text-sm font-medium ml-1">Últimos 7 movimientos registrados</p>
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th class="ps-4 text-uppercase small fw-bold text-muted">Cliente</th>
-                            <th class="text-uppercase small fw-bold text-muted">Plan / Membresía</th>
-                            <th class="text-uppercase small fw-bold text-muted">Monto</th>
-                            <th class="text-uppercase small fw-bold text-muted">Fecha</th>
-                            <th class="text-end pe-4 text-uppercase small fw-bold text-muted">Método</th>
+        <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Socio</th>
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Membresía</th>
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Monto</th>
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fecha</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Método</th>
                         </tr>
                     </thead>
-                    <tbody id="recentPaymentsTable">
+                    <tbody id="recentPaymentsTable" class="divide-y divide-slate-100/80">
                         <!-- Carga dinámica por AJAX -->
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 
 @section Scripts {
@@ -599,7 +570,7 @@
                     });
                 })
                 .catch(error => {
-                    loader.innerHTML = '<div class="text-danger text-center"><i class="fas fa-exclamation-triangle me-2"></i>Error al cargar el gráfico</div>';
+                    loader.innerHTML = '<div class="text-rose-500 text-center"><i class="bi bi-exclamation-triangle-fill me-2"></i>Error al cargar el gráfico</div>';
                     console.error('Error al cargar gráfico pases diarios:', error);
                 });
         }
@@ -610,11 +581,11 @@
             // Efecto Shimmer inicial (Skeleton)
             const skeleton = Array(7).fill(`
                 <tr>
-                    <td class="ps-4"><div class="loading-shimmer py-2 rounded w-75"></div></td>
-                    <td><div class="loading-shimmer py-2 rounded w-50"></div></td>
-                    <td><div class="loading-shimmer py-2 rounded w-25"></div></td>
-                    <td><div class="loading-shimmer py-2 rounded w-50"></div></td>
-                    <td class="text-end pe-4"><div class="loading-shimmer py-2 rounded w-25 ms-auto"></div></td>
+                    <td class="px-6 py-4"><div class="loading-shimmer h-4 rounded-lg w-3/4"></div></td>
+                    <td class="px-6 py-4"><div class="loading-shimmer h-4 rounded-lg w-1/2"></div></td>
+                    <td class="px-6 py-4"><div class="loading-shimmer h-4 rounded-lg w-1/4"></div></td>
+                    <td class="px-6 py-4"><div class="loading-shimmer h-4 rounded-lg w-1/2"></div></td>
+                    <td class="px-6 py-4"><div class="loading-shimmer h-4 rounded-lg w-1/4 ml-auto"></div></td>
                 </tr>
             `).join('');
             
@@ -628,7 +599,7 @@
                     tbody.empty();
                     
                     if (!data || data.length === 0) {
-                        tbody.append('<tr><td colspan="5" class="text-center py-5 text-muted">No se encontraron pagos recientes</td></tr>');
+                        tbody.append('<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 font-medium italic">No se encontraron pagos recientes</td></tr>');
                         return;
                     }
 
@@ -638,38 +609,36 @@
                     data.forEach((pago, index) => {
                         const fecha = new Date(pago.fechaPago);
                         const esHoy = fecha.toLocaleDateString() === today;
-                        const badgeHoy = esHoy ? '<span class="badge bg-success ms-2 animate__animated animate__pulse animate__infinite" style="font-size: 0.65rem;">HOY</span>' : '';
+                        const badgeHoy = esHoy ? '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-700 ml-2 animate-pulse uppercase tracking-wider">Hoy</span>' : '';
                         
                         const row = `
-                            <tr style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.08}s; opacity: 0;">
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-3 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" 
-                                             style="width: 35px; height: 35px; font-size: 0.85rem; border: 1px solid rgba(13, 110, 253, 0.1);">
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs border border-indigo-100/50">
                                             ${pago.nombreCliente.charAt(0).toUpperCase()}
                                         </div>
-                                        <div>
-                                            <div class="fw-semibold text-dark">${pago.nombreCliente}</div>
-                                        </div>
+                                        <div class="text-sm font-semibold text-slate-800 truncate max-w-[150px]">${pago.nombreCliente}</div>
                                     </div>
                                 </td>
-                                <td>
-                                    <div class="badge bg-light text-dark fw-normal border">${pago.nombrePlan}</div>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200/50">
+                                        ${pago.nombrePlan}
+                                    </span>
                                 </td>
-                                <td>
-                                    <span class="fw-bold text-success">${currencyFormat.format(pago.monto)}</span>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm font-bold text-emerald-600 font-mono tracking-tight">${currencyFormat.format(pago.monto)}</span>
                                 </td>
-                                <td>
-                                    <div class="d-flex align-items-center text-muted small">
-                                        <i class="far fa-calendar-alt me-2 text-info"></i>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2 text-slate-500 text-xs font-medium">
+                                        <i class="bi bi-calendar3 text-slate-400"></i>
                                         ${fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
                                         ${badgeHoy}
                                     </div>
                                 </td>
-                                <td class="text-end pe-4">
-                                    <span class="badge rounded-pill ${pago.metodoPago === 'Efectivo' ? 'bg-secondary' : 'bg-primary'} bg-opacity-10 text-dark border border-opacity-10" 
-                                          style="font-weight: 500; font-size: 0.75rem;">
-                                        <i class="fas ${pago.metodoPago === 'Efectivo' ? 'fa-money-bill-wave' : 'fa-mobile-alt'} me-1 opacity-50"></i>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${pago.metodoPago === 'Efectivo' ? 'bg-slate-100 text-slate-600' : 'bg-indigo-50 text-indigo-600'} border border-current opacity-70">
+                                        <i class="bi ${pago.metodoPago === 'Efectivo' ? 'bi-cash-stack' : 'bi-phone-vibrate'}"></i>
                                         ${pago.metodoPago}
                                     </span>
                                 </td>
@@ -680,7 +649,7 @@
                 },
                 error: function (xhr, status, error) {
                     console.error("Error al cargar pagos recientes:", error);
-                    tbody.html('<tr><td colspan="5" class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Error al conectar con el servidor</td></tr>');
+                    tbody.html('<tr><td colspan="5" class="px-6 py-12 text-center text-rose-500 font-medium"><i class="bi bi-exclamation-triangle-fill me-2"></i>Error al conectar con el servidor</td></tr>');
                 }
             });
         }
@@ -689,12 +658,23 @@
 }
 else
 {
-    <div class="container-fluid mt-5">
-        <div class="p-5 mb-4 bg-white rounded-4 shadow-sm border text-center">
-            <div class="container-fluid py-5">
-                <i class="fas fa-dumbbell fa-4x text-primary mb-3 opacity-75"></i>
-                <h1 class="display-5 fw-bold text-dark">Bienvenido a GymApp</h1>
-                <p class="col-md-8 mx-auto fs-4 text-muted">Selecciona una opción del menú lateral para comenzar a operar en el sistema.</p>
+    <div class="min-h-[80vh] flex items-center justify-center p-6 md:p-12">
+        <div class="max-w-2xl w-full bg-white rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50 p-8 md:p-12 text-center relative overflow-hidden group">
+            <div class="absolute -top-12 -right-12 w-48 h-48 bg-indigo-50 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
+            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-emerald-50 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
+            
+            <div class="relative">
+                <div class="w-24 h-24 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-indigo-500/30 rotate-3 group-hover:-rotate-3 transition-transform duration-500">
+                    <i class="bi bi-activity text-white text-5xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-display font-extrabold text-slate-900 tracking-tight mb-4">Bienvenido a GymApp</h1>
+                <p class="text-slate-500 text-lg md:text-xl font-medium mb-8 max-w-lg mx-auto leading-relaxed">Tu plataforma integral para la gestión deportiva y administrativa.</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div class="flex items-center gap-2 text-slate-400 font-bold uppercase tracking-widest text-xs">
+                        <i class="bi bi-arrow-left-short text-xl"></i>
+                        Selecciona una opción del menú
+                    </div>
+                </div>
             </div>
         </div>
     </div>
