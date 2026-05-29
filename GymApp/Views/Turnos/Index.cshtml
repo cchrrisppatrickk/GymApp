@@ -3,76 +3,99 @@
     ViewData["Title"] = "Horarios y Turnos";
 }
 
-<div class="container-fluid px-4 fade-in">
-    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+<div class="space-y-8 mt-4">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         <div>
-            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-clock-history text-warning me-2"></i>Horarios y Turnos</h2>
-            <p class="text-muted small mb-0">Define los bloques de acceso al gimnasio.</p>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/50 shadow-sm">
+                    <i class="bi bi-clock-history text-xl"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold text-slate-950 tracking-tight m-0">Horarios y Turnos</h2>
+            </div>
+            <p class="text-slate-700 text-sm font-medium ml-1">Define los bloques de acceso y franjas horarias del gimnasio</p>
         </div>
+        
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.TurnosCrear) || User.IsInRole(AppRoles.Admin))
         {
-            <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
-                <i class="bi bi-plus-lg me-1"></i> Nuevo Turno
+            <button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-600/20 font-medium active:scale-95 group" onclick="abrirModal(0)">
+                <i class="bi bi-plus-lg text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Nuevo Turno</span>
             </button>
         }
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="tablaTurnos">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="ps-4">Nombre del Turno</th>
-                            <th>Inicio</th>
-                            <th>Fin</th>
-                            <th>Duración Total</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="border-top-0">
-                    </tbody>
-                </table>
-            </div>
+    <!-- Tabla -->
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse" id="tablaTurnos">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Nombre del Turno</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Horario de Inicio</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Horario de Cierre</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Estado</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100/80">
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
+<!-- Modal de Gestión -->
 <div class="modal fade" id="modalTurno" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-warning bg-gradient text-dark">
-                <h5 class="modal-title fw-bold" id="tituloModal">Gestión de Turno</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/50 shadow-sm">
+                        <i class="bi bi-pencil-square text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight" id="tituloModal">Gestión de Turno</h5>
+                        <p class="text-slate-700 text-[10px] font-bold uppercase tracking-widest mt-1">Configuración de franja horaria</p>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="modal-body p-4">
-                <form id="formTurno">
+            <div class="p-8">
+                <form id="formTurno" class="space-y-6">
                     <input type="hidden" id="TurnoId" value="0">
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nombre</label>
-                        <input type="text" class="form-control" id="Nombre" placeholder="Ej: Mañana" required>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Etiqueta del Turno</label>
+                        <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-950 transition-all placeholder:text-slate-600" id="Nombre" placeholder="Ej: Mañana, Tarde, Full Day..." required>
                     </div>
 
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="form-label fw-bold">Hora Inicio</label>
-                            <input type="time" class="form-control text-center fw-bold" id="HoraInicio" required>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Hora Inicio</label>
+                            <input type="time" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-950 transition-all" id="HoraInicio" required>
                         </div>
-                        <div class="col-6 mb-3">
-                            <label class="form-label fw-bold">Hora Fin</label>
-                            <input type="time" class="form-control text-center fw-bold" id="HoraFin" required>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Hora Fin</label>
+                            <input type="time" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-950 transition-all" id="HoraFin" required>
                         </div>
                     </div>
 
-                    <div class="alert alert-info small mb-0">
-                        <i class="bi bi-info-circle me-1"></i> El sistema validará el acceso solo dentro de este rango.
+                    <div class="flex items-start gap-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+                        <i class="bi bi-info-circle-fill text-indigo-500 mt-0.5"></i>
+                        <p class="text-[11px] font-medium text-indigo-900 leading-relaxed uppercase tracking-wide">
+                            El sistema restringirá el acceso de los socios fuera de estos rangos.
+                        </p>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-link text-decoration-none text-muted" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-warning px-4 fw-bold" onclick="guardarTurno()">Guardar Turno</button>
+            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                <button type="button" class="px-6 py-2.5 text-slate-700 hover:text-slate-950 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" onclick="guardarTurno()">
+                    <i class="bi bi-save"></i>Guardar Turno
+                </button>
             </div>
         </div>
     </div>
@@ -85,11 +108,12 @@
             cargarTurnos();
         });
 
-        const modal = new bootstrap.Modal(document.getElementById('modalTurno'));
+        const modalElement = document.getElementById('modalTurno');
+        const modal = new bootstrap.Modal(modalElement);
 
         function cargarTurnos() {
             const tbody = document.querySelector("#tablaTurnos tbody");
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><div class="spinner-border text-warning"></div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-20"><div class="inline-block w-8 h-8 border-4 border-amber-100 border-t-amber-600 rounded-full animate-spin"></div></td></tr>';
 
             fetch('/Turnos/ListarTurnos')
                 .then(response => response.json())
@@ -97,7 +121,18 @@
                     let html = '';
 
                     if(json.data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No hay turnos configurados.</td></tr>';
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="px-6 py-20 text-center">
+                                    <div class="max-w-xs mx-auto">
+                                        <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                                            <i class="bi bi-calendar-x text-slate-300 text-3xl"></i>
+                                        </div>
+                                        <h3 class="text-sm font-bold text-slate-950 uppercase tracking-widest mb-2">Sin turnos</h3>
+                                        <p class="text-xs text-slate-500 leading-relaxed font-medium">Configura los horarios para empezar a asignar socios.</p>
+                                    </div>
+                                </td>
+                            </tr>`;
                         return;
                     }
 
@@ -105,18 +140,42 @@
                     const puedeEliminar = @(User.HasClaim(TipoClaim.Permiso, AppPermisos.TurnosEliminar) || User.IsInRole(AppRoles.Admin) ? "true" : "false");
 
                     json.data.forEach(t => {
-                        // Calcular duración simple (visual)
-                        // Aquí asumimos formato HH:mm:ss
-
                         html += `
-                            <tr>
-                                <td class="ps-4 fw-bold text-dark">${t.nombre}</td>
-                                <td><span class="badge bg-light text-dark border"><i class="bi bi-sun me-1"></i>${t.horaInicio}</span></td>
-                                <td><span class="badge bg-light text-dark border"><i class="bi bi-moon me-1"></i>${t.horaFin}</span></td>
-                                <td><small class="text-muted">Calculado por sistema</small></td>
-                                <td class="text-center">
-                                    ${puedeEditar ? `<button class="btn btn-sm btn-light border me-1" onclick="editarTurno(${t.turnoId})"><i class="bi bi-pencil"></i></button>` : ''}
-                                    ${puedeEliminar ? `<button class="btn btn-sm btn-light border text-danger" onclick="eliminarTurno(${t.turnoId})"><i class="bi bi-trash"></i></button>` : ''}
+                            <tr class="group hover:bg-slate-50/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs border border-amber-100/50">
+                                            ${t.nombre.substring(0, 1).toUpperCase()}
+                                        </div>
+                                        <span class="text-sm font-bold text-slate-950 tracking-tight">${t.nombre}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                        <i class="bi bi-sun"></i>${t.horaInicio}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                        <i class="bi bi-moon"></i>${t.horaFin}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">
+                                        Activo
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-1">
+                                        ${puedeEditar ? `
+                                        <button class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200" onclick="editarTurno(${t.turnoId})" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>` : ''}
+                                        ${puedeEliminar ? `
+                                        <button class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200" onclick="eliminarTurno(${t.turnoId})" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>` : ''}
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -158,7 +217,7 @@
             };
 
             if(!data.Nombre || !data.HoraInicio || !data.HoraFin) {
-                Swal.fire('Atención', 'Completa todos los campos de hora', 'warning');
+                Swal.fire('Atención', 'Por favor, completa todos los campos de horario.', 'warning');
                 return;
             }
 
@@ -172,7 +231,7 @@
                 if(json.success) {
                     modal.hide();
                     cargarTurnos();
-                    Swal.fire('Éxito', 'Turno guardado correctamente', 'success');
+                    Swal.fire({ title: '¡Guardado!', text: 'Turno actualizado correctamente.', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
                 } else {
                     Swal.fire('Error', json.message, 'error');
                 }
@@ -182,11 +241,16 @@
         function eliminarTurno(id) {
             Swal.fire({
                 title: '¿Eliminar Turno?',
-                text: "Esto podría afectar a membresías activas.",
+                text: "Esta acción podría afectar a membresías activas vinculadas a este horario.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Sí, eliminar'
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                customClass: {
+                    confirmButton: 'px-6 py-2 bg-rose-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest mx-2',
+                    cancelButton: 'px-6 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest mx-2'
+                },
+                buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch('/Turnos/Eliminar?id=' + id, { method: 'POST' })
@@ -194,7 +258,7 @@
                     .then(json => {
                         if(json.success) {
                             cargarTurnos();
-                            Swal.fire('Eliminado', 'El turno ha sido eliminado.', 'success');
+                            Swal.fire('Eliminado', 'El turno ha sido removido.', 'success');
                         } else {
                             Swal.fire('Error', json.message, 'error');
                         }
