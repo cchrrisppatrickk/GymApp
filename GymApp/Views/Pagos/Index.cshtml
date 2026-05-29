@@ -7,362 +7,401 @@
     var anio = ViewBag.Anio as int?;
 }
 
-<div class="container-fluid px-4 fade-in">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 mb-4">
+<div class="space-y-8 mt-4">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         <div>
-            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-wallet2 text-success me-2"></i>Caja y Tesorería</h2>
-            <p class="text-muted small mb-0">Control de ingresos y emisión de comprobantes.</p>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm">
+                    <i class="bi bi-wallet2 text-xl"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold text-slate-950 tracking-tight m-0">Caja y Tesorería</h2>
+            </div>
+            <p class="text-slate-700 text-sm font-medium ml-1">Control de ingresos, cobros de membresías y reportes diarios</p>
         </div>
-        <div class="d-flex gap-2">
-@* 
-            <button class="btn btn-outline-secondary shadow-sm">
-                <i class="bi bi-printer me-1"></i> Cierre de Caja
-            </button> 
-            *@
-            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosCrear) || User.IsInRole(AppRoles.Admin))
-            {
-                <button class="btn btn-success shadow-sm" onclick="abrirModalPago()">
-                    <i class="bi bi-plus-lg me-1"></i> Registrar Ingreso
-                </button>
-            }
-        </div>
+        
+        @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosCrear) || User.IsInRole(AppRoles.Admin))
+        {
+            <button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-600/20 font-medium active:scale-95 group" onclick="abrirModalPago()">
+                <i class="bi bi-cash-coin text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Registrar Ingreso</span>
+            </button>
+        }
     </div>
-    
-    <form method="get" asp-action="Index" class="mb-4">
-        <div class="row g-2 align-items-center">
-            <div class="col-md-4">
-                <input type="text" name="buscar" class="form-control" placeholder="Buscar por Cliente o DNI..." value="@buscar">
+
+    <!-- Filtros -->
+    <form method="get" asp-action="Index" class="bg-white rounded-[2rem] border border-slate-200 p-2 shadow-sm">
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2">
+            <!-- Búsqueda por Texto -->
+            <div class="flex-1 relative group">
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-indigo-500 transition-colors">
+                    <i class="bi bi-search"></i>
+                </div>
+                <input type="text" name="buscar" class="w-full bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl pl-11 pr-4 py-2.5 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" placeholder="Buscar por socio o DNI..." value="@buscar">
             </div>
-            <div class="col-md-3">
-                <select name="mes" class="form-select">
-                    <option value="">Mes Actual (Por Defecto)</option>
-                    @for(int i = 1; i <= 12; i++)
-                    {
-                        if (mes == i) {
-                            <option value="@i" selected>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i).ToUpper()</option>
-                        } else {
-                            <option value="@i">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i).ToUpper()</option>
+
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:flex gap-2">
+                <!-- Mes -->
+                <div class="relative min-w-[200px]">
+                    <select name="mes" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl px-4 py-2.5 text-sm font-bold text-slate-700 appearance-none cursor-pointer transition-all">
+                        <option value="">Mes Actual (Default)</option>
+                        @for(int i = 1; i <= 12; i++)
+                        {
+                            if (mes == i) {
+                                <option value="@i" selected>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i).ToUpper()</option>
+                            } else {
+                                <option value="@i">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i).ToUpper()</option>
+                            }
                         }
-                    }
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select name="anio" class="form-select">
-                    <option value="">Año Actual (Por Defecto)</option>
-                    @for(int i = DateTime.Now.Year - 2; i <= DateTime.Now.Year; i++)
-                    {
-                        if (anio == i) {
-                            <option value="@i" selected>@i</option>
-                        } else {
-                            <option value="@i">@i</option>
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 text-xs">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+
+                <!-- Año -->
+                <div class="relative min-w-[160px]">
+                    <select name="anio" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl px-4 py-2.5 text-sm font-bold text-slate-700 appearance-none cursor-pointer transition-all">
+                        <option value="">Año Actual (Default)</option>
+                        @for(int i = DateTime.Now.Year - 2; i <= DateTime.Now.Year; i++)
+                        {
+                            if (anio == i) {
+                                <option value="@i" selected>@i</option>
+                            } else {
+                                <option value="@i">@i</option>
+                            }
                         }
-                    }
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter"></i> Filtrar</button>
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600 text-xs">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="flex-1 lg:flex-none inline-flex items-center justify-center w-full lg:w-11 h-11 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-sm shadow-indigo-600/10 active:scale-95" title="Aplicar filtros">
+                    <i class="bi bi-filter text-lg"></i>
+                    <span class="lg:hidden ml-2 font-bold uppercase tracking-widest text-xs">Filtrar</span>
+                </button>
             </div>
         </div>
     </form>
 
-    @* 
-    <div class="row mb-4 g-3">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 overflow-hidden">
-                <div class="card-body position-relative">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="text-uppercase text-muted small fw-bold mb-0">Ingresos Totales</h6>
-                        <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-graph-up-arrow"></i> Hoy</span>
-                    </div>
-                    <h3 class="fw-bold text-dark mb-0" id="kpiIngresos">$ 0.00</h3>
-                    <div class="position-absolute top-0 end-0 opacity-10 p-3">
-                        <i class="bi bi-currency-dollar fs-1 text-success"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="text-uppercase text-muted small fw-bold mb-0">Transacciones</h6>
-                    </div>
-                    <h3 class="fw-bold text-dark mb-0" id="kpiTransacciones">0</h3>
-                    <p class="small text-muted mb-0">Operaciones registradas</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 bg-primary bg-gradient text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="text-uppercase text-white-50 small fw-bold mb-0">Último Cobro</h6>
-                    </div>
-                    <h5 class="fw-bold mb-0" id="kpiUltimoCliente">--</h5>
-                    <small class="text-white-50" id="kpiUltimoMonto">--</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    *@
-
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="tablaPagos">
-                    <thead class="bg-light text-secondary">
+    <!-- Tabla -->
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden mt-6">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse" id="tablaPagos">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Fecha / Hora</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Socio / Cliente</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Concepto</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Método</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Atendido Por</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Monto</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100/80">
+                    @if (!Model.Items.Any())
+                    {
                         <tr>
-                            <th class="ps-4">Fecha / Hora</th>
-                            <th>Cliente</th>
-                            <th>Concepto</th>
-                            <th>Método</th>
-                            <th>Atendido Por</th>
-                            <th class="text-end">Monto</th>
-                            <th class="text-center">Recibo</th>
+                            <td colspan="7" class="px-6 py-20 text-center">
+                                <div class="max-w-xs mx-auto">
+                                    <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                                        <i class="bi bi-receipt text-slate-300 text-3xl"></i>
+                                    </div>
+                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-2">Sin Movimientos</h3>
+                                    <p class="text-xs text-slate-500 leading-relaxed font-medium">No se encontraron pagos que coincidan con los criterios.</p>
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody class="border-top-0">
-                        @if (!Model.Items.Any())
+                    }
+                    else
+                    {
+                        foreach (var p in Model.Items)
                         {
-                            <tr>
-                                <td colspan="7" class="text-center py-5">
-                                    <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
-                                    <p class="text-muted mt-2">No se encontraron movimientos con este filtro.</p>
+                            <tr class="group hover:bg-slate-50/50 transition-colors @(p.EsAnulado ? "opacity-50 grayscale" : "")">
+                                <td class="px-6 py-4">
+                                    @{
+                                        var partes = p.FechaPago.Split(' ');
+                                        var fecha = partes.Length > 0 ? partes[0] : p.FechaPago;
+                                        var hora = partes.Length > 1 ? partes[1] : "";
+                                    }
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-slate-900">@fecha</span>
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase">@hora</span>
+                                    </div>
                                 </td>
-                            </tr>
-                        }
-                        else
-                        {
-                            foreach (var p in Model.Items)
-                            {
-                                <tr>
-                                    <td class="ps-4">
-                                        @{
-                                            var partes = p.FechaPago.Split(' ');
-                                            var fecha = partes.Length > 0 ? partes[0] : p.FechaPago;
-                                            var hora = partes.Length > 1 ? partes[1] : "";
-                                        }
-                                        <div class="fw-bold text-dark">@fecha</div>
-                                        <small class="text-muted">@hora</small>
-                                    </td>
-                                    <td><span class="fw-bold">@p.NombreCliente</span></td>
-                                    <td><span class="text-muted">@p.NombrePlan</span></td>
-                                    <td>
-                                        @if(p.MetodoPago == "Efectivo") { <span class="badge bg-success bg-opacity-75"><i class="bi bi-cash me-1"></i>Efectivo</span> }
-                                        else if(p.MetodoPago == "Tarjeta") { <span class="badge bg-primary bg-opacity-75"><i class="bi bi-credit-card me-1"></i>Tarjeta</span> }
-                                        else if(p.MetodoPago.Contains("Yape") || p.MetodoPago.Contains("Plin")) { <span class="badge" style="background-color: #720e9e; color:white;"><i class="bi bi-qr-code me-1"></i>@p.MetodoPago</span> }
-                                        else { <span class="badge bg-secondary">@p.MetodoPago</span> }
-                                    </td>
-                                    <td><small>@p.NombreEmpleado</small></td>
-                                    <td class="text-end"><span class="fw-bold text-dark h6">$ @p.Monto.ToString("F2")</span></td>
-                                    <td class="text-center">
-                                        <a href="/Pagos/Detalles?id=@p.PagoId"
-                                           class="btn btn-sm btn-outline-info ms-1"
-                                           title="Ver detalle del pago">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs border border-emerald-100/50 group-hover:scale-110 transition-transform">
+                                            @p.NombreCliente.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <span class="text-sm font-bold text-slate-950 tracking-tight">@p.NombreCliente</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs font-medium text-slate-600">@p.NombrePlan</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider @(p.MetodoPago == "Efectivo" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : p.MetodoPago == "Tarjeta" ? "bg-indigo-50 text-indigo-700 border border-indigo-100" : "bg-purple-50 text-purple-700 border border-purple-100")">
+                                        @if(p.MetodoPago == "Efectivo") { <i class="bi bi-cash"></i> }
+                                        else if(p.MetodoPago == "Tarjeta") { <i class="bi bi-credit-card"></i> }
+                                        else { <i class="bi bi-phone-vibrate"></i> }
+                                        @p.MetodoPago
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs font-medium text-slate-400 italic">@p.NombreEmpleado</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-sm font-bold font-mono tracking-tight @(p.EsAnulado ? "text-slate-400 line-through" : "text-slate-900")">S/ @p.Monto.ToString("F2")</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-1">
+                                        <a href="/Pagos/Detalles?id=@p.PagoId" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200" title="Ver Detalles">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         @if (!p.EsAnulado)
                                         {
                                             @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosEditar) || User.IsInRole(AppRoles.Admin))
                                             {
-                                                <button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
+                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
                                             }
                                             @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosAnular) || User.IsInRole(AppRoles.Admin))
                                             {
-                                                <button type="button" class="btn btn-sm btn-outline-danger ms-1" onclick="anularPago(@p.PagoId)" title="Anular">
+                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200" onclick="anularPago(@p.PagoId)" title="Anular">
                                                     <i class="bi bi-x-circle"></i>
                                                 </button>
                                             }
                                         }
-                                    </td>
-                                </tr>
-                            }
+                                        else
+                                        {
+                                            <span class="text-[9px] font-black text-rose-500 uppercase tracking-widest px-2">Anulado</span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
                         }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 
     <!-- Paginación -->
     @if (Model.TotalPages > 1)
     {
-        <nav aria-label="Navegacion de pagos" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
-                        <i class="bi bi-chevron-left"></i> Anterior
-                    </a>
-                </li>
+        <div class="flex items-center justify-center gap-2 mt-8 pb-12">
+            @if (Model.HasPreviousPage)
+            {
+                <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
+                    <i class="bi bi-chevron-left"></i>
+                    <span class="hidden sm:inline">Anterior</span>
+                </a>
+            }
+            else
+            {
+                <div class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-slate-50 border border-slate-100 text-slate-500 rounded-xl cursor-not-allowed font-medium text-sm">
+                    <i class="bi bi-chevron-left"></i>
+                    <span class="hidden sm:inline">Anterior</span>
+                </div>
+            }
 
+            <div class="flex items-center gap-1.5">
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
-                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">@i</a>
-                    </li>
+                    if (i == Model.CurrentPage)
+                    {
+                        <div class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-sm shadow-indigo-600/20">@i</div>
+                    }
+                    else if (i <= 3 || i > Model.TotalPages - 3 || (i >= Model.CurrentPage - 1 && i <= Model.CurrentPage + 1))
+                    {
+                        <a class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">@i</a>
+                    }
+                    else if (i == 4 && Model.CurrentPage > 5)
+                    {
+                        <div class="w-10 h-10 flex items-center justify-center text-slate-400">...</div>
+                    }
+                    else if (i == Model.TotalPages - 3 && Model.CurrentPage < Model.TotalPages - 4)
+                    {
+                        <div class="w-10 h-10 flex items-center justify-center text-slate-400">...</div>
+                    }
                 }
+            </div>
 
-                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
-                        Siguiente <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+            @if (Model.HasNextPage)
+            {
+                <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
+                    <span class="hidden sm:inline">Siguiente</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            }
+            else
+            {
+                <div class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-slate-50 border border-slate-100 text-slate-500 rounded-xl cursor-not-allowed font-medium text-sm">
+                    <span class="hidden sm:inline">Siguiente</span>
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+            }
+        </div>
     }
 </div>
 
+<!-- ========================= -->
+<!-- MODAL DE COBRO (NUEVO) -->
+<!-- ========================= -->
 <div class="modal fade" id="modalPago" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title fw-bold"><i class="bi bi-cash-coin me-2"></i>Registrar Cobro</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm">
+                        <i class="bi bi-cash-coin text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Registrar Cobro</h5>
+                        <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Ingreso a caja por membresía</p>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="modal-body p-4">
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-secondary text-uppercase small">Buscar Cliente</label>
-                    <div class="input-group input-group-lg">
-                        <input type="text" class="form-control" id="txtDniBuscar" placeholder="Buscar por DNI o Nombre del Socio..." autocomplete="off">
-                        <button class="btn btn-outline-secondary" type="button" onclick="buscarDeuda()" id="btnBuscar">
+            <div class="modal-body p-8 space-y-8">
+                <!-- Búsqueda -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">1. Buscar Deuda del Socio</label>
+                    <div class="relative group">
+                        <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-2xl pl-5 pr-14 py-4 text-sm font-bold text-slate-900 transition-all placeholder:text-slate-400" id="txtDniBuscar" placeholder="DNI o Nombre del Socio..." autocomplete="off">
+                        <button class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95" type="button" onclick="buscarDeuda()" id="btnBuscar">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
-                    <div id="resultados-busqueda" class="list-group mt-2 shadow-sm" style="display:none; max-height: 250px; overflow-y: auto;"></div>
-                    <div class="form-text">Presiona la lupa o Enter para buscar deudas pendientes.</div>
+                    <div id="resultados-busqueda" class="absolute left-8 right-8 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 divide-y divide-slate-100 overflow-hidden" style="display:none; max-height: 250px; overflow-y: auto;"></div>
                 </div>
 
-                <div id="infoMembresia" class="card bg-light border-0 shadow-sm mb-3 d-none">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <h5 class="fw-bold mb-0 text-dark" id="lblCliente">Cliente</h5>
-                                <small class="text-muted" id="lblPlan">Plan</small>
-                            </div>
-                            <span class="badge" id="lblEstadoBadge">Estado</span>
-                        </div>
-
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between text-muted small mb-1">
-                                <span>Progreso de Pago</span>
-                                <span id="lblPorcentaje">0%</span>
-                            </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-success" role="progressbar" id="progressBarPago" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <div class="row text-center mt-3 g-0 border rounded bg-white">
-                            <div class="col border-end p-2">
-                                <small class="text-muted d-block" style="font-size: 0.75rem;">TOTAL PLAN</small>
-                                <span class="fw-bold text-dark" id="lblPrecioTotal">$0.00</span>
-                            </div>
-                            <div class="col border-end p-2">
-                                <small class="text-muted d-block" style="font-size: 0.75rem;">PAGADO</small>
-                                <span class="fw-bold text-success" id="lblTotalPagado">$0.00</span>
-                            </div>
-                            <div class="col p-2 bg-danger bg-opacity-10">
-                                <small class="text-danger fw-bold d-block" style="font-size: 0.75rem;">DEUDA</small>
-                                <span class="fw-bold text-danger" id="lblDeudaPendiente">$0.00</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="formPagoDetalle" class="d-none animate-fade-in">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Monto a Cobrar</label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-white text-success border-end-0">$</span>
-                            <input type="number" class="form-control border-start-0 ps-0 fw-bold text-success"
-                                   id="txtMonto" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="form-text text-danger d-none" id="errorMontoExcedido">El monto no puede superar la deuda pendiente.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Método de Pago</label>
-                        <div class="row g-2">
-                            <div class="col-4">
-                                <input type="radio" class="btn-check" name="metodoPago" id="metodo1" value="Efectivo" checked>
-                                <label class="btn btn-outline-success w-100 py-3" for="metodo1">
-                                    <i class="bi bi-cash d-block fs-4"></i><small>Efectivo</small>
-                                </label>
-                            </div>
-                            <div class="col-4">
-                                <input type="radio" class="btn-check" name="metodoPago" id="metodo2" value="Yape/Plin">
-                                <label class="btn btn-outline-primary w-100 py-3" for="metodo2">
-                                    <i class="bi bi-phone d-block fs-4"></i><small>Yape/Plin</small>
-                                </label>
-                            </div>
-                            <div class="col-4">
-                                <input type="radio" class="btn-check" name="metodoPago" id="metodo3" value="Tarjeta">
-                                <label class="btn btn-outline-dark w-100 py-3" for="metodo3">
-                                    <i class="bi bi-credit-card d-block fs-4"></i><small>Tarjeta</small>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- === COMPROBANTE YAPE/PLIN (CONDICIONAL) === -->
-                    <div id="contenedorComprobante" class="mb-3 d-none">
-                        <label class="form-label fw-bold">
-                            <i class="bi bi-qr-code me-1" style="color:#720e9e"></i>Comprobante <span class="text-danger">*</span>
-                        </label>
-                        <p class="text-muted small mb-2">Obligatorio para Yape/Plin. Sube una imagen o captura con la cámara.</p>
-
-                        <!-- Subir archivo -->
-                        <div class="mb-2">
-                            <label class="form-label small text-secondary">📁 Subir desde archivo</label>
-                            <input type="file" class="form-control form-control-sm" id="ComprobanteArchivo" name="ComprobanteArchivo" accept="image/*">
-                        </div>
-
-                        <div class="text-center text-muted my-1"><small>— o —</small></div>
-
-                        <!-- Webcam -->
+                <!-- Info de Membresía -->
+                <div id="infoMembresia" class="bg-slate-50 rounded-3xl border border-slate-100 p-6 space-y-6 d-none animate-fade-in">
+                    <div class="flex justify-between items-start">
                         <div>
-                            <label class="form-label small text-secondary">📷 Capturar con cámara</label>
-                            <video id="videoWebcamPago" class="d-none rounded border w-100 mb-2" autoplay playsinline style="max-height:180px;object-fit:cover;"></video>
-                            <canvas id="canvasPago" class="d-none"></canvas>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" id="btnActivarCamaraPago" onclick="activarCamaraPago()">
-                                    <i class="bi bi-camera me-1"></i>Activar Cámara
-                                </button>
-                                <button type="button" class="btn btn-sm flex-fill d-none" id="btnCapturarPago" onclick="capturarComprobante()" style="background:#720e9e;color:white;border-color:#720e9e;">
-                                    <i class="bi bi-camera-fill me-1"></i>Capturar
-                                </button>
-                            </div>
+                            <h5 class="text-base font-bold text-slate-950 m-0" id="lblCliente">Cliente</h5>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-indigo-100 text-indigo-700 text-[10px] font-black uppercase tracking-widest mt-1" id="lblPlan">Plan</span>
                         </div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-current" id="lblEstadoBadge">Estado</span>
+                    </div>
 
-                        <!-- Preview -->
-                        <div id="previewComprobante" class="d-none mt-2 text-center">
-                            <img id="imgPreviewComprobante" src="" class="img-thumbnail" style="max-height:140px;">
-                            <div class="mt-1">
-                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="limpiarComprobante()">
-                                    <i class="bi bi-trash me-1"></i>Quitar
-                                </button>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
+                            <span class="text-slate-400">Progreso de Pago</span>
+                            <span class="text-emerald-600" id="lblPorcentaje">0%</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                            <div class="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-1000" role="progressbar" id="progressBarPago" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                        <div class="p-3 text-center border-r border-slate-100">
+                            <small class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">TOTAL</small>
+                            <span class="text-xs font-bold text-slate-950 font-mono" id="lblPrecioTotal">$0.00</span>
+                        </div>
+                        <div class="p-3 text-center border-r border-slate-100 bg-emerald-50/20">
+                            <small class="block text-[8px] font-black text-emerald-600/70 uppercase tracking-widest mb-1">PAGADO</small>
+                            <span class="text-xs font-bold text-emerald-600 font-mono" id="lblTotalPagado">$0.00</span>
+                        </div>
+                        <div class="p-3 text-center bg-rose-50/20">
+                            <small class="block text-[8px] font-black text-rose-600/70 uppercase tracking-widest mb-1">DEUDA</small>
+                            <span class="text-xs font-bold text-rose-600 font-mono" id="lblDeudaPendiente">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de Pago -->
+                <div id="formPagoDetalle" class="space-y-8 d-none animate-fade-in">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-3 ml-1">2. Monto a Cobrar (S/.)</label>
+                        <div class="relative group">
+                            <div class="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-500 font-black text-xl">S/</div>
+                            <input type="number" class="w-full bg-emerald-50/30 border border-emerald-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 rounded-2xl pl-14 pr-4 py-5 text-2xl font-display font-black text-emerald-700 transition-all placeholder:text-emerald-100" id="txtMonto" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="mt-2 text-rose-600 text-[10px] font-bold uppercase tracking-wide d-none" id="errorMontoExcedido">
+                            <i class="bi bi-exclamation-octagon mr-1"></i> El monto excede la deuda pendiente
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-4 ml-1">3. Método de Pago</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="metodoPago" id="metodo1" value="Efectivo" class="peer sr-only" checked>
+                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-emerald-50 peer-checked:border-emerald-500 peer-checked:ring-1 peer-checked:ring-emerald-500 text-slate-400 peer-checked:text-emerald-600 transition-all">
+                                    <i class="bi bi-cash-stack text-2xl"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Efectivo</span>
+                                </div>
+                            </label>
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="metodoPago" id="metodo2" value="Yape/Plin" class="peer sr-only">
+                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-purple-50 peer-checked:border-purple-500 peer-checked:ring-1 peer-checked:ring-purple-500 text-slate-400 peer-checked:text-purple-600 transition-all">
+                                    <i class="bi bi-phone-vibrate text-2xl"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Yape/Plin</span>
+                                </div>
+                            </label>
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="metodoPago" id="metodo3" value="Tarjeta" class="peer sr-only">
+                                <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:ring-1 peer-checked:ring-indigo-500 text-slate-400 peer-checked:text-indigo-600 transition-all">
+                                    <i class="bi bi-credit-card text-2xl"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Tarjeta</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Comprobante (Condicional) -->
+                    <div id="contenedorComprobante" class="bg-indigo-50/30 border-2 border-dashed border-indigo-100 p-6 rounded-3xl space-y-6 transition-all d-none">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+                                <i class="bi bi-qr-code"></i>
+                            </div>
+                            <h4 class="text-[11px] font-black text-indigo-900 uppercase tracking-widest m-0">Validación de Operación</h4>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <input type="file" id="ComprobanteArchivo" name="ComprobanteArchivo" accept="image/*" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-white file:text-indigo-600 hover:file:bg-indigo-50 transition-all cursor-pointer border border-indigo-100/50 rounded-2xl bg-white/50 p-2 shadow-sm" />
+                            
+                            <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center shadow-inner group/cam">
+                                <video id="videoWebcamPago" class="absolute inset-0 w-full h-full object-cover d-none" autoplay playsinline></video>
+                                <div id="pagoCamPlaceholder" class="text-center p-6 transition-all duration-300">
+                                    <i class="bi bi-camera text-slate-700 text-4xl mb-2"></i>
+                                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Cámara Inactiva</p>
+                                </div>
+                                <img id="imgPreviewComprobante" src="" class="absolute inset-0 w-full h-full object-contain bg-slate-950 d-none" />
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button type="button" id="btnActivarCamaraPago" onclick="activarCamaraPago()" class="flex-1 px-3 py-2.5 bg-white border border-indigo-100 text-indigo-600 rounded-xl hover:bg-indigo-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm">Activar</button>
+                                <button type="button" id="btnCapturarPago" onclick="capturarComprobante()" class="flex-1 px-3 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/20 d-none">Capturar</button>
+                                <button type="button" class="flex-1 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all text-[10px] font-bold uppercase tracking-widest border border-rose-100 d-none" onclick="limpiarComprobante()">Limpiar</button>
                             </div>
                         </div>
 
                         <input type="hidden" id="ComprobanteBase64" name="ComprobanteBase64">
-                        <div class="form-text text-danger d-none" id="errorComprobante">El comprobante es obligatorio para pagos con Yape/Plin.</div>
+                        <canvas id="canvasPago" class="hidden"></canvas>
+                        <p class="text-rose-500 text-[10px] font-black uppercase tracking-wide text-center d-none" id="errorComprobante">Comprobante obligatorio</p>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="FechaPago" class="form-label fw-bold">Fecha de Pago (Opcional)</label>
-                        <input type="datetime-local" id="txtFechaPago" name="FechaPago" class="form-control" />
-                        <div class="form-text text-muted">Déjalo en blanco para registrar con la fecha y hora actual. Ideal para data antigua.</div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-3 ml-1">4. Fecha Retroactiva (Opcional)</label>
+                        <input type="datetime-local" id="txtFechaPago" name="FechaPago" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 transition-all" />
+                        <p class="mt-2 text-[9px] text-slate-400 font-medium">Usar solo para regularizar pagos de días anteriores.</p>
                     </div>
                 </div>
-
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success px-4" id="btnCobrar" onclick="procesarPago()" disabled>
-                    <i class="bi bi-check-lg me-2"></i>Confirmar Pago
+            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                <button type="button" class="px-6 py-2.5 text-slate-400 hover:text-slate-600 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-xl shadow-emerald-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" id="btnCobrar" onclick="procesarPago()" disabled>
+                    <i class="bi bi-check-lg text-base"></i>Confirmar Pago
                 </button>
             </div>
         </div>
@@ -372,42 +411,57 @@
 <!-- Modal para Editar Pago -->
 <div class="modal fade" id="modalEditarPago" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Pago</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/50 shadow-sm">
+                        <i class="bi bi-pencil-square text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Editar Pago</h5>
+                        <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Corrección de montos o métodos</p>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="modal-body p-4">
-                <form id="formEditarPago">
+            <div class="p-8">
+                <form id="formEditarPago" class="space-y-6">
                     <input type="hidden" id="editPagoId" name="Id" />
                     
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Monto</label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            <input type="number" class="form-control fw-bold text-primary" id="editMonto" name="Monto" step="0.01" required>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Nuevo Monto</label>
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">S/</div>
+                            <input type="number" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-slate-900" id="editMonto" name="Monto" step="0.01" required>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Método de Pago</label>
-                        <select class="form-select" id="editMetodoPago" name="MetodoPago" required>
-                            <option value="Efectivo">Efectivo</option>
-                            <option value="Yape/Plin">Yape/Plin</option>
-                            <option value="Tarjeta">Tarjeta</option>
-                        </select>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Método de Pago</label>
+                        <div class="relative">
+                            <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none" id="editMetodoPago" name="MetodoPago" required>
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Yape/Plin">Yape/Plin</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                            </select>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Observaciones</label>
-                        <textarea class="form-control" id="editObservaciones" name="Observaciones" rows="3" placeholder="Motivo de la edición..."></textarea>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Observaciones</label>
+                        <textarea class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-400" id="editObservaciones" name="Observaciones" rows="3" placeholder="Motivo de la edición..."></textarea>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary px-4" id="btnGuardarEdicion" onclick="guardarEdicionPago()">
-                    <i class="bi bi-save me-2"></i>Guardar Cambios
+            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                <button type="button" class="px-6 py-2.5 text-slate-400 hover:text-slate-600 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" id="btnGuardarEdicion" onclick="guardarEdicionPago()">
+                    <i class="bi bi-save"></i>Guardar Cambios
                 </button>
             </div>
         </div>
@@ -437,12 +491,12 @@
 
             if(valor > deudaActual) {
                 errorMsg.classList.remove("d-none");
-                this.classList.add("is-invalid");
+                this.classList.add("!border-rose-500");
                 btn.disabled = true;
             } else {
                 errorMsg.classList.add("d-none");
-                this.classList.remove("is-invalid");
-                btn.disabled = false;
+                this.classList.remove("!border-rose-500");
+                btn.disabled = isNaN(valor) || valor <= 0;
             }
         });
 
@@ -462,7 +516,7 @@
 
             const btn = document.getElementById("btnBuscar");
             const iconOriginal = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            btn.innerHTML = '<span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>';
             btn.disabled = true;
 
             fetch(`/Pagos/BuscarDeuda?termino=${termino}`)
@@ -480,16 +534,26 @@
                     if (json.success && json.data.length > 0) {
                         contenedorResultados.style.display = "block";
                         json.data.forEach(item => {
-                            const dniDisplay = item.dniCliente ? item.dniCliente : "<span class='text-muted fst-italic'>Sin DNI</span>";
+                            const dniDisplay = item.dniCliente ? item.dniCliente : "S/ DNI";
                             const link = document.createElement("a");
                             link.href = "#";
-                            link.className = "list-group-item list-group-item-action item-resultado";
+                            link.className = "flex flex-col gap-1 px-5 py-4 hover:bg-slate-50 transition-colors group";
                             link.dataset.id = item.membresiaId;
                             
                             // Guardamos toda la data para usarla al hacer click
                             link.dataset.completo = JSON.stringify(item);
 
-                            link.innerHTML = `<strong>${item.nombreCliente}</strong> (DNI: ${dniDisplay}) - Plan: ${item.nombrePlan} - Deuda: <span class="text-danger fw-bold">$${item.deudaPendiente.toFixed(2)}</span>`;
+                            link.innerHTML = `
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">${item.nombreCliente}</span>
+                                    <span class="text-[10px] font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-100">$${item.deudaPendiente.toFixed(2)}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${dniDisplay}</span>
+                                    <span class="text-[9px] font-medium text-slate-300">•</span>
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${item.nombrePlan}</span>
+                                </div>
+                            `;
                             
                             link.addEventListener("click", function (e) {
                                 e.preventDefault();
@@ -524,11 +588,11 @@
             const lblBadge = document.getElementById("lblEstadoBadge");
             lblBadge.innerText = data.estado;
             if(data.estado === 'Activa') {
-                lblBadge.className = 'badge bg-success';
+                lblBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-100';
             } else if(data.estado === 'Pendiente Pago') {
-                lblBadge.className = 'badge bg-warning text-dark';
+                lblBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-700 border border-amber-100';
             } else {
-                lblBadge.className = 'badge bg-danger';
+                lblBadge.className = 'inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-rose-50 text-rose-700 border border-rose-100';
             }
 
             // 3. Llenar Datos Financieros
@@ -544,7 +608,7 @@
             let porcentaje = 0;
             if(total > 0) porcentaje = (pagado / total) * 100;
             document.getElementById("progressBarPago").style.width = porcentaje + "%";
-            document.getElementById("lblPorcentaje").innerText = Math.round(porcentaje) + "% pagado";
+            document.getElementById("lblPorcentaje").innerText = Math.round(porcentaje) + "%";
 
             // 5. Configurar Input de Monto (Autofill)
             const inputMonto = document.getElementById("txtMonto");
@@ -597,12 +661,16 @@
 
             Swal.fire({
                 title: '¿Confirmar cobro?',
-                html: `Monto: <b class="text-success fs-4">$${monto.toFixed(2)}</b><br>Método: ${metodoSeleccionado}${comprobanteBase64 ? ' <i class="bi bi-check-circle text-success"></i>' : ''}${fechaPago ? `<br>Fecha: ${fechaPago}` : ''}`,
+                html: `Monto: <b class="text-emerald-600 font-display font-black text-2xl">S/ ${monto.toFixed(2)}</b><br><span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Método: ${metodoSeleccionado}</span>`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#198754',
                 confirmButtonText: 'Sí, cobrar',
-                cancelButtonText: 'Cancelar'
+                cancelButtonText: 'Cancelar',
+                customClass: {
+                    confirmButton: 'px-8 py-3 bg-emerald-600 text-white rounded-xl font-black uppercase tracking-widest text-xs mx-2',
+                    cancelButton: 'px-8 py-3 bg-slate-100 text-slate-600 rounded-xl font-black uppercase tracking-widest text-xs mx-2'
+                },
+                buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById("btnCobrar").disabled = true;
@@ -614,17 +682,24 @@
                     .then(res => res.json())
                     .then(json => {
                         if (json.success) {
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('modalPago'));
-                            modal.hide();
-                            window.location.reload();
+                            const modalElement = document.getElementById('modalPago');
+                            const modal = bootstrap.Modal.getInstance(modalElement);
+                            if (modal) modal.hide();
+                            
                             Swal.fire({
                                 title: '¡Cobro Exitoso!',
-                                text: 'El pago se registró y el estado de la membresía se actualizó si corresponde.',
+                                text: 'El pago se registró correctamente.',
                                 icon: 'success',
                                 showCancelButton: true,
                                 confirmButtonText: 'Imprimir Ticket',
-                                cancelButtonText: 'Cerrar'
+                                cancelButtonText: 'Cerrar',
+                                customClass: {
+                                    confirmButton: 'px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs uppercase mx-2',
+                                    cancelButton: 'px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs uppercase mx-2'
+                                },
+                                buttonsStyling: false
                             }).then((printResult) => {
+                                window.location.reload();
                                 if (printResult.isConfirmed) {
                                     window.open(`/Pagos/Comprobante/${json.pagoId}`, '_blank');
                                 }
@@ -648,7 +723,7 @@
         function limpiarModal(fullClear) {
             if(fullClear) document.getElementById("txtDniBuscar").value = "";
             document.getElementById("txtMonto").value = "";
-            document.getElementById("txtMonto").classList.remove("is-invalid");
+            document.getElementById("txtMonto").classList.remove("!border-rose-500");
             document.getElementById("errorMontoExcedido").classList.add("d-none");
             document.getElementById("infoMembresia").classList.add("d-none");
             document.getElementById("formPagoDetalle").classList.add("d-none");
@@ -663,12 +738,7 @@
             document.getElementById('contenedorComprobante').classList.add('d-none');
         }
 
-        // ============================================
-        // LÓGICA COMPROBANTE: VISIBILIDAD, ARCHIVO Y WEBCAM
-        // ============================================
-        let streamCamaraPago = null;
-
-        // Mostrar/ocultar contenedor según método de pago
+        // --- LÓGICA COMPROBANTE ---
         document.querySelectorAll('input[name="metodoPago"]').forEach(radio => {
             radio.addEventListener('change', function () {
                 const contenedor = document.getElementById('contenedorComprobante');
@@ -681,7 +751,6 @@
             });
         });
 
-        // Convertir archivo a Base64 al seleccionarlo
         document.getElementById('ComprobanteArchivo').addEventListener('change', function () {
             const file = this.files[0];
             if (!file) return;
@@ -689,10 +758,10 @@
             reader.onload = function (e) {
                 const base64 = e.target.result;
                 document.getElementById('ComprobanteBase64').value = base64;
-                document.getElementById('imgPreviewComprobante').src = base64;
-                document.getElementById('previewComprobante').classList.remove('d-none');
+                const img = document.getElementById('imgPreviewComprobante');
+                img.src = base64;
+                img.classList.remove('d-none');
                 document.getElementById('errorComprobante').classList.add('d-none');
-                // Detener cámara si estaba activa
                 detenerCamaraPago();
             };
             reader.readAsDataURL(file);
@@ -705,11 +774,12 @@
                     const video = document.getElementById('videoWebcamPago');
                     video.srcObject = stream;
                     video.classList.remove('d-none');
+                    document.getElementById('pagoCamPlaceholder').classList.add('d-none');
                     document.getElementById('btnActivarCamaraPago').classList.add('d-none');
                     document.getElementById('btnCapturarPago').classList.remove('d-none');
-                    document.getElementById('previewComprobante').classList.add('d-none');
+                    document.getElementById('previewComprobante')?.classList.add('d-none');
                 })
-                .catch(() => Swal.fire('Error', 'No se pudo acceder a la cámara. Verifica los permisos del navegador.', 'error'));
+                .catch(() => Swal.fire('Error', 'No se pudo acceder a la cámara.', 'error'));
         }
 
         function capturarComprobante() {
@@ -720,10 +790,9 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             const base64 = canvas.toDataURL('image/jpeg', 0.85);
             document.getElementById('ComprobanteBase64').value = base64;
-            document.getElementById('imgPreviewComprobante').src = base64;
-            document.getElementById('previewComprobante').classList.remove('d-none');
-            document.getElementById('errorComprobante').classList.add('d-none');
-            // Apagar cámara para liberar memoria
+            const img = document.getElementById('imgPreviewComprobante');
+            img.src = base64;
+            img.classList.remove('d-none');
             detenerCamaraPago();
         }
 
@@ -737,148 +806,68 @@
             video.classList.add('d-none');
             document.getElementById('btnCapturarPago').classList.add('d-none');
             document.getElementById('btnActivarCamaraPago').classList.remove('d-none');
+            document.getElementById('pagoCamPlaceholder').classList.remove('d-none');
         }
 
         function limpiarComprobante() {
             detenerCamaraPago();
             document.getElementById('ComprobanteBase64').value = '';
             document.getElementById('ComprobanteArchivo').value = '';
-            document.getElementById('previewComprobante').classList.add('d-none');
+            document.getElementById('imgPreviewComprobante').classList.add('d-none');
             document.getElementById('imgPreviewComprobante').src = '';
             document.getElementById('errorComprobante').classList.add('d-none');
         }
 
-        // --- LÓGICA DE EDICIÓN DE PAGO ---
-        let modalEditar = null;
-
+        // --- LÓGICA DE EDICIÓN Y ANULACIÓN ---
         function abrirModalEditarPago(id) {
             fetch(`/Pagos/ObtenerParaEdicion/${id}`)
-                .then(res => {
-                    if (!res.ok) throw new Error('No se pudo cargar la información del pago o está anulado.');
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => {
                     document.getElementById('editPagoId').value = data.id;
                     document.getElementById('editMonto').value = data.monto;
-                    
-                    // Manejar selectores que pueden tener variaciones como "Yape/Plin" vs "Yape"
-                    let selectMetodo = document.getElementById('editMetodoPago');
-                    let metodoValue = data.metodoPago;
-                    if(metodoValue && (metodoValue.includes('Yape') || metodoValue.includes('Plin'))) {
-                        metodoValue = 'Yape/Plin';
-                    }
-                    selectMetodo.value = metodoValue;
-                    
+                    document.getElementById('editMetodoPago').value = data.metodoPago;
                     document.getElementById('editObservaciones').value = data.observaciones || '';
-
-                    if (!modalEditar) {
-                        modalEditar = new bootstrap.Modal(document.getElementById('modalEditarPago'));
-                    }
-                    modalEditar.show();
-                })
-                .catch(err => {
-                    Swal.fire('Error', err.message, 'error');
+                    new bootstrap.Modal(document.getElementById('modalEditarPago')).show();
                 });
         }
 
         function guardarEdicionPago() {
-            const id = document.getElementById('editPagoId').value;
-            const monto = document.getElementById('editMonto').value;
-            const metodoPago = document.getElementById('editMetodoPago').value;
-            const observaciones = document.getElementById('editObservaciones').value;
-
-            if(!monto || monto <= 0) {
-                Swal.fire('Error', 'El monto debe ser válido y mayor a 0', 'error');
-                return;
-            }
-
             const data = {
-                Id: parseInt(id),
-                Monto: parseFloat(monto),
-                MetodoPago: metodoPago,
-                Observaciones: observaciones
+                Id: parseInt(document.getElementById('editPagoId').value),
+                Monto: parseFloat(document.getElementById('editMonto').value),
+                MetodoPago: document.getElementById('editMetodoPago').value,
+                Observaciones: document.getElementById('editObservaciones').value
             };
-
-            const btn = document.getElementById('btnGuardarEdicion');
-            btn.disabled = true;
-
             fetch('/Pagos/Editar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
-            })
-            .then(async res => {
-                const json = await res.json();
-                if (res.ok && json.success) {
-                    modalEditar.hide();
-                    Swal.fire('¡Éxito!', json.message, 'success').then(() => {
-                        window.location.reload(); // Recargar para actualizar la tabla con SSR
-                    });
-                } else {
-                    Swal.fire('Error', json.message || 'Error al editar el pago', 'error');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                Swal.fire('Error', 'Error de conexión', 'error');
-            })
-            .finally(() => {
-                btn.disabled = false;
-            });
+            }).then(() => window.location.reload());
         }
 
-        // --- LÓGICA DE ANULACIÓN DE PAGO ---
         function anularPago(id) {
             Swal.fire({
                 title: '¿Anular Pago?',
-                text: "Ingresa el motivo de la anulación. Esta acción no se puede deshacer.",
+                text: "Esta acción no se puede deshacer.",
                 input: 'textarea',
-                inputPlaceholder: 'Escribe el motivo aquí...',
+                inputPlaceholder: 'Motivo de anulación...',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, Anular',
-                cancelButtonText: 'Cancelar',
-                inputValidator: (value) => {
-                    if (!value || value.trim() === '') {
-                        return '¡Debes ingresar un motivo para anular el pago!'
-                    }
-                }
+                confirmButtonText: 'Sí, Anular'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    const motivo = result.value;
-
-                    // Mostrar loading spinner
-                    Swal.fire({
-                        title: 'Procesando...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading()
-                        }
-                    });
-
+                if (result.isConfirmed && result.value) {
                     fetch(`/Pagos/Anular/${id}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(motivo)
-                    })
-                    .then(async res => {
-                        const json = await res.json();
-                        if (res.ok && json.success) {
-                            Swal.fire('¡Anulado!', json.message, 'success').then(() => {
-                                window.location.reload();
-                            });
-                        } else {
-                            Swal.fire('Error', json.message || 'No se pudo anular el pago', 'error');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        Swal.fire('Error', 'Error de conexión con el servidor', 'error');
-                    });
+                        body: JSON.stringify(result.value)
+                    }).then(() => window.location.reload());
                 }
             });
         }
     </script>
 }
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.3s ease-in; }
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
