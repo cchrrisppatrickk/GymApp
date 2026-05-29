@@ -62,8 +62,9 @@ namespace GymApp.Data
 
                         // --- MÓDULO MEMBRESÍAS ---
                         new Permiso { PermisoId = "Membresias.Ver",      Modulo = "Membresías",  Descripcion = "Ver membresías",          NivelPeligro = NivelPeligro.Bajo },
-                        new Permiso { PermisoId = "Membresias.Crear",    Modulo = "Membresías",  Descripcion = "Crear / Renovar membresía", NivelPeligro = NivelPeligro.Medio },
+                        new Permiso { PermisoId = "Membresias.Crear",    Modulo = "Membresías",  Descripcion = "Crear membresía",         NivelPeligro = NivelPeligro.Medio },
                         new Permiso { PermisoId = "Membresias.Congelar", Modulo = "Membresías",  Descripcion = "Congelar membresía",      NivelPeligro = NivelPeligro.Medio },
+                        new Permiso { PermisoId = "Membresias.Renovar",  Modulo = "Membresías",  Descripcion = "Renovar membresía",       NivelPeligro = NivelPeligro.Medio },
                         new Permiso { PermisoId = "Membresias.Eliminar", Modulo = "Membresías",  Descripcion = "Eliminar membresía",      NivelPeligro = NivelPeligro.Alto },
 
                         // --- MÓDULO REPORTES ---

@@ -27,6 +27,8 @@ namespace GymApp.Constants
         public const string MembresiasCrear = "Membresias.Crear";
         public const string MembresiasEditar = "Membresias.Editar";
         public const string MembresiasEliminar = "Membresias.Eliminar";
+        public const string MembresiasCongelar = "Membresias.Congelar";
+        public const string MembresiasRenovar = "Membresias.Renovar";
 
         // Ventas
         public const string VentasVer = "Ventas.Ver";
@@ -98,6 +100,8 @@ namespace GymApp.Constants
         public const string RequiereCrearMembresias = "RequiereCrearMembresias";
         public const string RequiereEditarMembresias = "RequiereEditarMembresias";
         public const string RequiereEliminarMembresias = "RequiereEliminarMembresias";
+        public const string RequiereCongelarMembresias = "RequiereCongelarMembresias";
+        public const string RequiereRenovarMembresias = "RequiereRenovarMembresias";
 
         // Ventas
         public const string RequiereVerVentas = "RequiereVerVentas";
