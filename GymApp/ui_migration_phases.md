@@ -3,13 +3,13 @@
 Este documento sirve como hoja de ruta y checklist para la migración de la interfaz de usuario de Bootstrap a Tailwind CSS, siguiendo las directrices de `design.md`.
 
 ## Fase 1: Instalación y Configuración
-- [ ] Inicializar npm en el proyecto (si no existe).
-- [ ] Instalar Tailwind CSS vía CLI (`npm install -D tailwindcss`).
-- [ ] Inicializar la configuración de Tailwind (`npx tailwindcss init`).
-- [ ] Configurar `tailwind.config.js` para escanear las vistas `.cshtml`.
-- [ ] Crear el archivo CSS de entrada (ej. `wwwroot/css/app.css` o `Styles/app.css`) con las directivas de Tailwind (`@tailwind base; @tailwind components; @tailwind utilities;`).
-- [ ] Configurar el script de compilación (watch) para Tailwind.
-- [ ] Incluir el CSS compilado en el `_Layout.cshtml`.
+- [x] Inicializar npm en el proyecto (si no existe).
+- [x] Instalar Tailwind CSS vía CLI (`npm install -D tailwindcss`).
+- [x] Inicializar la configuración de Tailwind (`npx tailwindcss init`).
+- [x] Configurar `tailwind.config.js` para escanear las vistas `.cshtml`.
+- [x] Crear el archivo CSS de entrada (ej. `wwwroot/css/app.css` o `Styles/app.css`) con las directivas de Tailwind (`@tailwind base; @tailwind components; @tailwind utilities;`).
+- [x] Configurar el script de compilación (watch) para Tailwind.
+- [x] Incluir el CSS compilado en el `_Layout.cshtml`.
 
 ## Fase 2: Rediseño Estructural Base
 - [ ] Migrar el contenedor principal (`_Layout.cshtml`).

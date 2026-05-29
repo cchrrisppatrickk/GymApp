@@ -1,319 +1,134 @@
 @using GymApp.Constants
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="font-sans antialiased">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - GymApp System</title>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS (Legacy - Will be progressively removed) -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
     @RenderSection("Styles", required: false)
 
     <style>
-        :root {
-            --sidebar-width: 260px;
-            --sidebar-collapsed-width: 70px; /* Reducido un poco para ganar espacio */
-            --primary-color: #1a1a2e;
-            --secondary-color: #16213e;
-            --accent-color: #e94560;
-            --text-color: #f8f9fa;
-            --hover-color: #0f3460;
-            --transition-speed: 0.3s;
-        }
-
-        body {
-            overflow-x: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
-        }
-
-        /* === SIDEBAR === */
+        /* Custom styles that are harder to replicate cleanly with just utility classes due to dynamic JS class toggling */
         #sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: var(--primary-color);
-            color: var(--text-color);
-            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1); /* Animación más fluida */
-            z-index: 1050; /* Por encima de todo */
-            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-            #sidebar.collapsed {
-                width: var(--sidebar-collapsed-width);
-            }
-
-        .sidebar-header {
-            padding: 0 20px;
-            background: var(--secondary-color);
-            display: flex;
-            align-items: center;
-            height: 70px;
-            overflow: hidden; /* Evita que el texto salte al colapsar */
+        #sidebar.collapsed {
+            width: 5rem; /* w-20 */
         }
-
-            .sidebar-header h3 {
-                font-size: 1.25rem;
-                font-weight: 700;
-                margin: 0;
-                white-space: nowrap;
-                opacity: 1;
-                transition: opacity 0.2s;
-            }
-
+        #sidebar.collapsed .menu-text, 
+        #sidebar.collapsed .menu-arrow,
         #sidebar.collapsed .sidebar-header h3 {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* Scroll elegante para el sidebar */
-        .sidebar-content {
-            height: calc(100vh - 70px);
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-            /* Personalización del Scrollbar (Webkit) */
-            .sidebar-content::-webkit-scrollbar {
-                width: 5px;
-            }
-
-            .sidebar-content::-webkit-scrollbar-track {
-                background: transparent;
-            }
-
-            .sidebar-content::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-            }
-
-                .sidebar-content::-webkit-scrollbar-thumb:hover {
-                    background: rgba(255, 255, 255, 0.3);
-                }
-
-        /* === MENU ITEMS === */
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            padding-bottom: 50px;
-        }
-
-        .menu-item {
-            position: relative;
-            margin: 4px 0;
-        }
-
-        .menu-link {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-            font-weight: 500;
-        }
-
-            .menu-link:hover, .menu-link.active {
-                background: var(--hover-color);
-                color: #fff;
-                border-left: 3px solid var(--accent-color);
-            }
-
-        .menu-icon {
-            font-size: 1.2rem;
-            min-width: 30px; /* Asegura alineación */
-            text-align: center;
-            margin-right: 10px;
-        }
-
-        .menu-text {
-            flex: 1;
-            white-space: nowrap;
-            opacity: 1;
-            transition: opacity 0.2s;
-        }
-
-        .menu-arrow {
-            font-size: 0.8rem;
-            transition: transform 0.3s ease;
-        }
-
-        /* Estado Colapsado */
-        #sidebar.collapsed .menu-text,
-        #sidebar.collapsed .menu-arrow {
             opacity: 0;
             display: none;
         }
-
+        #sidebar.collapsed .submenu {
+            display: none !important;
+        }
         #sidebar.collapsed .menu-link {
             justify-content: center;
             padding-left: 0;
             padding-right: 0;
         }
-
         #sidebar.collapsed .menu-icon {
             margin-right: 0;
         }
-
-        /* === SUBMENUS === */
+        
+        #content {
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #content.expanded {
+            margin-left: 5rem; /* w-20 */
+        }
+        
         .submenu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s ease-out;
-            background-color: rgba(0,0,0,0.15);
         }
-
         .menu-item.open .submenu {
-            max-height: 500px; /* Suficiente para mostrar items */
+            max-height: 500px;
             transition: max-height 0.4s ease-in;
         }
-
         .menu-item.open .menu-arrow {
             transform: rotate(180deg);
         }
-
-        .submenu-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 10px 10px 58px; /* Indentación */
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        #sidebar.collapsed .submenu {
-            display: none; /* Ocultar submenús si está colapsado */
-        }
-
-        .submenu-link:hover {
-            color: #fff;
-            background-color: rgba(255,255,255,0.05);
-        }
-
-        /* === CONTENT AREA === */
-        #content {
-            margin-left: var(--sidebar-width);
-            padding: 20px;
-            transition: margin-left var(--transition-speed) ease;
-            min-height: 100vh;
-        }
-
-            #content.expanded {
-                margin-left: var(--sidebar-collapsed-width);
+        
+        /* Mobile offcanvas */
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
             }
-
-        /* Navbar Superior */
-        .top-navbar {
-            background-color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 20px;
-            z-index: 900;
-        }
-
-        #sidebar-toggle {
-            background: transparent;
-            color: #333;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            line-height: 1;
-        }
-
-        /* === MOBILE RESPONSIVE (Off-Canvas Style) === */
-        @@media (max-width: 768px) {
-            #sidebar
-
-        {
-            left: -100%; /* Oculto completamente a la izquierda */
-            width: 280px; /* Un poco más ancho en móvil para tocar mejor */
-        }
-
-        #sidebar.mobile-open {
-            left: 0;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-        }
-
-        #content {
-            margin-left: 0 !important; /* El contenido SIEMPRE ocupa el 100% */
-            padding: 15px;
-        }
-
-        /* Overlay Oscuro para móvil */
-        .mobile-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1040;
-            display: none;
-            backdrop-filter: blur(2px); /* Efecto vidrio borroso */
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-            .mobile-overlay.show {
-                display: block;
-                opacity: 1;
+            #sidebar.mobile-open {
+                transform: translateX(0);
             }
-
-        /* Ocultar elementos específicos en móvil */
-        .sidebar-header h3 {
-            opacity: 1 !important;
-            display: block !important;
-            width: auto !important;
+            #content, #content.expanded {
+                margin-left: 0;
+            }
         }
 
+        /* Smooth fade in animation */
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 selection:bg-indigo-100 selection:text-indigo-900">
 
-    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
 
-    <nav id="sidebar">
-        <div class="sidebar-header d-flex justify-content-between">
-            <h3><i class="bi bi-exclude me-2 text-danger"></i>Gym App</h3>
-            <button class="btn text-white d-md-none" id="mobile-close">
-                <i class="bi bi-x-lg"></i>
+    <!-- Sidebar -->
+    <nav id="sidebar" class="w-64 h-screen fixed top-0 left-0 bg-white border-r border-slate-200 z-50 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        
+        <!-- Sidebar Header -->
+        <div class="sidebar-header h-20 px-6 flex items-center justify-between border-b border-slate-100">
+            <h3 class="font-display font-bold text-xl text-slate-800 flex items-center m-0 whitespace-nowrap transition-opacity duration-200">
+                <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center mr-3 shadow-md shadow-indigo-200">
+                    <i class="bi bi-activity text-white text-lg"></i>
+                </div>
+                GymApp
+            </h3>
+            <button class="md:hidden text-slate-400 hover:text-slate-600 focus:outline-none" id="mobile-close">
+                <i class="bi bi-x-lg text-xl"></i>
             </button>
         </div>
 
-        <div class="sidebar-content">
-            <ul class="sidebar-menu">
-
-                <li class="menu-item">
+        <!-- Sidebar Content -->
+        <div class="sidebar-content flex-1 overflow-y-auto overflow-x-hidden py-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+            <ul class="sidebar-menu list-none p-0 m-0 pb-12">
+                
+                <li class="menu-item relative my-1 px-3">
                     @if (User.IsInRole("Cliente"))
                     {
-                        <a asp-controller="ClienteHome" asp-action="Index" class="menu-link">
-                            <span class="menu-icon"><i class="bi bi-person-badge"></i></span>
-                            <span class="menu-text">Mi Perfil</span>
+                        <a asp-controller="ClienteHome" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium">
+                            <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-person-badge"></i></span>
+                            <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Mi Perfil</span>
                         </a>
                     }
                     else
                     {
-                        <a asp-controller="Home" asp-action="Index" class="menu-link">
-                            <span class="menu-icon"><i class="bi bi-speedometer2"></i></span>
-                            <span class="menu-text">Dashboard</span>
+                        <a asp-controller="Home" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium">
+                            <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-speedometer2"></i></span>
+                            <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Dashboard</span>
                         </a>
                     }
                 </li>
@@ -323,40 +138,42 @@
                     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
 
                     <!-- ========== SECCIÓN: OPERACIONES ========== -->
-                    <li class="menu-item mt-3 mb-1 px-4 text-muted small fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">OPERACIONES</li>
+                    <li class="menu-item mt-6 mb-2 px-6">
+                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase">Operaciones</span>
+                    </li>
 
                     @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosVer) || User.IsInRole(AppRoles.Admin))
                     {
-                        <li class="menu-item">
-                            <a asp-controller="Usuarios" asp-action="Index" class="menu-link @(currentController == "Usuarios" ? "active" : "")">
-                                <span class="menu-icon"><i class="bi bi-people-fill"></i></span>
-                                <span class="menu-text">Socios / Clientes</span>
+                        <li class="menu-item relative my-1 px-3">
+                            <a asp-controller="Usuarios" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium @(currentController == "Usuarios" ? "bg-indigo-50 text-indigo-700" : "")">
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-people"></i></span>
+                                <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Socios / Clientes</span>
                             </a>
                         </li>
                     }
 
                     @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasVer) || User.HasClaim(TipoClaim.Permiso, AppPermisos.PasesDiariosVer) || User.IsInRole(AppRoles.Admin))
                     {
-                        <li class="menu-item">
-                            <a href="#submenuSuscripciones" class="menu-link submenu-toggle @(currentController == "Membresias" || currentController == "PasesDiarios" ? "active" : "")">
-                                <span class="menu-icon"><i class="bi bi-card-checklist"></i></span>
-                                <span class="menu-text">Suscripciones</span>
-                                <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                        <li class="menu-item relative my-1 px-3 @(currentController == "Membresias" || currentController == "PasesDiarios" ? "open" : "")">
+                            <a href="#submenuSuscripciones" class="menu-link submenu-toggle flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium @(currentController == "Membresias" || currentController == "PasesDiarios" ? "bg-indigo-50 text-indigo-700" : "")">
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-card-checklist"></i></span>
+                                <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Suscripciones</span>
+                                <span class="menu-arrow ml-auto text-xs transition-transform duration-300"><i class="bi bi-chevron-down"></i></span>
                             </a>
-                            <ul class="submenu" id="submenuSuscripciones">
+                            <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuSuscripciones">
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Membresias" asp-action="Index" class="submenu-link">
-                                            <i class="bi bi-dot me-1"></i> Planes Regulares
+                                        <a asp-controller="Membresias" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors @(currentController == "Membresias" ? "text-indigo-600 font-semibold" : "")">
+                                            Planes Regulares
                                         </a>
                                     </li>
                                 }
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PasesDiariosVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="PasesDiarios" asp-action="Index" class="submenu-link">
-                                            <i class="bi bi-dot me-1"></i> Pases Diarios
+                                        <a asp-controller="PasesDiarios" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors @(currentController == "PasesDiarios" ? "text-indigo-600 font-semibold" : "")">
+                                            Pases Diarios
                                         </a>
                                     </li>
                                 }
@@ -366,31 +183,31 @@
 
                     @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosVer) || User.IsInRole(AppRoles.Admin))
                     {
-                        <li class="menu-item">
-                            <a asp-controller="Pagos" asp-action="Index" class="menu-link @(currentController == "Pagos" ? "active" : "")">
-                                <span class="menu-icon"><i class="bi bi-cash-stack"></i></span>
-                                <span class="menu-text">Cajas</span>
+                        <li class="menu-item relative my-1 px-3">
+                            <a asp-controller="Pagos" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium @(currentController == "Pagos" ? "bg-indigo-50 text-indigo-700" : "")">
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-cash-stack"></i></span>
+                                <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Cajas</span>
                             </a>
                         </li>
                     }
 
                     @if (User.IsInRole(AppRoles.Admin))
                     {
-                        <li class="menu-item">
-                            <a href="#submenuReportes" class="menu-link submenu-toggle @(currentController == "Reportes" ? "active" : "")">
-                                <span class="menu-icon"><i class="bi bi-graph-up-arrow"></i></span>
-                                <span class="menu-text">Reportes</span>
-                                <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                        <li class="menu-item relative my-1 px-3 @(currentController == "Reportes" ? "open" : "")">
+                            <a href="#submenuReportes" class="menu-link submenu-toggle flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium @(currentController == "Reportes" ? "bg-indigo-50 text-indigo-700" : "")">
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-graph-up-arrow"></i></span>
+                                <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Reportes</span>
+                                <span class="menu-arrow ml-auto text-xs transition-transform duration-300"><i class="bi bi-chevron-down"></i></span>
                             </a>
-                            <ul class="submenu" id="submenuReportes">
+                            <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuReportes">
                                 <li class="submenu-item">
-                                    <a asp-controller="Reportes" asp-action="Index" class="submenu-link">
-                                        <i class="bi bi-dot me-1"></i> Control de Ingresos General
+                                    <a asp-controller="Reportes" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">
+                                        Control de Ingresos
                                     </a>
                                 </li>
                                 <li class="submenu-item">
-                                    <a asp-controller="Reportes" asp-action="Membresias" class="submenu-link">
-                                        <i class="bi bi-dot me-1"></i> Control de Membresías
+                                    <a asp-controller="Reportes" asp-action="Membresias" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">
+                                        Control de Membresías
                                     </a>
                                 </li>
                             </ul>
@@ -399,84 +216,85 @@
 
                     @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.VentasVer) || User.IsInRole(AppRoles.Admin))
                     {
-                        <li class="menu-item">
-                            <a asp-controller="Ventas" asp-action="Index" class="menu-link @(currentController == "Ventas" ? "active" : "")">
-                                <span class="menu-icon"><i class="bi bi-cart-fill"></i></span>
-                                <span class="menu-text">Ventas</span>
+                        <li class="menu-item relative my-1 px-3">
+                            <a asp-controller="Ventas" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium @(currentController == "Ventas" ? "bg-indigo-50 text-indigo-700" : "")">
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-cart"></i></span>
+                                <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Ventas</span>
                             </a>
                         </li>
                     }
 
                     @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.AccesoVer) || User.IsInRole(AppRoles.Admin))
                     {
-                        <li class="menu-item">
-                            <a href="#submenuAcceso" class="menu-link submenu-toggle @(currentController == "Acceso" ? "active" : "")">
-                                <span class="menu-icon"><i class="bi bi-qr-code-scan"></i></span>
-                                <span class="menu-text">Control de Acceso</span>
-                                <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                        <li class="menu-item relative my-1 px-3 @(currentController == "Acceso" ? "open" : "")">
+                            <a href="#submenuAcceso" class="menu-link submenu-toggle flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium @(currentController == "Acceso" ? "bg-indigo-50 text-indigo-700" : "")">
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-qr-code-scan"></i></span>
+                                <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Control de Acceso</span>
+                                <span class="menu-arrow ml-auto text-xs transition-transform duration-300"><i class="bi bi-chevron-down"></i></span>
                             </a>
-                            <ul class="submenu" id="submenuAcceso">
+                            <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuAcceso">
                                 <li class="submenu-item">
-                                    <a asp-controller="Acceso" asp-action="Index" class="submenu-link">Escáner QR</a>
+                                    <a asp-controller="Acceso" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">Escáner QR</a>
                                 </li>
                                 <li class="submenu-item">
-                                    <a asp-controller="Acceso" asp-action="Historial" class="submenu-link">Historial Visitas</a>
+                                    <a asp-controller="Acceso" asp-action="Historial" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">Historial Visitas</a>
                                 </li>
                             </ul>
                         </li>
                     }
 
                     <!-- ========== SECCIÓN: ADMINISTRACIÓN ========== -->
-                    <li class="menu-item mt-3 mb-1 px-4 text-muted small fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">ADMINISTRACIÓN</li>
+                    <li class="menu-item mt-6 mb-2 px-6">
+                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase">Administración</span>
+                    </li>
 
                     @if (User.IsInRole(AppRoles.Admin))
                     {
-                        <!-- PANEL DE ADMINISTRACIÓN — Solo Admin -->
-                        <li class="menu-item">
+                        <li class="menu-item relative my-1 px-3">
                             <a asp-controller="Administracion" asp-action="Index"
-                               class="menu-link @(currentController == "Administracion" ? "active" : "")">
-                                <span class="menu-icon"><i class="bi bi-shield-lock-fill"></i></span>
-                                <span class="menu-text">Gestión de Personal</span>
-                                <span class="badge bg-danger ms-auto" style="font-size:0.6rem;">ADMIN</span>
+                               class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium @(currentController == "Administracion" ? "bg-indigo-50 text-indigo-700" : "")">
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-shield-lock"></i></span>
+                                <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Personal</span>
+                                <span class="badge bg-indigo-100 text-indigo-700 ml-auto border-0 py-1 px-2 rounded-md font-bold" style="font-size:0.65rem;">ADMIN</span>
                             </a>
                         </li>
                     }
 
                     @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PlanesVer) || User.HasClaim(TipoClaim.Permiso, AppPermisos.TurnosVer) || User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosVer) || User.IsInRole(AppRoles.Admin))
                     {
-                        <li class="menu-item">
-                            <a href="#submenuConfig" class="menu-link submenu-toggle @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "active" : "")">
-                                <span class="menu-icon"><i class="bi bi-gear-fill"></i></span>
-                                <span class="menu-text">Configuración</span>
-                                <span class="menu-arrow ms-auto"><i class="bi bi-chevron-down"></i></span>
+                        <li class="menu-item relative my-1 px-3 @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "open" : "")">
+                            <a href="#submenuConfig" class="menu-link submenu-toggle flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors font-medium @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "bg-indigo-50 text-indigo-700" : "")">
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-gear"></i></span>
+                                <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Configuración</span>
+                                <span class="menu-arrow ml-auto text-xs transition-transform duration-300"><i class="bi bi-chevron-down"></i></span>
                             </a>
-                            <ul class="submenu" id="submenuConfig">
+                            <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuConfig">
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PlanesVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Planes" asp-action="Index" class="submenu-link">Planes y Precios</a>
+                                        <a asp-controller="Planes" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">Planes y Precios</a>
                                     </li>
                                 }
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.TurnosVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Turnos" asp-action="Index" class="submenu-link">Horarios</a>
+                                        <a asp-controller="Turnos" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">Horarios</a>
                                     </li>
                                 }
                                 @if (User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Roles" asp-action="Index" class="submenu-link">Roles</a>
+                                        <a asp-controller="Roles" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">Roles</a>
                                     </li>
                                     <li class="submenu-item">
-                                        <a asp-controller="Alertas" asp-action="Index" class="submenu-link">Alertas n8n</a>
+                                        <a asp-controller="Alertas" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">Alertas n8n</a>
                                     </li>
                                 }
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Productos" asp-action="Index" class="submenu-link">
-                                            <i class="bi bi-dot me-1"></i> Productos
+                                        <a asp-controller="Productos" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-slate-50 transition-colors">
+                                            Productos
                                         </a>
                                     </li>
                                 }
@@ -486,65 +304,80 @@
 
                 }
 
-                <li class="menu-item mt-5 pt-3 border-top border-secondary mx-3">
-                    <a asp-controller="Auth" asp-action="Logout" class="menu-link text-danger px-0 justify-content-center justify-content-lg-start">
-                        <span class="menu-icon"><i class="bi bi-box-arrow-left"></i></span>
-                        <span class="menu-text">Cerrar Sesión</span>
+                <li class="menu-item mt-8 mb-2 px-3">
+                    <a asp-controller="Auth" asp-action="Logout" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors font-medium">
+                        <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-box-arrow-left"></i></span>
+                        <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Cerrar Sesión</span>
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div id="content">
-        <div class="top-navbar">
-            <div class="d-flex align-items-center">
-                <button id="sidebar-toggle">
-                    <i class="bi bi-list"></i>
+    <!-- Main Content Area -->
+    <div id="content" class="ml-64 p-4 md:p-8 min-h-screen">
+        
+        <!-- Top Navbar -->
+        <div class="top-navbar bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-8 flex justify-between items-center sticky top-4 z-40 transition-all duration-300">
+            <div class="flex items-center">
+                <button id="sidebar-toggle" class="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <i class="bi bi-list text-xl"></i>
                 </button>
-                <h5 class="ms-3 mb-0 text-muted d-none d-sm-block">@ViewData["Title"]</h5>
+                <h5 class="ml-4 mb-0 text-slate-800 font-display font-semibold text-lg hidden sm:block">@ViewData["Title"]</h5>
             </div>
 
-            <div class="user-profile d-flex align-items-center">
-                <div class="text-end me-2 lh-1">
-                    <div class="fw-bold text-dark small">@(User.Identity?.Name ?? "Usuario")</div>
+            <div class="user-profile flex items-center">
+                <div class="text-right mr-3 leading-tight hidden sm:block">
+                    <div class="font-bold text-slate-800 text-sm">@(User.Identity?.Name ?? "Usuario")</div>
                     @if (User.IsInRole(AppRoles.Admin))
                     {
-                        <span class="badge bg-danger" style="font-size: 0.6rem;">ADMIN</span>
+                        <span class="inline-block bg-indigo-100 text-indigo-700 text-[0.65rem] font-bold px-2 py-0.5 rounded-md mt-0.5">ADMIN</span>
                     }
                     else if (User.IsInRole("Cliente"))
                     {
-                        <span class="badge bg-success" style="font-size: 0.6rem;">SOCIO</span>
+                        <span class="inline-block bg-teal-100 text-teal-700 text-[0.65rem] font-bold px-2 py-0.5 rounded-md mt-0.5">SOCIO</span>
                     }
                 </div>
-                <div class="bg-light rounded-circle p-2 border">
-                    <i class="bi bi-person-fill fs-5 text-secondary"></i>
+                <div class="bg-indigo-50 rounded-full p-2.5 w-10 h-10 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100">
+                    <i class="bi bi-person-fill text-lg"></i>
                 </div>
             </div>
         </div>
 
-        <div class="container-fluid p-0 fade-in">
+        <!-- Render Body Container -->
+        <div class="container-fluid p-0 animate-fade-in">
             @if (TempData["Success"] != null)
             {
-                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    @Html.Raw(TempData["Success"])
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl relative mb-6 shadow-sm flex items-start" role="alert">
+                    <i class="bi bi-check-circle-fill text-emerald-500 mt-0.5 mr-3 text-lg"></i>
+                    <div class="flex-1 font-medium">
+                        @Html.Raw(TempData["Success"])
+                    </div>
+                    <button type="button" class="text-emerald-500 hover:text-emerald-700 focus:outline-none" data-bs-dismiss="alert" aria-label="Close" onclick="this.parentElement.style.display='none'">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
             }
 
             @if (TempData["Error"] != null)
             {
-                <div class="alert alert-danger alert-dismissible fade show mx-4 mt-3" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    @Html.Raw(TempData["Error"])
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl relative mb-6 shadow-sm flex items-start" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill text-rose-500 mt-0.5 mr-3 text-lg"></i>
+                    <div class="flex-1 font-medium">
+                        @Html.Raw(TempData["Error"])
+                    </div>
+                    <button type="button" class="text-rose-500 hover:text-rose-700 focus:outline-none" data-bs-dismiss="alert" aria-label="Close" onclick="this.parentElement.style.display='none'">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
             }
+            
+            <!-- Removed the wrapping bg-white card to allow pages to define their own cards and negative space -->
             @RenderBody()
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -558,38 +391,34 @@
             const overlay = document.getElementById('mobileOverlay');
             const submenuToggles = document.querySelectorAll('.submenu-toggle');
 
-            // Función para detectar si estamos en modo móvil
             const isMobile = () => window.innerWidth <= 768;
 
-            // TOGGLE PRINCIPAL
             toggleBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 if (isMobile()) {
-                    // Modo Móvil: Abre el cajón (Off-canvas)
                     sidebar.classList.add('mobile-open');
-                    overlay.classList.add('show');
+                    overlay.classList.remove('hidden');
+                    // Timeout to allow hidden class removal to process before animating opacity
+                    setTimeout(() => overlay.classList.remove('opacity-0'), 10);
                 } else {
-                    // Modo Desktop: Colapsa el menú
                     sidebar.classList.toggle('collapsed');
                     content.classList.toggle('expanded');
                 }
             });
 
-            // CERRAR EN MOVIL (Botón X o Click en Overlay)
             function closeMobileMenu() {
                 sidebar.classList.remove('mobile-open');
-                overlay.classList.remove('show');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
             }
 
             mobileCloseBtn.addEventListener('click', closeMobileMenu);
             overlay.addEventListener('click', closeMobileMenu);
 
-            // LOGICA SUBMENUS
             submenuToggles.forEach(toggle => {
                 toggle.addEventListener('click', function(e) {
                     e.preventDefault();
 
-                    // Si el sidebar está colapsado en desktop, lo abrimos automáticamente al intentar abrir un submenú
                     if (!isMobile() && sidebar.classList.contains('collapsed')) {
                         sidebar.classList.remove('collapsed');
                         content.classList.remove('expanded');
@@ -597,7 +426,6 @@
 
                     const parentItem = this.parentElement;
 
-                    // Acordeón: Cerrar otros abiertos
                     document.querySelectorAll('.menu-item.open').forEach(item => {
                         if (item !== parentItem) {
                             item.classList.remove('open');
@@ -608,22 +436,17 @@
                 });
             });
 
-            // AUTO-ABRIR submenú que contiene enlace activo
-            document.querySelectorAll('.submenu-toggle.active').forEach(activeToggle => {
-                activeToggle.parentElement.classList.add('open');
-            });
-
-            // RESIZE HANDLER
             window.addEventListener('resize', function() {
                 if (!isMobile()) {
-                    // Si pasamos a desktop, limpiamos clases móviles
                     sidebar.classList.remove('mobile-open');
-                    overlay.classList.remove('show');
+                    overlay.classList.add('hidden', 'opacity-0');
                 }
             });
         });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>s", required: false)
 </body>
 </html>
