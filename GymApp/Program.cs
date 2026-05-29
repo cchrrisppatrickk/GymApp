@@ -111,6 +111,12 @@ builder.Services.AddAuthorization(options => {
    options.AddPolicy(AppPoliticas.RequiereEditarMembresias, policy => 
        policy.RequireAssertion(context => context.User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasEditar) || context.User.HasClaim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal) || context.User.IsInRole(AppRoles.Admin)));
 
+   options.AddPolicy(AppPoliticas.RequiereCongelarMembresias, policy => 
+       policy.RequireAssertion(context => context.User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasCongelar) || context.User.HasClaim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal) || context.User.IsInRole(AppRoles.Admin)));
+
+   options.AddPolicy(AppPoliticas.RequiereRenovarMembresias, policy => 
+       policy.RequireAssertion(context => context.User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasRenovar) || context.User.HasClaim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal) || context.User.IsInRole(AppRoles.Admin)));
+
    // --- VENTAS ---
    options.AddPolicy(AppPoliticas.RequiereVerVentas, policy => 
        policy.RequireAssertion(context => context.User.HasClaim(TipoClaim.Permiso, AppPermisos.VentasVer) || context.User.HasClaim(TipoClaim.Permiso, AppPermisos.AdminAccesoTotal) || context.User.IsInRole(AppRoles.Admin)));
