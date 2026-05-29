@@ -39,5 +39,6 @@ namespace GymApp.ViewModels
         public string NombreEmpleado { get; set; } = null!;
         public string PlanMembresia { get; set; } = null!;
         public int MembresiaId { get; set; }
+        public int UserId { get; set; }
     }
 }

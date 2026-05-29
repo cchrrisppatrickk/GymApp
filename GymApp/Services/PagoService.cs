@@ -440,6 +440,7 @@ namespace GymApp.Services
                 Observaciones        = pago.Observaciones,
                 EsAnulado            = pago.EsAnulado,
                 MembresiaId          = pago.MembresiaId,
+                UserId               = pago.Membresia.UserId,
                 NombreCliente        = pago.Membresia.User.NombreCompleto,
                 DniCliente           = pago.Membresia.User.Dni,
                 NombreEmpleado       = pago.UsuarioEmpleado.NombreCompleto,
