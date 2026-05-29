@@ -195,7 +195,12 @@ namespace GymApp.Controllers
             ViewBag.Roles = new SelectList(rolesPersonal, "RoleId", "Nombre");
 
             // Permisos agrupados con NivelPeligro para colorear la UI
-            var permisos = await _context.Permisos.OrderBy(p => p.Modulo).ThenBy(p => p.PermisoId).ToListAsync();
+            var modulosExcluidos = new[] { "Caja", "Reportes", "Socios" };
+            var permisos = await _context.Permisos
+                .Where(p => !modulosExcluidos.Contains(p.Modulo))
+                .OrderBy(p => p.Modulo)
+                .ThenBy(p => p.PermisoId)
+                .ToListAsync();
             ViewBag.PermisosPorModulo = permisos.GroupBy(p => p.Modulo).OrderBy(g => g.Key);
         }
     }
