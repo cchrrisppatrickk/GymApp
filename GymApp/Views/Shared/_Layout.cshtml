@@ -91,7 +91,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 selection:bg-indigo-100 selection:text-indigo-900">
+<body class="bg-slate-50 text-slate-950 selection:bg-indigo-100 selection:text-indigo-900">
 
     <!-- Mobile Overlay -->
     <div id="mobileOverlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
@@ -101,13 +101,13 @@
         
         <!-- Sidebar Header -->
         <div class="sidebar-header h-20 px-6 flex items-center justify-between border-b border-slate-200/60">
-            <h3 class="font-display font-bold text-xl text-slate-800 flex items-center m-0 whitespace-nowrap transition-opacity duration-200">
+            <h3 class="font-display font-bold text-xl text-slate-950 flex items-center m-0 whitespace-nowrap transition-opacity duration-200">
                 <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center mr-3 shadow-md shadow-indigo-300/50 border border-indigo-400/30">
                     <i class="bi bi-activity text-white text-lg"></i>
                 </div>
                 GymApp
             </h3>
-            <button class="md:hidden text-slate-400 hover:text-slate-600 focus:outline-none" id="mobile-close">
+            <button class="md:hidden text-slate-600 hover:text-slate-600 focus:outline-none" id="mobile-close">
                 <i class="bi bi-x-lg text-xl"></i>
             </button>
         </div>
@@ -139,7 +139,7 @@
 
                     <!-- ========== SECCIÓN: OPERACIONES ========== -->
                     <li class="menu-item mt-6 mb-2 px-6">
-                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase">Operaciones</span>
+                        <span class="text-xs font-bold text-slate-600 tracking-wider uppercase">Operaciones</span>
                     </li>
 
                     @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosVer) || User.IsInRole(AppRoles.Admin))
@@ -164,7 +164,7 @@
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Membresias" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98] @(currentController == "Membresias" ? "text-indigo-600 font-semibold" : "")">
+                                        <a asp-controller="Membresias" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98] @(currentController == "Membresias" ? "text-indigo-600 font-semibold" : "")">
                                             Planes Regulares
                                         </a>
                                     </li>
@@ -172,7 +172,7 @@
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PasesDiariosVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="PasesDiarios" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98] @(currentController == "PasesDiarios" ? "text-indigo-600 font-semibold" : "")">
+                                        <a asp-controller="PasesDiarios" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98] @(currentController == "PasesDiarios" ? "text-indigo-600 font-semibold" : "")">
                                             Pases Diarios
                                         </a>
                                     </li>
@@ -201,12 +201,12 @@
                             </a>
                             <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuReportes">
                                 <li class="submenu-item">
-                                    <a asp-controller="Reportes" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">
+                                    <a asp-controller="Reportes" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">
                                         Control de Ingresos
                                     </a>
                                 </li>
                                 <li class="submenu-item">
-                                    <a asp-controller="Reportes" asp-action="Membresias" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">
+                                    <a asp-controller="Reportes" asp-action="Membresias" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">
                                         Control de Membresías
                                     </a>
                                 </li>
@@ -234,10 +234,10 @@
                             </a>
                             <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuAcceso">
                                 <li class="submenu-item">
-                                    <a asp-controller="Acceso" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Escáner QR</a>
+                                    <a asp-controller="Acceso" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Escáner QR</a>
                                 </li>
                                 <li class="submenu-item">
-                                    <a asp-controller="Acceso" asp-action="Historial" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Historial Visitas</a>
+                                    <a asp-controller="Acceso" asp-action="Historial" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Historial Visitas</a>
                                 </li>
                             </ul>
                         </li>
@@ -245,7 +245,7 @@
 
                     <!-- ========== SECCIÓN: ADMINISTRACIÓN ========== -->
                     <li class="menu-item mt-6 mb-2 px-6">
-                        <span class="text-xs font-bold text-slate-400 tracking-wider uppercase">Administración</span>
+                        <span class="text-xs font-bold text-slate-600 tracking-wider uppercase">Administración</span>
                     </li>
 
                     @if (User.IsInRole(AppRoles.Admin))
@@ -272,28 +272,28 @@
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PlanesVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Planes" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Planes y Precios</a>
+                                        <a asp-controller="Planes" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Planes y Precios</a>
                                     </li>
                                 }
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.TurnosVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Turnos" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Horarios</a>
+                                        <a asp-controller="Turnos" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Horarios</a>
                                     </li>
                                 }
                                 @if (User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Roles" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Roles</a>
+                                        <a asp-controller="Roles" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Roles</a>
                                     </li>
                                     <li class="submenu-item">
-                                        <a asp-controller="Alertas" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Alertas n8n</a>
+                                        <a asp-controller="Alertas" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">Alertas n8n</a>
                                     </li>
                                 }
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosVer) || User.IsInRole(AppRoles.Admin))
                                 {
                                     <li class="submenu-item">
-                                        <a asp-controller="Productos" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-500 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">
+                                        <a asp-controller="Productos" asp-action="Index" class="submenu-link flex items-center pl-11 pr-3 py-2 rounded-lg text-sm text-slate-700 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-[0.98]">
                                             Productos
                                         </a>
                                     </li>
@@ -320,15 +320,15 @@
         <!-- Top Navbar -->
         <div class="top-navbar bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-8 flex justify-between items-center sticky top-4 z-40 transition-all duration-300">
             <div class="flex items-center">
-                <button id="sidebar-toggle" class="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <button id="sidebar-toggle" class="text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     <i class="bi bi-list text-xl"></i>
                 </button>
-                <h5 class="ml-4 mb-0 text-slate-800 font-display font-semibold text-lg hidden sm:block">@ViewData["Title"]</h5>
+                <h5 class="ml-4 mb-0 text-slate-950 font-display font-semibold text-lg hidden sm:block">@ViewData["Title"]</h5>
             </div>
 
             <div class="user-profile flex items-center">
                 <div class="text-right mr-3 leading-tight hidden sm:block">
-                    <div class="font-bold text-slate-800 text-sm">@(User.Identity?.Name ?? "Usuario")</div>
+                    <div class="font-bold text-slate-950 text-sm">@(User.Identity?.Name ?? "Usuario")</div>
                     @if (User.IsInRole(AppRoles.Admin))
                     {
                         <span class="inline-block bg-indigo-100 text-indigo-700 text-[0.65rem] font-bold px-2 py-0.5 rounded-md mt-0.5">ADMIN</span>

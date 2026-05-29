@@ -35,11 +35,11 @@
                     <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
                         <i class="bi bi-people-fill text-xl"></i>
                     </div>
-                    <h2 class="text-2xl font-display font-bold text-slate-800 tracking-tight m-0">Panel de Usuarios</h2>
+                    <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight m-0">Panel de Usuarios</h2>
                 </div>
-                <p class="text-slate-500 text-sm font-medium ml-1">Estado de membresías, deudas y nuevos registros</p>
+                <p class="text-slate-700 text-sm font-medium ml-1">Estado de membresías, deudas y nuevos registros</p>
             </div>
-            <button class="group inline-flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm transition-all duration-300 active:scale-95" onclick="actualizarDashboard()" title="Actualizar datos">
+            <button class="group inline-flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm transition-all duration-300 active:scale-95" onclick="actualizarDashboard()" title="Actualizar datos">
                 <i class="bi bi-arrow-clockwise text-xl transition-transform duration-500 group-hover:rotate-180" id="refreshIcon"></i>
             </button>
         </div>
@@ -56,8 +56,8 @@
                         <span class="text-[10px] font-bold tracking-widest uppercase text-emerald-600/70 bg-emerald-50 px-2 py-1 rounded-lg group-hover:bg-emerald-100 transition-colors">Este mes</span>
                     </div>
                     <div>
-                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-emerald-900" id="newUsersCount">0</div>
-                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-emerald-600/60 transition-colors">Nuevos Socios</div>
+                        <div class="text-4xl font-display font-extrabold text-slate-950 tracking-tight mb-1 counter-value transition-colors group-hover:text-emerald-900" id="newUsersCount">0</div>
+                        <div class="text-xs font-bold text-slate-600 tracking-wider uppercase group-hover:text-emerald-600/60 transition-colors">Nuevos Socios</div>
                     </div>
                 </div>
             </div>
@@ -67,14 +67,14 @@
                 <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-slate-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex flex-col h-full justify-between">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center border border-slate-200/50 transition-all duration-300 group-hover:scale-110 group-hover:bg-slate-200 group-hover:shadow-sm">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200/50 transition-all duration-300 group-hover:scale-110 group-hover:bg-slate-200 group-hover:shadow-sm">
                             <i class="bi bi-person-x-fill text-xl"></i>
                         </div>
-                        <span class="text-[10px] font-bold tracking-widest uppercase text-slate-400 bg-slate-50 px-2 py-1 rounded-lg group-hover:bg-slate-200 transition-colors">Acción req.</span>
+                        <span class="text-[10px] font-bold tracking-widest uppercase text-slate-600 bg-slate-50 px-2 py-1 rounded-lg group-hover:bg-slate-200 transition-colors">Acción req.</span>
                     </div>
                     <div>
-                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-slate-900" id="expiredNoRenewCount">0</div>
-                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-slate-500 transition-colors">Sin Renovar</div>
+                        <div class="text-4xl font-display font-extrabold text-slate-950 tracking-tight mb-1 counter-value transition-colors group-hover:text-slate-900" id="expiredNoRenewCount">0</div>
+                        <div class="text-xs font-bold text-slate-600 tracking-wider uppercase group-hover:text-slate-700 transition-colors">Sin Renovar</div>
                     </div>
                 </div>
             </div>
@@ -90,8 +90,8 @@
                         <span class="text-[10px] font-bold tracking-widest uppercase text-blue-600/70 bg-blue-50 px-2 py-1 rounded-lg group-hover:bg-blue-100 transition-colors">En Pausa</span>
                     </div>
                     <div>
-                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-blue-900" id="frozenCount">0</div>
-                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-blue-600/60 transition-colors">Congeladas</div>
+                        <div class="text-4xl font-display font-extrabold text-slate-950 tracking-tight mb-1 counter-value transition-colors group-hover:text-blue-900" id="frozenCount">0</div>
+                        <div class="text-xs font-bold text-slate-600 tracking-wider uppercase group-hover:text-blue-600/60 transition-colors">Congeladas</div>
                     </div>
                 </div>
             </div>
@@ -107,8 +107,8 @@
                         <span class="text-[10px] font-bold tracking-widest uppercase text-amber-600/70 bg-amber-50 px-2 py-1 rounded-lg group-hover:bg-amber-100 transition-colors">Prox. 7 días</span>
                     </div>
                     <div>
-                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-amber-900" id="expiringWeekCount">0</div>
-                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-amber-600/60 transition-colors">Por Vencer</div>
+                        <div class="text-4xl font-display font-extrabold text-slate-950 tracking-tight mb-1 counter-value transition-colors group-hover:text-amber-900" id="expiringWeekCount">0</div>
+                        <div class="text-xs font-bold text-slate-600 tracking-wider uppercase group-hover:text-amber-600/60 transition-colors">Por Vencer</div>
                     </div>
                 </div>
             </div>
@@ -127,8 +127,8 @@
                         </div>
                     </div>
                     <div>
-                        <div class="text-4xl font-display font-extrabold text-slate-800 tracking-tight mb-1 counter-value transition-colors group-hover:text-rose-900" id="debtUsersCount">0</div>
-                        <div class="text-xs font-bold text-slate-400 tracking-wider uppercase group-hover:text-rose-600/60 transition-colors">Socios con Deuda</div>
+                        <div class="text-4xl font-display font-extrabold text-slate-950 tracking-tight mb-1 counter-value transition-colors group-hover:text-rose-900" id="debtUsersCount">0</div>
+                        <div class="text-xs font-bold text-slate-600 tracking-wider uppercase group-hover:text-rose-600/60 transition-colors">Socios con Deuda</div>
                     </div>
                 </div>
             </div>
@@ -142,23 +142,23 @@
                     <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm">
                         <i class="bi bi-graph-up-arrow text-xl"></i>
                     </div>
-                    <h2 class="text-2xl font-display font-bold text-slate-800 tracking-tight m-0">Tendencia Financiera</h2>
+                    <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight m-0">Tendencia Financiera</h2>
                 </div>
-                <p class="text-slate-500 text-sm font-medium ml-1">Ingresos vs Nuevos Miembros</p>
+                <p class="text-slate-700 text-sm font-medium ml-1">Ingresos vs Nuevos Miembros</p>
             </div>
             
             <div class="inline-flex bg-slate-100 p-1 rounded-2xl border border-slate-200/60 shadow-inner">
                 <label class="relative cursor-pointer">
                     <input type="radio" name="btnTemporalidad" value="Semana" class="peer sr-only">
-                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Semana</span>
+                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Semana</span>
                 </label>
                 <label class="relative cursor-pointer">
                     <input type="radio" name="btnTemporalidad" value="Mes" class="peer sr-only" checked>
-                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Mes</span>
+                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Mes</span>
                 </label>
                 <label class="relative cursor-pointer">
                     <input type="radio" name="btnTemporalidad" value="Anual" class="peer sr-only">
-                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Anual</span>
+                    <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all duration-200">Anual</span>
                 </label>
             </div>
         </div>
@@ -178,9 +178,9 @@
                     <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100/50 shadow-sm">
                         <i class="bi bi-door-open-fill text-xl"></i>
                     </div>
-                    <h2 class="text-2xl font-display font-bold text-slate-800 tracking-tight m-0">Tendencia Pases Diarios</h2>
+                    <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight m-0">Tendencia Pases Diarios</h2>
                 </div>
-                <p class="text-slate-500 text-sm font-medium ml-1">Ingresos por Turno (Mañana/Tarde)</p>
+                <p class="text-slate-700 text-sm font-medium ml-1">Ingresos por Turno (Mañana/Tarde)</p>
             </div>
 
             <div class="flex flex-wrap items-center gap-4">
@@ -200,15 +200,15 @@
                 <div class="inline-flex bg-slate-100 p-1 rounded-2xl border border-slate-200/60 shadow-inner">
                     <label class="relative cursor-pointer">
                         <input type="radio" name="btnTempPases" value="Semana" class="peer sr-only">
-                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Semana</span>
+                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Semana</span>
                     </label>
                     <label class="relative cursor-pointer">
                         <input type="radio" name="btnTempPases" value="Mes" class="peer sr-only" checked>
-                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Mes</span>
+                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Mes</span>
                     </label>
                     <label class="relative cursor-pointer">
                         <input type="radio" name="btnTempPases" value="Anual" class="peer sr-only">
-                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-700 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Anual</span>
+                        <span class="inline-block px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 peer-checked:bg-white peer-checked:text-purple-600 peer-checked:shadow-sm transition-all duration-200">Anual</span>
                     </label>
                 </div>
             </div>
@@ -219,7 +219,7 @@
             <div id="pasesDiariosLoader" class="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-10 flex items-center justify-center transition-opacity duration-300 pointer-events-none opacity-0">
                 <div class="flex flex-col items-center gap-2">
                     <div class="w-8 h-8 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin"></div>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Cargando</span>
+                    <span class="text-xs font-bold text-slate-600 uppercase tracking-widest">Cargando</span>
                 </div>
             </div>
             <div class="h-[340px]">
@@ -236,9 +236,9 @@
                     <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/50 shadow-sm">
                         <i class="bi bi-clock-history text-xl"></i>
                     </div>
-                    <h2 class="text-2xl font-display font-bold text-slate-800 tracking-tight m-0">Pagos Recientes</h2>
+                    <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight m-0">Pagos Recientes</h2>
                 </div>
-                <p class="text-slate-500 text-sm font-medium ml-1">Últimos 7 movimientos registrados</p>
+                <p class="text-slate-700 text-sm font-medium ml-1">Últimos 7 movimientos registrados</p>
             </div>
         </div>
 
@@ -247,11 +247,11 @@
                 <table class="w-full border-collapse">
                     <thead>
                         <tr class="bg-slate-50/50 border-b border-slate-100">
-                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Socio</th>
-                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Membresía</th>
-                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Monto</th>
-                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fecha</th>
-                            <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Método</th>
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Socio</th>
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Membresía</th>
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Monto</th>
+                            <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Fecha</th>
+                            <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Método</th>
                         </tr>
                     </thead>
                     <tbody id="recentPaymentsTable" class="divide-y divide-slate-100/80">
@@ -599,7 +599,7 @@
                     tbody.empty();
                     
                     if (!data || data.length === 0) {
-                        tbody.append('<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 font-medium italic">No se encontraron pagos recientes</td></tr>');
+                        tbody.append('<tr><td colspan="5" class="px-6 py-12 text-center text-slate-600 font-medium italic">No se encontraron pagos recientes</td></tr>');
                         return;
                     }
 
@@ -618,7 +618,7 @@
                                         <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs border border-indigo-100/50">
                                             ${pago.nombreCliente.charAt(0).toUpperCase()}
                                         </div>
-                                        <div class="text-sm font-semibold text-slate-800 truncate max-w-[150px]">${pago.nombreCliente}</div>
+                                        <div class="text-sm font-semibold text-slate-950 truncate max-w-[150px]">${pago.nombreCliente}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -630,8 +630,8 @@
                                     <span class="text-sm font-bold text-emerald-600 font-mono tracking-tight">${currencyFormat.format(pago.monto)}</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="flex items-center gap-2 text-slate-500 text-xs font-medium">
-                                        <i class="bi bi-calendar3 text-slate-400"></i>
+                                    <div class="flex items-center gap-2 text-slate-700 text-xs font-medium">
+                                        <i class="bi bi-calendar3 text-slate-600"></i>
                                         ${fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
                                         ${badgeHoy}
                                     </div>
@@ -668,9 +668,9 @@ else
                     <i class="bi bi-activity text-white text-5xl"></i>
                 </div>
                 <h1 class="text-4xl md:text-5xl font-display font-extrabold text-slate-900 tracking-tight mb-4">Bienvenido a GymApp</h1>
-                <p class="text-slate-500 text-lg md:text-xl font-medium mb-8 max-w-lg mx-auto leading-relaxed">Tu plataforma integral para la gestión deportiva y administrativa.</p>
+                <p class="text-slate-700 text-lg md:text-xl font-medium mb-8 max-w-lg mx-auto leading-relaxed">Tu plataforma integral para la gestión deportiva y administrativa.</p>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <div class="flex items-center gap-2 text-slate-400 font-bold uppercase tracking-widest text-xs">
+                    <div class="flex items-center gap-2 text-slate-600 font-bold uppercase tracking-widest text-xs">
                         <i class="bi bi-arrow-left-short text-xl"></i>
                         Selecciona una opción del menú
                     </div>

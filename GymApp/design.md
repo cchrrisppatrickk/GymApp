@@ -13,7 +13,7 @@ No usaremos blanco puro `#fff` ni negro puro `#000`.
 - **Superficies (Cards, Sidebar):** Blanco puro `bg-white` para contraste sobre el fondo, con bordes muy sutiles `border-slate-200`.
 - **Modo Oscuro (Opcional/Futuro):** Fondos `bg-slate-900`, superficies `bg-slate-800`.
 - **Acento Primario (Brand/Action):** Un color enérgico que invite a la acción (ej. un naranja eléctrico o un índigo profundo). Optaremos por un **Índigo Eléctrico** (`indigo-600` / `#4f46e5`) combinado con toques de **Cian/Teal** o **Rosa Neón** para acentos secundarios o indicadores de estado deportivo (vitalidad).
-- **Texto:** `text-slate-800` para títulos, `text-slate-500` para texto secundario.
+- **Texto:** `text-slate-950` para títulos y valores principales, `text-slate-600` para texto secundario, y `text-slate-500` para etiquetas pequeñas.
 
 ## Tipografía
 - **Fuentes (No usar Inter/Arial):**

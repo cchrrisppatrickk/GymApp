@@ -1981,16 +1981,6 @@ body {
   color: rgb(159 18 57 / var(--tw-text-opacity, 1));
 }
 
-.text-slate-300 {
-  --tw-text-opacity: 1;
-  color: rgb(203 213 225 / var(--tw-text-opacity, 1));
-}
-
-.text-slate-400 {
-  --tw-text-opacity: 1;
-  color: rgb(148 163 184 / var(--tw-text-opacity, 1));
-}
-
 .text-slate-500 {
   --tw-text-opacity: 1;
   color: rgb(100 116 139 / var(--tw-text-opacity, 1));
@@ -2006,14 +1996,14 @@ body {
   color: rgb(51 65 85 / var(--tw-text-opacity, 1));
 }
 
-.text-slate-800 {
-  --tw-text-opacity: 1;
-  color: rgb(30 41 59 / var(--tw-text-opacity, 1));
-}
-
 .text-slate-900 {
   --tw-text-opacity: 1;
   color: rgb(15 23 42 / var(--tw-text-opacity, 1));
+}
+
+.text-slate-950 {
+  --tw-text-opacity: 1;
+  color: rgb(2 6 23 / var(--tw-text-opacity, 1));
 }
 
 .text-teal-700 {
@@ -2289,14 +2279,14 @@ body {
   color: rgb(79 70 229 / var(--tw-text-opacity, 1));
 }
 
-.placeholder\:text-slate-400::-moz-placeholder {
+.placeholder\:text-slate-600::-moz-placeholder {
   --tw-text-opacity: 1;
-  color: rgb(148 163 184 / var(--tw-text-opacity, 1));
+  color: rgb(71 85 105 / var(--tw-text-opacity, 1));
 }
 
-.placeholder\:text-slate-400::placeholder {
+.placeholder\:text-slate-600::placeholder {
   --tw-text-opacity: 1;
-  color: rgb(148 163 184 / var(--tw-text-opacity, 1));
+  color: rgb(71 85 105 / var(--tw-text-opacity, 1));
 }
 
 .after\:absolute::after {
@@ -2507,11 +2497,6 @@ body {
   color: rgb(71 85 105 / var(--tw-text-opacity, 1));
 }
 
-.hover\:text-slate-700:hover {
-  --tw-text-opacity: 1;
-  color: rgb(51 65 85 / var(--tw-text-opacity, 1));
-}
-
 .hover\:text-slate-900:hover {
   --tw-text-opacity: 1;
   color: rgb(15 23 42 / var(--tw-text-opacity, 1));
@@ -2701,9 +2686,9 @@ body {
   color: rgb(136 19 55 / var(--tw-text-opacity, 1));
 }
 
-.group:hover .group-hover\:text-slate-500 {
+.group:hover .group-hover\:text-slate-700 {
   --tw-text-opacity: 1;
-  color: rgb(100 116 139 / var(--tw-text-opacity, 1));
+  color: rgb(51 65 85 / var(--tw-text-opacity, 1));
 }
 
 .group:hover .group-hover\:text-slate-900 {
