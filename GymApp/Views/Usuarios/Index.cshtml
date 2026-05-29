@@ -237,111 +237,122 @@
 <!-- MODAL DE GESTIÓN (UPSERT) -->
 <!-- ========================= -->
 <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="tituloModal">Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h5 class="text-xl font-display font-bold text-slate-800 tracking-tight" id="tituloModal">Usuario</h5>
+                    <p class="text-slate-500 text-xs font-medium uppercase tracking-widest mt-1">Gestión de datos personales</p>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg text-lg"></i>
+                </button>
             </div>
-            <div class="modal-body">
+            <div class="p-8">
                 <form id="formUsuario" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <input type="hidden" id="UserId" value="0" />
 
-                    <div class="row">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Columna Izquierda -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="RoleId" class="form-label">Rol del Usuario</label>
-                                <select id="RoleId" class="form-select" asp-items="rolesSelectList" required>
-                                    <option value="">-- Seleccione Rol --</option>
-                                </select>
+                        <div class="space-y-5">
+                            <div>
+                                <label for="RoleId" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Rol del Usuario</label>
+                                <div class="relative">
+                                    <select id="RoleId" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 appearance-none transition-all" asp-items="rolesSelectList" required>
+                                        <option value="">-- Seleccione Rol --</option>
+                                    </select>
+                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="NombreCompleto" class="form-label">Nombre Completo</label>
-                                <input type="text" class="form-control" id="NombreCompleto" required />
+
+                            <div>
+                                <label for="NombreCompleto" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Nombre Completo</label>
+                                <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition-all placeholder:text-slate-400" id="NombreCompleto" required placeholder="Ej. Juan Pérez" />
                             </div>
-                            <div class="mb-3">
-                                <label for="Dni" class="form-label">DNI / Identificación (Opcional)</label>
-                                <input type="text" class="form-control" id="Dni" />
+
+                            <div>
+                                <label for="Dni" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">DNI / Identificación</label>
+                                <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition-all placeholder:text-slate-400" id="Dni" placeholder="Opcional" />
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Foto de Perfil</label>
-                                <input type="file" id="FotoArchivo" name="FotoArchivo" class="form-control" accept="image/*" />
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Foto de Perfil</label>
+                                <div class="relative group">
+                                    <input type="file" id="FotoArchivo" name="FotoArchivo" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 transition-all cursor-pointer" accept="image/*" />
+                                </div>
                             </div>
                         </div>
 
                         <!-- Columna Derecha -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="Email" class="form-label">Correo Electrónico</label>
-                                <input type="email" class="form-control" id="Email" />
-                            </div>
-                            <div class="mb-3">
-                                <label for="Telefono" class="form-label">Teléfono</label>
-                                <input type="text" class="form-control" id="Telefono" />
+                        <div class="space-y-5">
+                            <div>
+                                <label for="Email" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Correo Electrónico</label>
+                                <input type="email" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition-all placeholder:text-slate-400" id="Email" placeholder="ejemplo@gym.com" />
                             </div>
 
-                            <div class="form-check form-switch mt-4 mb-4">
-                                <input class="form-check-input" type="checkbox" id="Estado" checked>
-                                <label class="form-check-label" for="Estado">Usuario Activo</label>
+                            <div>
+                                <label for="Telefono" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Teléfono</label>
+                                <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition-all placeholder:text-slate-400" id="Telefono" placeholder="+51 987..." />
+                            </div>
+
+                            <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                <label class="text-xs font-bold text-slate-600 uppercase tracking-widest" for="Estado">Usuario Activo</label>
+                                <div class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="Estado" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </div>
                             </div>
 
                             <!-- Webcam Capture Area -->
-                            <div class="card border-primary-subtle shadow-sm mb-3">
-                                <div class="card-header bg-primary-subtle text-primary-emphasis d-flex align-items-center gap-2 py-2">
-                                    <i class="bi bi-camera-video-fill"></i>
-                                    <span class="fw-bold small">Capturar Foto desde Webcam</span>
-                                </div>
-                                <div class="card-body p-3">
-                                    <!-- Viewport Container -->
-                                    <div class="position-relative bg-dark rounded overflow-hidden d-flex justify-content-center align-items-center mb-3 shadow-inner" style="min-height: 200px; border: 2px dashed var(--bs-primary-border-subtle);">
-                                        <!-- Placeholders -->
-                                        <div id="camaraPlaceholder" class="text-center text-muted p-3">
-                                            <i class="bi bi-camera display-5 d-block mb-2 text-primary"></i>
-                                            <span class="small fw-semibold text-secondary">Cámara Desactivada</span>
-                                            <p class="x-small text-muted mb-0 mt-1">Haga clic en Activar para iniciar la captura en vivo</p>
-                                        </div>
-                                        
-                                        <!-- Video Stream (WebRTC) -->
-                                        <video id="videoWebcam" autoplay playsinline class="w-100" style="display: none; object-fit: cover; aspect-ratio: 4/3; max-height: 220px;"></video>
-                                        
-                                        <!-- Image Preview -->
-                                        <img id="imgPrevisualizacion" src="" alt="Previsualización" class="w-100" style="display: none; object-fit: cover; aspect-ratio: 4/3; max-height: 220px;" />
+                            <div class="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-4">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                        <i class="bi bi-camera-video-fill text-xs"></i>
                                     </div>
-
-                                    <!-- Controls -->
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <button type="button" id="btnActivarCamara" class="btn btn-outline-primary btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-1 py-2 fw-semibold" onclick="activarWebcam()">
-                                                <i class="bi bi-camera-video"></i> Activar
-                                            </button>
-                                            <button type="button" id="btnDesactivarCamara" class="btn btn-outline-danger btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-1 py-2 fw-semibold" style="display: none;" onclick="desactivarWebcamManualmente()">
-                                                <i class="bi bi-camera-video-off"></i> Desactivar
-                                            </button>
-                                        </div>
-                                        <div class="col-6">
-                                            <button type="button" id="btnTomarFoto" class="btn btn-success btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-1 py-2 fw-semibold" style="display: none;" onclick="tomarFotoWebcam()">
-                                                <i class="bi bi-camera"></i> Capturar
-                                            </button>
-                                        </div>
+                                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Capturar desde Webcam</span>
+                                </div>
+                                
+                                <!-- Viewport Container -->
+                                <div class="relative bg-slate-900 rounded-xl overflow-hidden mb-4 shadow-inner aspect-[4/3] flex items-center justify-center">
+                                    <!-- Placeholders -->
+                                    <div id="camaraPlaceholder" class="text-center p-6 transition-all duration-300">
+                                        <i class="bi bi-camera text-slate-700 text-4xl mb-2"></i>
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Cámara Desactivada</p>
                                     </div>
                                     
-                                    <!-- Canvas Hidden -->
-                                    <canvas id="canvasFoto" style="display:none;"></canvas>
-                                    <!-- Hidden Input Base64 -->
-                                    <input type="hidden" id="FotoBase64" name="FotoBase64" />
+                                    <!-- Video Stream (WebRTC) -->
+                                    <video id="videoWebcam" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
+                                    
+                                    <!-- Image Preview -->
+                                    <img id="imgPrevisualizacion" src="" alt="Previsualización" class="absolute inset-0 w-full h-full object-cover hidden" />
                                 </div>
+
+                                <!-- Controls -->
+                                <div class="flex gap-2">
+                                    <button type="button" id="btnActivarCamara" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors text-[10px] font-bold uppercase tracking-widest" onclick="activarWebcam()">
+                                        <i class="bi bi-camera-video"></i> Activar
+                                    </button>
+                                    <button type="button" id="btnDesactivarCamara" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors text-[10px] font-bold uppercase tracking-widest hidden" onclick="desactivarWebcamManualmente()">
+                                        <i class="bi bi-camera-video-off"></i> Apagar
+                                    </button>
+                                    <button type="button" id="btnTomarFoto" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors text-[10px] font-bold uppercase tracking-widest hidden" onclick="tomarFotoWebcam()">
+                                        <i class="bi bi-camera"></i> Capturar
+                                    </button>
+                                </div>
+                                
+                                <canvas id="canvasFoto" class="hidden"></canvas>
+                                <input type="hidden" id="FotoBase64" name="FotoBase64" />
                             </div>
                         </div>
                     </div>
-
                 </form>
-
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarUsuario()">Guardar Datos</button>
+            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                <button type="button" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-600/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest" onclick="guardarUsuario()">Guardar Datos</button>
             </div>
         </div>
     </div>
