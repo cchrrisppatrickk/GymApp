@@ -3,109 +3,176 @@
     ViewData["Title"] = "Registrar Pase Diario";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 text-primary fw-bold"><i class="bi bi-plus-circle me-2"></i>Registrar Pase Diario</h5>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-4 mb-1">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                    <i class="bi bi-plus-circle text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-display font-extrabold text-slate-950 tracking-tight m-0">Registrar Pase Diario</h1>
             </div>
-            <div class="card-body p-4">
-                <form asp-action="Registrar" method="post" enctype="multipart/form-data">
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-12 form-group">
-                            <label asp-for="UserId" class="form-label fw-bold">Cliente (Opcional)</label>
-                            <select asp-for="UserId" class="form-select select2" asp-items="ViewBag.Usuarios">
-                                <option value="">-- Público General --</option>
-                            </select>
-                            <span asp-validation-for="UserId" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6 form-group">
-                            <label asp-for="TurnoId" class="form-label fw-bold">Turno <span class="text-danger">*</span></label>
-                            <select asp-for="TurnoId" class="form-select" asp-items="ViewBag.Turnos" required>
-                                <option value="">-- Seleccionar Turno --</option>
-                            </select>
-                            <span asp-validation-for="TurnoId" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label asp-for="Monto" class="form-label fw-bold">Monto (S/.) <span class="text-danger">*</span></label>
-                            <input asp-for="Monto" type="number" step="0.01" class="form-control" required />
-                            <span asp-validation-for="Monto" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-12 form-group">
-                            <label asp-for="MetodoPago" class="form-label fw-bold">Método de Pago <span class="text-danger">*</span></label>
-                            <select asp-for="MetodoPago" class="form-select" id="MetodoPago" required>
-                                <option value="Efectivo">Efectivo</option>
-                                <option value="Yape/Plin">Yape/Plin</option>
-                                <option value="Tarjeta">Tarjeta</option>
-                            </select>
-                            <span asp-validation-for="MetodoPago" class="text-danger small"></span>
-                        </div>
-                    </div>
-                    
-                    <!-- === COMPROBANTE YAPE/PLIN (CONDICIONAL) === -->
-                    <div id="contenedorComprobante" class="mb-3 d-none">
-                        <label class="form-label fw-bold">
-                            <i class="bi bi-qr-code me-1" style="color:#720e9e"></i>Comprobante <span class="text-danger">*</span>
-                        </label>
-                        <p class="text-muted small mb-2">Obligatorio para Yape/Plin. Sube una imagen o captura con la cámara.</p>
-
-                        <!-- Subir archivo -->
-                        <div class="mb-2">
-                            <label class="form-label small text-secondary">📁 Subir desde archivo</label>
-                            <input type="file" class="form-control form-control-sm" id="ComprobanteArchivo" name="ComprobanteArchivo" accept="image/*">
-                        </div>
-
-                        <div class="text-center text-muted my-1"><small>— o —</small></div>
-
-                        <!-- Webcam -->
-                        <div>
-                            <label class="form-label small text-secondary">📷 Capturar con cámara</label>
-                            <video id="videoWebcamPago" class="d-none rounded border w-100 mb-2" autoplay playsinline style="max-height:180px;object-fit:cover;"></video>
-                            <canvas id="canvasPago" class="d-none"></canvas>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" id="btnActivarCamaraPago" onclick="activarCamaraPago()">
-                                    <i class="bi bi-camera me-1"></i>Activar Cámara
-                                </button>
-                                <button type="button" class="btn btn-sm flex-fill d-none" id="btnCapturarPago" onclick="capturarComprobante()" style="background:#720e9e;color:white;border-color:#720e9e;">
-                                    <i class="bi bi-camera-fill me-1"></i>Capturar
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Preview -->
-                        <div id="previewComprobante" class="d-none mt-2 text-center">
-                            <img id="imgPreviewComprobante" src="" class="img-thumbnail" style="max-height:140px;">
-                            <div class="mt-1">
-                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="limpiarComprobante()">
-                                    <i class="bi bi-trash me-1"></i>Quitar
-                                </button>
-                            </div>
-                        </div>
-
-                        <input type="hidden" id="ComprobanteBase64" name="ComprobanteBase64">
-                        <div class="form-text text-danger d-none" id="errorComprobante">El comprobante es obligatorio para pagos con Yape/Plin.</div>
-                    </div>
-
-                    <div class="mb-4 form-group">
-                        <label asp-for="Observacion" class="form-label fw-bold">Observación (Opcional)</label>
-                        <textarea asp-for="Observacion" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
-                        <span asp-validation-for="Observacion" class="text-danger small"></span>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2">
-                        <a asp-action="Index" class="btn btn-light border shadow-sm">Cancelar</a>
-                        <button type="submit" class="btn btn-primary shadow-sm"><i class="bi bi-check2-circle"></i> Registrar Pago</button>
-                    </div>
-                </form>
-            </div>
+            <p class="text-slate-600 text-sm font-medium ml-1">Emisión de ticket para acceso rápido de un solo día</p>
         </div>
+        
+        <a asp-action="Index" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 transition-all active:scale-95">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver</span>
+        </a>
+    </div>
+
+    <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
+        <form asp-action="Registrar" method="post" enctype="multipart/form-data">
+            <div class="p-8 lg:p-10 space-y-10">
+                
+                <!-- Sección: Cliente -->
+                <section>
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-600 text-white text-[10px] font-black shadow-sm shadow-indigo-600/20">1</span>
+                        <h3 class="text-xs font-bold text-slate-950 uppercase tracking-[0.2em]">Identificación del Socio</h3>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label asp-for="UserId" class="block text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Cliente (Opcional)</label>
+                        <div class="relative group">
+                            <select asp-for="UserId" class="w-full select2" asp-items="ViewBag.Usuarios">
+                                <option value="">-- Público General / Nuevo Cliente --</option>
+                            </select>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-medium ml-1">Selecciona un socio registrado para vincular el pase o déjalo en blanco para público general.</p>
+                        <span asp-validation-for="UserId" class="text-rose-500 text-[10px] font-bold uppercase tracking-wide"></span>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Sección: Detalles -->
+                    <section class="space-y-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-600 text-white text-[10px] font-black shadow-sm shadow-indigo-600/20">2</span>
+                            <h3 class="text-xs font-bold text-slate-950 uppercase tracking-[0.2em]">Detalles del Pase</h3>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label asp-for="TurnoId" class="block text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Turno <span class="text-rose-500">*</span></label>
+                                <div class="relative">
+                                    <select asp-for="TurnoId" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" asp-items="ViewBag.Turnos" required>
+                                        <option value="">-- Seleccionar Turno --</option>
+                                    </select>
+                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="TurnoId" class="text-rose-500 text-[10px] font-bold uppercase tracking-wide"></span>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label asp-for="Monto" class="block text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Costo de Entrada (S/.) <span class="text-rose-500">*</span></label>
+                                <div class="relative group">
+                                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold group-focus-within:text-indigo-500 transition-colors">S/</div>
+                                    <input asp-for="Monto" type="number" step="0.01" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-slate-900 transition-all" required />
+                                </div>
+                                <span asp-validation-for="Monto" class="text-rose-500 text-[10px] font-bold uppercase tracking-wide"></span>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label asp-for="MetodoPago" class="block text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Método de Pago <span class="text-rose-500">*</span></label>
+                                <div class="relative">
+                                    <select asp-for="MetodoPago" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" id="MetodoPago" required>
+                                        <option value="Efectivo">Efectivo</option>
+                                        <option value="Yape/Plin">Yape/Plin</option>
+                                        <option value="Tarjeta">Tarjeta</option>
+                                    </select>
+                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="MetodoPago" class="text-rose-500 text-[10px] font-bold uppercase tracking-wide"></span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Sección: Comprobante y Otros -->
+                    <section class="space-y-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-600 text-white text-[10px] font-black shadow-sm shadow-indigo-600/20">3</span>
+                            <h3 class="text-xs font-bold text-slate-950 uppercase tracking-[0.2em]">Verificación</h3>
+                        </div>
+
+                        <!-- === COMPROBANTE YAPE/PLIN (CONDICIONAL) === -->
+                        <div id="contenedorComprobante" class="bg-indigo-50/30 border-2 border-dashed border-indigo-100 p-6 rounded-3xl space-y-6 transition-all d-none">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+                                    <i class="bi bi-qr-code"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-[11px] font-bold text-indigo-900 uppercase tracking-wider m-0">Comprobante de Operación</h4>
+                                    <p class="text-[10px] text-indigo-400 font-bold m-0 uppercase tracking-widest">Requerido para validación</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="relative">
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">📁 Carga de Archivo</label>
+                                    <input type="file" id="ComprobanteArchivo" name="ComprobanteArchivo" accept="image/*" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-white file:text-indigo-600 hover:file:bg-indigo-50 transition-all cursor-pointer border border-indigo-100/50 rounded-2xl bg-white/50 p-2 shadow-sm" />
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <div class="h-px flex-1 bg-indigo-100/50"></div>
+                                    <span class="text-[10px] font-black text-indigo-200 uppercase tracking-widest">O CAPTURAR</span>
+                                    <div class="h-px flex-1 bg-indigo-100/50"></div>
+                                </div>
+
+                                <!-- Webcam area for Payment -->
+                                <div class="space-y-4">
+                                    <div class="relative bg-slate-950 rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] flex items-center justify-center">
+                                        <video id="videoWebcamPago" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline></video>
+                                        <div id="pagoCamPlaceholder" class="text-center p-6 transition-all duration-300">
+                                            <i class="bi bi-camera text-slate-800 text-4xl mb-2"></i>
+                                            <p class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Cámara Inactiva</p>
+                                        </div>
+                                        
+                                        <!-- Preview Overlay -->
+                                        <img id="imgPreviewComprobante" src="" class="absolute inset-0 w-full h-full object-contain bg-slate-900 hidden" />
+                                    </div>
+                                    
+                                    <div class="flex gap-2">
+                                        <button type="button" id="btnActivarCamaraPago" onclick="activarCamaraPago()" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 bg-white border border-indigo-100 text-indigo-600 rounded-xl hover:bg-indigo-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                                            <i class="bi bi-camera"></i> Activar
+                                        </button>
+                                        <button type="button" id="btnCapturarPago" onclick="capturarComprobante()" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/20 hidden">
+                                            <i class="bi bi-camera-fill"></i> Capturar
+                                        </button>
+                                        <button type="button" id="btnQuitarComprobante" onclick="limpiarComprobante()" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all text-[10px] font-bold uppercase tracking-widest border border-rose-100 hidden">
+                                            <i class="bi bi-trash"></i> Quitar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="ComprobanteBase64" name="ComprobanteBase64">
+                            <canvas id="canvasPago" class="hidden"></canvas>
+                            <p class="text-rose-500 text-[10px] font-bold uppercase tracking-wide text-center d-none mt-2" id="errorComprobante">El comprobante es obligatorio para este método</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label asp-for="Observacion" class="block text-xs font-bold text-slate-700 uppercase tracking-widest ml-1">Observaciones</label>
+                            <textarea asp-for="Observacion" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-400" rows="3" placeholder="Notas sobre el cliente o el pago..."></textarea>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Footer con Acciones -->
+            <div class="px-8 lg:px-10 py-8 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                <a asp-action="Index" class="px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-bold text-xs uppercase tracking-widest text-center">Cancelar</a>
+                <button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i class="bi bi-check2-circle text-base"></i>
+                    Completar Registro y Pago
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -119,7 +186,9 @@
             $('.select2').select2({
                 theme: 'bootstrap-5',
                 placeholder: 'Buscar cliente por nombre...',
-                allowClear: true
+                allowClear: true,
+                dropdownCssClass: '!rounded-2xl !border-slate-200 !shadow-xl !mt-2',
+                selectionCssClass: '!h-12 !flex !items-center !bg-slate-50 !border-slate-200 !rounded-xl !px-4 !text-sm !font-bold !text-slate-900'
             });
 
             // LÓGICA COMPROBANTE: VISIBILIDAD, ARCHIVO Y WEBCAM
@@ -136,7 +205,6 @@
             }
 
             metodoPagoSelect.addEventListener('change', toggleComprobante);
-            // Ejecutar al inicio por si ya está seleccionado Yape (p.ej. luego de error de validación)
             toggleComprobante();
 
             // Convertir archivo a Base64 al seleccionarlo
@@ -146,12 +214,7 @@
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const base64 = e.target.result;
-                    document.getElementById('ComprobanteBase64').value = base64;
-                    document.getElementById('imgPreviewComprobante').src = base64;
-                    document.getElementById('previewComprobante').classList.remove('d-none');
-                    document.getElementById('errorComprobante').classList.add('d-none');
-                    // Detener cámara si estaba activa
-                    detenerCamaraPago();
+                    mostrarPreview(base64);
                 };
                 reader.readAsDataURL(file);
             });
@@ -165,12 +228,14 @@
                     streamCamaraPago = stream;
                     const video = document.getElementById('videoWebcamPago');
                     video.srcObject = stream;
-                    video.classList.remove('d-none');
-                    document.getElementById('btnActivarCamaraPago').classList.add('d-none');
-                    document.getElementById('btnCapturarPago').classList.remove('d-none');
-                    document.getElementById('previewComprobante').classList.add('d-none');
+                    video.classList.remove('hidden');
+                    document.getElementById('pagoCamPlaceholder').classList.add('hidden');
+                    document.getElementById('btnActivarCamaraPago').classList.add('hidden');
+                    document.getElementById('btnCapturarPago').classList.remove('hidden');
+                    document.getElementById('imgPreviewComprobante').classList.add('hidden');
+                    document.getElementById('btnQuitarComprobante').classList.add('hidden');
                 })
-                .catch(() => Swal.fire('Error', 'No se pudo acceder a la cámara. Verifica los permisos del navegador.', 'error'));
+                .catch(() => Swal.fire('Error', 'No se pudo acceder a la cámara.', 'error'));
         }
 
         function capturarComprobante() {
@@ -180,11 +245,16 @@
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             const base64 = canvas.toDataURL('image/jpeg', 0.85);
+            mostrarPreview(base64);
+        }
+
+        function mostrarPreview(base64) {
             document.getElementById('ComprobanteBase64').value = base64;
-            document.getElementById('imgPreviewComprobante').src = base64;
-            document.getElementById('previewComprobante').classList.remove('d-none');
+            const img = document.getElementById('imgPreviewComprobante');
+            img.src = base64;
+            img.classList.remove('hidden');
+            document.getElementById('btnQuitarComprobante').classList.remove('hidden');
             document.getElementById('errorComprobante').classList.add('d-none');
-            // Apagar cámara para liberar memoria
             detenerCamaraPago();
         }
 
@@ -195,18 +265,31 @@
             }
             const video = document.getElementById('videoWebcamPago');
             video.srcObject = null;
-            video.classList.add('d-none');
-            document.getElementById('btnCapturarPago').classList.add('d-none');
-            document.getElementById('btnActivarCamaraPago').classList.remove('d-none');
+            video.classList.add('hidden');
+            document.getElementById('pagoCamPlaceholder').classList.remove('hidden');
+            document.getElementById('btnCapturarPago').classList.add('hidden');
+            document.getElementById('btnActivarCamaraPago').classList.remove('hidden');
         }
 
         function limpiarComprobante() {
             detenerCamaraPago();
             document.getElementById('ComprobanteBase64').value = '';
             document.getElementById('ComprobanteArchivo').value = '';
-            document.getElementById('previewComprobante').classList.add('d-none');
+            document.getElementById('imgPreviewComprobante').classList.add('hidden');
             document.getElementById('imgPreviewComprobante').src = '';
-            document.getElementById('errorComprobante').classList.add('d-none');
+            document.getElementById('btnQuitarComprobante').classList.add('hidden');
         }
     </script>
 }
+
+<style>
+    /* Select2 overrides to match theme */
+    .select2-container--bootstrap-5 .select2-selection {
+        border-color: #e2e8f0 !important;
+        border-radius: 0.75rem !important;
+    }
+    .select2-container--bootstrap-5 .select2-dropdown {
+        border-radius: 1rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
