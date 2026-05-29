@@ -12,11 +12,11 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
 - [x] Incluir el CSS compilado en el `_Layout.cshtml`.
 
 ## Fase 2: Rediseño Estructural Base
-- [ ] Migrar el contenedor principal (`_Layout.cshtml`).
-- [ ] Rediseñar el Sidebar (menú lateral) con Tailwind (colores, hover, micro-animaciones).
-- [ ] Rediseñar el Topbar (barra superior de usuario y título).
-- [ ] Adaptar la lógica de colapso/expansión del sidebar para que funcione con las nuevas clases de Tailwind.
-- [ ] Asegurar que las notificaciones (TempData Success/Error) usen estilos de Tailwind.
+- [x] Migrar el contenedor principal (`_Layout.cshtml`).
+- [x] Rediseñar el Sidebar (menú lateral) con Tailwind (colores, hover, micro-animaciones).
+- [x] Rediseñar el Topbar (barra superior de usuario y título).
+- [x] Adaptar la lógica de colapso/expansión del sidebar para que funcione con las nuevas clases de Tailwind.
+- [x] Asegurar que las notificaciones (TempData Success/Error) usen estilos de Tailwind.
 
 ## Fase 3: Actualización Módulo por Módulo (Vistas)
 *Esta fase implica ir a las carpetas dentro de `Views/` y reemplazar las clases de Bootstrap por las de Tailwind, mejorando la estética según el `design.md`.*
