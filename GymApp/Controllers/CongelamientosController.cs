@@ -46,8 +46,11 @@ namespace GymApp.Controllers
 
         // Acción para congelar una membresía
         [HttpPost]
+        [Authorize(Policy = AppPoliticas.RequiereCongelarMembresias)]
         public async Task<IActionResult> Congelar([FromBody] CongelarMembresiaDTO model)
         {
+            if (!TienePermiso(AppPermisos.MembresiasCongelar)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para congelar membresías." });
+
             try
             {
                 // Inyectamos el ID del empleado que está logueado actualmente
@@ -65,8 +68,11 @@ namespace GymApp.Controllers
 
         // Acción para descongelar manualmente (si el cliente regresa antes)
         [HttpPost]
+        [Authorize(Policy = AppPoliticas.RequiereCongelarMembresias)]
         public async Task<IActionResult> Descongelar(int id)
         {
+            if (!TienePermiso(AppPermisos.MembresiasCongelar)) return Json(new { success = false, message = "Acceso Denegado: No tienes permiso para reactivar membresías." });
+
             try
             {
                 await _congelamientoService.DescongelarManualAsync(id);

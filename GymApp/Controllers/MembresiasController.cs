@@ -122,10 +122,10 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = AppPoliticas.RequiereCrearCongelamientos)]
+        [Authorize(Policy = AppPoliticas.RequiereCongelarMembresias)]
         public async Task<IActionResult> Congelar(int membresiaId, DateTime fechaFin, string motivo)
         {
-            if (!TienePermiso(AppPermisos.CongelamientosCrear)) return Forbid();
+            if (!TienePermiso(AppPermisos.MembresiasCongelar)) return Forbid();
 
             try
             {
@@ -149,10 +149,10 @@ namespace GymApp.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = AppPoliticas.RequiereCrearMembresias)]
+        [Authorize(Policy = AppPoliticas.RequiereRenovarMembresias)]
         public async Task<IActionResult> Renovar(int userId, int planId, int turnoId, DateTime fechaInicio)
         {
-            if (!TienePermiso(AppPermisos.MembresiasCrear)) return Forbid();
+            if (!TienePermiso(AppPermisos.MembresiasRenovar)) return Forbid();
 
             try
             {
