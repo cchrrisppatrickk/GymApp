@@ -12,158 +12,188 @@
     var diasVencidos = vencimiento < hoy ? (hoy - vencimiento).Days : 0;
 }
 
-<div class="container-fluid px-4 mt-4 animate-fade-in">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+    <!-- Encabezado -->
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-            <h2 class="fw-bold text-dark mb-0">
-                <i class="bi bi-info-circle text-primary me-2"></i>Suscripción #@Model.MembresiaId
-            </h2>
-            <p class="text-muted small mb-0">Socio: <span class="fw-bold">@Model.User.NombreCompleto</span> (@Model.User.Dni)</p>
+            <div class="flex items-center gap-4 mb-1">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                    <i class="bi bi-info-circle text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-display font-extrabold text-slate-950 tracking-tight m-0">Suscripción #@Model.MembresiaId</h1>
+            </div>
+            <p class="text-slate-600 text-sm font-medium ml-1">
+                Socio: <a href="/Usuarios/Details/@Model.UserId" class="text-indigo-600 font-bold hover:underline">@Model.User.NombreCompleto</a> 
+                <span class="mx-2 text-slate-300">|</span> 
+                ID: <span class="font-mono text-slate-950">@Model.User.Dni</span>
+            </p>
         </div>
-        <div>
-            <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
-                <i class="bi bi-arrow-left me-1"></i> Volver al Listado
+        
+        <div class="flex flex-wrap items-center gap-3">
+            <a asp-action="Index" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 transition-all active:scale-95">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
             </a>
+            
+            @if (deuda > 0 && (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosCrear) || User.IsInRole(AppRoles.Admin)))
+            {
+                <a href="/Pagos/Index?buscar=@Model.User.Dni" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 transition-all active:scale-95">
+                    <i class="bi bi-cash-coin"></i>
+                    <span>Registrar Pago</span>
+                </a>
+            }
         </div>
     </div>
 
-    <!-- Botones de Acción Global -->
-    <div class="mb-4 d-flex gap-2">
+    <!-- Botones de Acción de Membresía -->
+    <div class="flex flex-wrap items-center gap-3 bg-slate-50/50 p-4 rounded-[2rem] border border-slate-100">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-4 mr-2">Gestión:</span>
+        
         @if (Model.Plan?.PermiteCongelar == true && (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasCongelar) || User.IsInRole(AppRoles.Admin)))
         {
-            <button class="btn btn-info text-white shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCongelar">
-                <i class="bi bi-snow2 me-1"></i> Congelar Cuenta
-            </button>
-        }
-        else if (Model.Plan?.PermiteCongelar != true)
-        {
-            <button class="btn btn-info text-white shadow-sm opacity-50" disabled title="El plan no permite congelar">
-                <i class="bi bi-snow2 me-1"></i> El plan no permite congelar
+            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-xl border border-blue-100 transition-all active:scale-95" data-bs-toggle="modal" data-bs-target="#modalCongelar">
+                <i class="bi bi-snow2"></i> Congelar
             </button>
         }
         
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasRenovar) || User.IsInRole(AppRoles.Admin))
         {
-            <button class="btn btn-primary shadow-sm" style="background-color: #276CF5;" onclick="abrirModalRenovacion()">
-                <i class="bi bi-arrow-repeat me-1"></i> Renovar Membresía
+            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-indigo-600 bg-white hover:bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 transition-all active:scale-95" onclick="abrirModalRenovacion()">
+                <i class="bi bi-arrow-repeat"></i> Renovar
             </button>
         }
 
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasEditar) || User.IsInRole(AppRoles.Admin))
         {
-            <button class="btn btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEditarMembresia">
-                <i class="bi bi-pencil-square me-1"></i> Editar Membresía
+            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-600 bg-white hover:bg-amber-50 px-4 py-2 rounded-xl border border-amber-100 transition-all active:scale-95" data-bs-toggle="modal" data-bs-target="#modalEditarMembresia">
+                <i class="bi bi-pencil-square"></i> Editar
             </button>
         }
+
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasEliminar) || User.IsInRole(AppRoles.Admin))
         {
-            <button type="button" class="btn btn-outline-danger shadow-sm btn-hard-delete-details" data-id="@Model.MembresiaId" title="Eliminar Físicamente">
-                <i class="bi bi-trash-fill me-1"></i> Eliminar Membresía
+            <button type="button" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-rose-600 bg-white hover:bg-rose-50 px-4 py-2 rounded-xl border border-rose-100 transition-all active:scale-95 btn-hard-delete-details" data-id="@Model.MembresiaId">
+                <i class="bi bi-trash-fill"></i> Eliminar
             </button>
-        }
-        @if (deuda > 0 && (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosCrear) || User.IsInRole(AppRoles.Admin)))
-        {
-            <a href="/Pagos/Index?buscar=@Model.User.Dni" class="btn btn-success shadow-sm" title="Registrar Pago">
-                <i class="bi bi-cash-coin me-1"></i> Registrar Pago
-            </a>
         }
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-check-circle me-2"></i> @Html.Raw(TempData["Success"])
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="flex items-center gap-4 bg-emerald-50 border border-emerald-100 p-5 rounded-3xl animate-fade-in shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
+                <i class="bi bi-check2-circle text-xl"></i>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-bold text-emerald-900 leading-tight">@Html.Raw(TempData["Success"])</p>
+            </div>
         </div>
     }
 
-    <div class="row g-4 mb-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Tarjeta Izquierda: Info del Plan -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3">
-                    <h6 class="m-0 fw-bold text-primary"><i class="bi bi-calendar3 me-2"></i>Información de Vigencia</h6>
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col group transition-all hover:shadow-md">
+            <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white text-indigo-600 flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
+                        <i class="bi bi-calendar-range text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-display font-bold text-slate-950 tracking-tight m-0">Vigencia del Servicio</h3>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-3 pb-2 border-bottom border-light">
-                        <div class="col-6 text-muted small">Plan Contratado:</div>
-                        <div class="col-6 fw-bold">@Model.Plan.Nombre</div>
+                @if (Model.Estado == "Activa") { 
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Activa
+                    </span>
+                }
+                else if (Model.Estado == "Vencida") {
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100">Vencida</span>
+                }
+                else {
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100">@Model.Estado</span>
+                }
+            </div>
+            
+            <div class="p-8 space-y-6 flex-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Plan Suscrito</p>
+                        <p class="text-base font-bold text-slate-900">@Model.Plan.Nombre</p>
                     </div>
-                    <div class="row mb-3 pb-2 border-bottom border-light">
-                        <div class="col-6 text-muted small">Horario / Turno:</div>
-                        <div class="col-6 fw-bold text-muted">@Model.Turno.Nombre (@Model.Turno.HoraInicio - @Model.Turno.HoraFin)</div>
+                    <div class="space-y-1 text-right">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Horario Asignado</p>
+                        <p class="text-base font-bold text-slate-700">@Model.Turno.Nombre (@Model.Turno.HoraInicio - @Model.Turno.HoraFin)</p>
                     </div>
-                    <div class="row mb-3 pb-2 border-bottom border-light">
-                        <div class="col-6 text-muted small">Vigencia:</div>
-                        <div class="col-6">
-                            <span class="d-block fw-bold text-success">@Model.FechaInicio.ToString("dd/MM/yyyy")</span>
-                            <span class="d-block fw-bold text-danger">@Model.FechaVencimiento.ToString("dd/MM/yyyy")</span>
-                        </div>
+                </div>
+
+                <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Fecha Inicio</span>
+                        <span class="text-sm font-bold text-emerald-600 font-mono">@Model.FechaInicio.ToString("dd/MM/yyyy")</span>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-6 text-muted small">Estado:</div>
-                        <div class="col-6">
-                            @if (Model.Estado == "Activa") { <span class="badge bg-success bg-opacity-75"><i class="bi bi-check-circle me-1"></i>Activa</span> }
-                            else if (Model.Estado == "Vencida")
-                            {
-                                <span class="badge bg-danger bg-opacity-75"><i class="bi bi-x-circle me-1"></i>Vencida</span>
-                                <span class="d-block text-danger small mt-1">
-                                    <i class="bi bi-clock-history me-1"></i>Vencida hace @diasVencidos día@(diasVencidos != 1 ? "s" : "")
-                                </span>
-                            }
-                            else if (Model.Estado == "Congelada") { <span class="badge bg-primary bg-opacity-75"><i class="bi bi-snow2 me-1"></i>Congelada</span> }
-                            else { <span class="badge bg-warning text-dark border">@Model.Estado</span> }
-                        </div>
+                    <div class="h-px bg-slate-200/50"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Fecha Vencimiento</span>
+                        <span class="text-sm font-bold text-rose-600 font-mono">@Model.FechaVencimiento.ToString("dd/MM/yyyy")</span>
                     </div>
-                    <div class="row">
-                        <div class="col-6 text-muted small">Tiempo Restante:</div>
-                        <div class="col-6">
+                </div>
+
+                <div class="flex items-center justify-between gap-4 pt-2">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tiempo de Acceso</span>
+                        <div class="flex items-baseline gap-1 mt-1">
                             @if(diasRestantes > 0) {
-                                <span class="fw-bold @(diasRestantes <= 5 ? "text-danger" : "text-success")">@diasRestantes días</span>
+                                <span class="text-4xl font-display font-black tracking-tighter @(diasRestantes <= 5 ? "text-rose-600" : "text-emerald-600")">@diasRestantes</span>
+                                <span class="text-xs font-bold text-slate-500 uppercase">días restantes</span>
                             } else {
-                                <span class="text-danger fw-bold">
-                                    <i class="bi bi-exclamation-triangle me-1"></i>Vencida hace @diasVencidos día@(diasVencidos != 1 ? "s" : "")
-                                </span>
+                                <span class="text-2xl font-display font-black tracking-tighter text-rose-400 uppercase italic">Caducado</span>
                             }
                         </div>
                     </div>
+                    @if(diasVencidos > 0) {
+                        <div class="px-4 py-2 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-xs font-bold flex items-center gap-2">
+                            <i class="bi bi-clock-history"></i>
+                            Vencido hace @diasVencidos día@(diasVencidos != 1 ? "s" : "")
+                        </div>
+                    }
                 </div>
             </div>
         </div>
 
         <!-- Tarjeta Derecha: Info Financiera -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 d-flex justify-content-between">
-                    <h6 class="m-0 fw-bold text-success"><i class="bi bi-cash-coin me-2"></i>Estado Financiero</h6>
-                    @if(deuda > 0) {
-                        <span class="badge bg-danger-soft text-danger border border-danger border-opacity-25 rounded-pill px-3">Cuenta con deuda</span>
-                    }
-                </div>
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <div class="text-center mb-4">
-                        <h6 class="text-muted small text-uppercase fw-bold mb-1">Costo Total del Plan</h6>
-                        <h2 class="fw-bold display-6">@Model.PrecioAcordado.ToString("C")</h2>
-                        <div class="mt-1">
-                            <strong>Precio Acordado:</strong> <span class="text-success fw-bold">S/ @Model.PrecioAcordado.ToString("0.00")</span>
-                        </div>
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col group transition-all hover:shadow-md">
+            <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
+                        <i class="bi bi-currency-dollar text-xl"></i>
                     </div>
-                    <div class="row text-center mt-3">
-                        <div class="col-6 border-end">
-                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Total Pagado</h6>
-                            <h4 class="text-success fw-bold">@totalPagado.ToString("C")</h4>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Deuda Pendiente</h6>
-                            <h4 class="@(deuda > 0 ? "text-danger" : "text-success") fw-bold">@deuda.ToString("C")</h4>
-                        </div>
+                    <h3 class="text-lg font-display font-bold text-slate-950 tracking-tight m-0">Estado Financiero</h3>
+                </div>
+                @if(deuda > 0) {
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm shadow-rose-600/20">Deuda Pendiente</span>
+                } else {
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">Totalmente Pagado</span>
+                }
+            </div>
+
+            <div class="p-8 flex flex-col h-full space-y-8">
+                <div class="text-center py-6 bg-slate-50 rounded-[2rem] border border-slate-100 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-br-full"></div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Inversión Total Acordada</p>
+                    <h2 class="text-5xl font-display font-black text-slate-950 tracking-tighter">@Model.PrecioAcordado.ToString("C")</h2>
+                    <div class="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        <i class="bi bi-shield-check text-emerald-500"></i>
+                        Confirmado en Contrato
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-6 bg-white border border-slate-100 rounded-3xl flex flex-col items-center text-center shadow-sm">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Abonado</p>
+                        <span class="text-xl font-bold text-emerald-600 font-mono tracking-tight">@totalPagado.ToString("C")</span>
+                    </div>
+                    <div class="p-6 bg-white border border-slate-100 rounded-3xl flex flex-col items-center text-center shadow-sm">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Saldo</p>
+                        <span class="text-xl font-bold font-mono tracking-tight @(deuda > 0 ? "text-rose-600" : "text-emerald-600")">@deuda.ToString("C")</span>
                     </div>
                 </div>
             </div>
@@ -172,158 +202,190 @@
 
     @if (!string.IsNullOrEmpty(Model.Observaciones))
     {
-        <div class="alert alert-info border-0 shadow-sm mb-4 animate-fade-in">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-info-circle-fill me-3 fs-4"></i>
-                <div>
-                    <strong class="d-block">Nota / Observación:</strong>
-                    @Model.Observaciones
-                </div>
+        <div class="flex items-start gap-5 p-6 bg-indigo-50/50 border border-indigo-100 rounded-3xl group transition-all hover:bg-indigo-50">
+            <div class="w-12 h-12 rounded-2xl bg-white text-indigo-500 flex items-center justify-center flex-shrink-0 border border-indigo-100 shadow-sm group-hover:scale-110 transition-transform">
+                <i class="bi bi-sticky text-xl"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Comentarios del Staff</span>
+                <p class="text-sm font-medium text-indigo-900 mt-1 leading-relaxed">@Model.Observaciones</p>
             </div>
         </div>
     }
 
-    <!-- Pestañas de Historial -->
-    <div class="card border-0 shadow-sm overflow-hidden">
-        <div class="card-header bg-light p-0 border-bottom">
-            <ul class="nav nav-tabs border-bottom-0" id="historialTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active py-3 px-4 border-end-0 rounded-0" id="pagos-tab" data-bs-toggle="tab" data-bs-target="#pagos" type="button" role="tab">
-                        <i class="bi bi-wallet2 me-2"></i>Historial de Pagos
+    <!-- Historial Tabs -->
+    <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        <div class="px-8 pt-6 border-b border-slate-100 bg-slate-50/30">
+            <ul class="flex items-center gap-8 nav nav-tabs border-0" id="historialTabs" role="tablist">
+                <li class="pb-4 relative" role="presentation">
+                    <button class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all active" id="pagos-tab" data-bs-toggle="tab" data-bs-target="#pagos" type="button" role="tab">
+                        <i class="bi bi-wallet2 text-base"></i> Historial de Pagos
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 px-4 rounded-0" id="congelamientos-tab" data-bs-toggle="tab" data-bs-target="#congelamientos" type="button" role="tab">
-                        <i class="bi bi-snow2 me-2"></i>Historial de Congelamientos
+                <li class="pb-4 relative" role="presentation">
+                    <button class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all" id="congelamientos-tab" data-bs-toggle="tab" data-bs-target="#congelamientos" type="button" role="tab">
+                        <i class="bi bi-snow2 text-base"></i> Congelamientos
                     </button>
                 </li>
             </ul>
         </div>
-        <div class="card-body p-0">
-            <div class="tab-content" id="historialTabsContent">
-                <!-- Pestaña: Pagos -->
-                <div class="tab-pane fade show active" id="pagos" role="tabpanel">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light text-secondary">
-                                <tr>
-                                    <th class="ps-4">Fecha y Hora de Operación</th>
-                                    <th>Monto Recibido</th>
-                                    <th>Método de Pago</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model.PagosMembresia.Any())
+        
+        <div class="tab-content" id="historialTabsContent">
+            <!-- Pestaña: Pagos -->
+            <div class="tab-pane fade show active" id="pagos" role="tabpanel">
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100">
+                                <th class="px-8 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Fecha Operación</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Monto Recibido</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Método</th>
+                                <th class="px-8 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100/80">
+                            @if (Model.PagosMembresia.Any())
+                            {
+                                @foreach (var pago in Model.PagosMembresia.OrderByDescending(p => p.FechaPago))
                                 {
-                                    @foreach (var pago in Model.PagosMembresia.OrderByDescending(p => p.FechaPago))
-                                    {
-                                        <tr class="@(pago.EsAnulado ? "opacity-50 text-muted table-light" : "")">
-                                            <td class="ps-4">
-                                                <div class="fw-bold @(pago.EsAnulado ? "text-decoration-line-through" : "")">@pago.FechaPago?.ToString("dd/MM/yyyy")</div>
-                                                <small class="text-muted">@pago.FechaPago?.ToString("HH:mm:ss")</small>
-                                                @if (pago.EsAnulado)
-                                                {
-                                                    <span class="badge bg-danger ms-2">Anulado</span>
-                                                }
-                                            </td>
-                                            <td class="fw-bold @(pago.EsAnulado ? "text-decoration-line-through" : "text-success") font-monospace">@pago.Monto.ToString("C")</td>
-                                            <td><span class="badge bg-white text-dark border px-2">@pago.MetodoPago</span></td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="3" class="text-center py-5">
-                                            <i class="bi bi-cash-stack text-muted opacity-25 display-4 d-block mb-3"></i>
-                                            <p class="text-muted">No se registran pagos para este período.</p>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Pestaña: Congelamientos -->
-                <div class="tab-pane fade" id="congelamientos" role="tabpanel">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light text-secondary">
-                                <tr>
-                                    <th class="ps-4">Desde</th>
-                                    <th>Hasta</th>
-                                    <th>Motivo / Observación</th>
-                                    <th>Autorizado por</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model.Congelamientos.Any())
-                                {
-                                    @foreach (var c in Model.Congelamientos.OrderByDescending(c => c.FechaInicio))
-                                    {
-                                        <tr>
-                                            <td class="ps-4 fw-bold">@c.FechaInicio.ToString("dd/MM/yyyy")</td>
-                                            <td class="fw-bold text-primary">@c.FechaFin.ToString("dd/MM/yyyy")</td>
-                                            <td class="small text-muted">@(c.Motivo ?? "-")</td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="bg-light rounded-circle p-1 me-2"><i class="bi bi-person-badge text-primary"></i></div>
-                                                    <span class="small">@(c.UsuarioEmpleado?.NombreCompleto ?? "Sistema")</span>
+                                    <tr class="group hover:bg-slate-50/50 transition-colors @(pago.EsAnulado ? "opacity-50" : "")">
+                                        <td class="px-8 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50">
+                                                    <i class="bi bi-check2-all"></i>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="4" class="text-center py-5">
-                                            <i class="bi bi-snow2 text-muted opacity-25 display-4 d-block mb-3"></i>
-                                            <p class="text-muted">No hay historial de congelamientos.</p>
+                                                <div>
+                                                    <div class="text-sm font-bold text-slate-900 @(pago.EsAnulado ? "line-through" : "")">@pago.FechaPago?.ToString("dd/MM/yyyy")</div>
+                                                    <div class="text-[10px] font-bold text-slate-400 uppercase">@pago.FechaPago?.ToString("HH:mm:ss")</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="text-sm font-bold font-mono tracking-tight @(pago.EsAnulado ? "text-slate-400 line-through" : "text-emerald-600")">@pago.Monto.ToString("C")</span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200/50">@pago.MetodoPago</span>
+                                        </td>
+                                        <td class="px-8 py-4 text-right">
+                                            @if (pago.EsAnulado) {
+                                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500">ANULADO</span>
+                                            } else {
+                                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">PROCESADO</span>
+                                            }
                                         </td>
                                     </tr>
                                 }
-                            </tbody>
-                        </table>
-                    </div>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="px-8 py-20 text-center text-slate-400 italic">No hay pagos registrados.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pestaña: Congelamientos -->
+            <div class="tab-pane fade" id="congelamientos" role="tabpanel">
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100">
+                                <th class="px-8 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Período Pausa</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Motivo / Causa</th>
+                                <th class="px-8 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Autorizado por</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100/80">
+                            @if (Model.Congelamientos.Any())
+                            {
+                                @foreach (var c in Model.Congelamientos.OrderByDescending(c => c.FechaInicio))
+                                {
+                                    <tr class="group hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-8 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/50">
+                                                    <i class="bi bi-snow"></i>
+                                                </div>
+                                                <div class="text-sm font-bold text-slate-900">@c.FechaInicio.ToString("dd/MM/yyyy") - @c.FechaFin.ToString("dd/MM/yyyy")</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <p class="text-xs font-medium text-slate-600 italic">"@c.Motivo"</p>
+                                        </td>
+                                        <td class="px-8 py-4 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                            @(c.UsuarioEmpleado?.NombreCompleto ?? "Sistema")
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="px-8 py-20 text-center text-slate-400 italic">No hay historial de pausas.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ========================= -->
+<!-- MODALES DE GESTIÓN -->
+<!-- ========================= -->
+
 <!-- Modal Congelar -->
-<div class="modal fade" id="modalCongelar" tabindex="-1" aria-labelledby="modalCongelarLabel" aria-hidden="true">
+<div class="modal fade" id="modalCongelar" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title fw-bold" id="modalCongelarLabel"><i class="bi bi-snow2 me-2"></i>Congelar Membresía</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white text-slate-950">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/50 shadow-sm">
+                        <i class="bi bi-snow2 text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Congelar Membresía</h5>
+                        <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Pausar acceso temporalmente</p>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
             <form asp-controller="Membresias" asp-action="Congelar" method="post">
                 <input type="hidden" name="membresiaId" value="@Model.MembresiaId" />
-                <div class="modal-body p-4">
-                    <div class="alert alert-warning small mb-4">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        Esta acción extenderá la fecha de vencimiento y pausará el acceso hasta la fecha seleccionada.
+                <div class="p-8">
+                    <div class="flex items-start gap-4 bg-amber-50/50 border border-amber-100 p-4 rounded-2xl mb-8">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm shadow-amber-500/20">
+                            <i class="bi bi-exclamation-triangle-fill text-sm"></i>
+                        </div>
+                        <p class="text-[11px] font-bold text-amber-900 leading-relaxed uppercase tracking-wide">
+                            Esta acción extenderá la fecha de vencimiento y pausará el acceso hasta la fecha seleccionada.
+                        </p>
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Fecha Fin de Congelamiento</label>
-                        <input type="date" name="fechaFin" class="form-control" required min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")">
-                        <div class="form-text small text-muted">A partir de esta fecha, el socio volverá a tener acceso.</div>
-                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Fecha de Fin (Hasta cuando)</label>
+                            <input type="date" name="fechaFin" class="w-full bg-white border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 transition-all" required min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")">
+                            <p class="mt-2 text-[10px] text-slate-400 font-medium">A partir de esta fecha, el socio volverá a tener acceso.</p>
+                        </div>
 
-                    <div class="mb-0">
-                        <label class="form-label fw-bold small">Motivo</label>
-                        <textarea name="motivo" class="form-control" rows="3" placeholder="Ej: Viaje, Salud, Vacaciones..." required></textarea>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Justificación / Motivo</label>
+                            <textarea name="motivo" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-400" rows="3" placeholder="Ej: Viaje, Salud, Vacaciones..." required></textarea>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-info text-white px-4">
-                        <i class="bi bi-check-lg me-1"></i> Confirmar Congelamiento
+                <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                    <button type="button" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                        <i class="bi bi-check-lg"></i> Confirmar Congelamiento
                     </button>
                 </div>
             </form>
@@ -334,36 +396,54 @@
 <!-- Modal Renovar -->
 <div class="modal fade" id="modalRenovacion" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold"><i class="bi bi-arrow-repeat me-2"></i>Renovación Inteligente</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                        <i class="bi bi-arrow-repeat text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Renovación Inteligente</h5>
+                        <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Generar nueva suscripción continua</p>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
             <form asp-controller="Membresias" asp-action="Renovar" method="post">
                 <input type="hidden" name="userId" value="@Model.UserId" />
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Elegir Plan</label>
-                        <select name="planId" id="cboRenovarPlan" class="form-select" required></select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Elegir Turno</label>
-                        <select name="turnoId" id="cboRenovarTurno" class="form-select" required></select>
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label fw-bold small">Fecha de Inicio de Nueva Membresía</label>
-                        <input type="date" name="fechaInicio" id="txtRenovarInicio" class="form-control" required>
-                        <div class="form-text small text-info">
-                            <i class="bi bi-info-circle-fill me-1"></i>
-                            Calculado automáticamente para no perder días de la membresía actual.
+                <div class="p-8 space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Elegir Nuevo Plan</label>
+                        <div class="relative">
+                            <select name="planId" id="cboRenovarPlan" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" required></select>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Elegir Horario</label>
+                        <div class="relative">
+                            <select name="turnoId" id="cboRenovarTurno" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" required></select>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Fecha de Inicio</label>
+                        <input type="date" name="fechaInicio" id="txtRenovarInicio" class="w-full bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 text-sm font-bold text-indigo-900 shadow-inner" required>
+                        <p class="mt-2 text-[10px] text-indigo-400 font-bold uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="bi bi-stars"></i>
+                            Calculado automáticamente para no perder vigencia actual.
+                        </p>
+                    </div>
                 </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary px-4">
-                        <i class="bi bi-check-lg me-1"></i> Confirmar Renovación
-                    </button>
+                <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                    <button type="button" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-600/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest">Confirmar Renovación</button>
                 </div>
             </form>
         </div>
@@ -373,59 +453,75 @@
 <!-- Modal Editar Membresía -->
 <div class="modal fade" id="modalEditarMembresia" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Datos de Membresía</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/50 shadow-sm">
+                        <i class="bi bi-pencil-square text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Editar Membresía</h5>
+                        <p class="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-1">Corrección técnica de registros</p>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
             <form asp-controller="Membresias" asp-action="Editar" method="post">
                 <input type="hidden" name="MembresiaId" value="@Model.MembresiaId" />
-                <div class="modal-body p-4">
-                    <div class="alert alert-warning small mb-4">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        Esta acción modifica directamente los valores de la base de datos. Usar solo para corregir errores de registro.
+                <div class="p-8">
+                    <div class="flex items-start gap-4 bg-amber-50 border border-amber-100 p-4 rounded-2xl mb-8">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <i class="bi bi-exclamation-triangle-fill text-sm"></i>
+                        </div>
+                        <p class="text-[11px] font-bold text-amber-900 leading-relaxed uppercase tracking-wide">
+                            Esta acción modifica valores directos. Usar solo para corregir errores de registro inicial.
+                        </p>
                     </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">Plan Contratado</label>
-                            <select name="PlanId" class="form-select" asp-items="ViewBag.Planes">
-                                <option value="@Model.PlanId" selected>@Model.Plan?.Nombre (Actual)</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">Turno</label>
-                            <select name="TurnoId" class="form-select" asp-items="ViewBag.Turnos">
-                                <option value="@Model.TurnoId" selected>@Model.Turno?.Nombre (Actual)</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">Fecha de Inicio</label>
-                            <input type="date" name="FechaInicio" class="form-control" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small">Fecha de Vencimiento (Fin)</label>
-                            <input type="date" name="FechaVencimiento" class="form-control" value="@Model.FechaVencimiento.ToString("yyyy-MM-dd")" required>
-                            <div class="form-text small text-muted">El estado Activo/Vencido se recalculará en base a esta fecha.</div>
-                        </div>
-                        <div class="col-md-12 mt-3">
-                            <label for="EditPrecioAcordado" class="form-label fw-bold small">Precio Acordado</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" step="0.01" id="EditPrecioAcordado" name="PrecioAcordadoPersonalizado" class="form-control" value="@Model.PrecioAcordado.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Plan Contratado</label>
+                            <div class="relative">
+                                <select name="PlanId" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none" asp-items="ViewBag.Planes">
+                                    <option value="@Model.PlanId" selected>@Model.Plan?.Nombre (Actual)</option>
+                                </select>
                             </div>
-                            <div class="form-text">Modifica este valor solo si el precio inicial fue registrado incorrectamente.</div>
                         </div>
-                        <div class="col-md-12 mt-3">
-                            <label class="form-label fw-bold small">Comentarios / Observaciones</label>
-                            <textarea name="Observaciones" class="form-control" rows="3" placeholder="Notas sobre la membresía..." maxlength="200">@Model.Observaciones</textarea>
-                            <div class="form-text small">Notas internas o recordatorios sobre este servicio (Máx. 200 caracteres).</div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Horario / Turno</label>
+                            <div class="relative">
+                                <select name="TurnoId" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none" asp-items="ViewBag.Turnos">
+                                    <option value="@Model.TurnoId" selected>@Model.Turno?.Nombre (Actual)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Fecha de Inicio</label>
+                            <input type="date" name="FechaInicio" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Fecha de Vencimiento (Fin)</label>
+                            <input type="date" name="FechaVencimiento" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900" value="@Model.FechaVencimiento.ToString("yyyy-MM-dd")" required>
+                        </div>
+                        <div class="col-span-1 md:col-span-2">
+                            <label for="EditPrecioAcordado" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Precio Acordado</label>
+                            <div class="relative">
+                                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">S/</div>
+                                <input type="number" step="0.01" id="EditPrecioAcordado" name="PrecioAcordadoPersonalizado" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-slate-900" value="@Model.PrecioAcordado.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
+                            </div>
+                        </div>
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Comentarios / Observaciones</label>
+                            <textarea name="Observaciones" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900" rows="2" placeholder="Notas sobre la membresía..." maxlength="200">@Model.Observaciones</textarea>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning px-4 fw-bold">
-                        <i class="bi bi-save me-1"></i> Guardar Cambios
+                <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                    <button type="button" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="px-6 py-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest">
+                        <i class="bi bi-save mr-2"></i> Guardar Cambios
                     </button>
                 </div>
             </form>
@@ -433,83 +529,104 @@
     </div>
 </div>
 
-<script>
-    function abrirModalRenovacion() {
-        // Cargar Planes y Turnos si no están cargados (o refrescar)
-        fetch('/Membresias/ObtenerRecursosCreacion')
-            .then(res => res.json())
-            .then(json => {
-                let pSelect = document.getElementById('cboRenovarPlan');
-                pSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Plan --</option>';
-                json.planes.forEach(p => pSelect.innerHTML += `<option value="${p.planId}">${p.nombre} (${p.duracionDias} días)</option>`);
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function abrirModalRenovacion() {
+            // Cargar Planes y Turnos si no están cargados (o refrescar)
+            fetch('/Membresias/ObtenerRecursosCreacion')
+                .then(res => res.json())
+                .then(json => {
+                    let pSelect = document.getElementById('cboRenovarPlan');
+                    pSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Plan --</option>';
+                    json.planes.forEach(p => pSelect.innerHTML += `<option value="${p.planId}">${p.nombre} (${p.duracionDias} días)</option>`);
 
-                let tSelect = document.getElementById('cboRenovarTurno');
-                tSelect.innerHTML = '';
-                json.turnos.forEach(t => tSelect.innerHTML += `<option value="${t.turnoId}" ${t.turnoId == @Model.TurnoId ? 'selected' : ''}>${t.nombre}</option>`);
-            });
-
-        // Obtener Propuesta de Fecha
-        fetch(`/Membresias/GetPropuestaRenovacion/@Model.MembresiaId`)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('txtRenovarInicio').value = data.fechaInicio;
-            });
-
-        new bootstrap.Modal(document.getElementById('modalRenovacion')).show();
-    }
-
-    // LÓGICA DE BORRADO FÍSICO (EXCLUSIVO ADMIN / PERMISO)
-    $(document).on('click', '.btn-hard-delete-details', function() {
-        const id = $(this).data('id');
-        
-        Swal.fire({
-            title: '¿ELIMINACIÓN DEFINITIVA?',
-            text: "Esta acción borrará permanentemente la membresía, todos sus PAGOS y CONGELAMIENTOS asociados. ¡No se puede deshacer!",
-            icon: 'warning',
-            input: 'text',
-            inputPlaceholder: 'Escribe ELIMINAR para confirmar',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Sí, borrar todo',
-            cancelButtonText: 'Cancelar',
-            preConfirm: (inputValue) => {
-                if (inputValue.trim().toUpperCase() !== 'ELIMINAR') {
-                    Swal.showValidationMessage('Debes escribir ELIMINAR para proceder');
-                    return false;
-                }
-                return true;
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Procesando...',
-                    didOpen: () => { Swal.showLoading(); }
+                    let tSelect = document.getElementById('cboRenovarTurno');
+                    tSelect.innerHTML = '';
+                    json.turnos.forEach(t => tSelect.innerHTML += `<option value="${t.turnoId}" ${t.turnoId == @Model.TurnoId ? 'selected' : ''}>${t.nombre}</option>`);
                 });
 
-                fetch(`/Membresias/EliminarFisicamente/${id}`, { method: 'POST' })
-                    .then(res => res.json())
-                    .then(json => {
-                        if (json.success) {
-                            Swal.fire('Eliminado', json.message, 'success').then(() => {
-                                window.location.href = '/Membresias';
-                            });
-                        } else {
-                            Swal.fire('Error', json.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        Swal.fire('Error', 'No se pudo completar la operación.', 'error');
+            // Obtener Propuesta de Fecha
+            fetch(`/Membresias/GetPropuestaRenovacion/@Model.MembresiaId`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('txtRenovarInicio').value = data.fechaInicio;
+                });
+
+            new bootstrap.Modal(document.getElementById('modalRenovacion')).show();
+        }
+
+        // LÓGICA DE BORRADO FÍSICO (EXCLUSIVO ADMIN / PERMISO)
+        $(document).on('click', '.btn-hard-delete-details', function() {
+            const id = $(this).data('id');
+            
+            Swal.fire({
+                title: '¿ELIMINACIÓN DEFINITIVA?',
+                text: "Esta acción borrará permanentemente la membresía, todos sus PAGOS y CONGELAMIENTOS asociados. ¡No se puede deshacer!",
+                icon: 'warning',
+                input: 'text',
+                inputPlaceholder: 'Escribe ELIMINAR para confirmar',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, borrar todo',
+                cancelButtonText: 'Cancelar',
+                preConfirm: (inputValue) => {
+                    if (inputValue.trim().toUpperCase() !== 'ELIMINAR') {
+                        Swal.showValidationMessage('Debes escribir ELIMINAR para proceder');
+                        return false;
+                    }
+                    return true;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Procesando...',
+                        didOpen: () => { Swal.showLoading(); }
                     });
-            }
+
+                    fetch(`/Membresias/EliminarFisicamente/${id}`, { method: 'POST' })
+                        .then(res => res.json())
+                        .then(json => {
+                            if (json.success) {
+                                Swal.fire('Eliminado', json.message, 'success').then(() => {
+                                    window.location.href = '/Membresias';
+                                });
+                            } else {
+                                Swal.fire('Error', json.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error', 'No se pudo completar la operación.', 'error');
+                        });
+                }
+            });
         });
-    });
-</script>
+    </script>
+}
 
 <style>
-    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.05); }
     .animate-fade-in { animation: fadeIn 0.3s ease-in; }
     @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .nav-tabs .nav-link { color: #6c757d; font-weight: 500; font-size: 0.9rem; }
-    .nav-tabs .nav-link.active { color: #276CF5; border-top: 3px solid #276CF5 !important; background: white; }
+    
+    .nav-tabs .nav-link { 
+        border: none !important; 
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link.active { 
+        color: #0f172a !important;
+        background: transparent !important;
+    }
+    
+    .nav-tabs .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #4f46e5;
+        border-radius: 3px 3px 0 0;
+    }
 </style>
-
