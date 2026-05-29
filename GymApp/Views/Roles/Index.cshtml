@@ -5,78 +5,95 @@
     ViewData["Title"] = "Gestión de Roles";
 }
 
-<div class="container-fluid px-4 fade-in">
-    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+<div class="space-y-8 mt-4">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         <div>
-            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-shield-check text-primary me-2"></i>Roles y Permisos</h2>
-            <p class="text-muted small mb-0">Define los niveles de acceso al sistema.</p>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                    <i class="bi bi-shield-check text-xl"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold text-slate-950 tracking-tight m-0">Roles y Permisos</h2>
+            </div>
+            <p class="text-slate-700 text-sm font-medium ml-1">Define y administra los niveles de seguridad y acceso al sistema</p>
         </div>
+        
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesCrear) || User.IsInRole(AppRoles.Admin))
         {
-            <button type="button" class="btn btn-primary shadow-sm" onclick="abrirModalCrear()">
-                <i class="bi bi-plus-lg me-1"></i> Nuevo Rol
+            <button type="button" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-600/20 font-medium active:scale-95 group" onclick="abrirModalCrear()">
+                <i class="bi bi-plus-lg text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Nuevo Rol</span>
             </button>
         }
     </div>
 
-    <div class="row g-4">
+    <!-- Rejilla de Roles -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @if (!Model.Any())
         {
-            <div class="col-12 text-center py-5">
-                <i class="bi bi-shield-x text-muted" style="font-size: 3rem;"></i>
-                <p class="text-muted mt-2">No hay roles definidos.</p>
+            <div class="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-slate-200 border-dashed">
+                <div class="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                    <i class="bi bi-shield-slash text-slate-200 text-4xl"></i>
+                </div>
+                <h3 class="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Sin roles definidos</h3>
+                <p class="text-xs text-slate-400 mt-2">No se encontraron perfiles de acceso en el sistema.</p>
             </div>
         }
         else
         {
             @foreach (var item in Model)
             {
-                // Lógica visual: Admin rojo, otros azul
-                var colorClass = item.Nombre.ToLower() == "admin" ? "border-danger" : "border-primary";
-                var iconClass = item.Nombre.ToLower() == "admin" ? "bi-shield-lock-fill text-danger" : "bi-person-badge text-primary";
-                var bgClass = item.Nombre.ToLower() == "admin" ? "bg-danger bg-opacity-10" : "bg-primary bg-opacity-10";
-
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all border-top border-4 @colorClass">
-                        <div class="card-body p-4 d-flex flex-column">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="rounded-circle p-3 me-3 @bgClass">
-                                    <i class="bi @iconClass fs-4"></i>
+                var isAdmin = item.Nombre.ToLower() == "admin";
+                
+                <div class="group bg-white rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 hover:-translate-y-1.5 overflow-hidden flex flex-col relative">
+                    <!-- Acento Superior -->
+                    <div class="h-2 w-full @(isAdmin ? "bg-rose-500" : "bg-indigo-500")"></div>
+                    
+                    <div class="p-8 flex-1 flex flex-col">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl @(isAdmin ? "bg-rose-50 text-rose-600" : "bg-indigo-50 text-indigo-600") flex items-center justify-center border @(isAdmin ? "border-rose-100/50" : "border-indigo-100/50") shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                                    <i class="bi @(isAdmin ? "bi-shield-lock-fill" : "bi-person-badge") text-2xl"></i>
                                 </div>
                                 <div>
-                                    <h5 class="fw-bold text-dark mb-0">@item.Nombre</h5>
-                                    <small class="text-muted">Nivel de Acceso</small>
+                                    <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">@item.Nombre</h5>
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nivel de Acceso</span>
                                 </div>
                             </div>
+                            @if(isAdmin) {
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 text-[8px] font-black uppercase tracking-widest border border-rose-100 shadow-sm shadow-rose-500/10">SISTEMA</span>
+                            }
+                        </div>
 
-                            <p class="text-muted small flex-grow-1">
-                                @(string.IsNullOrEmpty(item.Descripcion) ? "Sin descripción definida." : item.Descripcion)
+                        <div class="bg-slate-50/80 rounded-2xl p-5 mb-8 flex-1 border border-slate-100 group-hover:bg-white transition-colors duration-500">
+                            <p class="text-sm font-medium text-slate-700 leading-relaxed italic">
+                                "@(string.IsNullOrEmpty(item.Descripcion) ? "Este rol no tiene una descripción técnica definida aún." : item.Descripcion)"
                             </p>
+                        </div>
 
-                            <div class="border-top pt-3 mt-2 d-flex justify-content-end gap-2">
-                                @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesEditar) || User.IsInRole(AppRoles.Admin))
+                        <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+                            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesEditar) || User.IsInRole(AppRoles.Admin))
+                            {
+                                <button class="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95" onclick="abrirModalEditar(@item.RoleId)" title="Configurar Permisos">
+                                    <i class="bi bi-pencil-square text-lg"></i>
+                                </button>
+                            }
+
+                            @if (!isAdmin)
+                            {
+                                @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesEliminar) || User.IsInRole(AppRoles.Admin))
                                 {
-                                    <button class="btn btn-sm btn-outline-secondary" onclick="abrirModalEditar(@item.RoleId)">
-                                        <i class="bi bi-pencil me-1"></i> Editar
+                                    <button class="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm active:scale-95" onclick="eliminarRol(@item.RoleId)" title="Eliminar Perfil">
+                                        <i class="bi bi-trash text-lg"></i>
                                     </button>
                                 }
-
-                                @if (item.Nombre.ToLower() != "admin")
-                                {
-                                    @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesEliminar) || User.IsInRole(AppRoles.Admin))
-                                    {
-                                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarRol(@item.RoleId)">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    }
-                                }
-                                else
-                                {
-                                    <button class="btn btn-sm btn-light text-muted" disabled title="El rol Admin no se puede eliminar">
-                                        <i class="bi bi-lock-fill"></i> Protegido
-                                    </button>
-                                }
-                            </div>
+                            }
+                            else
+                            {
+                                <div class="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100" title="Rol Protegido por el Sistema">
+                                    <i class="bi bi-lock-fill text-lg"></i>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -85,42 +102,57 @@
     </div>
 </div>
 
+<!-- Modal de Gestión de Rol -->
 <div class="modal fade" id="modalRol" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold" id="tituloModal">Gestión de Rol</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                        <i class="bi bi-shield-plus text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight" id="tituloModal">Configuración de Rol</h5>
+                        <p class="text-slate-700 text-[10px] font-bold uppercase tracking-widest mt-1">Definición de perfil de seguridad</p>
+                    </div>
+                </div>
+                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="modal-body p-4">
-                <form id="formRol">
+            <div class="p-8">
+                <form id="formRol" class="space-y-6">
                     @Html.AntiForgeryToken()
                     <input type="hidden" id="RoleId" name="RoleId" value="0" />
 
-                    <div class="mb-3">
-                        <label for="Nombre" class="form-label fw-bold">Nombre del Rol</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-tag"></i></span>
-                            <input type="text" class="form-control" id="Nombre" name="Nombre" placeholder="Ej: Entrenador" required autocomplete="off">
+                    <div>
+                        <label for="Nombre" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Nombre del Perfil</label>
+                        <div class="relative group">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                <i class="bi bi-tag-fill"></i>
+                            </div>
+                            <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl pl-11 pr-4 py-3 text-sm font-bold text-slate-950 transition-all placeholder:text-slate-600 uppercase" id="Nombre" name="Nombre" placeholder="Ej: VENDEDOR, MONITOR..." required autocomplete="off">
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="Descripcion" class="form-label fw-bold">Descripción</label>
-                        <textarea class="form-control" id="Descripcion" name="Descripcion" rows="3" placeholder="Describe qué permisos tendrá este rol..."></textarea>
+                    <div>
+                        <label for="Descripcion" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Descripción del Acceso</label>
+                        <textarea class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-2xl px-4 py-3 text-sm font-medium text-slate-950 transition-all placeholder:text-slate-600" id="Descripcion" name="Descripcion" rows="3" placeholder="Define qué responsabilidades tendrá este perfil..."></textarea>
                     </div>
 
-                    <div class="alert alert-info small d-flex align-items-center">
-                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>
-                        <div>
-                            <strong>Nota:</strong> Los permisos específicos se configuran en el código del sistema.
-                        </div>
+                    <div class="flex items-start gap-3 bg-rose-50/50 p-4 rounded-2xl border border-rose-100">
+                        <i class="bi bi-exclamation-triangle-fill text-rose-500 mt-0.5"></i>
+                        <p class="text-[10px] font-black text-rose-900 leading-relaxed uppercase tracking-wider">
+                            Los permisos detallados (PBAC) deben ser asignados por un Administrador del Sistema después de crear el perfil.
+                        </p>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary px-4" onclick="guardarRol()">Guardar Cambios</button>
+            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                <button type="button" class="px-6 py-2.5 text-slate-700 hover:text-slate-950 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" onclick="guardarRol()">
+                    <i class="bi bi-shield-check"></i>Guardar Perfil
+                </button>
             </div>
         </div>
     </div>
@@ -147,7 +179,7 @@
 
         // 2. ABRIR MODAL PARA EDITAR
         function abrirModalEditar(id) {
-            document.getElementById('tituloModal').innerText = "Editar Rol";
+            document.getElementById('tituloModal').innerText = "Actualizar Perfil de Acceso";
 
             fetch(`/Roles/GetRole/${id}`)
                 .then(response => response.json())
@@ -196,7 +228,7 @@
                 if (data.success) {
                     myModal.hide();
                     Swal.fire({
-                        title: '¡Guardado!',
+                        title: '¡Éxito!',
                         text: data.message,
                         icon: 'success',
                         timer: 1500,
@@ -215,12 +247,16 @@
         function eliminarRol(id) {
             Swal.fire({
                 title: '¿Eliminar Rol?',
-                text: "Asegúrate de que no haya usuarios asignados a este rol.",
+                text: "Esta acción restringirá el acceso a los usuarios que dependan de este perfil.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
                 confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
+                cancelButtonText: 'Cancelar',
+                customClass: {
+                    confirmButton: 'px-6 py-2 bg-rose-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest mx-2',
+                    cancelButton: 'px-6 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest mx-2'
+                },
+                buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.post('/Roles/Delete', { id: id }, function (data) {
