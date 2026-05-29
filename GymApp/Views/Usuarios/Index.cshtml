@@ -8,29 +8,43 @@
     var anio = ViewBag.Anio as int?;
 }
 
-<div class="container-fluid mt-4">
+<div class="space-y-8 mt-4">
     <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0"><i class="bi bi-people"></i> @ViewData["TituloListado"]</h2>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                    <i class="bi bi-people-fill text-xl"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold text-slate-800 tracking-tight m-0">@ViewData["TituloListado"]</h2>
+            </div>
+            <p class="text-slate-500 text-sm font-medium ml-1">Administra los accesos, membresías y perfiles de los socios</p>
+        </div>
+        
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosCrear) || User.IsInRole(AppRoles.Admin))
         {
-            <button class="btn btn-success shadow-sm" onclick="abrirModalCrear()">
-                <i class="bi bi-person-plus"></i> Nuevo Usuario
+            <button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-sm shadow-indigo-600/20 font-medium active:scale-95 group" onclick="abrirModalCrear()">
+                <i class="bi bi-person-plus text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Nuevo Usuario</span>
             </button>
         }
     </div>
 
     <!-- Filtros -->
-    <form asp-action="Index" method="get" class="card shadow-sm border-0 mb-4">
-        <div class="card-body bg-light rounded">
-            <div class="row g-2 align-items-center">
-                <div class="col-md-4">
-                    <label class="small text-muted fw-bold">BÚSQUEDA</label>
-                    <input type="text" name="buscar" class="form-control" placeholder="Nombre o DNI..." value="@Model.SearchTerm">
+    <form asp-action="Index" method="get" class="bg-white rounded-[2rem] border border-slate-200 p-2 shadow-sm">
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2">
+            <!-- Búsqueda por Texto -->
+            <div class="flex-1 relative group">
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                    <i class="bi bi-search"></i>
                 </div>
-                <div class="col-md-3">
-                    <label class="small text-muted fw-bold">MES DE REGISTRO</label>
-                    <select name="mes" class="form-select">
+                <input type="text" name="buscar" class="w-full bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl pl-11 pr-4 py-2.5 text-sm font-medium text-slate-700 transition-all placeholder:text-slate-400" placeholder="Nombre o DNI..." value="@Model.SearchTerm">
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:flex gap-2">
+                <!-- Mes -->
+                <div class="relative min-w-[160px]">
+                    <select name="mes" class="w-full bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl px-4 py-2.5 text-sm font-bold text-slate-600 appearance-none cursor-pointer transition-all">
                         <option value="">Todos los meses</option>
                         @for (int i = 1; i <= 12; i++)
                         {
@@ -44,10 +58,14 @@
                             }
                         }
                     </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-xs">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="small text-muted fw-bold">AÑO</label>
-                    <select name="anio" class="form-select">
+
+                <!-- Año -->
+                <div class="relative min-w-[140px]">
+                    <select name="anio" class="w-full bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl px-4 py-2.5 text-sm font-bold text-slate-600 appearance-none cursor-pointer transition-all">
                         <option value="">Todos los años</option>
                         @for (int i = DateTime.Now.Year - 2; i <= DateTime.Now.Year; i++)
                         {
@@ -61,13 +79,20 @@
                             }
                         }
                     </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-xs">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
                 </div>
-                <div class="col-md-2 d-flex align-items-end gap-1">
-                    <button type="submit" class="btn btn-primary flex-grow-1" style="margin-top: 1.5rem;">
-                        <i class="bi bi-filter"></i>
+
+                <!-- Botones de Acción -->
+                <div class="flex items-center gap-2 col-span-2">
+                    <button type="submit" class="flex-1 lg:flex-none inline-flex items-center justify-center w-full lg:w-11 h-11 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-sm shadow-indigo-600/10 active:scale-95" title="Aplicar filtros">
+                        <i class="bi bi-filter text-lg"></i>
+                        <span class="lg:hidden ml-2 font-bold uppercase tracking-widest text-xs">Filtrar</span>
                     </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary" style="margin-top: 1.5rem;" title="Limpiar filtros">
+                    <a asp-action="Index" class="flex-1 lg:flex-none inline-flex items-center justify-center w-full lg:w-11 h-11 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-all duration-300 active:scale-95" title="Limpiar filtros">
                         <i class="bi bi-x-lg"></i>
+                        <span class="lg:hidden ml-2 font-bold uppercase tracking-widest text-xs">Limpiar</span>
                     </a>
                 </div>
             </div>
@@ -75,49 +100,72 @@
     </form>
 
     <!-- Tabla -->
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-hover table-striped mb-0 align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Rol</th>
-                        <th>DNI</th>
-                        <th class="text-end">Acciones</th>
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Socio / Cliente</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rol</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">DNI</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100/80">
                     @foreach (var item in Model.Items)
                     {
-                        <tr>
-                            <td>
-                                <div class="fw-bold">@item.NombreCompleto</div>
+                        <tr class="group hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm border border-indigo-100/50 transition-transform group-hover:scale-110">
+                                        @item.NombreCompleto.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 tracking-tight">@item.NombreCompleto</div>
+                                        <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Gym Member</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td><span class="badge bg-info text-dark">@item.NombreRol</span></td>
-                            <td>@(string.IsNullOrEmpty(item.Dni) ? Html.Raw("<span class='text-muted fst-italic'>Sin DNI</span>") : item.Dni)</td>
-                            <td class="text-end">
-                                <!-- Botón Detalles -->
-                                <a asp-action="Details" asp-route-id="@item.UserId" class="btn btn-sm btn-info text-white" title="Ver Detalles">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <!-- Botón Ver QR -->
-                                <button class="btn btn-sm btn-dark me-1" onclick="verQR(@item.UserId, '@item.NombreCompleto')" title="Ver Código QR">
-                                    <i class="bi bi-qr-code"></i>
-                                </button>
-                                <!-- Botón Editar -->
-                                @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEditar) || User.IsInRole(AppRoles.Admin))
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-100/50">
+                                    @item.NombreRol
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                @if (string.IsNullOrEmpty(item.Dni))
                                 {
-                                    <button class="btn btn-sm btn-warning me-1" onclick="abrirModalEditar(@item.UserId)">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
+                                    <span class="text-xs font-medium text-slate-300 italic">No registrado</span>
                                 }
-                                <!-- Botón Eliminar -->
-                                @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEliminar) || User.IsInRole(AppRoles.Admin))
+                                else
                                 {
-                                    <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(@item.UserId)">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <span class="text-xs font-bold text-slate-600 font-mono">@item.Dni</span>
                                 }
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <!-- Botón Detalles -->
+                                    <a asp-action="Details" asp-route-id="@item.UserId" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200" title="Ver Detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <!-- Botón Ver QR -->
+                                    <button class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200" onclick="verQR(@item.UserId, '@item.NombreCompleto')" title="Ver Código QR">
+                                        <i class="bi bi-qr-code"></i>
+                                    </button>
+                                    <!-- Botón Editar -->
+                                    @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEditar) || User.IsInRole(AppRoles.Admin))
+                                    {
+                                        <button class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200" onclick="abrirModalEditar(@item.UserId)" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    }
+                                    <!-- Botón Eliminar -->
+                                    @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEliminar) || User.IsInRole(AppRoles.Admin))
+                                    {
+                                        <button class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200" onclick="eliminarUsuario(@item.UserId)" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
@@ -129,28 +177,59 @@
     <!-- Paginación -->
     @if (Model.TotalPages > 1)
     {
-        <nav aria-label="Navegacion de usuarios" class="mt-4">
-            <ul class="pagination justify-content-center pagination-lg">
-                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@Model.SearchTerm" asp-route-mes="@mes" asp-route-anio="@anio">
-                        <i class="bi bi-chevron-left"></i> Anterior
-                    </a>
-                </li>
+        <div class="flex items-center justify-center gap-2 mt-8 pb-12">
+            @if (Model.HasPreviousPage)
+            {
+                <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@Model.SearchTerm" asp-route-mes="@mes" asp-route-anio="@anio">
+                    <i class="bi bi-chevron-left"></i>
+                    <span class="hidden sm:inline">Anterior</span>
+                </a>
+            }
+            else
+            {
+                <div class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-slate-50 border border-slate-100 text-slate-300 rounded-xl cursor-not-allowed font-medium text-sm">
+                    <i class="bi bi-chevron-left"></i>
+                    <span class="hidden sm:inline">Anterior</span>
+                </div>
+            }
 
+            <div class="flex items-center gap-1.5">
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
-                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@Model.SearchTerm" asp-route-mes="@mes" asp-route-anio="@anio">@i</a>
-                    </li>
+                    if (i == Model.CurrentPage)
+                    {
+                        <div class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-sm shadow-indigo-600/20">@i</div>
+                    }
+                    else if (i <= 3 || i > Model.TotalPages - 3 || (i >= Model.CurrentPage - 1 && i <= Model.CurrentPage + 1))
+                    {
+                        <a class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@i" asp-route-buscar="@Model.SearchTerm" asp-route-mes="@mes" asp-route-anio="@anio">@i</a>
+                    }
+                    else if (i == 4 && Model.CurrentPage > 5)
+                    {
+                        <div class="w-10 h-10 flex items-center justify-center text-slate-400">...</div>
+                    }
+                    else if (i == Model.TotalPages - 3 && Model.CurrentPage < Model.TotalPages - 4)
+                    {
+                        <div class="w-10 h-10 flex items-center justify-center text-slate-400">...</div>
+                    }
                 }
+            </div>
 
-                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@Model.SearchTerm" asp-route-mes="@mes" asp-route-anio="@anio">
-                        Siguiente <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+            @if (Model.HasNextPage)
+            {
+                <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@Model.SearchTerm" asp-route-mes="@mes" asp-route-anio="@anio">
+                    <span class="hidden sm:inline">Siguiente</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            }
+            else
+            {
+                <div class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-slate-50 border border-slate-100 text-slate-300 rounded-xl cursor-not-allowed font-medium text-sm">
+                    <span class="hidden sm:inline">Siguiente</span>
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+            }
+        </div>
     }
 </div>
 
