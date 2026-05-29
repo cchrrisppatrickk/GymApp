@@ -120,6 +120,27 @@ PagoRepository --|> GenericRepository
 PagoRepository --> GymDbContext : usa
 
 ' ─────────────────────────────────────────────
+'  PASE DIARIO
+' ─────────────────────────────────────────────
+
+interface IPaseDiarioRepository {
+    + ObtenerTodosConDetallesAsync() : Task<IEnumerable<PaseDiario>>
+    + ObtenerPorIdConDetallesAsync(id : int) : Task<PaseDiario?>
+}
+
+class PaseDiarioRepository {
+    - _context : GymDbContext
+    --
+    + ObtenerTodosConDetallesAsync() : Task<IEnumerable<PaseDiario>>
+    + ObtenerPorIdConDetallesAsync(id : int) : Task<PaseDiario?>
+}
+
+IPaseDiarioRepository --|> IGenericRepository
+PaseDiarioRepository ..|> IPaseDiarioRepository
+PaseDiarioRepository --|> GenericRepository
+PaseDiarioRepository --> GymDbContext : usa
+
+' ─────────────────────────────────────────────
 '  USUARIO
 ' ─────────────────────────────────────────────
 

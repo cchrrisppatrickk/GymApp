@@ -112,6 +112,18 @@ class AccesoController {
     + RegistrarAsistencia(qrToken) : Task<IActionResult>
 }
 
+class AdministracionController {
+    - _usuarioService : IUsuarioService
+    - _rolesRepository : IRoleRepository
+    - _context : GymDbContext
+    --
+    + Index() : Task<IActionResult>
+    + CrearPersonal() : Task<IActionResult>
+    + EditarPersonal(id) : Task<IActionResult>
+    + GuardarPersonal(model) : Task<IActionResult>
+    + EliminarPersonal(id) : Task<IActionResult>
+}
+
 class ClienteHomeController {
     + Index() : IActionResult
 }
@@ -154,6 +166,18 @@ class PagosController {
     + ObtenerParaEdicion(id) : Task<IActionResult>
     + Editar(model) : Task<IActionResult>
     + Anular(id, motivo) : Task<IActionResult>
+}
+
+class PasesDiariosController {
+    - _paseDiarioService : IPaseDiarioService
+    - _turnoService : ITurnoService
+    - _usuarioService : IUsuarioService
+    --
+    + Index() : Task<IActionResult>
+    + Registrar() : Task<IActionResult>
+    + Registrar(model) : Task<IActionResult>
+    + Details(id) : Task<IActionResult>
+    + EliminarFisicamente(id) : Task<IActionResult>
 }
 
 class PlanesController {
@@ -233,11 +257,13 @@ class VentasController {
 
 ' Herencia desde BaseController
 AccesoController        --|> BaseController
+AdministracionController --|> BaseController
 AlertasController       --|> BaseController
 ClienteHomeController   --|> BaseController
 CongelamientosController --|> BaseController
 MembresiasController    --|> BaseController
 PagosController         --|> BaseController
+PasesDiariosController  --|> BaseController
 PlanesController        --|> BaseController
 ProductosController     --|> BaseController
 RolesController         --|> BaseController
@@ -250,6 +276,9 @@ VentasController        --|> BaseController
 ' ─────────────────────────────────────────────
 
 AuthController          ..> IUsuarioService        : usa
+AdministracionController ..> IUsuarioService       : usa
+AdministracionController ..> IRoleRepository       : usa
+AdministracionController ..> GymDbContext          : usa
 AlertasController       ..> IConfiguracionAlertaRepository : usa
 AlertasController       ..> IWebhookService         : usa
 AlertasController       ..> NotificacionProgramadaJob : usa
@@ -258,6 +287,9 @@ MembresiasController    ..> IMembresiaService       : usa
 MembresiasController    ..> IPlaneService           : usa
 MembresiasController    ..> ITurnoService           : usa
 PagosController         ..> IPagoService            : usa
+PasesDiariosController  ..> IPaseDiarioService      : usa
+PasesDiariosController  ..> ITurnoService           : usa
+PasesDiariosController  ..> IUsuarioService         : usa
 PlanesController        ..> IPlaneService           : usa
 ProductosController     ..> IProductoService        : usa
 ReportesController      ..> IReporteService         : usa
@@ -279,6 +311,7 @@ interface IUsuarioService
 interface ICongelamientoService
 interface IMembresiaService
 interface IPagoService
+interface IPaseDiarioService
 interface IPlaneService
 interface IProductoService
 interface IReporteService
@@ -287,6 +320,7 @@ interface ITurnoService
 interface IVentaService
 interface IWebhookService
 interface IConfiguracionAlertaRepository
+interface IRoleRepository
 
 ' ─────────────────────────────────────────────
 '  NOTAS DE AUTORIZACIÓN
@@ -305,6 +339,10 @@ note top of AccesoController
   [Authorize(Roles="Admin,Empleado")]
 end note
 
+note top of AdministracionController
+  [Authorize(Roles="Admin")]
+end note
+
 note top of ClienteHomeController
   [Authorize(Roles="Cliente")]
 end note
@@ -320,6 +358,11 @@ end note
 
 note top of PagosController
   [Authorize(Roles="Admin,Empleado")]
+end note
+
+note top of PasesDiariosController
+  [Authorize(Policy="RequiereVerPasesDiarios")]
+  EliminarFisicamente() -> Policy="RequiereEliminarPasesDiarios"
 end note
 
 note top of PlanesController

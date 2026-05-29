@@ -59,6 +59,13 @@ interface IPagoService {
     + ObtenerPagosPorRangoParaAgenteAsync(inicio, fin)
 }
 
+interface IPaseDiarioService {
+    + RegistrarPaseAsync(dto, empleadoId)
+    + ListarPasesAsync()
+    + EliminarFisicamenteAsync(id)
+    + ObtenerDetallesPaseAsync(id)
+}
+
 interface IPlaneService {
     + ObtenerTodosAsync()
     + ObtenerPorIdAsync(id)
@@ -186,6 +193,17 @@ class PagoService {
     + ObtenerHistorialUsuarioParaAgenteAsync(userId)
     + ObtenerPagosPorRangoParaAgenteAsync(inicio, fin)
     - SincronizarEstadoMembresiaAsync(membresiaId)
+}
+
+class PaseDiarioService {
+    - _paseDiarioRepository : IPaseDiarioRepository
+    - _env : IWebHostEnvironment
+    --
+    + RegistrarPaseAsync(dto, empleadoId)
+    + ListarPasesAsync()
+    + EliminarFisicamenteAsync(id)
+    + ObtenerDetallesPaseAsync(id)
+    - ProcesarComprobanteAsync(dto, empleadoId)
 }
 
 class PlaneService {
@@ -316,6 +334,7 @@ class NotificacionProgramadaJob {
 CongelamientoService  ..|> ICongelamientoService
 MembresiaService      ..|> IMembresiaService
 PagoService           ..|> IPagoService
+PaseDiarioService     ..|> IPaseDiarioService
 PlaneService          ..|> IPlaneService
 ProductoService       ..|> IProductoService
 RoleService           ..|> IRoleService

@@ -47,6 +47,7 @@
         + PagosMembresia : ICollection<PagosMembresium>
         + VentasCabeceraUsers : ICollection<VentasCabecera>
         + VentasCabeceraUsuarioEmpleados : ICollection<VentasCabecera>
+        + UsuarioPermisos : ICollection<UsuarioPermiso>
     }
 
     class Turno {
@@ -179,6 +180,39 @@
         + UltimaEjecucionReporte : DateTime?
     }
 
+    class PaseDiario {
+        + PaseDiarioId : int
+        + UserId : int?
+        + TurnoId : int
+        + UsuarioEmpleadoId : int
+        + Monto : decimal
+        + MetodoPago : string
+        + FechaCreacion : DateTime
+        + Observacion : string?
+        + ComprobanteRuta : string?
+        --
+        + User : Usuario?
+        + Turno : Turno
+        + UsuarioEmpleado : Usuario
+    }
+
+    class Permiso {
+        + PermisoId : string
+        + Modulo : string
+        + Descripcion : string
+        + NivelPeligro : string
+        --
+        + UsuarioPermisos : ICollection<UsuarioPermiso>
+    }
+
+    class UsuarioPermiso {
+        + UserId : int
+        + PermisoId : string
+        --
+        + Usuario : Usuario
+        + Permiso : Permiso
+    }
+
 
     ' ─────────────────────────────────────────────
     '  RELACIONES
@@ -220,6 +254,21 @@
     ' Producto → VentasDetalle  (1 a muchos)
     Producto "1" --o{ "N" VentasDetalle : aparece en >
 
+    ' Usuario → UsuarioPermiso (1 a muchos)
+    Usuario "1" --o{ "N" UsuarioPermiso : tiene asignados >
+
+    ' Permiso → UsuarioPermiso (1 a muchos)
+    Permiso "1" --o{ "N" UsuarioPermiso : asignado a >
+
+    ' Usuario → PaseDiario (1 a muchos, cliente)
+    Usuario "1" --o{ "N" PaseDiario : compra >
+
+    ' Usuario → PaseDiario (1 a muchos, empleado)
+    Usuario "1" --o{ "N" PaseDiario : registra >
+
+    ' Turno → PaseDiario (1 a muchos)
+    Turno "1" --o{ "N" PaseDiario : aplica a >
+
     ' ─────────────────────────────────────────────
     '  NOTAS
     ' ─────────────────────────────────────────────
@@ -252,6 +301,16 @@
     y alertas automáticas vía Telegram (n8n).
     Define qué eventos disparan notificaciones
     y el horario de ejecución de reportes.
+    end note
+
+    note bottom of Permiso
+    Control granular de acceso a vistas y acciones.
+    NivelPeligro: Bajo, Medio, Alto.
+    end note
+
+    note bottom of PaseDiario
+    Acceso por un solo día (sin membresía).
+    UserId es nullable para pase libre.
     end note
 
     @enduml

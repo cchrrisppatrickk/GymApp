@@ -51,44 +51,49 @@ namespace GymApp.Data
                 }
 
                 // 4. SEED DE PERMISOS DEL SISTEMA
-                if (!context.Permisos.Any())
+                var permisosPorDefecto = new List<Permiso>
                 {
-                    context.Permisos.AddRange(new List<Permiso>
+                    // --- MÓDULO CAJA ---
+                    new Permiso { PermisoId = "Caja.Ver",       Modulo = "Caja",       Descripcion = "Ver registro de pagos",    NivelPeligro = NivelPeligro.Bajo },
+                    new Permiso { PermisoId = "Caja.Registrar", Modulo = "Caja",       Descripcion = "Registrar pagos",          NivelPeligro = NivelPeligro.Medio },
+                    new Permiso { PermisoId = "Caja.Anular",    Modulo = "Caja",       Descripcion = "Anular pagos",             NivelPeligro = NivelPeligro.Alto },
+
+                    // --- MÓDULO MEMBRESÍAS ---
+                    new Permiso { PermisoId = "Membresias.Ver",      Modulo = "Membresías",  Descripcion = "Ver membresías",          NivelPeligro = NivelPeligro.Bajo },
+                    new Permiso { PermisoId = "Membresias.Crear",    Modulo = "Membresías",  Descripcion = "Crear membresía",         NivelPeligro = NivelPeligro.Medio },
+                    new Permiso { PermisoId = "Membresias.Congelar", Modulo = "Membresías",  Descripcion = "Congelar membresía",      NivelPeligro = NivelPeligro.Medio },
+                    new Permiso { PermisoId = "Membresias.Renovar",  Modulo = "Membresías",  Descripcion = "Renovar membresía",       NivelPeligro = NivelPeligro.Medio },
+                    new Permiso { PermisoId = "Membresias.Eliminar", Modulo = "Membresías",  Descripcion = "Eliminar membresía",      NivelPeligro = NivelPeligro.Alto },
+
+                    // --- MÓDULO REPORTES ---
+                    new Permiso { PermisoId = "Reportes.Ver",        Modulo = "Reportes",    Descripcion = "Ver estadísticas generales",     NivelPeligro = NivelPeligro.Bajo },
+                    new Permiso { PermisoId = "Reportes.Financiero", Modulo = "Reportes",    Descripcion = "Ver estadísticas financieras",   NivelPeligro = NivelPeligro.Medio },
+                    new Permiso { PermisoId = "Reportes.Exportar",   Modulo = "Reportes",    Descripcion = "Exportar datos / Reportes",      NivelPeligro = NivelPeligro.Alto },
+
+                    // --- MÓDULO SOCIOS ---
+                    new Permiso { PermisoId = "Socios.Ver",      Modulo = "Socios",      Descripcion = "Ver ficha de socio",          NivelPeligro = NivelPeligro.Bajo },
+                    new Permiso { PermisoId = "Socios.Crear",    Modulo = "Socios",      Descripcion = "Registrar nuevo socio",       NivelPeligro = NivelPeligro.Medio },
+                    new Permiso { PermisoId = "Socios.Editar",   Modulo = "Socios",      Descripcion = "Editar datos del socio",      NivelPeligro = NivelPeligro.Medio },
+                    new Permiso { PermisoId = "Socios.Eliminar", Modulo = "Socios",      Descripcion = "Eliminar socio del sistema",  NivelPeligro = NivelPeligro.Alto },
+
+                    // --- MÓDULO ACCESO ---
+                    new Permiso { PermisoId = "Acceso.Escanear",   Modulo = "Acceso",     Descripcion = "Escanear código QR",          NivelPeligro = NivelPeligro.Bajo },
+                    new Permiso { PermisoId = "Acceso.Historial",  Modulo = "Acceso",     Descripcion = "Ver historial de visitas",    NivelPeligro = NivelPeligro.Bajo },
+
+                    // --- MÓDULO VENTAS ---
+                    new Permiso { PermisoId = "Ventas.Ver",     Modulo = "Ventas",      Descripcion = "Ver ventas",                  NivelPeligro = NivelPeligro.Bajo },
+                    new Permiso { PermisoId = "Ventas.Crear",   Modulo = "Ventas",      Descripcion = "Registrar nueva venta",       NivelPeligro = NivelPeligro.Medio },
+                    new Permiso { PermisoId = "Ventas.Anular",  Modulo = "Ventas",      Descripcion = "Anular una venta",            NivelPeligro = NivelPeligro.Alto },
+                };
+
+                foreach (var permiso in permisosPorDefecto)
+                {
+                    if (!context.Permisos.Any(p => p.PermisoId == permiso.PermisoId))
                     {
-                        // --- MÓDULO CAJA ---
-                        new Permiso { PermisoId = "Caja.Ver",       Modulo = "Caja",       Descripcion = "Ver registro de pagos",    NivelPeligro = NivelPeligro.Bajo },
-                        new Permiso { PermisoId = "Caja.Registrar", Modulo = "Caja",       Descripcion = "Registrar pagos",          NivelPeligro = NivelPeligro.Medio },
-                        new Permiso { PermisoId = "Caja.Anular",    Modulo = "Caja",       Descripcion = "Anular pagos",             NivelPeligro = NivelPeligro.Alto },
-
-                        // --- MÓDULO MEMBRESÍAS ---
-                        new Permiso { PermisoId = "Membresias.Ver",      Modulo = "Membresías",  Descripcion = "Ver membresías",          NivelPeligro = NivelPeligro.Bajo },
-                        new Permiso { PermisoId = "Membresias.Crear",    Modulo = "Membresías",  Descripcion = "Crear membresía",         NivelPeligro = NivelPeligro.Medio },
-                        new Permiso { PermisoId = "Membresias.Congelar", Modulo = "Membresías",  Descripcion = "Congelar membresía",      NivelPeligro = NivelPeligro.Medio },
-                        new Permiso { PermisoId = "Membresias.Renovar",  Modulo = "Membresías",  Descripcion = "Renovar membresía",       NivelPeligro = NivelPeligro.Medio },
-                        new Permiso { PermisoId = "Membresias.Eliminar", Modulo = "Membresías",  Descripcion = "Eliminar membresía",      NivelPeligro = NivelPeligro.Alto },
-
-                        // --- MÓDULO REPORTES ---
-                        new Permiso { PermisoId = "Reportes.Ver",        Modulo = "Reportes",    Descripcion = "Ver estadísticas generales",     NivelPeligro = NivelPeligro.Bajo },
-                        new Permiso { PermisoId = "Reportes.Financiero", Modulo = "Reportes",    Descripcion = "Ver estadísticas financieras",   NivelPeligro = NivelPeligro.Medio },
-                        new Permiso { PermisoId = "Reportes.Exportar",   Modulo = "Reportes",    Descripcion = "Exportar datos / Reportes",      NivelPeligro = NivelPeligro.Alto },
-
-                        // --- MÓDULO SOCIOS ---
-                        new Permiso { PermisoId = "Socios.Ver",      Modulo = "Socios",      Descripcion = "Ver ficha de socio",          NivelPeligro = NivelPeligro.Bajo },
-                        new Permiso { PermisoId = "Socios.Crear",    Modulo = "Socios",      Descripcion = "Registrar nuevo socio",       NivelPeligro = NivelPeligro.Medio },
-                        new Permiso { PermisoId = "Socios.Editar",   Modulo = "Socios",      Descripcion = "Editar datos del socio",      NivelPeligro = NivelPeligro.Medio },
-                        new Permiso { PermisoId = "Socios.Eliminar", Modulo = "Socios",      Descripcion = "Eliminar socio del sistema",  NivelPeligro = NivelPeligro.Alto },
-
-                        // --- MÓDULO ACCESO ---
-                        new Permiso { PermisoId = "Acceso.Escanear",   Modulo = "Acceso",     Descripcion = "Escanear código QR",          NivelPeligro = NivelPeligro.Bajo },
-                        new Permiso { PermisoId = "Acceso.Historial",  Modulo = "Acceso",     Descripcion = "Ver historial de visitas",    NivelPeligro = NivelPeligro.Bajo },
-
-                        // --- MÓDULO VENTAS ---
-                        new Permiso { PermisoId = "Ventas.Ver",     Modulo = "Ventas",      Descripcion = "Ver ventas",                  NivelPeligro = NivelPeligro.Bajo },
-                        new Permiso { PermisoId = "Ventas.Crear",   Modulo = "Ventas",      Descripcion = "Registrar nueva venta",       NivelPeligro = NivelPeligro.Medio },
-                        new Permiso { PermisoId = "Ventas.Anular",  Modulo = "Ventas",      Descripcion = "Anular una venta",            NivelPeligro = NivelPeligro.Alto },
-                    });
-                    await context.SaveChangesAsync();
+                        context.Permisos.Add(permiso);
+                    }
                 }
+                await context.SaveChangesAsync();
             }
         }
     }
