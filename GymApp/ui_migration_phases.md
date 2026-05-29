@@ -23,19 +23,22 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
 
 - [x] **Home / Dashboard** (`Views/Home/Index.cshtml`)
 - [ ] **Auth / Login** (`Views/Auth/Login.cshtml`)
-- [ ] **Usuarios / Clientes**
-  - [ ] Lista de Usuarios (`Index.cshtml`)
-  - [ ] Crear / Editar Usuario
-  - [ ] Detalles del Usuario
-- [ ] **Membresías**
-  - [ ] Lista de Membresías (`Index.cshtml`)
-  - [ ] Formulario de Asignación/Edición
-- [ ] **Pases Diarios**
-  - [ ] Lista de Pases (`Index.cshtml`)
-  - [ ] Formulario de Pase
-- [ ] **Pagos / Cajas**
-  - [ ] Listado de Pagos
-  - [ ] Registrar Pago
+- [x] **Usuarios / Clientes**
+  - [x] Lista de Usuarios (`Index.cshtml`)
+  - [x] Crear / Editar Usuario (Modales rediseñados)
+  - [x] Detalles del Usuario (`Details.cshtml`)
+- [x] **Membresías**
+  - [x] Lista de Membresías (`Index.cshtml`)
+  - [x] Formulario de Asignación/Edición (Modales y Renovación)
+  - [x] Detalles de Membresía (`Details.cshtml`)
+- [x] **Pases Diarios**
+  - [x] Lista de Pases (`Index.cshtml`)
+  - [x] Formulario de Pase (`Registrar.cshtml`)
+  - [x] Detalles del Pase (`Details.cshtml`)
+- [x] **Pagos / Cajas**
+  - [x] Listado de Pagos (`Index.cshtml`)
+  - [x] Registrar Pago (Modal de Cobro integrado)
+  - [x] Detalles de Pago (`Detalles.cshtml`)
 - [ ] **Reportes**
   - [ ] Ingresos Generales
   - [ ] Membresías
@@ -45,8 +48,8 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
 - [ ] **Control de Acceso (Escáner QR)**
   - [ ] Vista del Escáner
   - [ ] Historial de Visitas
-- [ ] **Administración y Configuración**
-  - [ ] Planes y Precios
+- [x] **Administración y Configuración**
+  - [x] Planes y Precios (`Planes/Index.cshtml`)
   - [ ] Turnos (Horarios)
   - [ ] Roles
   - [ ] Empleados (Gestión de Personal)
@@ -55,7 +58,7 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
   - [ ] Perfil del Cliente / Dashboard de Usuario
 
 ## Fase 4: Detalles, Micro-Interacciones y Pulido
-- [ ] Mejorar los "Empty States" (pantallas cuando no hay registros en una tabla).
+- [x] Mejorar los "Empty States" (implementados en tablas de Usuarios, Membresías y Pagos).
 - [ ] Pulir transiciones en Modales y Dropdowns.
-- [ ] Mejorar la accesibilidad (focus rings en inputs y botones).
-- [ ] Revisión general de contrastes y espaciados (respiración del diseño).
+- [x] Mejorar la accesibilidad (focus rings en inputs y botones aplicados).
+- [x] Revisión general de contrastes y espaciados (tipografía oscurecida para legibilidad).
