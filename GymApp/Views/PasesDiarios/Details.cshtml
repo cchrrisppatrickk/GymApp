@@ -10,7 +10,7 @@
         <div>
             <div class="flex items-center gap-4 mb-1">
                 <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100/50 shadow-sm">
-                    <i class="bi bi-info-circle text-2xl"></i>
+                    <i data-lucide="info" class="w-8 h-8"></i>
                 </div>
                 <h1 class="text-3xl font-display font-extrabold text-slate-950 tracking-tight m-0">Detalle de Pase #@Model.PaseDiarioId</h1>
             </div>
@@ -18,7 +18,7 @@
         </div>
         
         <a asp-action="Index" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 transition-all active:scale-95">
-            <i class="bi bi-arrow-left"></i>
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
             <span>Volver</span>
         </a>
     </div>
@@ -28,7 +28,7 @@
         <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden group">
             <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/30 flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-white text-purple-600 flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
-                    <i class="bi bi-person-badge text-xl"></i>
+                    <i data-lucide="user" class="w-6 h-6"></i>
                 </div>
                 <h3 class="text-lg font-display font-bold text-slate-950 tracking-tight m-0">Información del Cliente</h3>
             </div>
@@ -50,7 +50,7 @@
         <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden group">
             <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/30 flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
-                    <i class="bi bi-wallet2 text-xl"></i>
+                    <i data-lucide="wallet" class="w-6 h-6"></i>
                 </div>
                 <h3 class="text-lg font-display font-bold text-slate-950 tracking-tight m-0">Registro de Pago</h3>
             </div>
@@ -62,9 +62,9 @@
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Método Utilizado</p>
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold uppercase @(Model.MetodoPago == "Efectivo" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : Model.MetodoPago == "Tarjeta" ? "bg-amber-50 text-amber-700 border border-amber-100" : "bg-indigo-50 text-indigo-700 border border-indigo-100")">
-                        @if(Model.MetodoPago == "Efectivo") { <i class="bi bi-cash-stack"></i> }
-                        else if(Model.MetodoPago == "Tarjeta") { <i class="bi bi-credit-card"></i> }
-                        else { <i class="bi bi-phone-vibrate"></i> }
+                        @if(Model.MetodoPago == "Efectivo") { <i data-lucide="banknote" class="w-4 h-4"></i> }
+                        else if(Model.MetodoPago == "Tarjeta") { <i data-lucide="credit-card" class="w-4 h-4"></i> }
+                        else { <i data-lucide="smartphone" class="w-4 h-4"></i> }
                         @Model.MetodoPago
                     </span>
                 </div>
@@ -97,12 +97,12 @@
                 <div class="flex items-center justify-between mb-8">
                     <div class="flex items-center gap-3 text-white">
                         <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center border border-white/10 shadow-sm">
-                            <i class="bi bi-image text-xl"></i>
+                            <i data-lucide="image" class="w-6 h-6"></i>
                         </div>
                         <h3 class="text-lg font-display font-bold tracking-tight m-0">Evidencia de Operación</h3>
                     </div>
                     <a href="@Model.ComprobanteRuta" target="_blank" class="px-5 py-2 bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all border border-white/10">
-                        <i class="bi bi-fullscreen mr-2"></i> Pantalla Completa
+                        <i data-lucide="maximize" class="w-4 h-4 mr-2"></i> Pantalla Completa
                     </a>
                 </div>
                 

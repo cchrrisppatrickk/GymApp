@@ -9,7 +9,7 @@
         <div>
             <div class="flex items-center gap-4 mb-1">
                 <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
-                    <i class="bi bi-plus-circle text-2xl"></i>
+                    <i data-lucide="plus-circle" class="w-8 h-8"></i>
                 </div>
                 <h1 class="text-3xl font-display font-extrabold text-slate-950 tracking-tight m-0">Registrar Pase Diario</h1>
             </div>
@@ -17,7 +17,7 @@
         </div>
         
         <a asp-action="Index" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 transition-all active:scale-95">
-            <i class="bi bi-arrow-left"></i>
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
             <span>Volver</span>
         </a>
     </div>
@@ -61,7 +61,7 @@
                                         <option value="">-- Seleccionar Turno --</option>
                                     </select>
                                     <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                        <i class="bi bi-chevron-down"></i>
+                                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
                                     </div>
                                 </div>
                                 <span asp-validation-for="TurnoId" class="text-rose-500 text-[10px] font-bold uppercase tracking-wide"></span>
@@ -85,7 +85,7 @@
                                         <option value="Tarjeta">Tarjeta</option>
                                     </select>
                                     <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                        <i class="bi bi-chevron-down"></i>
+                                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
                                     </div>
                                 </div>
                                 <span asp-validation-for="MetodoPago" class="text-rose-500 text-[10px] font-bold uppercase tracking-wide"></span>
@@ -104,7 +104,7 @@
                         <div id="contenedorComprobante" class="bg-indigo-50/30 border-2 border-dashed border-indigo-100 p-6 rounded-3xl space-y-6 transition-all d-none">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-sm">
-                                    <i class="bi bi-qr-code"></i>
+                                    <i data-lucide="qr-code" class="w-4 h-4"></i>
                                 </div>
                                 <div>
                                     <h4 class="text-[11px] font-bold text-indigo-900 uppercase tracking-wider m-0">Comprobante de Operación</h4>
@@ -129,7 +129,7 @@
                                     <div class="relative bg-slate-950 rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] flex items-center justify-center">
                                         <video id="videoWebcamPago" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline></video>
                                         <div id="pagoCamPlaceholder" class="text-center p-6 transition-all duration-300">
-                                            <i class="bi bi-camera text-slate-800 text-4xl mb-2"></i>
+                                            <i data-lucide="camera-off" class="w-10 h-10 mx-auto mb-2 opacity-20 text-slate-400"></i>
                                             <p class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Cámara Inactiva</p>
                                         </div>
                                         
@@ -139,13 +139,13 @@
                                     
                                     <div class="flex gap-2">
                                         <button type="button" id="btnActivarCamaraPago" onclick="activarCamaraPago()" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 bg-white border border-indigo-100 text-indigo-600 rounded-xl hover:bg-indigo-50 transition-all text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                                            <i class="bi bi-camera"></i> Activar
+                                            <i data-lucide="video" class="w-4 h-4"></i> Activar
                                         </button>
                                         <button type="button" id="btnCapturarPago" onclick="capturarComprobante()" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/20 hidden">
-                                            <i class="bi bi-camera-fill"></i> Capturar
+                                            <i data-lucide="camera" class="w-4 h-4"></i> Capturar
                                         </button>
                                         <button type="button" id="btnQuitarComprobante" onclick="limpiarComprobante()" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all text-[10px] font-bold uppercase tracking-widest border border-rose-100 hidden">
-                                            <i class="bi bi-trash"></i> Quitar
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i> Quitar
                                         </button>
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@
             <div class="px-8 lg:px-10 py-8 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                 <a asp-action="Index" class="px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-bold text-xs uppercase tracking-widest text-center">Cancelar</a>
                 <button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
-                    <i class="bi bi-check2-circle text-base"></i>
+                    <i data-lucide="check-circle-2" class="w-5 h-5"></i>
                     Completar Registro y Pago
                 </button>
             </div>
