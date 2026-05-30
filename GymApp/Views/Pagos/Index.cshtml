@@ -13,7 +13,7 @@
         <div>
             <div class="flex items-center gap-3 mb-1">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm">
-                    <i class="bi bi-wallet2 text-xl"></i>
+                    <i data-lucide="wallet" class="w-6 h-6"></i>
                 </div>
                 <h2 class="text-3xl font-display font-bold text-slate-950 tracking-tight m-0">Caja y Tesorería</h2>
             </div>
@@ -23,7 +23,7 @@
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosCrear) || User.IsInRole(AppRoles.Admin))
         {
             <button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-600/20 font-medium active:scale-95 group" onclick="abrirModalPago()">
-                <i class="bi bi-cash-coin text-lg group-hover:scale-110 transition-transform"></i>
+                <i data-lucide="banknote" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 <span>Registrar Ingreso</span>
             </button>
         }
@@ -35,7 +35,7 @@
             <!-- Búsqueda por Texto -->
             <div class="flex-1 relative group">
                 <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-indigo-500 transition-colors">
-                    <i class="bi bi-search"></i>
+                    <i data-lucide="search" class="w-5 h-5"></i>
                 </div>
                 <input type="text" name="buscar" class="w-full bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl pl-11 pr-4 py-2.5 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" placeholder="Buscar por socio o DNI..." value="@buscar">
             </div>
@@ -78,7 +78,7 @@
                 </div>
 
                 <button type="submit" class="flex-1 lg:flex-none inline-flex items-center justify-center w-full lg:w-11 h-11 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-sm shadow-indigo-600/10 active:scale-95" title="Aplicar filtros">
-                    <i class="bi bi-filter text-lg"></i>
+                    <i data-lucide="filter" class="w-5 h-5"></i>
                     <span class="lg:hidden ml-2 font-bold uppercase tracking-widest text-xs">Filtrar</span>
                 </button>
             </div>
@@ -107,7 +107,7 @@
                             <td colspan="7" class="px-6 py-20 text-center">
                                 <div class="max-w-xs mx-auto">
                                     <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                                        <i class="bi bi-receipt text-slate-300 text-3xl"></i>
+                                            <i data-lucide="receipt" class="text-slate-300 w-8 h-8"></i>
                                     </div>
                                     <h3 class="text-sm font-bold text-slate-950 uppercase tracking-widest mb-2">Sin Movimientos</h3>
                                     <p class="text-xs text-slate-700 leading-relaxed font-medium">No se encontraron pagos que coincidan con los criterios.</p>
@@ -144,9 +144,9 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider @(p.MetodoPago == "Efectivo" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : p.MetodoPago == "Tarjeta" ? "bg-indigo-50 text-indigo-700 border border-indigo-100" : "bg-purple-50 text-purple-700 border border-purple-100")">
-                                        @if(p.MetodoPago == "Efectivo") { <i class="bi bi-cash"></i> }
-                                        else if(p.MetodoPago == "Tarjeta") { <i class="bi bi-credit-card"></i> }
-                                        else { <i class="bi bi-phone-vibrate"></i> }
+                                        @if(p.MetodoPago == "Efectivo") { <i data-lucide="banknote" class="w-3.5 h-3.5"></i> }
+                                        else if(p.MetodoPago == "Tarjeta") { <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> }
+                                        else { <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> }
                                         @p.MetodoPago
                                     </span>
                                 </td>
@@ -157,22 +157,22 @@
                                     <span class="text-sm font-bold font-mono tracking-tight @(p.EsAnulado ? "text-slate-600 line-through" : "text-slate-950")">S/ @p.Monto.ToString("F2")</span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <div class="flex items-center justify-end gap-1">
-                                        <a href="/Pagos/Detalles?id=@p.PagoId" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200" title="Ver Detalles">
-                                            <i class="bi bi-eye"></i>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="/Pagos/Detalles?id=@p.PagoId" class="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-sm shadow-indigo-100/50" title="Ver Detalles">
+                                            <i data-lucide="eye" class="w-4 h-4"></i>
                                         </a>
                                         @if (!p.EsAnulado)
                                         {
                                             @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosEditar) || User.IsInRole(AppRoles.Admin))
                                             {
-                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
-                                                    <i class="bi bi-pencil"></i>
+                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all duration-300 shadow-sm shadow-amber-100/50" onclick="abrirModalEditarPago(@p.PagoId)" title="Editar">
+                                                    <i data-lucide="pencil" class="w-4 h-4"></i>
                                                 </button>
                                             }
                                             @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosAnular) || User.IsInRole(AppRoles.Admin))
                                             {
-                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200" onclick="anularPago(@p.PagoId)" title="Anular">
-                                                    <i class="bi bi-x-circle"></i>
+                                                <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all duration-300 shadow-sm shadow-rose-100/50" onclick="anularPago(@p.PagoId)" title="Anular">
+                                                    <i data-lucide="x-circle" class="w-4 h-4"></i>
                                                 </button>
                                             }
                                         }
@@ -197,14 +197,14 @@
             @if (Model.HasPreviousPage)
             {
                 <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage - 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
-                    <i class="bi bi-chevron-left"></i>
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Anterior</span>
                 </a>
             }
             else
             {
                 <div class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-slate-50 border border-slate-100 text-slate-500 rounded-xl cursor-not-allowed font-medium text-sm">
-                    <i class="bi bi-chevron-left"></i>
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Anterior</span>
                 </div>
             }
@@ -235,14 +235,14 @@
             {
                 <a class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-medium text-sm active:scale-95" asp-action="Index" asp-route-pagina="@(Model.CurrentPage + 1)" asp-route-buscar="@buscar" asp-route-mes="@mes" asp-route-anio="@anio">
                     <span class="hidden sm:inline">Siguiente</span>
-                    <i class="bi bi-chevron-right"></i>
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
                 </a>
             }
             else
             {
                 <div class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-slate-50 border border-slate-100 text-slate-500 rounded-xl cursor-not-allowed font-medium text-sm">
                     <span class="hidden sm:inline">Siguiente</span>
-                    <i class="bi bi-chevron-right"></i>
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
                 </div>
             }
         </div>
@@ -258,7 +258,7 @@
             <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm">
-                        <i class="bi bi-cash-coin text-xl"></i>
+                        <i data-lucide="banknote" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Registrar Cobro</h5>
@@ -266,7 +266,7 @@
                     </div>
                 </div>
                 <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="modal-body p-8 space-y-8">
@@ -276,7 +276,7 @@
                     <div class="relative group">
                         <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-2xl pl-5 pr-14 py-4 text-sm font-bold text-slate-950 transition-all placeholder:text-slate-600" id="txtDniBuscar" placeholder="DNI o Nombre del Socio..." autocomplete="off">
                         <button class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 transition-all active:scale-95" type="button" onclick="buscarDeuda()" id="btnBuscar">
-                            <i class="bi bi-search"></i>
+                            <i data-lucide="search" class="w-5 h-5"></i>
                         </button>
                     </div>
                     <div id="resultados-busqueda" class="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 divide-y divide-slate-100 overflow-hidden" style="display:none; max-height: 250px; overflow-y: auto;"></div>
@@ -337,21 +337,21 @@
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="metodoPago" id="metodo1" value="Efectivo" class="peer sr-only" checked>
                                 <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-emerald-50 peer-checked:border-emerald-500 peer-checked:ring-1 peer-checked:ring-emerald-500 text-slate-600 peer-checked:text-emerald-600 transition-all">
-                                    <i class="bi bi-cash-stack text-2xl"></i>
+                                    <i data-lucide="banknote" class="w-6 h-6"></i>
                                     <span class="text-[10px] font-black uppercase tracking-widest">Efectivo</span>
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="metodoPago" id="metodo2" value="Yape/Plin" class="peer sr-only">
                                 <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-purple-50 peer-checked:border-purple-500 peer-checked:ring-1 peer-checked:ring-purple-500 text-slate-600 peer-checked:text-purple-600 transition-all">
-                                    <i class="bi bi-phone-vibrate text-2xl"></i>
+                                    <i data-lucide="smartphone" class="w-6 h-6"></i>
                                     <span class="text-[10px] font-black uppercase tracking-widest">Yape/Plin</span>
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="metodoPago" id="metodo3" value="Tarjeta" class="peer sr-only">
                                 <div class="flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-200 bg-slate-50 peer-checked:bg-indigo-50 peer-checked:border-indigo-500 peer-checked:ring-1 peer-checked:ring-indigo-500 text-slate-600 peer-checked:text-indigo-600 transition-all">
-                                    <i class="bi bi-credit-card text-2xl"></i>
+                                    <i data-lucide="credit-card" class="w-6 h-6"></i>
                                     <span class="text-[10px] font-black uppercase tracking-widest">Tarjeta</span>
                                 </div>
                             </label>
@@ -362,7 +362,7 @@
                     <div id="contenedorComprobante" class="bg-indigo-50/30 border-2 border-dashed border-indigo-100 p-6 rounded-3xl space-y-6 transition-all d-none">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-sm">
-                                <i class="bi bi-qr-code"></i>
+                                <i data-lucide="qr-code" class="w-4 h-4"></i>
                             </div>
                             <h4 class="text-[11px] font-black text-indigo-900 uppercase tracking-widest m-0">Validación de Operación</h4>
                         </div>
@@ -373,7 +373,7 @@
                             <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center shadow-inner group/cam">
                                 <video id="videoWebcamPago" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline></video>
                                 <div id="pagoCamPlaceholder" class="text-center p-6 transition-all duration-300">
-                                    <i class="bi bi-camera text-slate-700 text-4xl mb-2"></i>
+                                    <i data-lucide="camera-off" class="w-10 h-10 mx-auto mb-2 opacity-20 text-slate-400"></i>
                                     <p class="text-[9px] font-bold text-slate-700 uppercase tracking-widest">Cámara Inactiva</p>
                                 </div>
                                 <img id="imgPreviewComprobante" src="" class="absolute inset-0 w-full h-full object-contain bg-slate-950 hidden" />
@@ -401,7 +401,7 @@
             <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                 <button type="button" class="px-6 py-2.5 text-slate-700 hover:text-slate-950 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-xl shadow-emerald-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" id="btnCobrar" onclick="procesarPago()" disabled>
-                    <i class="bi bi-check-lg text-base"></i>Confirmar Pago
+                    <i data-lucide="check" class="w-5 h-5"></i>Confirmar Pago
                 </button>
             </div>
         </div>
@@ -415,7 +415,7 @@
             <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/50 shadow-sm">
-                        <i class="bi bi-pencil-square text-xl"></i>
+                        <i data-lucide="pencil" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Editar Pago</h5>
@@ -423,7 +423,7 @@
                     </div>
                 </div>
                 <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="p-8">
@@ -458,7 +458,7 @@
             <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                 <button type="button" class="px-6 py-2.5 text-slate-700 hover:text-slate-950 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" id="btnGuardarEdicion" onclick="guardarEdicionPago()">
-                    <i class="bi bi-save"></i>Guardar Cambios
+                    <i data-lucide="save" class="w-4 h-4"></i>Guardar Cambios
                 </button>
             </div>
         </div>
