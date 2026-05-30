@@ -22,7 +22,7 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
 *Esta fase implica ir a las carpetas dentro de `Views/` y reemplazar las clases de Bootstrap por las de Tailwind, mejorando la estética según el `design.md`.*
 
 - [x] **Home / Dashboard** (`Views/Home/Index.cshtml`)
-- [ ] **Auth / Login** (`Views/Auth/Login.cshtml`)
+- [x] **Auth / Login** (`Views/Auth/Login.cshtml`)
 - [x] **Usuarios / Clientes**
   - [x] Lista de Usuarios (`Index.cshtml`)
   - [x] Crear / Editar Usuario (Modales rediseñados)
@@ -62,4 +62,24 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
 - [x] Mejorar los "Empty States" (implementados en tablas de Usuarios, Membresías y Pagos).
 - [ ] Pulir transiciones en Modales y Dropdowns.
 - [x] Mejorar la accesibilidad (focus rings en inputs y botones aplicados).
-- [x] Revisión general de contrastes y espaciados (tipografía oscurecida para legibilidad).
+## Fase 5: Modernización de Iconografía (Lucide Icons)
+*Sustitución de Bootstrap Icons por Lucide Icons para un aspecto "SaaS Premium", aplicando colores con propósito mediante clases de Tailwind.*
+
+- [ ] **Infraestructura Base**
+  - [ ] Inyectar Lucide Icons en `_Layout.cshtml` (CDN y script de inicialización).
+  - [ ] Configurar helper o script global para manejar el renderizado de iconos en modales dinámicos.
+- [ ] **Migración por Módulos**
+  - [ ] **Layout & Sidebar:** Menú principal y perfil de usuario.
+  - [ ] **Auth:** Pantalla de Login (iconos de campos y alertas).
+  - [ ] **Home / Dashboard:** Iconos de tarjetas estadísticas y gráficos.
+  - [ ] **Usuarios / Socios:** Acciones de tabla, detalles y modales de creación.
+  - [ ] **Membresías:** Badges, historial y acciones de gestión.
+  - [ ] **Pagos / Cajas:** Iconos de métodos de pago, comprobantes y balances.
+  - [ ] **Pases Diarios:** Registro rápido y listados.
+  - [ ] **Configuración:** Planes (pricing), Turnos y Roles.
+  - [ ] **Reportes:** Iconos de exportación y visualización de datos.
+  - [ ] **Ventas / Productos:** POS e inventario.
+  - [ ] **Control de Acceso:** Escáner QR y registros de entrada.
+- [ ] **Cierre y Limpieza**
+  - [ ] Auditoría visual de consistencia (tamaño y peso de iconos).
+  - [ ] Eliminar dependencias de Bootstrap Icons en `_Layout.cshtml` y `Login.cshtml`.
