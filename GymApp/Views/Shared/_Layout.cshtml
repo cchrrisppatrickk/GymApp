@@ -103,12 +103,12 @@
         <div class="sidebar-header h-20 px-6 flex items-center justify-between border-b border-slate-200/60">
             <h3 class="font-display font-bold text-xl text-slate-950 flex items-center m-0 whitespace-nowrap transition-opacity duration-200">
                 <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center mr-3 shadow-md shadow-indigo-300/50 border border-indigo-400/30">
-                    <i class="bi bi-activity text-white text-lg"></i>
+                    <i data-lucide="activity" class="text-white w-5 h-5"></i>
                 </div>
                 GymApp
             </h3>
             <button class="md:hidden text-slate-600 hover:text-slate-600 focus:outline-none" id="mobile-close">
-                <i class="bi bi-x-lg text-xl"></i>
+                <i data-lucide="x" class="w-6 h-6"></i>
             </button>
         </div>
 
@@ -120,14 +120,14 @@
                     @if (User.IsInRole("Cliente"))
                     {
                         <a asp-controller="ClienteHome" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98]">
-                            <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-person-badge"></i></span>
+                            <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="user-round-cog" class="w-5 h-5"></i></span>
                             <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Mi Perfil</span>
                         </a>
                     }
                     else
                     {
                         <a asp-controller="Home" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98]">
-                            <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-speedometer2"></i></span>
+                            <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></span>
                             <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Dashboard</span>
                         </a>
                     }
@@ -146,7 +146,7 @@
                     {
                         <li class="menu-item relative my-1 px-3">
                             <a asp-controller="Usuarios" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98] @(currentController == "Usuarios" ? "bg-white shadow-sm text-indigo-700 ring-1 ring-slate-200/50" : "")">
-                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-people"></i></span>
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="users" class="w-5 h-5"></i></span>
                                 <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Socios / Clientes</span>
                             </a>
                         </li>
@@ -156,9 +156,9 @@
                     {
                         <li class="menu-item relative my-1 px-3 @(currentController == "Membresias" || currentController == "PasesDiarios" ? "open" : "")">
                             <a href="#submenuSuscripciones" class="menu-link submenu-toggle flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98] @(currentController == "Membresias" || currentController == "PasesDiarios" ? "bg-white shadow-sm text-indigo-700 ring-1 ring-slate-200/50" : "")">
-                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-card-checklist"></i></span>
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="ticket" class="w-5 h-5"></i></span>
                                 <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Suscripciones</span>
-                                <span class="menu-arrow ml-auto text-xs transition-transform duration-300"><i class="bi bi-chevron-down"></i></span>
+                                <span class="menu-arrow ml-auto transition-transform duration-300 flex justify-center"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
                             </a>
                             <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuSuscripciones">
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasVer) || User.IsInRole(AppRoles.Admin))
@@ -185,7 +185,7 @@
                     {
                         <li class="menu-item relative my-1 px-3">
                             <a asp-controller="Pagos" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98] @(currentController == "Pagos" ? "bg-white shadow-sm text-indigo-700 ring-1 ring-slate-200/50" : "")">
-                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-cash-stack"></i></span>
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="wallet" class="w-5 h-5"></i></span>
                                 <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Cajas</span>
                             </a>
                         </li>
@@ -195,9 +195,9 @@
                     {
                         <li class="menu-item relative my-1 px-3 @(currentController == "Reportes" ? "open" : "")">
                             <a href="#submenuReportes" class="menu-link submenu-toggle flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98] @(currentController == "Reportes" ? "bg-white shadow-sm text-indigo-700 ring-1 ring-slate-200/50" : "")">
-                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-graph-up-arrow"></i></span>
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="bar-chart-3" class="w-5 h-5"></i></span>
                                 <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Reportes</span>
-                                <span class="menu-arrow ml-auto text-xs transition-transform duration-300"><i class="bi bi-chevron-down"></i></span>
+                                <span class="menu-arrow ml-auto transition-transform duration-300 flex justify-center"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
                             </a>
                             <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuReportes">
                                 <li class="submenu-item">
@@ -218,7 +218,7 @@
                     {
                         <li class="menu-item relative my-1 px-3">
                             <a asp-controller="Ventas" asp-action="Index" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98] @(currentController == "Ventas" ? "bg-white shadow-sm text-indigo-700 ring-1 ring-slate-200/50" : "")">
-                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-cart"></i></span>
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="shopping-cart" class="w-5 h-5"></i></span>
                                 <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Ventas</span>
                             </a>
                         </li>
@@ -228,9 +228,9 @@
                     {
                         <li class="menu-item relative my-1 px-3 @(currentController == "Acceso" ? "open" : "")">
                             <a href="#submenuAcceso" class="menu-link submenu-toggle flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98] @(currentController == "Acceso" ? "bg-white shadow-sm text-indigo-700 ring-1 ring-slate-200/50" : "")">
-                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-qr-code-scan"></i></span>
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="qr-code" class="w-5 h-5"></i></span>
                                 <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Control de Acceso</span>
-                                <span class="menu-arrow ml-auto text-xs transition-transform duration-300"><i class="bi bi-chevron-down"></i></span>
+                                <span class="menu-arrow ml-auto transition-transform duration-300 flex justify-center"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
                             </a>
                             <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuAcceso">
                                 <li class="submenu-item">
@@ -253,7 +253,7 @@
                         <li class="menu-item relative my-1 px-3">
                             <a asp-controller="Administracion" asp-action="Index"
                                class="menu-link flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98] @(currentController == "Administracion" ? "bg-white shadow-sm text-indigo-700 ring-1 ring-slate-200/50" : "")">
-                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-shield-lock"></i></span>
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="shield-check" class="w-5 h-5"></i></span>
                                 <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Personal</span>
                                 <span class="badge bg-indigo-100 text-indigo-700 ml-auto border-0 py-1 px-2 rounded-md font-bold" style="font-size:0.65rem;">ADMIN</span>
                             </a>
@@ -264,9 +264,9 @@
                     {
                         <li class="menu-item relative my-1 px-3 @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "open" : "")">
                             <a href="#submenuConfig" class="menu-link submenu-toggle flex items-center px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm hover:text-indigo-600 transition-all duration-200 font-medium active:scale-[0.98] @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "bg-white shadow-sm text-indigo-700 ring-1 ring-slate-200/50" : "")">
-                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-gear"></i></span>
+                                <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="settings" class="w-5 h-5"></i></span>
                                 <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Configuración</span>
-                                <span class="menu-arrow ml-auto text-xs transition-transform duration-300"><i class="bi bi-chevron-down"></i></span>
+                                <span class="menu-arrow ml-auto transition-transform duration-300 flex justify-center"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
                             </a>
                             <ul class="submenu list-none p-0 m-0 mt-1 space-y-1" id="submenuConfig">
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PlanesVer) || User.IsInRole(AppRoles.Admin))
@@ -306,7 +306,7 @@
 
                 <li class="menu-item mt-8 mb-2 px-3">
                     <a asp-controller="Auth" asp-action="Logout" class="menu-link flex items-center px-3 py-2.5 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors font-medium">
-                        <span class="menu-icon min-w-[30px] text-center mr-2 text-lg"><i class="bi bi-box-arrow-left"></i></span>
+                        <span class="menu-icon min-w-[30px] text-center mr-2 text-lg flex justify-center"><i data-lucide="log-out" class="w-5 h-5"></i></span>
                         <span class="menu-text flex-1 whitespace-nowrap transition-opacity duration-200">Cerrar Sesión</span>
                     </a>
                 </li>
@@ -321,7 +321,7 @@
         <div class="top-navbar bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-8 flex justify-between items-center sticky top-4 z-40 transition-all duration-300">
             <div class="flex items-center">
                 <button id="sidebar-toggle" class="text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    <i class="bi bi-list text-xl"></i>
+                    <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
                 <h5 class="ml-4 mb-0 text-slate-950 font-display font-semibold text-lg hidden sm:block">@ViewData["Title"]</h5>
             </div>
@@ -339,7 +339,7 @@
                     }
                 </div>
                 <div class="bg-indigo-50 rounded-full p-2.5 w-10 h-10 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100">
-                    <i class="bi bi-person-fill text-lg"></i>
+                    <i data-lucide="user" class="w-6 h-6"></i>
                 </div>
             </div>
         </div>
@@ -349,12 +349,12 @@
             @if (TempData["Success"] != null)
             {
                 <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl relative mb-6 shadow-sm flex items-start" role="alert">
-                    <i class="bi bi-check-circle-fill text-emerald-500 mt-0.5 mr-3 text-lg"></i>
+                    <i data-lucide="check-circle" class="text-emerald-500 mt-0.5 mr-3 w-6 h-6"></i>
                     <div class="flex-1 font-medium">
                         @Html.Raw(TempData["Success"])
                     </div>
                     <button type="button" class="text-emerald-500 hover:text-emerald-700 focus:outline-none" data-bs-dismiss="alert" aria-label="Close" onclick="this.parentElement.style.display='none'">
-                        <i class="bi bi-x-lg"></i>
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             }
@@ -362,12 +362,12 @@
             @if (TempData["Error"] != null)
             {
                 <div class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl relative mb-6 shadow-sm flex items-start" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill text-rose-500 mt-0.5 mr-3 text-lg"></i>
+                    <i data-lucide="alert-triangle" class="text-rose-500 mt-0.5 mr-3 w-6 h-6"></i>
                     <div class="flex-1 font-medium">
                         @Html.Raw(TempData["Error"])
                     </div>
                     <button type="button" class="text-rose-500 hover:text-rose-700 focus:outline-none" data-bs-dismiss="alert" aria-label="Close" onclick="this.parentElement.style.display='none'">
-                        <i class="bi bi-x-lg"></i>
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
             }
@@ -380,10 +380,14 @@
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar Lucide Icons
+            lucide.createIcons();
+
             const sidebar = document.getElementById('sidebar');
             const content = document.getElementById('content');
             const toggleBtn = document.getElementById('sidebar-toggle');
