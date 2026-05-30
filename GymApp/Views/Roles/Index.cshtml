@@ -11,7 +11,7 @@
         <div>
             <div class="flex items-center gap-3 mb-1">
                 <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
-                    <i class="bi bi-shield-check text-xl"></i>
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
                 </div>
                 <h2 class="text-3xl font-display font-bold text-slate-950 tracking-tight m-0">Roles y Permisos</h2>
             </div>
@@ -21,7 +21,7 @@
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesCrear) || User.IsInRole(AppRoles.Admin))
         {
             <button type="button" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-600/20 font-medium active:scale-95 group" onclick="abrirModalCrear()">
-                <i class="bi bi-plus-lg text-lg group-hover:scale-110 transition-transform"></i>
+                <i data-lucide="plus" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                 <span>Nuevo Rol</span>
             </button>
         }
@@ -33,7 +33,7 @@
         {
             <div class="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-slate-200 border-dashed">
                 <div class="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                    <i class="bi bi-shield-slash text-slate-200 text-4xl"></i>
+                    <i data-lucide="shield-off" class="text-slate-200 w-10 h-10"></i>
                 </div>
                 <h3 class="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Sin roles definidos</h3>
                 <p class="text-xs text-slate-400 mt-2">No se encontraron perfiles de acceso en el sistema.</p>
@@ -53,7 +53,7 @@
                         <div class="flex items-start justify-between mb-6">
                             <div class="flex items-center gap-4">
                                 <div class="w-14 h-14 rounded-2xl @(isAdmin ? "bg-rose-50 text-rose-600" : "bg-indigo-50 text-indigo-600") flex items-center justify-center border @(isAdmin ? "border-rose-100/50" : "border-indigo-100/50") shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                    <i class="bi @(isAdmin ? "bi-shield-lock-fill" : "bi-person-badge") text-2xl"></i>
+                                    <i data-lucide="@(isAdmin ? "shield-lock" : "user-cog")" class="w-7 h-7"></i>
                                 </div>
                                 <div>
                                     <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">@item.Nombre</h5>
@@ -74,8 +74,8 @@
                         <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
                             @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesEditar) || User.IsInRole(AppRoles.Admin))
                             {
-                                <button class="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95" onclick="abrirModalEditar(@item.RoleId)" title="Configurar Permisos">
-                                    <i class="bi bi-pencil-square text-lg"></i>
+                                <button class="w-11 h-11 flex items-center justify-center rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all duration-300 shadow-sm shadow-amber-100/50 active:scale-95" onclick="abrirModalEditar(@item.RoleId)" title="Configurar Permisos">
+                                    <i data-lucide="pencil" class="w-5 h-5"></i>
                                 </button>
                             }
 
@@ -83,15 +83,15 @@
                             {
                                 @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.RolesEliminar) || User.IsInRole(AppRoles.Admin))
                                 {
-                                    <button class="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-rose-600 hover:text-white transition-all shadow-sm active:scale-95" onclick="eliminarRol(@item.RoleId)" title="Eliminar Perfil">
-                                        <i class="bi bi-trash text-lg"></i>
+                                    <button class="w-11 h-11 flex items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all duration-300 shadow-sm shadow-rose-100/50 active:scale-95" onclick="eliminarRol(@item.RoleId)" title="Eliminar Perfil">
+                                        <i data-lucide="trash-2" class="w-5 h-5"></i>
                                     </button>
                                 }
                             }
                             else
                             {
                                 <div class="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100" title="Rol Protegido por el Sistema">
-                                    <i class="bi bi-lock-fill text-lg"></i>
+                                    <i data-lucide="lock" class="w-5 h-5"></i>
                                 </div>
                             }
                         </div>
@@ -109,7 +109,7 @@
             <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
-                        <i class="bi bi-shield-plus text-xl"></i>
+                        <i data-lucide="shield-plus" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight" id="tituloModal">Configuración de Rol</h5>
@@ -117,7 +117,7 @@
                     </div>
                 </div>
                 <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="p-8">
@@ -129,7 +129,7 @@
                         <label for="Nombre" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Nombre del Perfil</label>
                         <div class="relative group">
                             <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                                <i class="bi bi-tag-fill"></i>
+                                <i data-lucide="tag" class="w-4 h-4"></i>
                             </div>
                             <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl pl-11 pr-4 py-3 text-sm font-bold text-slate-950 transition-all placeholder:text-slate-600 uppercase" id="Nombre" name="Nombre" placeholder="Ej: VENDEDOR, MONITOR..." required autocomplete="off">
                         </div>
@@ -141,7 +141,7 @@
                     </div>
 
                     <div class="flex items-start gap-3 bg-rose-50/50 p-4 rounded-2xl border border-rose-100">
-                        <i class="bi bi-exclamation-triangle-fill text-rose-500 mt-0.5"></i>
+                        <i data-lucide="alert-triangle" class="text-rose-500 w-4 h-4 mt-0.5"></i>
                         <p class="text-[10px] font-black text-rose-900 leading-relaxed uppercase tracking-wider">
                             Los permisos detallados (PBAC) deben ser asignados por un Administrador del Sistema después de crear el perfil.
                         </p>
@@ -151,7 +151,7 @@
             <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                 <button type="button" class="px-6 py-2.5 text-slate-700 hover:text-slate-950 transition-colors font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all active:scale-95 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2" onclick="guardarRol()">
-                    <i class="bi bi-shield-check"></i>Guardar Perfil
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>Guardar Perfil
                 </button>
             </div>
         </div>
