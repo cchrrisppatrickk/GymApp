@@ -18,7 +18,7 @@
         <div>
             <div class="flex items-center gap-4 mb-1">
                 <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
-                    <i class="bi bi-info-circle text-2xl"></i>
+                    <i data-lucide="info" class="w-8 h-8"></i>
                 </div>
                 <h1 class="text-3xl font-display font-extrabold text-slate-950 tracking-tight m-0">Suscripción #@Model.MembresiaId</h1>
             </div>
@@ -31,14 +31,14 @@
         
         <div class="flex flex-wrap items-center gap-3">
             <a asp-action="Index" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 transition-all active:scale-95">
-                <i class="bi bi-arrow-left"></i>
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 <span>Volver</span>
             </a>
             
             @if (deuda > 0 && (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosCrear) || User.IsInRole(AppRoles.Admin)))
             {
-                <a href="/Pagos/Index?buscar=@Model.User.Dni" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 transition-all active:scale-95">
-                    <i class="bi bi-cash-coin"></i>
+                <a href="/Pagos/Index?buscar=@Model.User.Dni" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white px-5 py-2.5 rounded-xl transition-all duration-300 shadow-sm shadow-emerald-100/50 active:scale-95">
+                    <i data-lucide="banknote" class="w-5 h-5"></i>
                     <span>Registrar Pago</span>
                 </a>
             }
@@ -51,29 +51,29 @@
         
         @if (Model.Plan?.PermiteCongelar == true && (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasCongelar) || User.IsInRole(AppRoles.Admin)))
         {
-            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600 bg-white hover:bg-blue-50 px-4 py-2 rounded-xl border border-blue-100 transition-all active:scale-95" data-bs-toggle="modal" data-bs-target="#modalCongelar">
-                <i class="bi bi-snow2"></i> Congelar
+            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-xl transition-all duration-300 shadow-sm shadow-blue-100/50 active:scale-95" data-bs-toggle="modal" data-bs-target="#modalCongelar">
+                <i data-lucide="snowflake" class="w-4 h-4"></i> Congelar
             </button>
         }
         
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasRenovar) || User.IsInRole(AppRoles.Admin))
         {
-            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-indigo-600 bg-white hover:bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 transition-all active:scale-95" onclick="abrirModalRenovacion()">
-                <i class="bi bi-arrow-repeat"></i> Renovar
+            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-600 hover:text-white px-4 py-2 rounded-xl transition-all duration-300 shadow-sm shadow-indigo-100/50 active:scale-95" onclick="abrirModalRenovacion()">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Renovar
             </button>
         }
 
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasEditar) || User.IsInRole(AppRoles.Admin))
         {
-            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-600 bg-white hover:bg-amber-50 px-4 py-2 rounded-xl border border-amber-100 transition-all active:scale-95" data-bs-toggle="modal" data-bs-target="#modalEditarMembresia">
-                <i class="bi bi-pencil-square"></i> Editar
+            <button class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-50 hover:bg-amber-600 hover:text-white px-4 py-2 rounded-xl transition-all duration-300 shadow-sm shadow-amber-100/50 active:scale-95" data-bs-toggle="modal" data-bs-target="#modalEditarMembresia">
+                <i data-lucide="pencil" class="w-4 h-4"></i> Editar
             </button>
         }
 
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasEliminar) || User.IsInRole(AppRoles.Admin))
         {
-            <button type="button" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-rose-600 bg-white hover:bg-rose-50 px-4 py-2 rounded-xl border border-rose-100 transition-all active:scale-95 btn-hard-delete-details" data-id="@Model.MembresiaId">
-                <i class="bi bi-trash-fill"></i> Eliminar
+            <button type="button" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white px-4 py-2 rounded-xl transition-all duration-300 shadow-sm shadow-rose-100/50 active:scale-95 btn-hard-delete-details" data-id="@Model.MembresiaId">
+                <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar
             </button>
         }
     </div>
@@ -82,7 +82,7 @@
     {
         <div class="flex items-center gap-4 bg-emerald-50 border border-emerald-100 p-5 rounded-3xl animate-fade-in shadow-sm">
             <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20">
-                <i class="bi bi-check2-circle text-xl"></i>
+                <i data-lucide="check-circle-2" class="w-6 h-6"></i>
             </div>
             <div class="flex-1">
                 <p class="text-sm font-bold text-emerald-900 leading-tight">@Html.Raw(TempData["Success"])</p>
@@ -96,7 +96,7 @@
             <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-white text-indigo-600 flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
-                        <i class="bi bi-calendar-range text-xl"></i>
+                        <i data-lucide="calendar-range" class="w-6 h-6"></i>
                     </div>
                     <h3 class="text-lg font-display font-bold text-slate-950 tracking-tight m-0">Vigencia del Servicio</h3>
                 </div>
@@ -151,7 +151,7 @@
                     </div>
                     @if(diasVencidos > 0) {
                         <div class="px-4 py-2 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-xs font-bold flex items-center gap-2">
-                            <i class="bi bi-clock-history"></i>
+                            <i data-lucide="history" class="w-4 h-4"></i>
                             Vencido hace @diasVencidos día@(diasVencidos != 1 ? "s" : "")
                         </div>
                     }
@@ -164,7 +164,7 @@
             <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center border border-slate-200 shadow-sm group-hover:scale-110 transition-transform">
-                        <i class="bi bi-currency-dollar text-xl"></i>
+                        <i data-lucide="dollar-sign" class="w-6 h-6"></i>
                     </div>
                     <h3 class="text-lg font-display font-bold text-slate-950 tracking-tight m-0">Estado Financiero</h3>
                 </div>
@@ -181,7 +181,7 @@
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Inversión Total Acordada</p>
                     <h2 class="text-5xl font-display font-black text-slate-950 tracking-tighter">@Model.PrecioAcordado.ToString("C")</h2>
                     <div class="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        <i class="bi bi-shield-check text-emerald-500"></i>
+                        <i data-lucide="shield-check" class="text-emerald-500 w-4 h-4"></i>
                         Confirmado en Contrato
                     </div>
                 </div>
@@ -204,7 +204,7 @@
     {
         <div class="flex items-start gap-5 p-6 bg-indigo-50/50 border border-indigo-100 rounded-3xl group transition-all hover:bg-indigo-50">
             <div class="w-12 h-12 rounded-2xl bg-white text-indigo-500 flex items-center justify-center flex-shrink-0 border border-indigo-100 shadow-sm group-hover:scale-110 transition-transform">
-                <i class="bi bi-sticky text-xl"></i>
+                <i data-lucide="sticky-note" class="w-6 h-6"></i>
             </div>
             <div>
                 <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Comentarios del Staff</span>
@@ -219,12 +219,12 @@
             <ul class="flex items-center gap-8 nav nav-tabs border-0" id="historialTabs" role="tablist">
                 <li class="pb-4 relative" role="presentation">
                     <button class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all active" id="pagos-tab" data-bs-toggle="tab" data-bs-target="#pagos" type="button" role="tab">
-                        <i class="bi bi-wallet2 text-base"></i> Historial de Pagos
+                        <i data-lucide="wallet" class="w-5 h-5"></i> Historial de Pagos
                     </button>
                 </li>
                 <li class="pb-4 relative" role="presentation">
                     <button class="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all" id="congelamientos-tab" data-bs-toggle="tab" data-bs-target="#congelamientos" type="button" role="tab">
-                        <i class="bi bi-snow2 text-base"></i> Congelamientos
+                        <i data-lucide="snowflake" class="w-5 h-5"></i> Congelamientos
                     </button>
                 </li>
             </ul>
@@ -252,7 +252,7 @@
                                         <td class="px-8 py-4">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50">
-                                                    <i class="bi bi-check2-all"></i>
+                                                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                                                 </div>
                                                 <div>
                                                     <div class="text-sm font-bold text-slate-900 @(pago.EsAnulado ? "line-through" : "")">@pago.FechaPago?.ToString("dd/MM/yyyy")</div>
@@ -307,7 +307,7 @@
                                         <td class="px-8 py-4">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/50">
-                                                    <i class="bi bi-snow"></i>
+                                                    <i data-lucide="snowflake" class="w-4 h-4"></i>
                                                 </div>
                                                 <div class="text-sm font-bold text-slate-900">@c.FechaInicio.ToString("dd/MM/yyyy") - @c.FechaFin.ToString("dd/MM/yyyy")</div>
                                             </div>
@@ -346,7 +346,7 @@
             <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white text-slate-950">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/50 shadow-sm">
-                        <i class="bi bi-snow2 text-xl"></i>
+                        <i data-lucide="snowflake" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Congelar Membresía</h5>
@@ -354,7 +354,7 @@
                     </div>
                 </div>
                 <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <form asp-controller="Membresias" asp-action="Congelar" method="post">
@@ -362,7 +362,7 @@
                 <div class="p-8">
                     <div class="flex items-start gap-4 bg-amber-50/50 border border-amber-100 p-4 rounded-2xl mb-8">
                         <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm shadow-amber-500/20">
-                            <i class="bi bi-exclamation-triangle-fill text-sm"></i>
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
                         </div>
                         <p class="text-[11px] font-bold text-amber-900 leading-relaxed uppercase tracking-wide">
                             Esta acción extenderá la fecha de vencimiento y pausará el acceso hasta la fecha seleccionada.
@@ -385,7 +385,7 @@
                 <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                     <button type="button" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2">
-                        <i class="bi bi-check-lg"></i> Confirmar Congelamiento
+                        <i data-lucide="check" class="w-4 h-4"></i> Confirmar Congelamiento
                     </button>
                 </div>
             </form>
@@ -400,7 +400,7 @@
             <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
-                        <i class="bi bi-arrow-repeat text-xl"></i>
+                        <i data-lucide="refresh-cw" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Renovación Inteligente</h5>
@@ -408,7 +408,7 @@
                     </div>
                 </div>
                 <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <form asp-controller="Membresias" asp-action="Renovar" method="post">
@@ -436,7 +436,7 @@
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 ml-1">Fecha de Inicio</label>
                         <input type="date" name="fechaInicio" id="txtRenovarInicio" class="w-full bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 text-sm font-bold text-indigo-900 shadow-inner" required>
                         <p class="mt-2 text-[10px] text-indigo-400 font-bold uppercase tracking-wide flex items-center gap-1.5">
-                            <i class="bi bi-stars"></i>
+                            <i data-lucide="sparkles" class="w-3 h-3"></i>
                             Calculado automáticamente para no perder vigencia actual.
                         </p>
                     </div>
@@ -457,7 +457,7 @@
             <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100/50 shadow-sm">
-                        <i class="bi bi-pencil-square text-xl"></i>
+                        <i data-lucide="pencil" class="w-6 h-6"></i>
                     </div>
                     <div>
                         <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Editar Membresía</h5>
@@ -465,7 +465,7 @@
                     </div>
                 </div>
                 <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             <form asp-controller="Membresias" asp-action="Editar" method="post">
@@ -473,7 +473,7 @@
                 <div class="p-8">
                     <div class="flex items-start gap-4 bg-amber-50 border border-amber-100 p-4 rounded-2xl mb-8">
                         <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                            <i class="bi bi-exclamation-triangle-fill text-sm"></i>
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
                         </div>
                         <p class="text-[11px] font-bold text-amber-900 leading-relaxed uppercase tracking-wide">
                             Esta acción modifica valores directos. Usar solo para corregir errores de registro inicial.
@@ -521,7 +521,7 @@
                 <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                     <button type="button" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="px-6 py-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest">
-                        <i class="bi bi-save mr-2"></i> Guardar Cambios
+                        <i data-lucide="save" class="w-4 h-4 mr-2"></i> Guardar Cambios
                     </button>
                 </div>
             </form>
