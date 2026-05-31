@@ -1,14 +1,23 @@
-﻿@{
+@{
     ViewData["Title"] = "Reporte de Membresías";
 }
 
-<div class="container-fluid mt-4 fade-in">
-    <div class="card shadow border-0">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold m-0 text-dark"><i class="bi bi-person-vcard text-primary me-2"></i>Reporte de Membresías</h5>
+<div class="space-y-6 mt-4 fade-in">
+    <!-- Encabezado y Filtros -->
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20">
+                    <i data-lucide="vcard" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight m-0">Reporte de Membresías</h2>
+            </div>
+            <p class="text-slate-500 text-[11px] font-medium ml-1 uppercase tracking-wider">Historial detallado de renovaciones y pagos</p>
+        </div>
 
-            <div class="d-flex gap-2">
-                <select id="selectMes" class="form-select form-select-sm" style="width: 120px;">
+        <div class="w-full lg:w-auto bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-2">
+            <div class="relative">
+                <select id="selectMes" class="bg-slate-50 border-transparent focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 appearance-none cursor-pointer transition-all pr-8">
                     <option value="1">Enero</option>
                     <option value="2">Febrero</option>
                     <option value="3">Marzo</option>
@@ -22,48 +31,60 @@
                     <option value="11">Noviembre</option>
                     <option value="12">Diciembre</option>
                 </select>
-                <select id="selectAnio" class="form-select form-select-sm" style="width: 100px;">
+                <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </div>
+            </div>
+
+            <div class="relative">
+                <select id="selectAnio" class="bg-slate-50 border-transparent focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 appearance-none cursor-pointer transition-all pr-8">
                     <option value="2025">2025</option>
                     <option value="2026">2026</option>
                 </select>
-                <button class="btn btn-primary btn-sm" onclick="cargarReporte()">
-                    <i class="bi bi-search"></i> Consultar
-                </button>
-                <button class="btn btn-success btn-sm" onclick="descargarExcel()">
-                    <i class="bi bi-file-earmark-excel"></i> Excel
-                </button>
+                <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </div>
             </div>
-        </div>
 
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-center" id="tablaMembresias" style="font-size: 0.9rem;">
-                    <thead class="bg-light">
-                        <tr>
-                            <th class="text-start ps-4">Cliente</th>
-                            <th>Plan</th>
-                            <th>Turno</th>
-                            <th>Inicio</th>
-                            <th>Fin</th>
-                            <th>Teléfono</th>
-                            <th class="bg-success bg-opacity-10 text-success border-start">Efectivo</th>
-                            <th class="bg-info bg-opacity-10 text-primary">Yape</th>
-                            <th>Obs.</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                    <tfoot class="bg-light fw-bold">
-                        <tr>
-                            <td colspan="6" class="text-end pe-3">TOTALES:</td>
-                            <td class="text-success" id="totEfec">0.00</td>
-                            <td class="text-primary" id="totYape">0.00</td>
-                            <td colspan="2"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+            <button onclick="cargarReporte()" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-sm shadow-indigo-600/10 text-xs font-bold active:scale-95 group">
+                <i data-lucide="search" class="w-3.5 h-3.5 group-hover:scale-110 transition-transform"></i>
+                <span>Consultar</span>
+            </button>
+
+            <button onclick="descargarExcel()" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl hover:bg-emerald-600 hover:text-white transition-all text-xs font-bold active:scale-95 group">
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 group-hover:scale-110 transition-transform"></i>
+                <span>Excel</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden transition-all text-center">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse" id="tablaMembresias">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Socio</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest">Plan</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest">Turno</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest">Vigencia</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-right">Efectivo</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-right">Yape</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100/80">
+                    <!-- Dinámico -->
+                </tbody>
+                <tfoot class="bg-slate-50 border-t border-slate-200">
+                    <tr class="font-bold">
+                        <td colspan="4" class="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase tracking-widest">Totales Mensuales:</td>
+                        <td class="px-6 py-4 text-right text-sm font-black text-emerald-600" id="totEfec">0.00</td>
+                        <td class="px-6 py-4 text-right text-sm font-black text-sky-600" id="totYape">0.00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
 </div>
@@ -75,6 +96,7 @@
             document.getElementById("selectMes").value = f.getMonth() + 1;
             document.getElementById("selectAnio").value = f.getFullYear();
             cargarReporte();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         });
 
         function cargarReporte() {
@@ -82,7 +104,7 @@
             const anio = document.getElementById("selectAnio").value;
             const tbody = document.querySelector("#tablaMembresias tbody");
 
-            tbody.innerHTML = '<tr><td colspan="10" class="py-4"><div class="spinner-border text-primary"></div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="p-20 text-center"><div class="inline-flex items-center gap-3 px-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-500 font-bold animate-pulse"><div class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div> Procesando membresías...</div></td></tr>';
 
             fetch(`/Reportes/ObtenerMembresias?mes=${mes}&anio=${anio}`)
                 .then(res => res.json())
@@ -91,8 +113,9 @@
                     let html = '';
                     let sumE = 0, sumY = 0;
 
-                    if (data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="10" class="py-4 text-muted">No se encontraron registros.</td></tr>';
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="p-20 text-center opacity-40 flex flex-col items-center"><i data-lucide="folder-search" class="w-10 h-10 mb-2"></i><div class="text-sm font-bold">Sin registros de membresías</div></td></tr>';
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
                         return;
                     }
 
@@ -100,30 +123,41 @@
                         sumE += m.pagadoEfectivo;
                         sumY += m.pagadoYape;
 
-                        // Badge para estado
-                        let estadoBadge = `<span class="badge bg-success">${m.estado}</span>`;
-                        if(m.estado === 'Vencida') estadoBadge = `<span class="badge bg-danger">Vencida</span>`;
-                        if(m.estado === 'Cancelada') estadoBadge = `<span class="badge bg-secondary">Cancelada</span>`;
+                        let estadoBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100/50 uppercase tracking-wider">${m.estado}</span>`;
+                        if(m.estado === 'Vencida') estadoBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-100/50 uppercase tracking-wider">Vencida</span>`;
+                        if(m.estado === 'Cancelada') estadoBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-wider text-center">Cancelada</span>`;
 
                         html += `
-                            <tr>
-                                <td class="text-start ps-4 fw-bold text-dark">${m.nombreCliente}</td>
-                                <td>${m.nombrePlan}</td>
-                                <td><span class="badge bg-light text-dark border">${m.nombreTurno}</span></td>
-                                <td>${m.fechaInicio}</td>
-                                <td>${m.fechaFin}</td>
-                                <td class="small text-muted">${m.telefono}</td>
-                                <td class="fw-bold text-success bg-success bg-opacity-10">${m.pagadoEfectivo > 0 ? m.pagadoEfectivo.toFixed(2) : '-'}</td>
-                                <td class="fw-bold text-primary bg-info bg-opacity-10">${m.pagadoYape > 0 ? m.pagadoYape.toFixed(2) : '-'}</td>
-                                <td class="small text-muted fst-italic text-truncate" style="max-width: 150px;" title="${m.observaciones}">${m.observaciones}</td>
-                                <td>${estadoBadge}</td>
+                            <tr class="group hover:bg-slate-50/50 transition-colors">
+                                <td class="px-6 py-4 text-left">
+                                    <div class="text-sm font-bold text-slate-900">${m.nombreCliente}</div>
+                                    <div class="text-[10px] font-medium text-slate-400 font-mono">${m.telefono || 'Sin telf.'}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-xs font-bold text-slate-700">${m.nombrePlan}</span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${m.nombreTurno}</span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <div class="text-[10px] font-bold text-slate-900">${m.fechaInicio}</div>
+                                    <div class="text-[10px] font-medium text-slate-400">al ${m.fechaFin}</div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-sm font-black text-emerald-600">${m.pagadoEfectivo > 0 ? 'S/. ' + m.pagadoEfectivo.toFixed(2) : '·'}</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-sm font-black text-sky-600">${m.pagadoYape > 0 ? 'S/. ' + m.pagadoYape.toFixed(2) : '·'}</span>
+                                </td>
+                                <td class="px-6 py-4 text-center">${estadoBadge}</td>
                             </tr>
                         `;
                     });
 
                     tbody.innerHTML = html;
-                    document.getElementById("totEfec").innerText = sumE.toFixed(2);
-                    document.getElementById("totYape").innerText = sumY.toFixed(2);
+                    document.getElementById("totEfec").innerText = 'S/. ' + sumE.toFixed(2);
+                    document.getElementById("totYape").innerText = 'S/. ' + sumY.toFixed(2);
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
                 });
         }
 

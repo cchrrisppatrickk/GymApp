@@ -1,14 +1,23 @@
-﻿@{
+@{
     ViewData["Title"] = "Control de Ingresos";
 }
 
-<div class="container-fluid mt-4">
-    <div class="card shadow border-0">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold m-0 text-primary"><i class="bi bi-table me-2"></i>Control de Ingresos General</h5>
+<div class="space-y-6 mt-4 fade-in">
+    <!-- Encabezado y Filtros -->
+    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight m-0">Control de Ingresos</h2>
+            </div>
+            <p class="text-slate-500 text-[11px] font-medium ml-1 uppercase tracking-wider">Reporte consolidado de ventas diarias</p>
+        </div>
 
-            <div class="d-flex gap-2">
-                <select id="selectMes" class="form-select form-select-sm" style="width: 120px;">
+        <div class="w-full xl:w-auto bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-2">
+            <div class="relative">
+                <select id="selectMes" class="bg-slate-50 border-transparent focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 appearance-none cursor-pointer transition-all pr-8">
                     <option value="1">Enero</option>
                     <option value="2">Febrero</option>
                     <option value="3">Marzo</option>
@@ -22,74 +31,83 @@
                     <option value="11">Noviembre</option>
                     <option value="12">Diciembre</option>
                 </select>
-                <select id="selectAnio" class="form-select form-select-sm" style="width: 100px;">
+                <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </div>
+            </div>
+
+            <div class="relative">
+                <select id="selectAnio" class="bg-slate-50 border-transparent focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 appearance-none cursor-pointer transition-all pr-8">
                     <option value="2025">2025</option>
                     <option value="2026">2026</option>
                 </select>
-                <button class="btn btn-primary btn-sm" onclick="cargarReporte()">
-                    <i class="bi bi-search"></i> Consultar
-                </button>
-
-                <button class="btn btn-success btn-sm" onclick="descargarExcel()">
-                    <i class="bi bi-file-earmark-excel"></i> Exportar
-                </button>
+                <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </div>
             </div>
+
+            <button onclick="cargarReporte()" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-sm shadow-indigo-600/10 text-xs font-bold active:scale-95 group">
+                <i data-lucide="search" class="w-3.5 h-3.5 group-hover:scale-110 transition-transform"></i>
+                <span>Consultar</span>
+            </button>
+
+            <button onclick="descargarExcel()" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl hover:bg-emerald-600 hover:text-white transition-all text-xs font-bold active:scale-95 group">
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 group-hover:scale-110 transition-transform"></i>
+                <span>Exportar</span>
+            </button>
         </div>
+    </div>
 
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-bordered table-sm text-center align-middle mb-0" style="font-size: 0.8rem;">
-                    <thead>
-                        <tr class="text-white">
-                            <th rowspan="3" class="bg-dark text-white align-middle" style="width: 40px;">DIA</th>
+    <!-- Tabla de Reporte -->
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden transition-all">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-[10px] text-center">
+                <thead>
+                    <!-- Cabecera Nivel 1: Categorías -->
+                    <tr class="bg-slate-900 text-white border-b border-slate-800">
+                        <th rowspan="3" class="px-2 py-4 border-r border-slate-800 w-10">DÍA</th>
+                        <th colspan="5" class="py-2 border-r border-slate-800 bg-emerald-600/90 tracking-widest font-black">BEBIDAS</th>
+                        <th colspan="5" class="py-2 border-r border-slate-800 bg-amber-500/90 tracking-widest font-black">PASES LIBRES</th>
+                        <th colspan="5" class="py-2 border-r border-slate-800 bg-rose-600/90 tracking-widest font-black text-white">XB ENERGIZANTES</th>
+                        <th colspan="3" class="py-2 bg-indigo-600 tracking-widest font-black">RESUMEN DIARIO</th>
+                    </tr>
+                    <!-- Cabecera Nivel 2: Turnos -->
+                    <tr class="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase font-bold tracking-tighter">
+                        <th colspan="2" class="py-1 border-r border-slate-200">Mañana</th>
+                        <th colspan="2" class="py-1 border-r border-slate-200">Tarde</th>
+                        <th rowspan="2" class="px-2 border-r border-slate-200 bg-emerald-50 text-emerald-800">Sub</th>
+                        
+                        <th colspan="2" class="py-1 border-r border-slate-200">Mañana</th>
+                        <th colspan="2" class="py-1 border-r border-slate-200">Tarde</th>
+                        <th rowspan="2" class="px-2 border-r border-slate-200 bg-amber-50 text-amber-800">Sub</th>
+                        
+                        <th colspan="2" class="py-1 border-r border-slate-200">Mañana</th>
+                        <th colspan="2" class="py-1 border-r border-slate-200">Tarde</th>
+                        <th rowspan="2" class="px-2 border-r border-slate-200 bg-rose-50 text-rose-800">Sub</th>
 
-                            <th colspan="4" class="bg-success bg-opacity-75">BEBIDAS</th>
-                            <th rowspan="2" class="bg-secondary text-white small">SUB</th>
-
-                            <th colspan="4" class="bg-warning text-dark">LIBRES</th>
-                            <th rowspan="2" class="bg-secondary text-white small">SUB</th>
-
-                            <th colspan="4" class="bg-danger bg-opacity-75">XB</th>
-                            <th rowspan="2" class="bg-secondary text-white small">SUB</th>
-
-                            <th rowspan="3" class="bg-success text-white align-middle" style="border-left: 3px solid #333;">TOT.<br>EFECTIVO</th>
-                            <th rowspan="3" class="bg-info text-dark align-middle">TOT.<br>YAPE</th>
-                            <th rowspan="3" class="bg-dark text-white align-middle fs-6">TOTAL<br>GRAL.</th>
-                        </tr>
-
-                        <tr class="fw-bold small">
-                            <th colspan="2" class="bg-light">MAÑANA</th>
-                            <th colspan="2" class="bg-light">TARDE</th>
-
-                            <th colspan="2" class="bg-light">MAÑANA</th>
-                            <th colspan="2" class="bg-light">TARDE</th>
-
-                            <th colspan="2" class="bg-light">MAÑANA</th>
-                            <th colspan="2" class="bg-light">TARDE</th>
-                        </tr>
-
-                        <tr class="small text-muted" style="font-size: 0.75rem;">
-                            <th>Efec</th>
-                            <th>Yape</th>
-                            <th>Efec</th>
-                            <th>Yape</th>
-                            <th class="bg-light text-dark">S/.</th>
-                            <th>Efec</th>
-                            <th>Yape</th>
-                            <th>Efec</th>
-                            <th>Yape</th>
-                            <th class="bg-light text-dark">S/.</th>
-                            <th>Efec</th>
-                            <th>Yape</th>
-                            <th>Efec</th>
-                            <th>Yape</th>
-                            <th class="bg-light text-dark">S/.</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTabla"></tbody>
-                    <tfoot class="bg-light fw-bold small" id="pieTabla"></tfoot>
-                </table>
-            </div>
+                        <th rowspan="2" class="px-2 bg-slate-900 text-emerald-400 border-r border-slate-800">EFEC.</th>
+                        <th rowspan="2" class="px-2 bg-slate-900 text-sky-400 border-r border-slate-800">YAPE</th>
+                        <th rowspan="2" class="px-2 bg-slate-950 text-white font-black text-xs border-l-2 border-indigo-500">TOTAL</th>
+                    </tr>
+                    <!-- Cabecera Nivel 3: Métodos -->
+                    <tr class="bg-slate-50/50 text-[8px] font-black text-slate-400 border-b border-slate-200">
+                        <th class="py-1 border-r border-slate-100 w-8">EF</th><th class="py-1 border-r border-slate-200 w-8">YA</th>
+                        <th class="py-1 border-r border-slate-100 w-8">EF</th><th class="py-1 border-r border-slate-200 w-8">YA</th>
+                        
+                        <th class="py-1 border-r border-slate-100 w-8">EF</th><th class="py-1 border-r border-slate-200 w-8">YA</th>
+                        <th class="py-1 border-r border-slate-100 w-8">EF</th><th class="py-1 border-r border-slate-200 w-8">YA</th>
+                        
+                        <th class="py-1 border-r border-slate-100 w-8">EF</th><th class="py-1 border-r border-slate-200 w-8">YA</th>
+                        <th class="py-1 border-r border-slate-100 w-8">EF</th><th class="py-1 border-r border-slate-200 w-8">YA</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTabla" class="divide-y divide-slate-100">
+                    <!-- Dinámico -->
+                </tbody>
+                <tfoot id="pieTabla" class="bg-slate-900 text-white font-bold border-t-2 border-slate-800">
+                    <!-- Dinámico -->
+                </tfoot>
+            </table>
         </div>
     </div>
 </div>
@@ -101,6 +119,7 @@
             document.getElementById("selectMes").value = fecha.getMonth() + 1;
             document.getElementById("selectAnio").value = fecha.getFullYear();
             cargarReporte();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         });
 
         function cargarReporte() {
@@ -108,108 +127,83 @@
             const anio = document.getElementById("selectAnio").value;
             const tbody = document.getElementById("cuerpoTabla");
 
-            tbody.innerHTML = '<tr><td colspan="19" class="p-4"><div class="spinner-border text-primary"></div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="19" class="p-20 text-center"><div class="inline-flex items-center gap-3 px-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-500 font-bold animate-pulse"><div class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div> Procesando datos...</div></td></tr>';
 
             fetch(`/Reportes/ObtenerIngresos?mes=${mes}&anio=${anio}`)
                 .then(res => res.json())
                 .then(json => {
                     const data = json.data;
                     let html = '';
-                    let t = inicializarTotales(); // Totales acumulados
+                    let t = inicializarTotales();
 
-                    if(data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="19" class="p-4 text-muted">No hay movimientos.</td></tr>';
+                    if(!data || data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="19" class="p-20 text-center opacity-40 flex flex-col items-center"><i data-lucide="database-zap" class="w-10 h-10 mb-2"></i><div class="text-sm font-bold">No se encontraron movimientos</div></td></tr>';
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
                         return;
                     }
 
                     data.forEach(item => {
                         sumarTotales(t, item);
-
                         html += `
-                        <tr class="hover-row">
-                            <td class="fw-bold bg-light">${item.dia}</td>
+                        <tr class="hover:bg-slate-50/80 transition-colors group">
+                            <td class="px-2 py-2 font-black text-slate-900 bg-slate-50/50 border-r border-slate-100">${item.dia}</td>
 
-                            <td>${format(item.bebidasMananaEfectivo)}</td><td>${format(item.bebidasMananaYape)}</td>
-                            <td>${format(item.bebidasTardeEfectivo)}</td><td>${format(item.bebidasTardeYape)}</td>
-                            <td class="bg-light text-muted">${format(item.totalBebidas)}</td>
+                            <td class="text-slate-600">${format(item.bebidasMananaEfectivo)}</td><td class="text-sky-600 font-medium bg-sky-50/20">${format(item.bebidasMananaYape)}</td>
+                            <td class="text-slate-600">${format(item.bebidasTardeEfectivo)}</td><td class="text-sky-600 font-medium bg-sky-50/20">${format(item.bebidasTardeYape)}</td>
+                            <td class="bg-emerald-50 text-emerald-700 font-black border-r border-slate-100">${format(item.totalBebidas)}</td>
 
-                            <td>${format(item.libresMananaEfectivo)}</td><td>${format(item.libresMananaYape)}</td>
-                            <td>${format(item.libresTardeEfectivo)}</td><td>${format(item.libresTardeYape)}</td>
-                            <td class="bg-light text-muted">${format(item.totalLibres)}</td>
+                            <td class="text-slate-600">${format(item.libresMananaEfectivo)}</td><td class="text-sky-600 font-medium bg-sky-50/20">${format(item.libresMananaYape)}</td>
+                            <td class="text-slate-600">${format(item.libresTardeEfectivo)}</td><td class="text-sky-600 font-medium bg-sky-50/20">${format(item.libresTardeYape)}</td>
+                            <td class="bg-amber-50 text-amber-700 font-black border-r border-slate-100">${format(item.totalLibres)}</td>
 
-                            <td>${format(item.xbMananaEfectivo)}</td><td>${format(item.xbMananaYape)}</td>
-                            <td>${format(item.xbTardeEfectivo)}</td><td>${format(item.xbTardeYape)}</td>
-                            <td class="bg-light text-muted">${format(item.totalXB)}</td>
+                            <td class="text-slate-600">${format(item.xbMananaEfectivo)}</td><td class="text-sky-600 font-medium bg-sky-50/20">${format(item.xbMananaYape)}</td>
+                            <td class="text-slate-600">${format(item.xbTardeEfectivo)}</td><td class="text-sky-600 font-medium bg-sky-50/20">${format(item.xbTardeYape)}</td>
+                            <td class="bg-rose-50 text-rose-700 font-black border-r border-slate-100">${format(item.totalXB)}</td>
 
-                            <td class="fw-bold text-success border-start border-dark">${format(item.totalDiaEfectivo)}</td>
-                            <td class="fw-bold text-info">${format(item.totalDiaYape)}</td>
-                            <td class="bg-dark text-white fw-bold">${format(item.totalGeneralDia)}</td>
+                            <td class="font-bold text-emerald-600 border-r border-slate-100">${format(item.totalDiaEfectivo)}</td>
+                            <td class="font-bold text-sky-600 border-r border-slate-100">${format(item.totalDiaYape)}</td>
+                            <td class="bg-slate-900 text-white font-black text-[11px] group-hover:bg-indigo-600 transition-colors">${format(item.totalGeneralDia)}</td>
                         </tr>
                         `;
                     });
 
                     tbody.innerHTML = html;
                     renderFooter(t);
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
                 });
         }
 
         function format(num) {
-            return num > 0 ? num.toFixed(2) : '';
+            return num > 0 ? num.toFixed(2) : '·';
         }
 
         function inicializarTotales() {
-            // Agregamos totEf (Total Efectivo Global) y totYa (Total Yape Global)
             return {
                 bme:0, bmy:0, bte:0, bty:0, bt:0,
                 lme:0, lmy:0, lte:0, lty:0, lt:0,
                 xme:0, xmy:0, xte:0, xty:0, xt:0,
-
-                // Totales globales
-                totEf: 0,
-                totYa: 0,
-                granTotal: 0
+                totEf: 0, totYa: 0, granTotal: 0
             };
         }
 
         function sumarTotales(t, i) {
-            // Bebidas
-            t.bme += i.bebidasMananaEfectivo; t.bmy += i.bebidasMananaYape;
-            t.bte += i.bebidasTardeEfectivo; t.bty += i.bebidasTardeYape; t.bt += i.totalBebidas;
-
-            // Libres
-            t.lme += i.libresMananaEfectivo; t.lmy += i.libresMananaYape;
-            t.lte += i.libresTardeEfectivo; t.lty += i.libresTardeYape; t.lt += i.totalLibres;
-
-            // XB
-            t.xme += i.xbMananaEfectivo; t.xmy += i.xbMananaYape;
-            t.xte += i.xbTardeEfectivo; t.xty += i.xbTardeYape; t.xt += i.totalXB;
-
-            // Totales Finales
-            t.totEf += i.totalDiaEfectivo;
-            t.totYa += i.totalDiaYape;
-            t.granTotal += i.totalGeneralDia;
+            t.bme += i.bebidasMananaEfectivo; t.bmy += i.bebidasMananaYape; t.bte += i.bebidasTardeEfectivo; t.bty += i.bebidasTardeYape; t.bt += i.totalBebidas;
+            t.lme += i.libresMananaEfectivo; t.lmy += i.libresMananaYape; t.lte += i.libresTardeEfectivo; t.lty += i.libresTardeYape; t.lt += i.totalLibres;
+            t.xme += i.xbMananaEfectivo; t.xmy += i.xbMananaYape; t.xte += i.xbTardeEfectivo; t.xty += i.xbTardeYape; t.xt += i.totalXB;
+            t.totEf += i.totalDiaEfectivo; t.totYa += i.totalDiaYape; t.granTotal += i.totalGeneralDia;
         }
 
         function renderFooter(t) {
             const footer = document.getElementById("pieTabla");
             footer.innerHTML = `
-                <tr>
-                    <td>TOTAL</td>
-                    <td>${t.bme.toFixed(2)}</td><td>${t.bmy.toFixed(2)}</td>
-                    <td>${t.bte.toFixed(2)}</td><td>${t.bty.toFixed(2)}</td>
-                    <td>${t.bt.toFixed(2)}</td>
-
-                    <td>${t.lme.toFixed(2)}</td><td>${t.lmy.toFixed(2)}</td>
-                    <td>${t.lte.toFixed(2)}</td><td>${t.lty.toFixed(2)}</td>
-                    <td>${t.lt.toFixed(2)}</td>
-
-                    <td>${t.xme.toFixed(2)}</td><td>${t.xmy.toFixed(2)}</td>
-                    <td>${t.xte.toFixed(2)}</td><td>${t.xty.toFixed(2)}</td>
-                    <td>${t.xt.toFixed(2)}</td>
-
-                    <td class="bg-success text-white border-start border-dark fs-6">${t.totEf.toFixed(2)}</td>
-                    <td class="bg-info text-dark fs-6">${t.totYa.toFixed(2)}</td>
-                    <td class="bg-dark text-white fs-6">${t.granTotal.toFixed(2)}</td>
+                <tr class="uppercase text-[9px] tracking-widest">
+                    <td class="px-2 py-3 border-r border-slate-800">TOTAL</td>
+                    <td>${t.bme.toFixed(2)}</td><td>${t.bmy.toFixed(2)}</td><td>${t.bte.toFixed(2)}</td><td>${t.bty.toFixed(2)}</td><td class="bg-emerald-600 text-white">${t.bt.toFixed(2)}</td>
+                    <td>${t.lme.toFixed(2)}</td><td>${t.lmy.toFixed(2)}</td><td>${t.lte.toFixed(2)}</td><td>${t.lty.toFixed(2)}</td><td class="bg-amber-600 text-white">${t.lt.toFixed(2)}</td>
+                    <td>${t.xme.toFixed(2)}</td><td>${t.xmy.toFixed(2)}</td><td>${t.xte.toFixed(2)}</td><td>${t.xty.toFixed(2)}</td><td class="bg-rose-600 text-white">${t.xt.toFixed(2)}</td>
+                    <td class="bg-emerald-700 text-white font-black">${t.totEf.toFixed(2)}</td>
+                    <td class="bg-sky-700 text-white font-black">${t.totYa.toFixed(2)}</td>
+                    <td class="bg-indigo-600 text-white font-black text-sm">${t.granTotal.toFixed(2)}</td>
                 </tr>
             `;
         }
@@ -217,8 +211,6 @@
         function descargarExcel() {
             const mes = document.getElementById("selectMes").value;
             const anio = document.getElementById("selectAnio").value;
-
-            // Redirige al navegador para iniciar la descarga
             window.location.href = `/Reportes/ExportarExcel?mes=${mes}&anio=${anio}`;
         }
     </script>
