@@ -273,11 +273,11 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-center gap-2">
                                 ${puedeEditar ? `
-                                <button class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-600 hover:shadow-sm transition-all flex items-center justify-center group" onclick="editar(${p.productoId})" title="Editar">
+                                <button class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-sm shadow-indigo-100/50 flex items-center justify-center group" onclick="editar(${p.productoId})" title="Editar">
                                     <i data-lucide="edit" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
                                 </button>` : ''}
                                 ${puedeEliminar ? `
-                                <button class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-600 hover:shadow-sm transition-all flex items-center justify-center group" onclick="eliminar(${p.productoId})" title="Eliminar">
+                                <button class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all duration-300 shadow-sm shadow-rose-100/50 flex items-center justify-center group" onclick="eliminar(${p.productoId})" title="Eliminar">
                                     <i data-lucide="trash-2" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
                                 </button>` : ''}
                             </div>
