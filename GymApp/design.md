@@ -39,7 +39,9 @@ No usaremos blanco puro `#fff` ni negro puro `#000`.
 - ❌ **Bordes laterales (Side-stripes):** Nada de un borde grueso a la izquierda para denotar estado. Usaremos etiquetas (badges) o colores de fondo tintados completos.
 
 ## Elementos UI Clave (Componentes Base Tailwind)
-- **Botones:** Sólidos sin bordes gruesos. Efecto de focus ring visible (ej. `focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`).
+- **Botones:** 
+  - **Sólidos:** Sin bordes gruesos. Efecto de focus ring visible.
+  - **Efecto "Soft-to-Strong":** (Estándar para tablas y acciones secundarias). Fondo sutil tintado (ej. `bg-indigo-50`) con texto de color (ej. `text-indigo-600`). Al hacer hover, el fondo se vuelve sólido (ej. `bg-indigo-600`) y el texto blanco.
 - **Tablas:** Limpias, sin líneas verticales. Relleno amplio (`p-4`), tipografía tabular para números. Encabezados sutiles en mayúsculas (`text-xs uppercase tracking-wider`).
 - **Inputs:** Fondo gris ultra claro `bg-slate-50` al enfocar pasan a fondo blanco `bg-white` con un anillo `ring-1 ring-indigo-500`.
 

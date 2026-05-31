@@ -4,97 +4,68 @@ Este documento resume el progreso exhaustivo realizado en la modernización visu
 
 ---
 
-## 🎨 Resumen Estético y Estándares Aplicados
-Se ha establecido un lenguaje de diseño **"SaaS Premium / Utilitario Deportivo"** con los siguientes pilares:
-- **Tipografía:** Uso de *Outfit* para títulos y *Plus Jakarta Sans* para datos. Se oscureció la paleta (`text-slate-950` para títulos, `text-slate-700` para secundarios) para máxima legibilidad.
-- **Superficies:** Tarjetas con bordes ultra-redondeados (`rounded-[2rem]` a `rounded-3xl`), sombras sutiles (`shadow-sm`) que escalan en interacción (`hover:shadow-xl`).
-- **Acentos:** Uso de fondos tintados (índigo, esmeralda, ámbar, rosa) en lugar de bordes pesados o colores sólidos de Bootstrap.
-- **Micro-interacciones:** Elevación en hover (`-translate-y-1`), transiciones suaves (300ms) y animaciones de pulso para estados activos.
+## 🎨 Metodología de Trabajo y Estándares
+Para garantizar la integridad técnica y la excelencia visual, se han establecido las siguientes reglas de ejecución:
+
+1.  **Commits Atómicos:** Cada actualización se realiza en un commit individual con mensaje descriptivo en **español**.
+2.  **Análisis de Flujo (Pre-migración):** Antes de modificar cualquier vista, se realiza un análisis exhaustivo del flujo del módulo:
+    *   **Data/Modelos:** Identificación de tipos y nulabilidad de propiedades.
+    *   **Repositorios/Servicios:** Entender cómo se procesan los datos antes de llegar a la UI.
+    *   **Controladores:** Mapeo exacto de nombres de propiedades en JSON y ViewBags para evitar errores de compilación (`CS1061`) o `NullReferenceException`.
+3.  **Modelos de Referencia:** Los módulos de **Usuarios/Socios** y **Membresías** sirven como guía visual premium (uso de avatars, badges tintados y espaciados).
+4.  **Estética SaaS Premium:**
+    *   **Tipografía:** *Outfit* (Títulos) y *Plus Jakarta Sans* (Datos).
+    *   **Botones:** Efecto **"Soft-to-Strong"** (fondo suave que se vuelve sólido y vibrante al hacer hover).
+    *   **Interactividad:** Micro-interacciones (elevación sutil, transiciones de 300ms) y estados animados.
 
 ---
 
 ## ✅ Módulos Completados (100% Tailwind)
 
 ### 1. Sistema Base y Auth
-- **Login (`Auth/Login.cshtml`):** Rediseño total con fondo orgánico, tarjeta centralizada y animaciones de error.
-- **Layout General:** Limpieza de clases legacy y actualización de colores en Sidebar y Topbar.
+- **Login:** Rediseño total con fondo orgánico y animaciones de error.
+- **Layout General:** Limpieza de clases legacy; Sidebar y Topbar modernizados.
 
 ### 2. Panel de Control (Dashboard)
-- **Vista Principal:** Tarjetas de estadísticas con indicadores de color, filtros de gráficos estilo "pill tabs" y tabla de movimientos recientes con carga dinámica optimizada.
+- **Vista Principal:** Tarjetas estadísticas con indicadores de color y filtros de gráficos tipo "pill tabs".
 
 ### 3. Gestión de Usuarios y Socios
-- **Listado:** Tabla moderna con avatars automáticos y acciones minimalistas.
-- **Detalles:** Ficha técnica completa con indicadores de vigencia inteligentes (colores por días restantes).
-- **Modales:** Rediseño del modal de creación/edición con área de captura de webcam modernizada.
+- **Listado y Detalles:** Tabla moderna con avatars automáticos y ficha técnica con indicadores de vigencia inteligentes.
 
 ### 4. Membresías y Suscripciones
-- **Listado:** Control de estados (Activa, Vencida, Congelada) con badges dinámicos y seguimiento de deudas en rojo mono-espaciado.
-- **Modales:** Lógica de renovación y congelamiento integrada con el nuevo diseño.
-- **Detalles:** Historial de pagos y pausas con diseño de línea de tiempo y pestañas.
+- **Gestión Completa:** Control de estados (Activa, Vencida, Congelada) con badges dinámicos y seguimiento de deudas.
 
 ### 5. Caja y Tesorería (Pagos)
-- **Panel de Cobro:** Interfaz de búsqueda de deuda con autocompletado y barra de progreso de pago.
-- **Validación Digital:** Sección condicional para adjuntar o capturar comprobantes de Yape/Plin.
-- **Detalle de Operación:** Seguimiento de balance financiero (Inversión vs Cobrado vs Saldo).
+- **Panel de Cobro:** Interfaz de búsqueda con autocompletado y validación de comprobantes digitales (Yape/Plin).
 
 ### 6. Pases Diarios
-- **Registro Rápido:** Formulario optimizado para ventas en mostrador con captura de evidencia.
-- **Listado y Detalles:** Integración con DataTables (estilizado con Tailwind) y vista de evidencia digital.
+- **Registro Rápido:** Formulario optimizado para mostrador con captura de evidencia digital.
 
 ### 7. Configuración (Administración)
-- **Planes y Precios:** Grilla de tarjetas tipo "pricing" con botones de acción interactivos.
-- **Horarios y Turnos:** Gestión de franjas horarias con iconos de sol/luna.
-- **Roles y Permisos:** Visualización por niveles de seguridad (Admin protegido).
+- **Planes, Turnos y Roles:** Grilla de tarjetas tipo "pricing" y gestión de franjas horarias con iconografía solar/lunar.
 
 ### 8. Inventario de Productos
-- **Vista Principal:** Rediseño total de la gestión de stock con KPIs interactivos (Total Items y Stock Crítico).
-- **Tabla:** Implementación de tabla Tailwind con badges de estado dinámicos y acciones integradas.
-- **Modal:** Formulario de creación/edición modernizado con validaciones visuales y Lucide Icons.
+- **Vista Principal:** Gestión de stock con KPIs interactivos y botones "soft-to-strong" estandarizados.
 
 ### 9. Punto de Venta (POS)
-- **Interfaz Dividida:** Diseño optimizado con panel de productos (grid) y ticket de venta persistente.
-- **Ticket Interactivo:** Gestión de cantidades y edición de precios en tiempo real con cálculos automáticos.
-- **Búsqueda de Socios:** Modal de asignación de cliente integrado con búsqueda asíncrona y diseño premium.
+- **Interfaz Dividida:** Diseño optimizado con panel de productos y ticket de venta dinámico (320px).
 
 ### 10. Alertas n8n
-- **Gestión Centralizada:** Listado de configuraciones con badges de estado animados y programación visual de días/horas.
-- **Formulario Inteligente:** Interfaz de pestañas (Tabs) modernizada para separar notificaciones en tiempo real de reportes programados.
-- **Interactividad:** Implementación de botones "soft-to-strong" para acciones (Ejecutar, Editar, Eliminar) y switches estilizados para cada tipo de alerta.
+- **Gestión Centralizada:** Listado con badges animados y formulario de pestañas (Tabs) para notificaciones en tiempo real/programadas.
 
 ### 11. Módulo de Reportes
-- **Control de Ingresos:** Tabla financiera de alta densidad con jerarquía visual por categorías (Bebidas, Pases, XB) y resumen diario integrado.
-- **Reporte de Membresías:** Listado detallado de renovaciones con estados de vigencia automáticos y conciliación de métodos de pago (Efectivo/Yape).
-- **Exportación:** Integración estética de herramientas de consulta y exportación a Excel en un panel de filtros minimalista.
+- **Análisis Financiero:** Tabla de alta densidad organizada por categorías (Bebidas, Pases, XB) y reporte de membresías detallado.
 
 ### 12. Control de Acceso (QR)
-- **Interfaz de Escaneo:** Diseño de alto contraste con guía visual de enfoque y controles táctiles optimizados.
-- **Feedback Inmediato:** Sistema de overlays con validación cromática (Verde/Rojo), iconografía animada y soporte auditivo.
-- **Resumen de Socio:** Visualización clara del plan actual y días de vigencia tras cada escaneo exitoso.
-
----
-
-## 🛠️ Correcciones Técnicas Realizadas
-- **Razor & Tailwind:** Se corrigieron errores de compilación (`CS0103`) escapando la directiva de Tailwind como `@@apply`.
-- **Mapeo de Datos:** Se extendió el DTO `PagoDetalleDTO` y el servicio `PagoService` para incluir `UserId`, permitiendo la navegación fluida entre pagos y perfiles.
-- **Cámara y JS:** Se resolvió un error de referencia (`streamCamaraPago is not defined`) mediante la correcta declaración de variables globales y limpieza de flujos en los modales de pago.
+- **Interfaz de Escaneo:** Diseño de alto contraste con guía visual y sistema de overlays de validación (Verde/Rojo).
 
 ---
 
 ## 🚀 Hoja de Ruta: Lo que falta
-Para completar la Fase 3 y 4 de `ui_migration_phases.md`, se recomienda seguir este orden:
 
-1.  **Ventas y Productos:** Rediseñar el POS (Punto de Venta) y el catálogo de productos.
-2.  **Reportes:** Modernizar las gráficas de ingresos y exportación a Excel.
-3.  **Control de Acceso:** Refactorizar la vista del Escáner QR para que se sienta como una app móvil premium.
-4.  **Empleados:** Aplicar el mismo diseño de Usuarios a la gestión de personal.
-5.  **Portal del Cliente:** Adaptar la vista `ClienteHome` para que el socio vea su progreso y QR.
-6.  **Pulido Final:** Auditoría de accesibilidad y unificación de todos los modales de confirmación (SweetAlert2).
+1.  **Gestión de Personal (Empleados):** Migrar la vista administrativa de empleados siguiendo el modelo de Socios, pero con enfoque en seguridad y permisos.
+2.  **Portal del Cliente:** Adaptar la vista `ClienteHome` para que el socio vea su progreso y QR personal.
+3.  **Historial de Visitas:** Modernizar el log de accesos del gimnasio.
+4.  **Pulido Final:** Auditoría de accesibilidad y unificación de diálogos SweetAlert2.
 
----
-
-## 💡 Instrucciones para el Próximo Ingeniero
-- **Compilación:** Siempre ejecutar `npm run build:css` después de modificar una vista `.cshtml` para regenerar las clases.
-- **Estilo:** Consultar siempre `design.md` antes de elegir una clase de color o borde.
-- **Contexto:** El proyecto utiliza **YOLO Mode**, por lo que se pueden realizar cambios directos siempre que se sigan los estándares de seguridad y se realicen validaciones con `dotnet build`.
-
-*Documento generado el 29 de mayo de 2026.*
+*Documento actualizado al 31 de mayo de 2026.*
