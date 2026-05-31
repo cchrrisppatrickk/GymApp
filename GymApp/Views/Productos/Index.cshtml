@@ -200,62 +200,70 @@
 
             if (!datos || datos.length === 0) {
                 tbody.innerHTML = '';
-                document.getElementById("emptyState").classList.remove("d-none");
+                document.getElementById("emptyState").classList.remove("hidden");
                 return;
             }
 
-            document.getElementById("emptyState").classList.add("d-none");
+            document.getElementById("emptyState").classList.add("hidden");
 
             const puedeEditar = @(User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosEditar) || User.IsInRole(AppRoles.Admin) ? "true" : "false");
             const puedeEliminar = @(User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosEliminar) || User.IsInRole(AppRoles.Admin) ? "true" : "false");
 
             datos.forEach(p => {
                 // 1. Estilos por Categoría
-                let catBadge = `<span class="badge bg-secondary bg-opacity-75 text-white">General</span>`;
-                if(p.categoria === 'XB') catBadge = `<span class="badge bg-warning text-dark border border-warning">XB</span>`;
-                if(p.categoria === 'Servicio') catBadge = `<span class="badge bg-info text-dark border border-info">Servicio</span>`;
+                let catBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">General</span>`;
+                if(p.categoria === 'XB') catBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">XB</span>`;
+                if(p.categoria === 'Servicio') catBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">Servicio</span>`;
 
                 // 2. Lógica de Stock (Visual)
-                let stockDisplay = `<span class="fw-bold">${p.stockActual}</span> u.`;
-                let stockBadge = `<span class="badge bg-success bg-opacity-75 text-white">Normal</span>`;
-                let rowClass = "";
+                let stockDisplay = `<span class="font-bold text-slate-900">${p.stockActual}</span> <span class="text-slate-500 text-xs font-medium">u.</span>`;
+                let stockBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">Normal</span>`;
+                let rowClass = "hover:bg-slate-50/50 transition-colors";
 
                 if (p.categoria === 'Servicio') {
-                    // Los servicios no tienen stock crítico
-                    stockDisplay = `<span class="text-muted small"><i class="bi bi-infinity fs-5"></i> Ilimitado</span>`;
-                    stockBadge = `<span class="badge bg-light text-dark border">Activo</span>`;
+                    stockDisplay = `<span class="text-slate-400 font-medium italic text-sm">Ilimitado</span>`;
+                    stockBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200 text-center">Activo</span>`;
                 } else {
-                    // Productos físicos
                     if(p.stockActual <= 5) {
-                        stockBadge = `<span class="badge bg-danger bg-opacity-75 text-white"><i class="bi bi-exclamation-circle me-1"></i>Crítico</span>`;
-                        rowClass = "table-danger bg-opacity-10";
+                        stockBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200">Crítico</span>`;
+                        rowClass = "bg-rose-50/30 hover:bg-rose-50/50 transition-colors";
                     } else if(p.stockActual <= 15) {
-                        stockBadge = `<span class="badge bg-warning text-dark">Bajo</span>`;
+                        stockBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">Bajo</span>`;
                     }
                 }
 
                 html += `
-                    <tr class="${rowClass}">
-                        <td class="ps-4">
-                            <span class="fw-bold text-dark">${p.nombre}</span>
+                    <tr class="${rowClass} border-b border-slate-100 last:border-0">
+                        <td class="px-6 py-4">
+                            <span class="font-bold text-slate-950 block">${p.nombre}</span>
                         </td>
-                        <td>${catBadge}</td> <td>
-                            <span class="fw-bold text-success">S/. ${p.precioVenta.toFixed(2)}</span>
+                        <td class="px-6 py-4">${catBadge}</td>
+                        <td class="px-6 py-4">
+                            <span class="font-bold text-emerald-600">S/. ${p.precioVenta.toFixed(2)}</span>
                         </td>
-                        <td>${stockDisplay}</td>
-                        <td>${stockBadge}</td>
-                        <td class="text-center">
-                            ${puedeEditar ? `<button class="btn btn-sm btn-light border me-1" onclick="editar(${p.productoId})" title="Editar">
-                                <i class="bi bi-pencil text-primary"></i>
-                            </button>` : ''}
-                            ${puedeEliminar ? `<button class="btn btn-sm btn-light border" onclick="eliminar(${p.productoId})" title="Eliminar">
-                                <i class="bi bi-trash text-danger"></i>
-                            </button>` : ''}
+                        <td class="px-6 py-4">${stockDisplay}</td>
+                        <td class="px-6 py-4 text-center">${stockBadge}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                ${puedeEditar ? `
+                                <button class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-600 hover:shadow-sm transition-all flex items-center justify-center group" onclick="editar(${p.productoId})" title="Editar">
+                                    <i data-lucide="edit" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
+                                </button>` : ''}
+                                ${puedeEliminar ? `
+                                <button class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-600 hover:shadow-sm transition-all flex items-center justify-center group" onclick="eliminar(${p.productoId})" title="Eliminar">
+                                    <i data-lucide="trash-2" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
+                                </button>` : ''}
+                            </div>
                         </td>
                     </tr>
                 `;
             });
             tbody.innerHTML = html;
+
+            // Inicializar Lucide Icons para los nuevos elementos
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         function actualizarKPIs(datos) {
