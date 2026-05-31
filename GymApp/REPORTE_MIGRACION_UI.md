@@ -51,6 +51,11 @@ Se ha establecido un lenguaje de diseño **"SaaS Premium / Utilitario Deportivo"
 - **Tabla:** Implementación de tabla Tailwind con badges de estado dinámicos y acciones integradas.
 - **Modal:** Formulario de creación/edición modernizado con validaciones visuales y Lucide Icons.
 
+### 9. Punto de Venta (POS)
+- **Interfaz Dividida:** Diseño optimizado con panel de productos (grid) y ticket de venta persistente.
+- **Ticket Interactivo:** Gestión de cantidades y edición de precios en tiempo real con cálculos automáticos.
+- **Búsqueda de Socios:** Modal de asignación de cliente integrado con búsqueda asíncrona y diseño premium.
+
 ---
 
 ## 🛠️ Correcciones Técnicas Realizadas

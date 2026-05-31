@@ -43,7 +43,7 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
   - [ ] Ingresos Generales
   - [ ] Membresías
 - [ ] **Ventas / Productos**
-  - [ ] Punto de Venta (POS) / Listado de Ventas
+  - [x] Punto de Venta (POS) / Listado de Ventas
   - [x] Gestión de Productos
 - [ ] **Control de Acceso (Escáner QR)**
   - [ ] Vista del Escáner
