@@ -66,6 +66,11 @@ Se ha establecido un lenguaje de diseño **"SaaS Premium / Utilitario Deportivo"
 - **Reporte de Membresías:** Listado detallado de renovaciones con estados de vigencia automáticos y conciliación de métodos de pago (Efectivo/Yape).
 - **Exportación:** Integración estética de herramientas de consulta y exportación a Excel en un panel de filtros minimalista.
 
+### 12. Control de Acceso (QR)
+- **Interfaz de Escaneo:** Diseño de alto contraste con guía visual de enfoque y controles táctiles optimizados.
+- **Feedback Inmediato:** Sistema de overlays con validación cromática (Verde/Rojo), iconografía animada y soporte auditivo.
+- **Resumen de Socio:** Visualización clara del plan actual y días de vigencia tras cada escaneo exitoso.
+
 ---
 
 ## 🛠️ Correcciones Técnicas Realizadas
