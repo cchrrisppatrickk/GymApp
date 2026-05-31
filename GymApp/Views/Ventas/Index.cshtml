@@ -2,32 +2,32 @@
     ViewData["Title"] = "Punto de Venta";
 }
 
-<div class="flex flex-col lg:flex-row h-[calc(100vh-100px)] gap-6 mt-4">
+<div class="flex flex-col lg:flex-row h-[calc(100vh-100px)] gap-4 mt-2">
     <!-- Panel Izquierdo: Productos -->
-    <div class="flex-grow flex flex-col min-w-0 bg-slate-50/50 rounded-[2.5rem] border border-slate-200/60 p-6 overflow-hidden shadow-sm">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div class="flex-grow flex flex-col min-w-0 bg-slate-50/50 rounded-3xl border border-slate-200/60 p-4 overflow-hidden shadow-sm">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
             <div>
-                <div class="flex items-center gap-3 mb-1">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20">
-                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                <div class="flex items-center gap-2 mb-0.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                     </div>
-                    <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight m-0">Productos Disponibles</h2>
+                    <h2 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Productos Disponibles</h2>
                 </div>
-                <p class="text-slate-600 text-xs font-medium ml-1">Selecciona los productos para agregar al ticket</p>
+                <p class="text-slate-500 text-[10px] font-medium ml-1 uppercase tracking-wider">Gestión de inventario y ventas</p>
             </div>
             
-            <div class="w-full sm:w-72 relative group">
-                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+            <div class="w-full sm:w-64 relative group">
+                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
                     <i data-lucide="search" class="w-4 h-4"></i>
                 </div>
                 <input type="text" id="buscador" onkeyup="filtrarProductos()" 
-                       class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-400" 
+                       class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl pl-9 pr-4 py-2 text-xs font-medium text-slate-900 transition-all placeholder:text-slate-400" 
                        placeholder="Buscar producto...">
             </div>
         </div>
 
         <div class="flex-grow overflow-y-auto pr-2 custom-scrollbar">
-            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4" id="gridProductos">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3" id="gridProductos">
                 <div class="col-span-full flex flex-col items-center justify-center py-20 opacity-50">
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4"></div>
                     <p class="text-slate-600 font-medium">Cargando inventario...</p>
@@ -37,22 +37,22 @@
     </div>
 
     <!-- Panel Derecho: Ticket -->
-    <div class="w-full lg:w-[400px] shrink-0 bg-white rounded-[2.5rem] border border-slate-200 shadow-xl flex flex-col overflow-hidden relative">
-        <div class="bg-slate-950 px-6 py-5 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                <i data-lucide="receipt" class="w-5 h-5"></i>
+    <div class="w-full lg:w-[300px] shrink-0 bg-white rounded-3xl border border-slate-200 shadow-xl flex flex-col overflow-hidden relative">
+        <div class="bg-slate-950 px-5 py-4 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                <i data-lucide="receipt" class="w-4 h-4"></i>
             </div>
-            <h5 class="text-lg font-display font-bold text-white m-0">Ticket de Venta</h5>
+            <h5 class="text-base font-display font-bold text-white m-0 tracking-tight">Ticket de Venta</h5>
         </div>
 
-        <div class="flex-grow overflow-y-auto px-6 py-4 custom-scrollbar">
+        <div class="flex-grow overflow-y-auto px-5 py-3 custom-scrollbar">
             <table class="w-full text-left">
                 <thead>
                     <tr class="border-b border-slate-100">
-                        <th class="pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-400">Cant.</th>
-                        <th class="pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-400">Producto</th>
-                        <th class="pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-400 text-right">Precio</th>
-                        <th class="pb-3"></th>
+                        <th class="pb-2 text-[9px] uppercase tracking-widest font-bold text-slate-400">Cant.</th>
+                        <th class="pb-2 text-[9px] uppercase tracking-widest font-bold text-slate-400">Producto</th>
+                        <th class="pb-2 text-[9px] uppercase tracking-widest font-bold text-slate-400 text-right">Precio</th>
+                        <th class="pb-2"></th>
                     </tr>
                 </thead>
                 <tbody id="listaCarrito" class="divide-y divide-slate-50">
@@ -60,58 +60,58 @@
                 </tbody>
             </table>
             
-            <div id="msgCarritoVacio" class="flex flex-col items-center justify-center py-20 opacity-40">
-                <i data-lucide="shopping-cart" class="w-12 h-12 text-slate-400 mb-4"></i>
-                <p class="text-slate-500 font-bold text-sm">Carrito vacío</p>
+            <div id="msgCarritoVacio" class="flex flex-col items-center justify-center py-16 opacity-30">
+                <i data-lucide="shopping-cart" class="w-10 h-10 text-slate-400 mb-3"></i>
+                <p class="text-slate-500 font-bold text-xs">Carrito vacío</p>
             </div>
         </div>
 
-        <div class="p-6 bg-slate-50/50 border-t border-slate-100 space-y-4">
+        <div class="p-5 bg-slate-50/50 border-t border-slate-100 space-y-3">
             <!-- Cliente -->
-            <div class="space-y-1.5">
-                <label class="text-[10px] uppercase tracking-widest font-bold text-slate-500 ml-1">Cliente (Opcional)</label>
-                <div class="flex gap-2">
+            <div class="space-y-1">
+                <label class="text-[9px] uppercase tracking-widest font-bold text-slate-500 ml-1">Cliente (Opcional)</label>
+                <div class="flex gap-1.5">
                     <div class="relative flex-grow group">
-                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                        <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                            <i data-lucide="user" class="w-3 h-3"></i>
                         </div>
-                        <input type="text" id="txtCliente" class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-900 transition-all placeholder:text-slate-400" 
+                        <input type="text" id="txtCliente" class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-lg pl-8 pr-3 py-1.5 text-[11px] font-bold text-slate-900 transition-all placeholder:text-slate-400" 
                                placeholder="Público General" readonly>
                         <input type="hidden" id="userId">
                     </div>
-                    <button class="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-indigo-600 hover:border-indigo-600 transition-all shadow-sm" onclick="abrirModalClientes()">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <button class="w-8 h-8 flex items-center justify-center bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-indigo-600 hover:border-indigo-600 transition-all shadow-sm" onclick="abrirModalClientes()">
+                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
                     </button>
-                    <button class="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-rose-600 hover:border-rose-600 transition-all shadow-sm" onclick="limpiarCliente()">
-                        <i data-lucide="user-x" class="w-4 h-4"></i>
+                    <button class="w-8 h-8 flex items-center justify-center bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-rose-600 hover:border-rose-600 transition-all shadow-sm" onclick="limpiarCliente()">
+                        <i data-lucide="user-x" class="w-3.5 h-3.5"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Método de Pago -->
-            <div class="space-y-1.5">
-                <label class="text-[10px] uppercase tracking-widest font-bold text-slate-500 ml-1">Método de Pago</label>
+            <div class="space-y-1">
+                <label class="text-[9px] uppercase tracking-widest font-bold text-slate-500 ml-1">Método de Pago</label>
                 <div class="relative">
-                    <select class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 appearance-none cursor-pointer transition-all" id="cboMetodo">
+                    <select class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-700 appearance-none cursor-pointer transition-all" id="cboMetodo">
                         <option value="Efectivo">💵 Efectivo</option>
                         <option value="Yape">📱 Yape / Plin</option>
                     </select>
-                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <i data-lucide="chevron-down" class="w-3 h-3"></i>
                     </div>
                 </div>
             </div>
 
             <div class="pt-2 border-t border-slate-200">
-                <div class="flex justify-between items-end mb-4">
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total a Pagar</span>
-                    <span class="text-3xl font-display font-bold text-indigo-600 leading-none" id="lblTotal">$ 0.00</span>
+                <div class="flex justify-between items-end mb-3">
+                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Total a Pagar</span>
+                    <span class="text-2xl font-display font-bold text-indigo-600 leading-none tracking-tighter" id="lblTotal">$ 0.00</span>
                 </div>
 
-                <button class="w-full bg-indigo-600 text-white rounded-2xl py-4 font-display font-bold text-sm tracking-widest uppercase hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group" 
+                <button class="w-full bg-indigo-600 text-white rounded-xl py-3 font-display font-bold text-xs tracking-widest uppercase hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group" 
                         onclick="procesarVenta()" id="btnPagar" disabled>
                     <div class="flex items-center justify-center gap-2">
-                        <i data-lucide="check-circle" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                        <i data-lucide="check-circle" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
                         <span>Confirmar Venta</span>
                     </div>
                 </button>
@@ -123,28 +123,28 @@
 <!-- Modal Clientes -->
 <div class="modal fade" id="modalClientes" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content !rounded-[2.5rem] border-0 shadow-2xl overflow-hidden">
-            <div class="bg-slate-950 px-6 py-5 flex items-center justify-between">
+        <div class="modal-content !rounded-3xl border-0 shadow-2xl overflow-hidden">
+            <div class="bg-slate-950 px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                        <i data-lucide="users" class="w-5 h-5"></i>
+                    <div class="w-7 h-7 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <i data-lucide="users" class="w-4 h-4"></i>
                     </div>
-                    <h5 class="text-lg font-display font-bold text-white m-0">Asignar Cliente</h5>
+                    <h5 class="text-base font-display font-bold text-white m-0 tracking-tight">Asignar Cliente</h5>
                 </div>
                 <button type="button" class="text-white/60 hover:text-white transition-colors" data-bs-dismiss="modal">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="p-5 space-y-4">
                 <div class="relative group">
-                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                        <i data-lucide="search" class="w-4 h-4"></i>
+                    <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                        <i data-lucide="search" class="w-3.5 h-3.5"></i>
                     </div>
-                    <input type="text" class="w-full bg-slate-50 border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-400" 
+                    <input type="text" class="w-full bg-slate-50 border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl pl-9 pr-4 py-2 text-xs font-medium text-slate-900 transition-all placeholder:text-slate-400" 
                            id="inputBuscarCliente" placeholder="Escribe DNI o Nombre...">
                 </div>
                 <div class="max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                    <ul class="divide-y divide-slate-100 rounded-2xl border border-slate-100 overflow-hidden" id="resultadosClientes">
+                    <ul class="divide-y divide-slate-100 rounded-xl border border-slate-100 overflow-hidden" id="resultadosClientes">
                         <!-- Resultados -->
                     </ul>
                 </div>
@@ -154,7 +154,7 @@
 </div>
 
 <style>
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
@@ -188,9 +188,9 @@
 
             if (lista.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full flex flex-col items-center justify-center py-20 opacity-40">
-                        <i data-lucide="package-search" class="w-12 h-12 mb-4"></i>
-                        <p class="text-slate-600 font-bold">No se encontraron productos</p>
+                    <div class="col-span-full flex flex-col items-center justify-center py-16 opacity-40">
+                        <i data-lucide="package-search" class="w-10 h-10 mb-3"></i>
+                        <p class="text-slate-600 font-bold text-xs">No se encontraron productos</p>
                     </div>`;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 return;
@@ -202,26 +202,26 @@
 
                 let stockBadge;
                 if(esServicio) {
-                    stockBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase tracking-tighter">Servicio</span>';
+                    stockBadge = '<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase tracking-tighter">Servicio</span>';
                 } else {
                     stockBadge = sinStock
-                        ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 uppercase tracking-tighter">Agotado</span>'
-                        : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-tighter">${p.stockActual} disp.</span>`;
+                        ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-rose-100 text-rose-700 border border-rose-200 uppercase tracking-tighter">Agotado</span>'
+                        : `<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-tighter">${p.stockActual} disp.</span>`;
                 }
 
                 const html = `
-                    <div class="group relative bg-white rounded-3xl border border-slate-200 p-4 transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer overflow-hidden ${sinStock ? 'opacity-60 grayscale' : ''}" 
+                    <div class="group relative bg-white rounded-2xl border border-slate-200 p-3 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer overflow-hidden ${sinStock ? 'opacity-60 grayscale' : ''}" 
                          onclick="${sinStock ? '' : `agregarAlCarrito(${p.productoId})`}">
-                        <div class="absolute -right-2 -top-2 w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center -rotate-12 group-hover:rotate-0 transition-transform opacity-50">
-                            <i data-lucide="box" class="w-8 h-8 text-slate-200"></i>
+                        <div class="absolute -right-2 -top-2 w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center -rotate-12 group-hover:rotate-0 transition-transform opacity-30">
+                            <i data-lucide="box" class="w-6 h-6 text-slate-200"></i>
                         </div>
                         <div class="relative z-10 flex flex-col h-full">
-                            <div class="mb-4 w-10 h-10 rounded-xl bg-slate-50 text-indigo-600 flex items-center justify-center border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors shadow-sm">
-                                <i data-lucide="${esServicio ? 'zap' : 'package'}" class="w-5 h-5"></i>
+                            <div class="mb-2 w-8 h-8 rounded-lg bg-slate-50 text-indigo-600 flex items-center justify-center border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors shadow-sm">
+                                <i data-lucide="${esServicio ? 'zap' : 'package'}" class="w-4 h-4"></i>
                             </div>
-                            <h6 class="text-sm font-bold text-slate-900 mb-1 line-clamp-2 min-h-[40px]" title="${p.nombre}">${p.nombre}</h6>
-                            <div class="mt-auto pt-3 flex items-end justify-between">
-                                <span class="text-lg font-display font-bold text-emerald-600">$ ${p.precioVenta.toFixed(2)}</span>
+                            <h6 class="text-[11px] font-bold text-slate-900 mb-1 line-clamp-2 min-h-[30px] leading-tight" title="${p.nombre}">${p.nombre}</h6>
+                            <div class="mt-auto pt-2 flex flex-col items-start gap-1">
+                                <span class="text-sm font-display font-bold text-emerald-600 leading-none">$ ${p.precioVenta.toFixed(2)}</span>
                                 ${stockBadge}
                             </div>
                         </div>
@@ -242,7 +242,7 @@
                 if (esServicio || enCarrito.cantidad < producto.stockActual) {
                     enCarrito.cantidad++;
                 } else {
-                    Swal.fire({ icon: 'warning', title: 'Sin stock', text: 'No hay más stock disponible', timer: 1500, showConfirmButton: false });
+                    Swal.fire({ icon: 'warning', title: 'Sin stock', text: 'No hay más stock disponible', timer: 1500, showConfirmButton: false, customClass: { popup: '!rounded-2xl' } });
                 }
             } else {
                 carrito.push({
@@ -310,30 +310,34 @@
                     total += subtotal;
 
                     tbody.innerHTML += `
-                        <tr class="group hover:bg-slate-50/50 transition-colors">
-                            <td class="py-3 pr-2">
-                                <div class="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1 w-fit border border-slate-200/50">
-                                    <button class="w-5 h-5 flex items-center justify-center bg-white rounded border border-slate-200 text-slate-600 hover:text-indigo-600 active:scale-90 transition-all shadow-xs" onclick="cambiarCantidad(${item.productoId}, -1)">-</button>
-                                    <span class="text-[10px] font-bold text-slate-900 w-4 text-center">${item.cantidad}</span>
-                                    <button class="w-5 h-5 flex items-center justify-center bg-white rounded border border-slate-200 text-slate-600 hover:text-indigo-600 active:scale-90 transition-all shadow-xs" onclick="cambiarCantidad(${item.productoId}, 1)">+</button>
+                        <tr class="group hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
+                            <td class="py-2.5 pr-1.5">
+                                <div class="flex items-center gap-1 bg-slate-100 rounded-md p-1 w-fit border border-slate-200/50">
+                                    <button class="w-4 h-4 flex items-center justify-center bg-white rounded border border-slate-200 text-slate-600 hover:text-indigo-600 active:scale-90 transition-all shadow-xs" onclick="cambiarCantidad(${item.productoId}, -1)">
+                                        <i data-lucide="minus" class="w-2.5 h-2.5"></i>
+                                    </button>
+                                    <span class="text-[9px] font-bold text-slate-900 w-3.5 text-center">${item.cantidad}</span>
+                                    <button class="w-4 h-4 flex items-center justify-center bg-white rounded border border-slate-200 text-slate-600 hover:text-indigo-600 active:scale-90 transition-all shadow-xs" onclick="cambiarCantidad(${item.productoId}, 1)">
+                                        <i data-lucide="plus" class="w-2.5 h-2.5"></i>
+                                    </button>
                                 </div>
                             </td>
-                            <td class="py-3">
-                                <span class="text-[11px] font-bold text-slate-800 block line-clamp-1 leading-tight">${item.nombre}</span>
+                            <td class="py-2.5">
+                                <span class="text-[10px] font-bold text-slate-800 block line-clamp-1 leading-tight tracking-tight">${item.nombre}</span>
                             </td>
-                            <td class="py-3 text-right">
+                            <td class="py-2.5 text-right">
                                 <div class="flex items-center justify-end">
-                                    <span class="text-[10px] font-bold text-slate-400 mr-1">$</span>
+                                    <span class="text-[8px] font-bold text-slate-400 mr-0.5">$</span>
                                     <input type="number"
-                                           class="w-16 bg-transparent border-0 text-[13px] font-display font-bold text-indigo-600 text-right p-0 focus:ring-0"
+                                           class="w-14 bg-transparent border-0 text-[11px] font-display font-bold text-indigo-600 text-right p-0 focus:ring-0 leading-none"
                                            value="${item.precio.toFixed(2)}"
                                            onchange="cambiarPrecio(${item.productoId}, this.value)"
                                            step="0.50" min="0">
                                 </div>
                             </td>
-                            <td class="py-3 text-right pl-2">
-                                <button class="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-rose-600 transition-colors" onclick="quitarDelCarrito(${item.productoId})">
-                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <td class="py-2.5 text-right pl-1.5">
+                                <button class="w-5 h-5 flex items-center justify-center rounded-md text-slate-300 hover:text-rose-600 transition-colors" onclick="quitarDelCarrito(${item.productoId})">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
                                 </button>
                             </td>
                         </tr>
@@ -361,7 +365,7 @@
                 confirmButtonColor: '#4f46e5',
                 confirmButtonText: 'Sí, confirmar',
                 cancelButtonText: 'Cancelar',
-                customClass: { popup: '!rounded-[2.5rem]' }
+                customClass: { popup: '!rounded-3xl' }
             }).then((result) => {
                 if (result.isConfirmed) {
                     const data = {
@@ -382,13 +386,13 @@
                     .then(res => res.json())
                     .then(json => {
                         if(json.success) {
-                            Swal.fire({ icon: 'success', title: '¡Éxito!', text: "Venta registrada. Ticket #" + json.ventaId, timer: 2000, showConfirmButton: false, customClass: { popup: '!rounded-[2.5rem]' } });
+                            Swal.fire({ icon: 'success', title: '¡Éxito!', text: "Venta registrada. Ticket #" + json.ventaId, timer: 2000, showConfirmButton: false, customClass: { popup: '!rounded-3xl' } });
                             carrito = [];
                             limpiarCliente();
                             renderizarCarrito();
                             cargarInventario();
                         } else {
-                            Swal.fire({ icon: 'error', title: 'Error', text: json.message, customClass: { popup: '!rounded-[2.5rem]' } });
+                            Swal.fire({ icon: 'error', title: 'Error', text: json.message, customClass: { popup: '!rounded-3xl' } });
                         }
                     })
                     .catch(err => Swal.fire('Error', 'Error de conexión', 'error'));
@@ -411,14 +415,14 @@
                     const ul = document.getElementById('resultadosClientes');
                     ul.innerHTML = '';
                     if(data.length === 0) {
-                        ul.innerHTML = '<li class="p-4 text-center text-slate-400 text-xs font-medium">No se encontraron socios</li>';
+                        ul.innerHTML = '<li class="p-3 text-center text-slate-400 text-[10px] font-medium">No se encontraron socios</li>';
                         return;
                     }
                     data.forEach(u => {
                         ul.innerHTML += `
-                            <li class="p-3 hover:bg-slate-50 cursor-pointer transition-colors flex items-center justify-between group" onclick="seleccionarCliente(${u.id}, '${u.text}')">
-                                <span class="text-xs font-bold text-slate-700">${u.text}</span>
-                                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-600 transition-colors"></i>
+                            <li class="p-2.5 hover:bg-slate-50 cursor-pointer transition-colors flex items-center justify-between group" onclick="seleccionarCliente(${u.id}, '${u.text}')">
+                                <span class="text-[11px] font-bold text-slate-700">${u.text}</span>
+                                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 group-hover:text-indigo-600 transition-colors"></i>
                             </li>`;
                     });
                     if (typeof lucide !== 'undefined') lucide.createIcons();
