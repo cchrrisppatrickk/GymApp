@@ -56,6 +56,11 @@ Se ha establecido un lenguaje de diseño **"SaaS Premium / Utilitario Deportivo"
 - **Ticket Interactivo:** Gestión de cantidades y edición de precios en tiempo real con cálculos automáticos.
 - **Búsqueda de Socios:** Modal de asignación de cliente integrado con búsqueda asíncrona y diseño premium.
 
+### 10. Alertas n8n
+- **Gestión Centralizada:** Listado de configuraciones con badges de estado animados y programación visual de días/horas.
+- **Formulario Inteligente:** Interfaz de pestañas (Tabs) modernizada para separar notificaciones en tiempo real de reportes programados.
+- **Interactividad:** Implementación de botones "soft-to-strong" para acciones (Ejecutar, Editar, Eliminar) y switches estilizados para cada tipo de alerta.
+
 ---
 
 ## 🛠️ Correcciones Técnicas Realizadas

@@ -3,99 +3,106 @@
     ViewData["Title"] = "Listado de Alertas";
 }
 
-<div class="container-fluid py-4 px-4">
-    <div class="d-flex align-items-center mb-4">
-        <div class="notif-icon-header me-3">
-            <i class="bi bi-bell-fill"></i>
-        </div>
+<div class="space-y-8 mt-4 fade-in">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         <div>
-            <h2 class="fw-bold mb-0">Configuraciones de Alertas</h2>
-            <p class="text-muted mb-0 small">Gestiona múltiples destinos y horarios para tus notificaciones.</p>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold text-slate-950 tracking-tight m-0">Alertas n8n</h2>
+            </div>
+            <p class="text-slate-700 text-sm font-medium ml-1">Gestiona destinos y horarios para tus notificaciones automáticas</p>
         </div>
-        <div class="ms-auto">
-            <a asp-action="Crear" class="btn btn-primary btn-lg rounded-pill shadow-sm px-4 fw-bold">
-                <i class="bi bi-plus-lg me-2"></i> Nueva Configuración
-            </a>
-        </div>
+
+        <a asp-action="Crear" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-sm shadow-indigo-600/20 font-medium active:scale-95 group">
+            <i data-lucide="plus-circle" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+            <span>Nueva Configuración</span>
+        </a>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl relative shadow-sm flex items-start animate-fade-in" role="alert">
+            <i data-lucide="check-circle" class="text-emerald-500 mt-0.5 mr-3 w-6 h-6"></i>
+            <div class="flex-1 font-medium">@TempData["Success"]</div>
+            <button type="button" class="text-emerald-500 hover:text-emerald-700 transition-colors" onclick="this.parentElement.style.display='none'">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
         </div>
     }
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4">ID</th>
-                        <th>Chat Destino</th>
-                        <th>Hora Programada</th>
-                        <th>Días</th>
-                        <th class="text-center">Estado</th>
-                        <th class="text-end pe-4">Acciones</th>
+    <!-- Tabla de Configuraciones -->
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden transition-all">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-left">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">ID</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Chat Destino</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Programación</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Estado</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     @foreach (var item in Model)
                     {
-                        <tr>
-                            <td class="ps-4 fw-bold text-muted">#@item.Id</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="chat-icon-sm me-2 bg-primary-subtle text-primary">
-                                        <i class="bi bi-telegram"></i>
+                        <tr class="group hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold text-slate-400 font-mono">#@item.Id</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100/50 group-hover:scale-110 transition-transform">
+                                        <i data-lucide="send" class="w-5 h-5"></i>
                                     </div>
-                                    <span class="fw-semibold">@item.ChatIdDestino</span>
+                                    <span class="text-sm font-bold text-slate-900 tracking-tight">@item.ChatIdDestino</span>
                                 </div>
                             </td>
-                            <td>
-                                <span class="badge bg-light text-dark border px-2 py-1">
-                                    <i class="bi bi-clock me-1"></i> @item.HoraEnvio.ToString(@"hh\:mm")
-                                </span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    @{
-                                        var dias = item.DiasSemana?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-                                    }
-                                    @foreach (var dia in dias)
-                                    {
-                                        <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle" style="font-size: 0.7rem;">
-                                            @(dia.Length > 3 ? dia.Substring(0, 3) : dia)
-                                        </span>
-                                    }
+                            <td class="px-6 py-4">
+                                <div class="space-y-1.5">
+                                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-500"></i>
+                                        <span>@item.HoraEnvio.ToString(@"hh\:mm")</span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-1">
+                                        @{
+                                            var dias = item.DiasSemana?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                                        }
+                                        @foreach (var dia in dias)
+                                        {
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-tighter">
+                                                @(dia.Length > 3 ? dia.Substring(0, 3) : dia)
+                                            </span>
+                                        }
+                                    </div>
                                 </div>
                             </td>
-                            <td class="text-center">
+                            <td class="px-6 py-4 text-center">
                                 @if (item.Activo)
                                 {
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
-                                        <i class="bi bi-check-circle-fill me-1"></i> Activo
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/50">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Activo
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 rounded-pill">
-                                        <i class="bi bi-pause-circle-fill me-1"></i> Pausado
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Pausado
                                     </span>
                                 }
                             </td>
-                            <td class="text-end pe-4">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 btnEjecutar" data-id="@item.Id">
-                                        <i class="bi bi-play-fill me-1"></i> Ejecutar
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all duration-300 shadow-sm shadow-emerald-100/50 btnEjecutar" data-id="@item.Id" title="Ejecutar Manualmente">
+                                        <i data-lucide="play" class="w-4 h-4"></i>
                                     </button>
-                                    <a asp-action="Editar" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                                        <i class="bi bi-pencil-square me-1"></i> Editar
+                                    <a asp-action="Editar" asp-route-id="@item.Id" class="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-sm shadow-indigo-100/50" title="Editar">
+                                        <i data-lucide="edit" class="w-4 h-4"></i>
                                     </a>
-                                    <form asp-action="Eliminar" asp-route-id="@item.Id" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta configuración?');" style="display:inline;">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
-                                            <i class="bi bi-trash3-fill me-1"></i> Eliminar
+                                    <form asp-action="Eliminar" asp-route-id="@item.Id" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta configuración?');" class="inline">
+                                        <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all duration-300 shadow-sm shadow-rose-100/50" title="Eliminar">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -105,9 +112,16 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
-                                No hay configuraciones de alertas creadas aún.
+                            <td colspan="5" class="px-6 py-20">
+                                <div class="flex flex-col items-center justify-center text-center space-y-4 opacity-40">
+                                    <div class="w-16 h-16 rounded-[2rem] bg-slate-100 flex items-center justify-center border border-slate-200 shadow-inner">
+                                        <i data-lucide="inbox" class="w-8 h-8 text-slate-400"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-bold text-slate-900 m-0">No hay configuraciones</h3>
+                                        <p class="text-xs font-medium text-slate-500 m-0">Comienza creando tu primera alerta de n8n.</p>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -116,20 +130,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    .notif-icon-header {
-        width: 52px; height: 52px;
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.5rem; color: white;
-    }
-    .chat-icon-sm {
-        width: 32px; height: 32px; border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
-    }
-</style>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -149,16 +149,27 @@
                     
                     if (result.success) {
                         Swal.fire({
-                            title: 'Procesado',
+                            title: '¡Procesado!',
                             text: result.message,
                             icon: 'success',
-                            confirmButtonColor: '#4f46e5'
+                            confirmButtonColor: '#4f46e5',
+                            customClass: { popup: '!rounded-3xl' }
                         });
                     } else {
-                        Swal.fire('Error', 'No se pudo iniciar el proceso.', 'error');
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo iniciar el proceso.',
+                            icon: 'error',
+                            customClass: { popup: '!rounded-3xl' }
+                        });
                     }
                 } catch (error) {
-                    Swal.fire('Error', 'Ocurrió un error al conectar con el servidor.', 'error');
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Ocurrió un error al conectar con el servidor.',
+                        icon: 'error',
+                        customClass: { popup: '!rounded-3xl' }
+                    });
                 } finally {
                     btnRef.disabled = false;
                 }

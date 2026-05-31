@@ -54,7 +54,7 @@ Este documento sirve como hoja de ruta y checklist para la migración de la inte
   - [x] Roles (`Roles/Index.cshtml`)
 
   - [ ] Empleados (Gestión de Personal)
-  - [ ] Alertas (n8n)
+  - [x] Alertas (n8n)
 - [ ] **Portal del Cliente (ClienteHome)**
   - [ ] Perfil del Cliente / Dashboard de Usuario
 

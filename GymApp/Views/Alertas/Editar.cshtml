@@ -4,121 +4,126 @@
     var diasGuardados = Model?.DiasSemana?.Split(',') ?? Array.Empty<string>();
 }
 
-<div class="container-fluid py-4 px-4">
-    <div class="mb-4">
-        <a asp-action="Index" class="text-decoration-none text-muted small">
-            <i class="bi bi-arrow-left me-1"></i> Volver al listado
+<div class="space-y-6 mt-4 fade-in max-w-4xl mx-auto">
+    <!-- Encabezado -->
+    <div class="flex flex-col gap-2">
+        <a asp-action="Index" class="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors text-xs font-bold uppercase tracking-widest group w-fit">
+            <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i>
+            Volver al listado
         </a>
-        <h2 class="fw-bold mt-2">Editar Configuración #@Model.Id</h2>
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                <i data-lucide="bell" class="w-6 h-6"></i>
+            </div>
+            <h2 class="text-3xl font-display font-bold text-slate-950 tracking-tight m-0">Editar Configuración</h2>
+        </div>
     </div>
 
     <form asp-action="Editar" method="post" id="formAlertas">
         <input type="hidden" asp-for="Id" />
         
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-                <ul class="nav nav-tabs nav-tabs-custom" id="alertasTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active fw-semibold" id="tab-realtime" data-bs-toggle="tab"
-                                data-bs-target="#panel-realtime" type="button" role="tab">
-                            <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
-                            General y Tiempo Real
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-semibold" id="tab-programado" data-bs-toggle="tab"
-                                data-bs-target="#panel-programado" type="button" role="tab">
-                            <i class="bi bi-calendar-check-fill text-primary me-2"></i>
-                            Reporte Programado
-                        </button>
-                    </li>
-                </ul>
+        <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden transition-all">
+            <!-- Tabs Navigation -->
+            <div class="px-6 pt-6 border-b border-slate-100 bg-slate-50/50">
+                <nav class="flex gap-1" role="tablist">
+                    <button type="button" class="px-5 py-3 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-indigo-600 transition-all active tab-btn" data-target="panel-realtime">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="zap" class="w-4 h-4"></i> Tiempo Real
+                        </span>
+                    </button>
+                    <button type="button" class="px-5 py-3 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-indigo-600 transition-all tab-btn" data-target="panel-programado">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="calendar-days" class="w-4 h-4"></i> Programado
+                        </span>
+                    </button>
+                </nav>
             </div>
 
-            <div class="card-body p-4 tab-content" id="alertasTabContent">
-                @* Pestaña 1: Tiempo Real *@
-                <div class="tab-pane fade show active" id="panel-realtime" role="tabpanel">
-                    <div class="section-block mb-5">
-                        <div class="section-header">
-                            <i class="bi bi-send-fill text-primary"></i>
-                            <span>Destino y Estado</span>
+            <div class="p-8">
+                <!-- Panel 1: Tiempo Real -->
+                <div id="panel-realtime" class="tab-panel space-y-8">
+                    <!-- Destino -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                            <i data-lucide="send" class="w-5 h-5 text-indigo-600"></i>
+                            <span class="text-base font-bold text-slate-900">Destino y Estado</span>
                         </div>
-                        <div class="row align-items-end g-3">
-                            <div class="col-md-8">
-                                <label asp-for="ChatIdDestino" class="form-label fw-semibold">Telegram Chat ID</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-white"><i class="bi bi-telegram text-primary"></i></span>
-                                    <input asp-for="ChatIdDestino" class="form-control" placeholder="Ej: -100123456789" id="ChatIdDestino" />
-                                    <button type="button" class="btn btn-outline-primary px-4" id="btnProbarConexion">Probar</button>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="md:col-span-2 space-y-2">
+                                <label asp-for="ChatIdDestino" class="text-sm font-bold text-slate-700 ml-1">Telegram Chat ID</label>
+                                <div class="relative group flex gap-2">
+                                    <div class="relative flex-grow">
+                                        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                            <i data-lucide="hash" class="w-4 h-4"></i>
+                                        </div>
+                                        <input asp-for="ChatIdDestino" class="w-full bg-slate-50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl pl-10 pr-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-400" placeholder="Ej: -100123456789" id="ChatIdDestino" />
+                                    </div>
+                                    <button type="button" class="px-6 py-3 bg-white border border-slate-200 text-indigo-600 font-bold text-sm rounded-xl hover:bg-indigo-50 transition-all active:scale-95 shadow-sm" id="btnProbarConexion">
+                                        Probar
+                                    </button>
                                 </div>
-                                <div id="resultadoPrueba" class="form-text mt-2 d-none"></div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="toggle-card p-3 rounded-3 border @(Model.Activo ? "border-success bg-success-subtle" : "bg-light") d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <div class="fw-semibold">Activo</div>
-                                        <small class="text-muted">Habilitar esta config.</small>
-                                    </div>
-                                    <div class="form-check form-switch mb-0">
-                                        <input class="form-check-input fs-4" type="checkbox" role="switch" asp-for="Activo">
-                                    </div>
+
+                            <div class="space-y-2">
+                                <label class="text-sm font-bold text-slate-700 ml-1">Estado</label>
+                                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Activo</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" asp-for="Activo" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="section-block">
-                        <div class="section-header">
-                            <i class="bi bi-lightning-charge-fill text-warning"></i>
-                            <span>Notificaciones Instantáneas</span>
+                    <!-- Notificaciones Instantáneas -->
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                            <i data-lucide="zap" class="w-5 h-5 text-amber-500"></i>
+                            <span class="text-base font-bold text-slate-900">Notificaciones Instantáneas</span>
                         </div>
-                        <div class="switch-list">
-                            <div class="switch-item">
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Aviso de Nuevo Usuario</div>
-                                    <small class="text-muted">Al registrarse un cliente nuevo.</small>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @foreach (var (prop, label, desc) in new[] { 
+                                ("AvisarNuevoUsuario", "Nuevo Socio", "Al registrarse un cliente nuevo."),
+                                ("AvisarNuevoPago", "Nuevo Pago", "Al registrarse un pago."),
+                                ("AvisarNuevaMembresia", "Nueva Membresía", "Al asignar o renovar un plan.")
+                            })
+                            {
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-slate-200 transition-colors group">
+                                    <div class="space-y-0.5">
+                                        <div class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">@label</div>
+                                        <p class="text-[11px] font-medium text-slate-500 leading-relaxed">@desc</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="@prop" id="@prop" value="true" class="sr-only peer" @(prop == "AvisarNuevoUsuario" && Model.AvisarNuevoUsuario ? "checked" : prop == "AvisarNuevoPago" && Model.AvisarNuevoPago ? "checked" : prop == "AvisarNuevaMembresia" && Model.AvisarNuevaMembresia ? "checked" : "")>
+                                        <div class="w-10 h-5 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
                                 </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevoUsuario">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Aviso de Nuevo Pago</div>
-                                    <small class="text-muted">Al registrarse un pago.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevoPago">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Aviso de Nueva Membresía</div>
-                                    <small class="text-muted">Al asignar o renovar un plan.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="AvisarNuevaMembresia">
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
 
-                @* Pestaña 2: Reporte Programado *@
-                <div class="tab-pane fade" id="panel-programado" role="tabpanel">
-                    <div class="section-block mb-5">
-                        <div class="section-header">
-                            <i class="bi bi-calendar-check-fill text-primary"></i>
-                            <span>Programación de Reporte</span>
+                <!-- Panel 2: Reporte Programado -->
+                <div id="panel-programado" class="tab-panel hidden space-y-8">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                            <i data-lucide="calendar-days" class="w-5 h-5 text-indigo-600"></i>
+                            <span class="text-base font-bold text-slate-900">Programación de Reporte</span>
                         </div>
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <label asp-for="HoraEnvio" class="form-label fw-semibold">Hora de Envío</label>
-                                <input asp-for="HoraEnvio" type="time" class="form-control form-control-lg" />
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-2 text-center md:text-left">
+                                <label asp-for="HoraEnvio" class="text-sm font-bold text-slate-700 ml-1">Hora de Envío</label>
+                                <input asp-for="HoraEnvio" type="time" class="w-full max-w-[200px] mx-auto md:mx-0 bg-slate-50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl px-4 py-3 text-lg font-bold text-slate-900 transition-all" />
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold d-block">Días de Ejecución</label>
-                                <div class="d-flex flex-wrap gap-2">
+
+                            <div class="space-y-3">
+                                <label class="text-sm font-bold text-slate-700 ml-1">Días de Ejecución</label>
+                                <div class="flex flex-wrap gap-2 justify-center md:justify-start">
                                     @foreach (var dia in new[] {
                                         new { Val = "Lunes", Text = "Lun" }, new { Val = "Martes", Text = "Mar" },
                                         new { Val = "Miércoles", Text = "Mié" }, new { Val = "Jueves", Text = "Jue" },
@@ -126,88 +131,99 @@
                                         new { Val = "Domingo", Text = "Dom" }
                                     })
                                     {
-                                        <input type="checkbox" class="btn-check" name="diasSeleccionados"
-                                               id="dia_@dia.Val" value="@dia.Val"
-                                               @(diasGuardados.Contains(dia.Val) ? "checked" : "")>
-                                        <label class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold"
-                                               for="dia_@dia.Val">@dia.Text</label>
+                                        <label class="cursor-pointer group">
+                                            <input type="checkbox" name="diasSeleccionados" value="@dia.Val" class="hidden peer" @(diasGuardados.Contains(dia.Val) ? "checked" : "")>
+                                            <div class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-bold uppercase tracking-wider peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 transition-all group-hover:border-indigo-300">
+                                                @dia.Text
+                                            </div>
+                                        </label>
                                     }
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="section-block">
-                        <div class="section-header">
-                            <i class="bi bi-list-check text-info"></i>
-                            <span>Contenido del Reporte</span>
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                            <i data-lucide="clipboard-list" class="w-5 h-5 text-sky-500"></i>
+                            <span class="text-base font-bold text-slate-900">Contenido del Reporte</span>
                         </div>
-                        <div class="switch-list">
-                            <div class="switch-item">
-                                <div class="switch-text"><div class="fw-semibold">Pagos del Día</div></div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarPagosHoy">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @foreach (var (prop, label, desc) in new[] { 
+                                ("EnviarPagosHoy", "Pagos del Día", "Resumen de recaudación diaria."),
+                                ("EnviarNuevosMiembros", "Nuevos Miembros", "Lista de socios inscritos."),
+                                ("EnviarProximosVencimientos", "Vencimientos", "Alertas de planes por expirar."),
+                                ("EnviarDeudasPendientes", "Deudas", "Reporte de pagos incompletos."),
+                                ("EnviarResumenFinanciero", "Balance Semanal", "Ingresos y estadísticas globales.")
+                            })
+                            {
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-slate-200 transition-colors group">
+                                    <div class="space-y-0.5">
+                                        <div class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">@label</div>
+                                        <p class="text-[11px] font-medium text-slate-500 leading-relaxed">@desc</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="@prop" id="@prop" value="true" class="sr-only peer" @(prop == "EnviarPagosHoy" && Model.EnviarPagosHoy ? "checked" : prop == "EnviarNuevosMiembros" && Model.EnviarNuevosMiembros ? "checked" : prop == "EnviarProximosVencimientos" && Model.EnviarProximosVencimientos ? "checked" : prop == "EnviarDeudasPendientes" && Model.EnviarDeudasPendientes ? "checked" : prop == "EnviarResumenFinanciero" && Model.EnviarResumenFinanciero ? "checked" : "")>
+                                        <div class="w-10 h-5 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
                                 </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-text"><div class="fw-semibold">Nuevos Miembros</div></div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarNuevosMiembros">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-text"><div class="fw-semibold">Vencimientos Próximos</div></div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarProximosVencimientos">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-text"><div class="fw-semibold">Deudas Pendientes</div></div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarDeudasPendientes">
-                                </div>
-                            </div>
-                            <div class="switch-item">
-                                <div class="switch-text">
-                                    <div class="fw-semibold">Resumen Financiero</div>
-                                    <small class="text-muted">Ingresos y estadísticas de la semana.</small>
-                                </div>
-                                <div class="form-check form-switch ms-auto mb-0">
-                                    <input class="form-check-input switch-lg" type="checkbox" role="switch" asp-for="EnviarResumenFinanciero">
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-footer bg-white border-top px-4 py-3 text-end">
-                <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold rounded-pill shadow-sm">
-                    <i class="bi bi-save2-fill me-2"></i> Guardar Cambios
+            <div class="p-6 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-3">
+                <a asp-action="Index" class="px-6 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors uppercase tracking-widest">Cancelar</a>
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-lg shadow-indigo-600/20 font-bold uppercase tracking-widest active:scale-95 group">
+                    <i data-lucide="save" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    <span>Guardar Cambios</span>
                 </button>
             </div>
         </div>
     </form>
 </div>
 
-<style>
-    .nav-tabs-custom { border-bottom: 2px solid #e9ecef; gap: 0.25rem; }
-    .nav-tabs-custom .nav-link { border: none; border-bottom: 3px solid transparent; color: #6c757d; padding: 0.75rem 1.25rem; transition: all 0.2s; }
-    .nav-tabs-custom .nav-link.active { color: #0d6efd; border-bottom-color: #0d6efd; font-weight: 600; }
-    .section-header { display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem; font-weight: 700; color: #212529; padding-bottom: 0.75rem; border-bottom: 2px solid #f0f0f0; margin-bottom: 1.25rem; }
-    .switch-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    .switch-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: #f8f9fa; border-radius: 12px; border: 1px solid #e9ecef; }
-    .switch-lg { width: 3em !important; height: 1.6em !important; cursor: pointer; }
-</style>
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Tab switching logic
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-target');
+                
+                tabBtns.forEach(b => b.classList.remove('active', 'border-indigo-600', 'text-indigo-600'));
+                tabBtns.forEach(b => b.classList.add('text-slate-500', 'border-transparent'));
+                
+                btn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+                btn.classList.remove('text-slate-500', 'border-transparent');
+
+                tabPanels.forEach(p => p.classList.add('hidden'));
+                document.getElementById(target).classList.remove('hidden');
+            });
+        });
+
+        // Initialize first tab
+        tabBtns[0].click();
+
+        // Connection test logic
         document.getElementById('btnProbarConexion').addEventListener('click', async function () {
             const chatId = document.getElementById('ChatIdDestino').value.trim();
-            if (!chatId) { Swal.fire('Atención', 'Ingresa un Chat ID.', 'warning'); return; }
+            if (!chatId) { 
+                Swal.fire({ title: 'Atención', text: 'Ingresa un Chat ID.', icon: 'warning', customClass: { popup: '!rounded-3xl' } }); 
+                return; 
+            }
+            
             const btn = this;
+            const originalContent = btn.innerHTML;
             btn.disabled = true;
+            btn.innerHTML = '<span class="flex items-center gap-2"><i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Probando...</span>';
+            lucide.createIcons();
+
             try {
                 const response = await fetch('/Alertas/ProbarConexion', {
                     method: 'POST',
@@ -215,10 +231,20 @@
                     body: JSON.stringify(chatId)
                 });
                 const result = await response.json();
-                if (result.success) { Swal.fire('¡Éxito!', result.message, 'success'); }
-                else { Swal.fire('Error', result.message, 'error'); }
-            } catch (error) { Swal.fire('Error', 'Error de red.', 'error'); }
-            finally { btn.disabled = false; }
+                if (result.success) { 
+                    Swal.fire({ title: '¡Éxito!', text: result.message, icon: 'success', customClass: { popup: '!rounded-3xl' } }); 
+                }
+                else { 
+                    Swal.fire({ title: 'Error', text: result.message, icon: 'error', customClass: { popup: '!rounded-3xl' } }); 
+                }
+            } catch (error) { 
+                Swal.fire({ title: 'Error', text: 'Error de red.', icon: 'error', customClass: { popup: '!rounded-3xl' } }); 
+            }
+            finally { 
+                btn.disabled = false; 
+                btn.innerHTML = originalContent;
+                lucide.createIcons();
+            }
         });
     </script>
 }
