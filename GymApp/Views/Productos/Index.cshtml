@@ -3,46 +3,64 @@
     ViewData["Title"] = "Inventario de Productos";
 }
 
-<div class="container-fluid px-4 fade-in">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 mb-4">
+<div class="space-y-8 mt-4">
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         <div>
-            <h2 class="mb-0 text-dark fw-bold"><i class="bi bi-box-seam-fill text-primary me-2"></i>Inventario</h2>
-            <p class="text-muted small mb-0">Gestiona el stock, bebidas y pases diarios.</p>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
+                    <i data-lucide="package" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-3xl font-display font-bold text-slate-950 tracking-tight m-0">Inventario de Productos</h2>
+            </div>
+            <p class="text-slate-700 text-sm font-medium ml-1">Gestiona el stock, bebidas y servicios del gimnasio</p>
         </div>
+
         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosCrear) || User.IsInRole(AppRoles.Admin))
         {
-            <button class="btn btn-primary shadow-sm" onclick="abrirModal(0)">
-                <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
+            <button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-300 shadow-sm shadow-indigo-600/20 font-medium active:scale-95 group" onclick="abrirModal(0)">
+                <i data-lucide="plus-circle" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                <span>Nuevo Producto</span>
             </button>
         }
     </div>
 
-    <div class="row mb-4 g-3">
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm border-start border-4 border-primary h-100">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted small fw-bold mb-1">Total Items</h6>
-                    <h3 class="mb-0 fw-bold text-dark" id="kpiTotalItems">0</h3>
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Total Items -->
+        <div class="bg-white rounded-[2rem] border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="layers" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Items</p>
+                    <h3 class="text-3xl font-display font-bold text-slate-950 m-0" id="kpiTotalItems">0</h3>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm border-start border-4 border-danger h-100">
-                <div class="card-body">
-                    <h6 class="text-uppercase text-muted small fw-bold mb-1">Stock Crítico (< 5)</h6>
-                    <h3 class="mb-0 fw-bold text-danger" id="kpiCritico">0</h3>
+
+        <!-- Stock Crítico -->
+        <div class="bg-white rounded-[2rem] border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Stock Crítico (< 5)</p>
+                    <h3 class="text-3xl font-display font-bold text-rose-600 m-0" id="kpiCritico">0</h3>
                 </div>
             </div>
         </div>
-        <div class="col-md-12 col-lg-6">
-            <div class="card border-0 shadow-sm bg-light h-100">
-                <div class="card-body d-flex align-items-center">
-                    <i class="bi bi-info-circle text-primary fs-3 me-3"></i>
-                    <div>
-                        <small class="text-muted d-block">Nota Importante:</small>
-                        <span class="fw-bold text-dark">Los productos marcados como "Servicio" (Pases Libres) no descuentan stock físico.</span>
-                    </div>
-                </div>
+
+        <!-- Nota Informativa -->
+        <div class="bg-slate-50 rounded-[2rem] border border-slate-200 p-6 flex items-center gap-4 lg:col-span-1">
+            <div class="w-12 h-12 rounded-2xl bg-white text-indigo-600 flex items-center justify-center shadow-sm shrink-0">
+                <i data-lucide="info" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <p class="text-slate-900 text-sm font-bold mb-0.5">Nota Importante</p>
+                <p class="text-slate-600 text-xs font-medium m-0 leading-relaxed">Los productos "Servicio" no descuentan stock físico.</p>
             </div>
         </div>
     </div>
