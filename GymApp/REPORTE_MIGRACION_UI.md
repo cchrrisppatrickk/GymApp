@@ -61,6 +61,11 @@ Se ha establecido un lenguaje de diseño **"SaaS Premium / Utilitario Deportivo"
 - **Formulario Inteligente:** Interfaz de pestañas (Tabs) modernizada para separar notificaciones en tiempo real de reportes programados.
 - **Interactividad:** Implementación de botones "soft-to-strong" para acciones (Ejecutar, Editar, Eliminar) y switches estilizados para cada tipo de alerta.
 
+### 11. Módulo de Reportes
+- **Control de Ingresos:** Tabla financiera de alta densidad con jerarquía visual por categorías (Bebidas, Pases, XB) y resumen diario integrado.
+- **Reporte de Membresías:** Listado detallado de renovaciones con estados de vigencia automáticos y conciliación de métodos de pago (Efectivo/Yape).
+- **Exportación:** Integración estética de herramientas de consulta y exportación a Excel en un panel de filtros minimalista.
+
 ---
 
 ## 🛠️ Correcciones Técnicas Realizadas
