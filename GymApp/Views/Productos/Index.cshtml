@@ -65,33 +65,45 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-            <div class="input-group input-group-sm" style="max-width: 300px;">
-                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control border-start-0 ps-0" id="txtBuscar" placeholder="Buscar producto..." onkeyup="filtrarTabla()">
+    <!-- Filtros y Tabla -->
+    <div class="space-y-4">
+        <div class="bg-white rounded-[2rem] border border-slate-200 p-2 shadow-sm">
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2">
+                <div class="flex-1 relative group">
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-indigo-500 transition-colors">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="txtBuscar" onkeyup="filtrarTabla()" class="w-full bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-2xl pl-11 pr-4 py-2.5 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" placeholder="Buscar producto por nombre o categoría...">
+                </div>
             </div>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="tablaProductos">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="ps-4">Producto</th>
-                            <th>Categoría</th>
-                            <th>Precio Venta</th>
-                            <th>Stock Actual</th>
-                            <th>Estado</th>
-                            <th class="text-center">Acciones</th>
+
+        <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="tablaProductos">
+                    <thead>
+                        <tr class="bg-slate-50/50 border-b border-slate-200">
+                            <th class="px-6 py-4 text-xs uppercase tracking-wider font-bold text-slate-500">Producto</th>
+                            <th class="px-6 py-4 text-xs uppercase tracking-wider font-bold text-slate-500">Categoría</th>
+                            <th class="px-6 py-4 text-xs uppercase tracking-wider font-bold text-slate-500">Precio Venta</th>
+                            <th class="px-6 py-4 text-xs uppercase tracking-wider font-bold text-slate-500">Stock Actual</th>
+                            <th class="px-6 py-4 text-xs uppercase tracking-wider font-bold text-slate-500 text-center">Estado</th>
+                            <th class="px-6 py-4 text-xs uppercase tracking-wider font-bold text-slate-500 text-center">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="border-top-0">
+                    <tbody class="divide-y divide-slate-100">
+                        <!-- Renderizado por JS -->
                     </tbody>
                 </table>
             </div>
-            <div id="emptyState" class="text-center py-5 d-none">
-                <i class="bi bi-box2 text-muted" style="font-size: 3rem;"></i>
-                <p class="text-muted mt-2">No se encontraron productos.</p>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden flex flex-col items-center justify-center py-16 px-4">
+                <div class="w-20 h-20 rounded-[2.5rem] bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-inner">
+                    <i data-lucide="package-search" class="w-10 h-10 text-slate-400"></i>
+                </div>
+                <h3 class="text-lg font-display font-bold text-slate-900 mb-1">No se encontraron productos</h3>
+                <p class="text-slate-500 text-sm font-medium text-center max-w-xs">Intenta ajustar tu búsqueda para encontrar lo que necesitas.</p>
             </div>
         </div>
     </div>
