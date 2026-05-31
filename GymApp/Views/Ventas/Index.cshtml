@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Punto de Venta";
 }
 
@@ -27,7 +27,7 @@
         </div>
 
         <div class="flex-grow overflow-y-auto pr-2 custom-scrollbar">
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3" id="gridProductos">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3" id="gridProductos">
                 <div class="col-span-full flex flex-col items-center justify-center py-20 opacity-50">
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4"></div>
                     <p class="text-slate-600 font-medium">Cargando inventario...</p>
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Panel Derecho: Ticket -->
-    <div class="w-full lg:w-[300px] shrink-0 bg-white rounded-3xl border border-slate-200 shadow-xl flex flex-col overflow-hidden relative">
+    <div class="w-full lg:w-[280px] shrink-0 bg-white rounded-3xl border border-slate-200 shadow-xl flex flex-col overflow-hidden relative">
         <div class="bg-slate-950 px-5 py-4 flex items-center gap-3">
             <div class="w-7 h-7 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
                 <i data-lucide="receipt" class="w-4 h-4"></i>
@@ -45,12 +45,12 @@
             <h5 class="text-base font-display font-bold text-white m-0 tracking-tight">Ticket de Venta</h5>
         </div>
 
-        <div class="flex-grow overflow-y-auto px-5 py-3 custom-scrollbar">
+        <div class="flex-grow overflow-y-auto px-4 py-3 custom-scrollbar">
             <table class="w-full text-left">
                 <thead>
                     <tr class="border-b border-slate-100">
                         <th class="pb-2 text-[9px] uppercase tracking-widest font-bold text-slate-400">Cant.</th>
-                        <th class="pb-2 text-[9px] uppercase tracking-widest font-bold text-slate-400">Producto</th>
+                        <th class="pb-2 text-[9px] uppercase tracking-widest font-bold text-slate-400">Prod.</th>
                         <th class="pb-2 text-[9px] uppercase tracking-widest font-bold text-slate-400 text-right">Precio</th>
                         <th class="pb-2"></th>
                     </tr>
@@ -62,57 +62,46 @@
             
             <div id="msgCarritoVacio" class="flex flex-col items-center justify-center py-16 opacity-30">
                 <i data-lucide="shopping-cart" class="w-10 h-10 text-slate-400 mb-3"></i>
-                <p class="text-slate-500 font-bold text-xs">Carrito vacío</p>
+                <p class="text-slate-500 font-bold text-xs">Vacío</p>
             </div>
         </div>
 
-        <div class="p-5 bg-slate-50/50 border-t border-slate-100 space-y-3">
+        <div class="p-4 bg-slate-50/50 border-t border-slate-100 space-y-3">
             <!-- Cliente -->
             <div class="space-y-1">
-                <label class="text-[9px] uppercase tracking-widest font-bold text-slate-500 ml-1">Cliente (Opcional)</label>
-                <div class="flex gap-1.5">
+                <label class="text-[9px] uppercase tracking-widest font-bold text-slate-500 ml-1">Cliente</label>
+                <div class="flex gap-1">
                     <div class="relative flex-grow group">
-                        <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                            <i data-lucide="user" class="w-3 h-3"></i>
-                        </div>
-                        <input type="text" id="txtCliente" class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-lg pl-8 pr-3 py-1.5 text-[11px] font-bold text-slate-900 transition-all placeholder:text-slate-400" 
+                        <input type="text" id="txtCliente" class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-900 transition-all placeholder:text-slate-400" 
                                placeholder="Público General" readonly>
                         <input type="hidden" id="userId">
                     </div>
-                    <button class="w-8 h-8 flex items-center justify-center bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-indigo-600 hover:border-indigo-600 transition-all shadow-sm" onclick="abrirModalClientes()">
+                    <button class="w-7 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-indigo-600 transition-all shadow-sm" onclick="abrirModalClientes()">
                         <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                    </button>
-                    <button class="w-8 h-8 flex items-center justify-center bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-rose-600 hover:border-rose-600 transition-all shadow-sm" onclick="limpiarCliente()">
-                        <i data-lucide="user-x" class="w-3.5 h-3.5"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Método de Pago -->
             <div class="space-y-1">
-                <label class="text-[9px] uppercase tracking-widest font-bold text-slate-500 ml-1">Método de Pago</label>
-                <div class="relative">
-                    <select class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-700 appearance-none cursor-pointer transition-all" id="cboMetodo">
-                        <option value="Efectivo">💵 Efectivo</option>
-                        <option value="Yape">📱 Yape / Plin</option>
-                    </select>
-                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <i data-lucide="chevron-down" class="w-3 h-3"></i>
-                    </div>
-                </div>
+                <label class="text-[9px] uppercase tracking-widest font-bold text-slate-500 ml-1">Pago</label>
+                <select class="w-full bg-white border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-lg px-2 py-1.5 text-[10px] font-bold text-slate-700 appearance-none cursor-pointer transition-all" id="cboMetodo">
+                    <option value="Efectivo">💵 Efectivo</option>
+                    <option value="Yape">📱 Yape / Plin</option>
+                </select>
             </div>
 
             <div class="pt-2 border-t border-slate-200">
                 <div class="flex justify-between items-end mb-3">
-                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Total a Pagar</span>
-                    <span class="text-2xl font-display font-bold text-indigo-600 leading-none tracking-tighter" id="lblTotal">$ 0.00</span>
+                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Total</span>
+                    <span class="text-xl font-display font-bold text-indigo-600 leading-none tracking-tighter" id="lblTotal">$ 0.00</span>
                 </div>
 
-                <button class="w-full bg-indigo-600 text-white rounded-xl py-3 font-display font-bold text-xs tracking-widest uppercase hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed group" 
+                <button class="w-full bg-indigo-600 text-white rounded-xl py-3 font-display font-bold text-[10px] tracking-widest uppercase hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98] disabled:opacity-50 group" 
                         onclick="procesarVenta()" id="btnPagar" disabled>
                     <div class="flex items-center justify-center gap-2">
-                        <i data-lucide="check-circle" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
-                        <span>Confirmar Venta</span>
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        <span>Confirmar</span>
                     </div>
                 </button>
             </div>
@@ -162,7 +151,6 @@
 
 @section Scripts {
     <script>
-        // ESTADO DE LA APLICACIÓN
         let inventario = [];
         let carrito = [];
 
@@ -171,7 +159,6 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
 
-        // 1. CARGAR PRODUCTOS
         function cargarInventario() {
             fetch('/Productos/Listar')
                 .then(res => res.json())
@@ -181,7 +168,6 @@
                 });
         }
 
-        // 2. RENDERIZAR GRID
         function renderizarProductos(lista) {
             const container = document.getElementById('gridProductos');
             container.innerHTML = '';
@@ -212,16 +198,16 @@
                 const html = `
                     <div class="group relative bg-white rounded-2xl border border-slate-200 p-3 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer overflow-hidden ${sinStock ? 'opacity-60 grayscale' : ''}" 
                          onclick="${sinStock ? '' : `agregarAlCarrito(${p.productoId})`}">
-                        <div class="absolute -right-2 -top-2 w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center -rotate-12 group-hover:rotate-0 transition-transform opacity-30">
-                            <i data-lucide="box" class="w-6 h-6 text-slate-200"></i>
+                        <div class="absolute -right-2 -top-2 w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center -rotate-12 group-hover:rotate-0 transition-transform opacity-20">
+                            <i data-lucide="box" class="w-6 h-6 text-slate-300"></i>
                         </div>
                         <div class="relative z-10 flex flex-col h-full">
                             <div class="mb-2 w-8 h-8 rounded-lg bg-slate-50 text-indigo-600 flex items-center justify-center border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors shadow-sm">
                                 <i data-lucide="${esServicio ? 'zap' : 'package'}" class="w-4 h-4"></i>
                             </div>
-                            <h6 class="text-[11px] font-bold text-slate-900 mb-1 line-clamp-2 min-h-[30px] leading-tight" title="${p.nombre}">${p.nombre}</h6>
+                            <h6 class="text-[10px] font-bold text-slate-900 mb-1 line-clamp-2 min-h-[25px] leading-tight" title="${p.nombre}">${p.nombre}</h6>
                             <div class="mt-auto pt-2 flex flex-col items-start gap-1">
-                                <span class="text-sm font-display font-bold text-emerald-600 leading-none">$ ${p.precioVenta.toFixed(2)}</span>
+                                <span class="text-[13px] font-display font-bold text-emerald-600 leading-none">$ ${p.precioVenta.toFixed(2)}</span>
                                 ${stockBadge}
                             </div>
                         </div>
@@ -232,7 +218,6 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // 3. LÓGICA DEL CARRITO
         function agregarAlCarrito(id) {
             const producto = inventario.find(p => p.productoId === id);
             const enCarrito = carrito.find(item => item.productoId === id);
@@ -242,7 +227,7 @@
                 if (esServicio || enCarrito.cantidad < producto.stockActual) {
                     enCarrito.cantidad++;
                 } else {
-                    Swal.fire({ icon: 'warning', title: 'Sin stock', text: 'No hay más stock disponible', timer: 1500, showConfirmButton: false, customClass: { popup: '!rounded-2xl' } });
+                    Swal.fire({ icon: 'warning', title: 'Sin stock', text: 'Límite alcanzado', timer: 1000, showConfirmButton: false, customClass: { popup: '!rounded-2xl' } });
                 }
             } else {
                 carrito.push({
@@ -311,32 +296,25 @@
 
                     tbody.innerHTML += `
                         <tr class="group hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
-                            <td class="py-2.5 pr-1.5">
-                                <div class="flex items-center gap-1 bg-slate-100 rounded-md p-1 w-fit border border-slate-200/50">
-                                    <button class="w-4 h-4 flex items-center justify-center bg-white rounded border border-slate-200 text-slate-600 hover:text-indigo-600 active:scale-90 transition-all shadow-xs" onclick="cambiarCantidad(${item.productoId}, -1)">
-                                        <i data-lucide="minus" class="w-2.5 h-2.5"></i>
-                                    </button>
-                                    <span class="text-[9px] font-bold text-slate-900 w-3.5 text-center">${item.cantidad}</span>
-                                    <button class="w-4 h-4 flex items-center justify-center bg-white rounded border border-slate-200 text-slate-600 hover:text-indigo-600 active:scale-90 transition-all shadow-xs" onclick="cambiarCantidad(${item.productoId}, 1)">
-                                        <i data-lucide="plus" class="w-2.5 h-2.5"></i>
-                                    </button>
+                            <td class="py-2 pr-1">
+                                <div class="flex items-center gap-1 bg-slate-100 rounded-md p-0.5 w-fit">
+                                    <button class="w-3.5 h-3.5 flex items-center justify-center bg-white rounded border border-slate-200 text-slate-600 hover:text-indigo-600" onclick="cambiarCantidad(${item.productoId}, -1)">-</button>
+                                    <span class="text-[8px] font-bold text-slate-900 w-3 text-center">${item.cantidad}</span>
+                                    <button class="w-3.5 h-3.5 flex items-center justify-center bg-white rounded border border-slate-200 text-slate-600 hover:text-indigo-600" onclick="cambiarCantidad(${item.productoId}, 1)">+</button>
                                 </div>
                             </td>
-                            <td class="py-2.5">
-                                <span class="text-[10px] font-bold text-slate-800 block line-clamp-1 leading-tight tracking-tight">${item.nombre}</span>
+                            <td class="py-2">
+                                <span class="text-[9px] font-bold text-slate-800 block line-clamp-1 leading-tight tracking-tighter">${item.nombre}</span>
                             </td>
-                            <td class="py-2.5 text-right">
-                                <div class="flex items-center justify-end">
-                                    <span class="text-[8px] font-bold text-slate-400 mr-0.5">$</span>
-                                    <input type="number"
-                                           class="w-14 bg-transparent border-0 text-[11px] font-display font-bold text-indigo-600 text-right p-0 focus:ring-0 leading-none"
-                                           value="${item.precio.toFixed(2)}"
-                                           onchange="cambiarPrecio(${item.productoId}, this.value)"
-                                           step="0.50" min="0">
-                                </div>
+                            <td class="py-2 text-right">
+                                <input type="number"
+                                       class="w-12 bg-transparent border-0 text-[10px] font-display font-bold text-indigo-600 text-right p-0 focus:ring-0 leading-none"
+                                       value="${item.precio.toFixed(2)}"
+                                       onchange="cambiarPrecio(${item.productoId}, this.value)"
+                                       step="0.50" min="0">
                             </td>
-                            <td class="py-2.5 text-right pl-1.5">
-                                <button class="w-5 h-5 flex items-center justify-center rounded-md text-slate-300 hover:text-rose-600 transition-colors" onclick="quitarDelCarrito(${item.productoId})">
+                            <td class="py-2 text-right pl-1">
+                                <button class="text-slate-300 hover:text-rose-600" onclick="quitarDelCarrito(${item.productoId})">
                                     <i data-lucide="trash-2" class="w-3 h-3"></i>
                                 </button>
                             </td>
@@ -358,13 +336,13 @@
             if(carrito.length === 0) return;
             
             Swal.fire({
-                title: '¿Confirmar Venta?',
-                text: "Se registrará una venta por " + document.getElementById('lblTotal').innerText,
+                title: '¿Confirmar?',
+                text: "Total: " + document.getElementById('lblTotal').innerText,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#4f46e5',
-                confirmButtonText: 'Sí, confirmar',
-                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
                 customClass: { popup: '!rounded-3xl' }
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -386,7 +364,7 @@
                     .then(res => res.json())
                     .then(json => {
                         if(json.success) {
-                            Swal.fire({ icon: 'success', title: '¡Éxito!', text: "Venta registrada. Ticket #" + json.ventaId, timer: 2000, showConfirmButton: false, customClass: { popup: '!rounded-3xl' } });
+                            Swal.fire({ icon: 'success', title: '¡Éxito!', text: "Venta #" + json.ventaId, timer: 1500, showConfirmButton: false, customClass: { popup: '!rounded-3xl' } });
                             carrito = [];
                             limpiarCliente();
                             renderizarCarrito();
@@ -400,7 +378,6 @@
             });
         }
 
-        // CLIENTES
         const modalElement = document.getElementById('modalClientes');
         const modalCli = new bootstrap.Modal(modalElement);
 
@@ -415,14 +392,14 @@
                     const ul = document.getElementById('resultadosClientes');
                     ul.innerHTML = '';
                     if(data.length === 0) {
-                        ul.innerHTML = '<li class="p-3 text-center text-slate-400 text-[10px] font-medium">No se encontraron socios</li>';
+                        ul.innerHTML = '<li class="p-3 text-center text-slate-400 text-[10px] font-medium">No hay resultados</li>';
                         return;
                     }
                     data.forEach(u => {
                         ul.innerHTML += `
-                            <li class="p-2.5 hover:bg-slate-50 cursor-pointer transition-colors flex items-center justify-between group" onclick="seleccionarCliente(${u.id}, '${u.text}')">
-                                <span class="text-[11px] font-bold text-slate-700">${u.text}</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 group-hover:text-indigo-600 transition-colors"></i>
+                            <li class="p-2 hover:bg-slate-50 cursor-pointer flex items-center justify-between group" onclick="seleccionarCliente(${u.id}, '${u.text}')">
+                                <span class="text-[10px] font-bold text-slate-700">${u.text}</span>
+                                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 group-hover:text-indigo-600"></i>
                             </li>`;
                     });
                     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -439,6 +416,5 @@
             document.getElementById('userId').value = '';
             document.getElementById('txtCliente').value = '';
         }
-
     </script>
 }
