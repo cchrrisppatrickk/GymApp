@@ -45,21 +45,17 @@ _Esta fase implica ir a las carpetas dentro de `Views/` y reemplazar las clases 
 - [x] **Reportes**
   - [x] Ingresos Generales
   - [x] Membresías
-- [ ] **Ventas / Productos**
+- [x] **Ventas / Productos**
   - [x] Punto de Venta (POS) / Listado de Ventas
   - [x] Gestión de Productos
-- [ ] **Control de Acceso (Escáner QR)**
-  - [ ] Vista del Escáner
+- [x] **Control de Acceso (Escáner QR)**
+  - [x] Vista del Escáner
 - [x] Administración y Configuración
   - [x] Planes y Precios (`Planes/Index.cshtml`)
   - [x] Turnos (Horarios) (`Turnos/Index.cshtml`)
   - [x] Roles (`Roles/Index.cshtml`)
-
-  - [ ] Empleados (Gestión de Personal)
+  - [ ] **Gestión de Personal (Empleados):**
   - [x] Alertas (n8n)
-
-- [ ] **Portal del Cliente (ClienteHome)**
-  - [ ] Perfil del Cliente / Dashboard de Usuario
 
 ## Fase 4: Detalles, Micro-Interacciones y Pulido
 
@@ -83,9 +79,10 @@ _Sustitución de Bootstrap Icons por Lucide Icons para un aspecto "SaaS Premium"
   - [x] **Pagos / Cajas:** Iconos de métodos de pago, comprobantes y balances.
   - [x] **Pases Diarios:** Registro rápido y listados.
   - [x] **Configuración:** Planes (pricing), Turnos y Roles.
-  - [ ] **Reportes:** Iconos de exportación y visualización de datos.
+  - [x] **Reportes:** Iconos de exportación y visualización de datos.
   - [x] **Ventas / Productos:** POS e inventario.
-  - [ ] **Control de Acceso:** Escáner QR y registros de entrada.
+  - [x] **Control de Acceso:** Escáner QR y registros de entrada.
+  - [x] **Gestión de Personal (Empleados):** Registro de empleados y asigancion de permisos.
 - [ ] **Cierre y Limpieza**
   - [ ] Auditoría visual de consistencia (tamaño y peso de iconos).
   - [ ] Eliminar dependencias de Bootstrap Icons en `_Layout.cshtml` y `Login.cshtml`.
