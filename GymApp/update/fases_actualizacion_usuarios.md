@@ -32,15 +32,15 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
   - [x] Inyectar el nuevo servicio en la capa de DI (`Program.cs`).
 
 ## Fase 3: Capa de Controladores
-- [ ] **Modificar `UsuariosController`:**
-  - [ ] Ajustar acciones `Create` y `Edit` para aceptar y procesar los nuevos DTOs.
-  - [ ] Ajustar acción `Details` para cargar el usuario y sus restricciones activas/históricas.
-- [ ] **Preparación de Datos para la Vista (ViewBags / SelectLists):**
-  - [ ] Enviar catálogos necesarios a la vista mediante ViewBags o dentro del DTO (`Genero`, `EstadoCivil`, `Origen`).
-- [ ] **Auditoría en Controladores:**
-  - [ ] Extraer el ID del usuario autenticado (del `HttpContext.User`) para inyectarlo en las llamadas a los servicios (`ModificadoPorId` y `UsuarioAplicadorId`).
-- [ ] **Endpoints para Restricciones:**
-  - [ ] Crear acciones en el controlador para añadir o revocar una restricción directamente desde el perfil del usuario.
+- [x] **Modificar `UsuariosController`:**
+  - [x] Ajustar acciones `Create` y `Edit` para aceptar y procesar los nuevos DTOs (mediante el ViewModel actualizado).
+  - [x] Ajustar acción `Details` para cargar el usuario y sus restricciones activas/históricas usando el nuevo DTO CRM.
+- [x] **Preparación de Datos para la Vista (ViewBags / SelectLists):**
+  - [x] Enviar catálogos necesarios a la vista mediante ViewBags (`Genero`, `EstadoCivil`, `Origen`).
+- [x] **Auditoría en Controladores:**
+  - [x] Extraer el ID del usuario autenticado para inyectarlo en las acciones de guardado y aplicación de restricciones (`ModificadoPorId` y `UsuarioAplicadorId`).
+- [x] **Endpoints para Restricciones:**
+  - [x] Crear acciones en el controlador para añadir o revocar una restricción directamente desde el perfil del usuario.
 
 ## Fase 4: Capa de Presentación (UI)
 - [ ] **Rediseño de Vista `Create.cshtml` & `Edit.cshtml`:**

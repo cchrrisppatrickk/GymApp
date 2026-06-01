@@ -16,11 +16,13 @@ namespace GymApp.Controllers
     {
         private readonly IUsuarioService _usuarioService;
         private readonly IGenericRepository<Role> _rolesRepository;
+        private readonly IRestriccionService _restriccionService;
 
-        public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository)
+        public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository, IRestriccionService restriccionService)
         {
             _usuarioService = usuarioService;
             _rolesRepository = rolesRepository;
+            _restriccionService = restriccionService;
         }
 
         // ==========================================
@@ -36,7 +38,7 @@ namespace GymApp.Controllers
 
             var pagedResult = await _usuarioService.ObtenerUsuariosPaginadosAsync(buscar, pagina, mes, anio);
 
-            // CARGAMOS LOS ROLES para el <select> del Modal de socios
+            // CARGAMOS LOS ROLES para el <select>
             var roles = await _rolesRepository.GetAllAsync();
             if (!User.IsInRole(AppRoles.Admin))
             {
@@ -44,6 +46,10 @@ namespace GymApp.Controllers
             }
             ViewBag.Roles = new SelectList(roles, "RoleId", "Nombre");
 
+            // Preparar listas para el CRM
+            ViewBag.Generos = new SelectList(new[] { "Masculino", "Femenino", "Otro", "Prefiero no decirlo" });
+            ViewBag.EstadosCiviles = new SelectList(new[] { "Soltero(a)", "Casado(a)", "Divorciado(a)", "Viudo(a)", "Conviviente" });
+            ViewBag.Origenes = new SelectList(new[] { "Recomendación", "Facebook", "Instagram", "TikTok", "Publicidad Exterior", "Otro" });
             
             ViewData["CurrentFilter"] = buscar;
             ViewBag.Mes = mes;
@@ -55,14 +61,52 @@ namespace GymApp.Controllers
 
 
         // ==========================================
-        // 6. VISTA DETALLES (PREMIUM)
+        // 6. VISTA DETALLES (CRM)
         // ==========================================
         public async Task<IActionResult> Details(int id)
         {
-            var usuario = await _usuarioService.ObtenerPorIdAsync(id);
-            if (usuario == null) return NotFound();
+            var dto = await _usuarioService.ObtenerDetallesCrmAsync(id);
+            if (dto == null) return NotFound();
 
-            return View(usuario);
+            return View(dto);
+        }
+
+        // ==========================================
+        // 7. GESTIÓN DE RESTRICCIONES
+        // ==========================================
+        [HttpPost]
+        public async Task<IActionResult> AplicarRestriccion(int userId, string tipo, string descripcion)
+        {
+            if (!TienePermiso(AppPermisos.UsuariosEditar)) 
+                return Json(new { success = false, message = "No tienes permiso para realizar esta acción." });
+
+            try
+            {
+                int aplicadorId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+                await _restriccionService.AplicarRestriccionAsync(userId, tipo, descripcion, aplicadorId);
+                return Json(new { success = true, message = "Restricción aplicada correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LevantarRestriccion(int id)
+        {
+            if (!TienePermiso(AppPermisos.UsuariosEditar)) 
+                return Json(new { success = false, message = "No tienes permiso para realizar esta acción." });
+
+            try
+            {
+                var success = await _restriccionService.LevantarRestriccionAsync(id);
+                return Json(new { success = success, message = success ? "Restricción levantada." : "No se encontró la restricción." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
 
@@ -80,13 +124,23 @@ namespace GymApp.Controllers
                 UserId = u.UserId,
                 RoleId = u.RoleId,
                 NombreCompleto = u.NombreCompleto,
-                NombreUsuario = u.NombreUsuario, // <--- NUEVO CAMPO
+                NombreUsuario = u.NombreUsuario,
                 Dni = u.Dni,
                 Email = u.Email,
                 Telefono = u.Telefono,
                 Estado = u.Estado ?? false,
+                Origen = u.Origen,
+                ApellidoPaterno = u.ApellidoPaterno,
+                ApellidoMaterno = u.ApellidoMaterno,
+                EstadoCivil = u.EstadoCivil,
+                Genero = u.Genero,
+                Direccion = u.Direccion,
+                WhatsApp = u.WhatsApp,
+                FechaNacimiento = u.FechaNacimiento,
+                Ocupacion = u.Ocupacion,
+                Nota = u.Nota,
+                PinAcceso = u.PinAcceso,
                 PermisosSeleccionados = (await _usuarioService.ObtenerPermisosUsuarioAsync(id)).ToArray()
-                // Password se deja vacío por seguridad
             };
 
             return Json(new { success = true, data = model });
@@ -156,9 +210,20 @@ namespace GymApp.Controllers
                     {
                         RoleId = model.RoleId,
                         NombreCompleto = model.NombreCompleto,
+                        ApellidoPaterno = model.ApellidoPaterno,
+                        ApellidoMaterno = model.ApellidoMaterno,
                         Dni = model.Dni,
                         Email = model.Email,
                         Telefono = model.Telefono,
+                        WhatsApp = model.WhatsApp,
+                        Direccion = model.Direccion,
+                        Origen = model.Origen,
+                        EstadoCivil = model.EstadoCivil,
+                        Genero = model.Genero,
+                        FechaNacimiento = model.FechaNacimiento,
+                        Ocupacion = model.Ocupacion,
+                        Nota = model.Nota,
+                        PinAcceso = model.PinAcceso,
                         Estado = true,
                         NombreUsuario = model.NombreUsuario
                     };
@@ -179,6 +244,8 @@ namespace GymApp.Controllers
                     // Mapeo de actualizaciones
                     usuarioExistente.RoleId = model.RoleId;
                     usuarioExistente.NombreCompleto = model.NombreCompleto;
+                    usuarioExistente.ApellidoPaterno = model.ApellidoPaterno;
+                    usuarioExistente.ApellidoMaterno = model.ApellidoMaterno;
                     
                     // Solo actualizamos NombreUsuario si viene un valor no vacío (para no dejarlo nulo)
                     if (!string.IsNullOrEmpty(model.NombreUsuario))
@@ -189,7 +256,20 @@ namespace GymApp.Controllers
                     usuarioExistente.Dni = model.Dni;
                     usuarioExistente.Email = model.Email;
                     usuarioExistente.Telefono = model.Telefono;
+                    usuarioExistente.WhatsApp = model.WhatsApp;
+                    usuarioExistente.Direccion = model.Direccion;
+                    usuarioExistente.Origen = model.Origen;
+                    usuarioExistente.EstadoCivil = model.EstadoCivil;
+                    usuarioExistente.Genero = model.Genero;
+                    usuarioExistente.FechaNacimiento = model.FechaNacimiento;
+                    usuarioExistente.Ocupacion = model.Ocupacion;
+                    usuarioExistente.Nota = model.Nota;
+                    usuarioExistente.PinAcceso = model.PinAcceso;
                     usuarioExistente.Estado = model.Estado;
+
+                    // Auditoría
+                    usuarioExistente.FechaUltimaModificacion = DateTime.Now;
+                    usuarioExistente.ModificadoPorId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
 
                     if (!string.IsNullOrEmpty(model.Password))
                     {

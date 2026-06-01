@@ -35,6 +35,19 @@ namespace GymApp.ViewModels
         public string? Telefono { get; set; }
         public bool Estado { get; set; }
 
+        // Nuevos campos CRM
+        public string? Origen { get; set; }
+        public string? ApellidoPaterno { get; set; }
+        public string? ApellidoMaterno { get; set; }
+        public string? EstadoCivil { get; set; }
+        public string? Genero { get; set; }
+        public string? Direccion { get; set; }
+        public string? WhatsApp { get; set; }
+        public DateOnly? FechaNacimiento { get; set; }
+        public string? Ocupacion { get; set; }
+        public string? Nota { get; set; }
+        public string? PinAcceso { get; set; }
+
         public string[]? PermisosSeleccionados { get; set; }
     }
 }
