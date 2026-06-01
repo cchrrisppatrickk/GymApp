@@ -19,17 +19,17 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
   - [x] Actualizar la base de datos (`Update-Database` o `dotnet ef database update`).
 
 ## Fase 2: Capa de Repositorios y Servicios
-- [ ] **Actualización de DTOs:**
-  - [ ] Actualizar/Crear DTOs de creación y edición (`UsuarioCreateDTO`, `UsuarioEditDTO`) con los nuevos campos.
-  - [ ] Actualizar `UsuarioDetailsDTO` para incluir la lista de restricciones y los nuevos datos demográficos.
-- [ ] **Mapeo de Datos:**
-  - [ ] Configurar el mapeo correcto asegurando que `NombreCompleto` mantenga el funcionamiento original (asignando el nombre(s) a este campo).
-- [ ] **Lógica de Servicios (`UsuarioService`):**
-  - [ ] Implementar la generación y validación del `PinAcceso` (4-6 dígitos, automático o manual).
-  - [ ] Integrar lógica de auditoría: al editar un usuario, inyectar el `ModificadoPorId` y setear `FechaUltimaModificacion`.
-- [ ] **Nuevo Servicio de Restricciones (`IRestriccionService` / `RestriccionService`):**
-  - [ ] Crear métodos CRUD y de negocio (ej. `AplicarRestriccionAsync`, `LevantarRestriccionAsync`).
-  - [ ] Inyectar el nuevo servicio en la capa de DI (`Program.cs`).
+- [x] **Actualización de DTOs:**
+  - [x] Actualizar/Crear DTOs de creación y edición (`UsuarioCreateDTO`, `UsuarioEditDTO`) con los nuevos campos.
+  - [x] Actualizar `UsuarioDetailsDTO` para incluir la lista de restricciones y los nuevos datos demográficos.
+- [x] **Mapeo de Datos:**
+  - [x] Configurar el mapeo correcto asegurando que `NombreCompleto` mantenga el funcionamiento original (asignando el nombre(s) a este campo).
+- [x] **Lógica de Servicios (`UsuarioService`):**
+  - [x] Implementar la generación y validación del `PinAcceso` (4-6 dígitos, automático o manual).
+  - [x] Integrar lógica de auditoría: al editar un usuario, inyectar el `ModificadoPorId` y setear `FechaUltimaModificacion`.
+- [x] **Nuevo Servicio de Restricciones (`IRestriccionService` / `RestriccionService`):**
+  - [x] Crear métodos CRUD y de negocio (ej. `AplicarRestriccionAsync`, `LevantarRestriccionAsync`).
+  - [x] Inyectar el nuevo servicio en la capa de DI (`Program.cs`).
 
 ## Fase 3: Capa de Controladores
 - [ ] **Modificar `UsuariosController`:**

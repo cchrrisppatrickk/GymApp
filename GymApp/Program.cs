@@ -35,6 +35,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 // Agrega el de Usuarios si falta
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IRestriccionService, RestriccionService>();
 
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IProductoService, ProductoService>();

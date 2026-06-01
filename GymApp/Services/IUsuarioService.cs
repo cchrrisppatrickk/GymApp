@@ -14,6 +14,7 @@ namespace GymApp.Services
         // CRUD Básico
         Task<IEnumerable<Usuario>> ObtenerTodosAsync();
         Task<Usuario> ObtenerPorIdAsync(int id);
+        Task<UsuarioDetailsDTO> ObtenerDetallesCrmAsync(int id);
 
         /// <summary>Devuelve solo usuarios con rol Empleado o Admin (personal del gimnasio).</summary>
         Task<List<Usuario>> ObtenerPersonalAsync();
@@ -23,13 +24,16 @@ namespace GymApp.Services
         
         // Lógica de Negocio Compleja
         Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null, string? fotoBase64 = null);
+        Task<Usuario> CrearUsuarioCrmAsync(UsuarioCreateDTO dto);
         Task ActualizarUsuarioAsync(Usuario usuario, IFormFile? fotoArchivo = null, string? fotoBase64 = null);
+        Task ActualizarUsuarioCrmAsync(UsuarioEditDTO dto, int modificadoPorId);
         Task<bool> EliminarUsuarioAsync(int id);
 
         // Seguridad
         Task<Usuario> ValidarLoginAsync(string dni, string password);
         Task<List<string>> ObtenerPermisosUsuarioAsync(int userId);
         Task ActualizarPermisosUsuarioAsync(int userId, string[] permisos);
+        Task<string> GenerarPinAccesoAsync();
 
         // Funciones Extra
         byte[] GenerarImagenQR(Guid codigoQR); // Devuelve la imagen en bytes

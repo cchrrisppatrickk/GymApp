@@ -140,6 +140,140 @@ namespace GymApp.Services
             return await _usuarioRepository.ObtenerConDetallesAsync(id);
         }
 
+        public async Task<UsuarioDetailsDTO> ObtenerDetallesCrmAsync(int id)
+        {
+            var u = await _context.Usuarios
+                .Include(u => u.Role)
+                .Include(u => u.Restricciones)
+                .ThenInclude(r => _context.Usuarios.Where(ua => ua.UserId == r.UsuarioAplicadorId).Select(ua => ua.NombreCompleto).FirstOrDefault()) // Nota: Esto es complejo en EF, lo manejaremos abajo
+                .FirstOrDefaultAsync(u => u.UserId == id);
+
+            if (u == null) return null;
+
+            // Obtener nombres de usuarios aplicadores manualmente para evitar problemas de proyección compleja
+            var aplicadorIds = u.Restricciones.Select(r => r.UsuarioAplicadorId).Distinct().ToList();
+            var nombresAplicadores = await _context.Usuarios
+                .Where(ua => aplicadorIds.Contains(ua.UserId))
+                .ToDictionaryAsync(ua => ua.UserId, ua => ua.NombreCompleto);
+
+            var modificadoPorNombre = u.ModificadoPorId.HasValue 
+                ? (await _context.Usuarios.Where(ua => ua.UserId == u.ModificadoPorId.Value).Select(ua => ua.NombreCompleto).FirstOrDefaultAsync())
+                : null;
+
+            return new UsuarioDetailsDTO
+            {
+                UserId = u.UserId,
+                NombreCompleto = u.NombreCompleto,
+                ApellidoPaterno = u.ApellidoPaterno,
+                ApellidoMaterno = u.ApellidoMaterno,
+                NombreRol = u.Role.Nombre,
+                Dni = u.Dni,
+                Email = u.Email,
+                WhatsApp = u.WhatsApp,
+                Telefono = u.Telefono,
+                Direccion = u.Direccion,
+                FotoUrl = u.FotoUrl,
+                FechaNacimiento = u.FechaNacimiento,
+                Genero = u.Genero,
+                EstadoCivil = u.EstadoCivil,
+                Origen = u.Origen,
+                Ocupacion = u.Ocupacion,
+                Nota = u.Nota,
+                PinAcceso = u.PinAcceso,
+                Estado = u.Estado ?? false,
+                FechaRegistro = u.FechaRegistro,
+                FechaUltimaModificacion = u.FechaUltimaModificacion,
+                ModificadoPorNombre = modificadoPorNombre,
+                Restricciones = u.Restricciones.Select(r => new RestriccionDTO
+                {
+                    Id = r.Id,
+                    TipoRestriccion = r.TipoRestriccion,
+                    Descripcion = r.Descripcion,
+                    FechaAplicacion = r.FechaAplicacion,
+                    EstadoActiva = r.EstadoActiva,
+                    UsuarioAplicadorNombre = nombresAplicadores.ContainsKey(r.UsuarioAplicadorId) ? nombresAplicadores[r.UsuarioAplicadorId] : "Sistema"
+                }).ToList()
+            };
+        }
+
+        public async Task<Usuario> CrearUsuarioCrmAsync(UsuarioCreateDTO dto)
+        {
+            var usuario = new Usuario
+            {
+                NombreCompleto = dto.NombreCompleto,
+                ApellidoPaterno = dto.ApellidoPaterno,
+                ApellidoMaterno = dto.ApellidoMaterno,
+                RoleId = dto.RoleId,
+                Dni = dto.Dni,
+                Email = dto.Email,
+                WhatsApp = dto.WhatsApp,
+                Telefono = dto.Telefono,
+                Direccion = dto.Direccion,
+                FechaNacimiento = dto.FechaNacimiento,
+                Genero = dto.Genero,
+                EstadoCivil = dto.EstadoCivil,
+                Origen = dto.Origen,
+                Ocupacion = dto.Ocupacion,
+                Nota = dto.Nota,
+                PinAcceso = string.IsNullOrWhiteSpace(dto.PinAcceso) ? await GenerarPinAccesoAsync() : dto.PinAcceso,
+                NombreUsuario = dto.NombreUsuario,
+                Estado = true
+            };
+
+            return await CrearUsuarioAsync(usuario, dto.Password, dto.FotoArchivo);
+        }
+
+        public async Task ActualizarUsuarioCrmAsync(UsuarioEditDTO dto, int modificadoPorId)
+        {
+            var usuario = await _context.Usuarios.FindAsync(dto.UserId);
+            if (usuario == null) throw new Exception("Usuario no encontrado");
+
+            usuario.NombreCompleto = dto.NombreCompleto;
+            usuario.ApellidoPaterno = dto.ApellidoPaterno;
+            usuario.ApellidoMaterno = dto.ApellidoMaterno;
+            usuario.RoleId = dto.RoleId;
+            usuario.Dni = dto.Dni;
+            usuario.Email = dto.Email;
+            usuario.WhatsApp = dto.WhatsApp;
+            usuario.Telefono = dto.Telefono;
+            usuario.Direccion = dto.Direccion;
+            usuario.FechaNacimiento = dto.FechaNacimiento;
+            usuario.Genero = dto.Genero;
+            usuario.EstadoCivil = dto.EstadoCivil;
+            usuario.Origen = dto.Origen;
+            usuario.Ocupacion = dto.Ocupacion;
+            usuario.Nota = dto.Nota;
+            usuario.PinAcceso = dto.PinAcceso;
+            usuario.Estado = dto.Estado;
+            usuario.NombreUsuario = dto.NombreUsuario;
+
+            // Auditoría
+            usuario.FechaUltimaModificacion = DateTime.Now;
+            usuario.ModificadoPorId = modificadoPorId;
+
+            // Password (solo si se provee)
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            }
+
+            await ActualizarUsuarioAsync(usuario, dto.FotoArchivo);
+        }
+
+        public async Task<string> GenerarPinAccesoAsync()
+        {
+            var random = new Random();
+            string pin;
+            bool existe;
+            do
+            {
+                pin = random.Next(1000, 999999).ToString("D4"); // Entre 4 y 6 dígitos
+                existe = await _context.Usuarios.AnyAsync(u => u.PinAcceso == pin);
+            } while (existe);
+
+            return pin;
+        }
+
         public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null, string? fotoBase64 = null)
         {
             // Normalizar DNI: convertir a null si está vacío o solo tiene espacios
