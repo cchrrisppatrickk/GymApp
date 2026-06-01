@@ -28,6 +28,25 @@ public partial class Usuario
     public bool? Estado { get; set; }
     public string? FotoUrl { get; set; } // Almacenará el nombre del archivo o ruta relativa
 
+    // Campos CRM - Demografía
+    public string? Origen { get; set; }
+    public string? ApellidoPaterno { get; set; }
+    public string? ApellidoMaterno { get; set; }
+    public string? EstadoCivil { get; set; }
+    public string? Genero { get; set; }
+    public string? Direccion { get; set; }
+    public string? WhatsApp { get; set; }
+    public DateOnly? FechaNacimiento { get; set; }
+
+    // Campos CRM - Otros
+    public string? Ocupacion { get; set; }
+    public string? Nota { get; set; }
+    public string? PinAcceso { get; set; }
+
+    // Auditoría
+    public DateTime? FechaUltimaModificacion { get; set; }
+    public int? ModificadoPorId { get; set; }
+
 
     public virtual ICollection<Asistencia> Asistencia { get; set; } = new List<Asistencia>();
 
@@ -44,4 +63,6 @@ public partial class Usuario
     public virtual ICollection<VentasCabecera> VentasCabeceraUsuarioEmpleados { get; set; } = new List<VentasCabecera>();
 
     public virtual ICollection<UsuarioPermiso> UsuarioPermisos { get; set; } = new List<UsuarioPermiso>();
+
+    public virtual ICollection<RestriccionUsuario> Restricciones { get; set; } = new List<RestriccionUsuario>();
 }

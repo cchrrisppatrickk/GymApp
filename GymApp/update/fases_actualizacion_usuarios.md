@@ -3,20 +3,20 @@
 Este documento sirve como archivo de seguimiento para la actualización masiva del módulo de Usuarios, integrando funcionalidades de CRM y trazabilidad, respetando la retrocompatibilidad del sistema existente.
 
 ## Fase 1: Capa de Datos (Modelos y EF Core)
-- [ ] **Modificar la entidad `Usuario`:**
-  - [ ] Añadir campos demográficos: `Origen` (string), `ApellidoPaterno` (string), `ApellidoMaterno` (string), `EstadoCivil` (string), `Genero` (string), `Direccion` (string), `WhatsApp` (string).
-  - [ ] Añadir campo `FechaNacimiento` (DateOnly).
-  - [ ] Añadir campos de la sección "Otros": `Ocupacion` (string), `Nota` (string largo), `PinAcceso` (string, 4-6 dígitos).
-  - [ ] Añadir campos de trazabilidad/auditoría: `FechaUltimaModificacion` (DateTime?), `ModificadoPorId` (string/int dependiendo del tipo de ID de usuario).
-  - [ ] **Retrocompatibilidad:** Asegurar que `NombreCompleto` permanezca intacto sin lógica de concatenación a nivel de base de datos para no romper Claims o reportes.
-- [ ] **Crear la entidad `RestriccionUsuario`:**
-  - [ ] Definir propiedades: `Id`, `UserId`, `TipoRestriccion`, `Descripcion`, `FechaAplicacion`, `UsuarioAplicadorId`, `EstadoActiva`.
-- [ ] **Configurar `GymDbContext`:**
-  - [ ] Configurar la relación 1:N entre `Usuario` y `RestriccionUsuario`.
-  - [ ] Configurar restricciones, longitudes máximas y comportamientos (Fluent API o Data Annotations).
-- [ ] **Migraciones EF Core:**
-  - [ ] Generar la migración (`AddUsuarioCrmFieldsAndRestricciones`).
-  - [ ] Actualizar la base de datos (`Update-Database` o `dotnet ef database update`).
+- [x] **Modificar la entidad `Usuario`:**
+  - [x] Añadir campos demográficos: `Origen` (string), `ApellidoPaterno` (string), `ApellidoMaterno` (string), `EstadoCivil` (string), `Genero` (string), `Direccion` (string), `WhatsApp` (string).
+  - [x] Añadir campo `FechaNacimiento` (DateOnly).
+  - [x] Añadir campos de la sección "Otros": `Ocupacion` (string), `Nota` (string largo), `PinAcceso` (string, 4-6 dígitos).
+  - [x] Añadir campos de trazabilidad/auditoría: `FechaUltimaModificacion` (DateTime?), `ModificadoPorId` (string/int dependiendo del tipo de ID de usuario).
+  - [x] **Retrocompatibilidad:** Asegurar que `NombreCompleto` permanezca intacto sin lógica de concatenación a nivel de base de datos para no romper Claims o reportes.
+- [x] **Crear la entidad `RestriccionUsuario`:**
+  - [x] Definir propiedades: `Id`, `UserId`, `TipoRestriccion`, `Descripcion`, `FechaAplicacion`, `UsuarioAplicadorId`, `EstadoActiva`.
+- [x] **Configurar `GymDbContext`:**
+  - [x] Configurar la relación 1:N entre `Usuario` y `RestriccionUsuario`.
+  - [x] Configurar restricciones, longitudes máximas y comportamientos (Fluent API o Data Annotations).
+- [x] **Migraciones EF Core:**
+  - [x] Generar la migración (`AddUsuarioCrmFieldsAndRestricciones`).
+  - [x] Actualizar la base de datos (`Update-Database` o `dotnet ef database update`).
 
 ## Fase 2: Capa de Repositorios y Servicios
 - [ ] **Actualización de DTOs:**

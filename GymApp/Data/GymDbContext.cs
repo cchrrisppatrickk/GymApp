@@ -36,6 +36,8 @@ public partial class GymDbContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
+    public virtual DbSet<RestriccionUsuario> RestriccionesUsuarios { get; set; }
+
     public virtual DbSet<VentasCabecera> VentasCabeceras { get; set; }
 
     public virtual DbSet<VentasDetalle> VentasDetalles { get; set; }
@@ -213,10 +215,38 @@ public partial class GymDbContext : DbContext
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.Telefono).HasMaxLength(20);
 
+            // Configuraciones CRM
+            entity.Property(e => e.Origen).HasMaxLength(100);
+            entity.Property(e => e.ApellidoPaterno).HasMaxLength(100);
+            entity.Property(e => e.ApellidoMaterno).HasMaxLength(100);
+            entity.Property(e => e.EstadoCivil).HasMaxLength(50);
+            entity.Property(e => e.Genero).HasMaxLength(20);
+            entity.Property(e => e.Direccion).HasMaxLength(255);
+            entity.Property(e => e.WhatsApp).HasMaxLength(20);
+            entity.Property(e => e.Ocupacion).HasMaxLength(100);
+            entity.Property(e => e.PinAcceso).HasMaxLength(10);
+
             entity.HasOne(d => d.Role).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Usuarios_Roles");
+        });
+
+        modelBuilder.Entity<RestriccionUsuario>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.TipoRestriccion).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
+            entity.Property(e => e.FechaAplicacion).HasDefaultValueSql("(getdate())").HasColumnType("datetime");
+            entity.Property(e => e.UsuarioAplicadorId).HasColumnName("UsuarioAplicadorID");
+            entity.Property(e => e.EstadoActiva).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Usuario)
+                .WithMany(p => p.Restricciones)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Restricciones_Usuarios");
         });
 
         modelBuilder.Entity<VentasCabecera>(entity =>

@@ -1,0 +1,251 @@
+@using GymApp.Constants
+<nav id="sidebar" class="fixed left-0 top-0 h-screen w-64 select-none border-r bg-gray-200 shadow-xl z-[100] flex flex-col py-4 transition-all duration-300 -translate-x-full md:translate-x-0">
+
+    <!-- Sidebar Header -->
+    <div class="px-4 mb-6 flex items-center justify-between">
+        <a asp-controller="Home" asp-action="Index" class="group flex items-center p-2 rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 active:scale-95 flex-1">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-indigo-200 shadow-lg shrink-0">
+                <i data-lucide="activity" class="h-6 w-6"></i>
+            </div>
+            <span class="ml-3 font-display font-bold text-gray-800 tracking-tight text-lg">GymApp <span class="text-indigo-600 text-xs">v2</span></span>
+        </a>
+        <button class="md:hidden ml-2 text-gray-500 hover:text-gray-900 p-2" id="mobile-close">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Divider -->
+    <div class="px-6 mb-4">
+        <div class="w-full border-t border-gray-400/50"></div>
+    </div>
+
+    <!-- Menu Items -->
+    <div class="flex-1 overflow-y-auto px-3 space-y-1 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+        
+        <!-- Perfil / Dashboard -->
+        <div class="menu-item">
+            @if (User.IsInRole("Cliente"))
+            {
+                <a asp-controller="ClienteHome" asp-action="Index" class="group flex items-center p-1.5 rounded-lg transition-all duration-200 @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClienteHome" ? "bg-white shadow-sm ring-1 ring-cyan-500/20" : "hover:bg-white/40")">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-cyan-500 shadow-sm group-hover:shadow transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClienteHome" ? "ring-1 ring-cyan-500" : "")">
+                        <i data-lucide="user-round-cog" class="h-4 w-4"></i>
+                    </div>
+                    <span class="ml-2.5 text-xs font-semibold @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClienteHome" ? "text-cyan-600" : "text-gray-600 group-hover:text-gray-900")">Mi Perfil</span>
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Home" asp-action="Index" class="group flex items-center p-1.5 rounded-lg transition-all duration-200 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-white shadow-sm ring-1 ring-cyan-500/20" : "hover:bg-white/40")">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-cyan-500 shadow-sm group-hover:shadow transition-all @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "ring-1 ring-cyan-500" : "")">
+                        <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
+                    </div>
+                    <span class="ml-2.5 text-xs font-semibold @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "text-cyan-600" : "text-gray-600 group-hover:text-gray-900")">Dashboard</span>
+                </a>
+            }
+        </div>
+
+        @if (User.IsInRole(AppRoles.Admin) || User.IsInRole("Empleado"))
+        {
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+            <div class="pt-3 pb-1 px-2">
+                <span class="text-[9px] font-bold text-gray-500 tracking-[0.1em] uppercase opacity-60">Operaciones</span>
+            </div>
+
+            <!-- Socios -->
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="menu-item">
+                    <a asp-controller="Usuarios" asp-action="Index" class="group flex items-center p-1.5 rounded-lg transition-all duration-200 @(currentController == "Usuarios" ? "bg-white shadow-sm ring-1 ring-orange-500/20" : "hover:bg-white/40")">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-orange-500 shadow-sm group-hover:shadow transition-all @(currentController == "Usuarios" ? "ring-1 ring-orange-500" : "")">
+                            <i data-lucide="users" class="h-4 w-4"></i>
+                        </div>
+                        <span class="ml-2.5 text-xs font-semibold @(currentController == "Usuarios" ? "text-orange-600" : "text-gray-600 group-hover:text-gray-900")">Socios / Clientes</span>
+                    </a>
+                </div>
+            }
+
+            <!-- Suscripciones Desplegable -->
+            <div class="menu-item @(currentController == "Membresias" || currentController == "PasesDiarios" ? "open" : "")">
+                <a href="javascript:void(0)" class="submenu-toggle group flex items-center p-1.5 rounded-lg transition-all duration-200 @(currentController == "Membresias" || currentController == "PasesDiarios" ? "bg-white shadow-sm ring-1 ring-purple-500/30" : "hover:bg-white/40")">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-purple-500 shadow-sm group-hover:shadow transition-all @(currentController == "Membresias" || currentController == "PasesDiarios" ? "ring-1 ring-purple-500" : "")">
+                        <i data-lucide="ticket" class="h-4 w-4"></i>
+                    </div>
+                    <span class="ml-2.5 text-xs font-semibold flex-1 @(currentController == "Membresias" || currentController == "PasesDiarios" ? "text-gray-900" : "text-gray-600 group-hover:text-gray-900")">Suscripciones</span>
+                    <i data-lucide="chevron-down" class="menu-arrow w-3.5 h-3.5 ml-auto text-gray-400 transition-transform duration-300"></i>
+                </a>
+                <ul class="submenu list-none p-0 m-0 mt-1 space-y-0.5 overflow-hidden bg-gray-300/40 rounded-xl py-1">
+                    @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasVer) || User.IsInRole(AppRoles.Admin))
+                    {
+                        <li>
+                            <a asp-controller="Membresias" asp-action="Index" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(currentController == "Membresias" ? "text-purple-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                                <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                                Planes Regulares
+                            </a>
+                        </li>
+                    }
+                    @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PasesDiariosVer) || User.IsInRole(AppRoles.Admin))
+                    {
+                        <li>
+                            <a asp-controller="PasesDiarios" asp-action="Index" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(currentController == "PasesDiarios" ? "text-purple-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                                <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                                Pases Diarios
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Cajas -->
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="menu-item">
+                    <a asp-controller="Pagos" asp-action="Index" class="group flex items-center p-1.5 rounded-lg transition-all duration-200 @(currentController == "Pagos" ? "bg-white shadow-sm ring-1 ring-green-500/20" : "hover:bg-white/40")">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-green-500 shadow-sm group-hover:shadow transition-all @(currentController == "Pagos" ? "ring-1 ring-green-500" : "")">
+                            <i data-lucide="wallet" class="h-4 w-4"></i>
+                        </div>
+                        <span class="ml-2.5 text-xs font-semibold @(currentController == "Pagos" ? "text-green-600" : "text-gray-600 group-hover:text-gray-900")">Cajas / Pagos</span>
+                    </a>
+                </div>
+            }
+
+            <!-- Ventas -->
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.VentasVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="menu-item">
+                    <a asp-controller="Ventas" asp-action="Index" class="group flex items-center p-1.5 rounded-lg transition-all duration-200 @(currentController == "Ventas" ? "bg-white shadow-sm ring-1 ring-blue-500/20" : "hover:bg-white/40")">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-blue-500 shadow-sm group-hover:shadow transition-all @(currentController == "Ventas" ? "ring-1 ring-blue-500" : "")">
+                            <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                        </div>
+                        <span class="ml-2.5 text-xs font-semibold @(currentController == "Ventas" ? "text-blue-600" : "text-gray-600 group-hover:text-gray-900")">Ventas</span>
+                    </a>
+                </div>
+            }
+
+            <!-- Acceso Desplegable -->
+            <div class="menu-item @(currentController == "Acceso" ? "open" : "")">
+                <a href="javascript:void(0)" class="submenu-toggle group flex items-center p-1.5 rounded-lg transition-all duration-200 @(currentController == "Acceso" ? "bg-white shadow-sm ring-1 ring-red-500/30" : "hover:bg-white/40")">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-red-500 shadow-sm group-hover:shadow transition-all @(currentController == "Acceso" ? "ring-1 ring-red-500" : "")">
+                        <i data-lucide="qr-code" class="h-4 w-4"></i>
+                    </div>
+                    <span class="ml-2.5 text-xs font-semibold flex-1 @(currentController == "Acceso" ? "text-gray-900" : "text-gray-600 group-hover:text-gray-900")">Acceso</span>
+                    <i data-lucide="chevron-down" class="menu-arrow w-3.5 h-3.5 ml-auto text-gray-400 transition-transform duration-300"></i>
+                </a>
+                <ul class="submenu list-none p-0 m-0 mt-1 space-y-0.5 overflow-hidden bg-gray-300/40 rounded-xl py-1">
+                    <li>
+                        <a asp-controller="Acceso" asp-action="Index" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" && currentController == "Acceso" ? "text-red-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                            <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                            Escaner QR
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Acceso" asp-action="Historial" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(ViewContext.RouteData.Values["action"]?.ToString() == "Historial" && currentController == "Acceso" ? "text-red-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                            <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                            Historial
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="pt-3 pb-1 px-2">
+                <span class="text-[9px] font-bold text-gray-500 tracking-[0.1em] uppercase opacity-60">Sistema</span>
+            </div>
+
+            <!-- Reportes Desplegable -->
+            @if (User.IsInRole(AppRoles.Admin))
+            {
+                <div class="menu-item @(currentController == "Reportes" ? "open" : "")">
+                    <a href="javascript:void(0)" class="submenu-toggle group flex items-center p-1.5 rounded-lg transition-all duration-200 @(currentController == "Reportes" ? "bg-white shadow-sm ring-1 ring-emerald-500/30" : "hover:bg-white/40")">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-emerald-600 shadow-sm group-hover:shadow transition-all @(currentController == "Reportes" ? "ring-1 ring-emerald-600" : "")">
+                            <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+                        </div>
+                        <span class="ml-2.5 text-xs font-semibold flex-1 @(currentController == "Reportes" ? "text-gray-900" : "text-gray-600 group-hover:text-gray-900")">Reportes</span>
+                        <i data-lucide="chevron-down" class="menu-arrow w-3.5 h-3.5 ml-auto text-gray-400 transition-transform duration-300"></i>
+                    </a>
+                    <ul class="submenu list-none p-0 m-0 mt-1 space-y-0.5 overflow-hidden bg-gray-300/40 rounded-xl py-1">
+                        <li>
+                            <a asp-controller="Reportes" asp-action="Index" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" && currentController == "Reportes" ? "text-emerald-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                                <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                                Ingresos
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Reportes" asp-action="Membresias" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(ViewContext.RouteData.Values["action"]?.ToString() == "Membresias" ? "text-emerald-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                                <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                                Membresías
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="menu-item">
+                    <a asp-controller="Administracion" asp-action="Index" class="group flex items-center p-1.5 rounded-lg transition-all duration-200 @(currentController == "Administracion" ? "bg-white shadow-sm ring-1 ring-slate-700/20" : "hover:bg-white/40")">
+                        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-slate-700 shadow-sm group-hover:shadow transition-all @(currentController == "Administracion" ? "ring-1 ring-slate-700" : "")">
+                            <i data-lucide="shield-check" class="h-4 w-4"></i>
+                        </div>
+                        <span class="ml-2.5 text-xs font-semibold @(currentController == "Administracion" ? "text-slate-800" : "text-gray-600 group-hover:text-gray-900")">Personal</span>
+                    </a>
+                </div>
+            }
+
+            <!-- Configuración Desplegable -->
+            <div class="menu-item @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "open" : "")">
+                <a href="javascript:void(0)" class="submenu-toggle group flex items-center p-1.5 rounded-lg transition-all duration-200 @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "bg-white shadow-sm ring-1 ring-gray-600/30" : "hover:bg-white/40")">
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white text-gray-600 shadow-sm group-hover:shadow transition-all @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "ring-1 ring-gray-600" : "")">
+                        <i data-lucide="settings" class="h-4 w-4"></i>
+                    </div>
+                    <span class="ml-2.5 text-xs font-semibold flex-1 @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" || currentController == "Productos" || currentController == "Alertas" ? "text-gray-900" : "text-gray-600 group-hover:text-gray-900")">Configuración</span>
+                    <i data-lucide="chevron-down" class="menu-arrow w-3.5 h-3.5 ml-auto text-gray-400 transition-transform duration-300"></i>
+                </a>
+                <ul class="submenu list-none p-0 m-0 mt-1 space-y-0.5 overflow-hidden bg-gray-300/40 rounded-xl py-1">
+                    @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.ProductosVer) || User.IsInRole(AppRoles.Admin))
+                    {
+                        <li>
+                            <a asp-controller="Productos" asp-action="Index" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(currentController == "Productos" ? "text-indigo-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                                <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                                Productos
+                            </a>
+                        </li>
+                    }
+                    <li>
+                        <a asp-controller="Planes" asp-action="Index" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(currentController == "Planes" ? "text-indigo-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                            <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                            Planes
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Turnos" asp-action="Index" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(currentController == "Turnos" ? "text-indigo-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                            <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                            Horarios
+                        </a>
+                    </li>
+                    @if (User.IsInRole(AppRoles.Admin))
+                    {
+                        <li>
+                            <a asp-controller="Roles" asp-action="Index" class="flex items-center px-4 py-1.5 text-[11px] transition-colors @(currentController == "Roles" ? "text-indigo-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                                <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                                Roles
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Alertas" asp-action="Index" class="flex items-center px-4 py-2 text-[11px] transition-colors @(currentController == "Alertas" ? "text-indigo-600 font-bold" : "text-gray-600 hover:text-gray-900")">
+                                <i data-lucide="minus" class="w-3 h-3 mr-3 opacity-50"></i>
+                                Alertas n8n
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+
+    <!-- Footer / Logout -->
+    <div class="px-4 pb-4">
+        <a asp-controller="Auth" asp-action="Logout" class="group flex items-center p-2 rounded-xl hover:bg-rose-50 transition-all duration-200 active:scale-95">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-rose-500 shadow-sm group-hover:shadow group-hover:ring-2 group-hover:ring-rose-200 transition-all">
+                <i data-lucide="log-out" class="h-5 w-5"></i>
+            </div>
+            <span class="ml-3 text-sm font-bold text-rose-600 opacity-80 group-hover:opacity-100 transition-opacity">Cerrar Sesión</span>
+        </a>
+    </div>
+</nav>

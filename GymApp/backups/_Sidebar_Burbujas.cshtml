@@ -1,0 +1,147 @@
+@using GymApp.Constants
+<nav id="sidebar" class="fixed left-0 top-0 h-screen w-16 select-none border-r bg-gray-200 shadow-xl z-[100] flex flex-col items-center py-4 transition-all duration-300">
+    
+    <!-- Logo / Home -->
+    <div class="group relative mb-6 cursor-pointer">
+        <a asp-controller="Home" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-indigo-600 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90">
+            <i data-lucide="activity" class="h-6 w-6"></i>
+        </a>
+        <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">
+            GymApp Home
+        </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="mb-4 w-8 border-t border-gray-400"></div>
+
+    <!-- Menu Items -->
+    <div class="flex flex-col space-y-4 items-center">
+        
+        <!-- Perfil / Dashboard -->
+        <div class="group relative">
+            @if (User.IsInRole("Cliente"))
+            {
+                <a asp-controller="ClienteHome" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-cyan-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(ViewContext.RouteData.Values["controller"]?.ToString() == "ClienteHome" ? "ring-2 ring-cyan-500" : "")">
+                    <i data-lucide="user-round-cog" class="h-5 w-5"></i>
+                </a>
+                <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Mi Perfil</div>
+            }
+            else
+            {
+                <a asp-controller="Home" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-cyan-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "ring-2 ring-cyan-500" : "")">
+                    <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
+                </a>
+                <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Dashboard</div>
+            }
+        </div>
+
+        @if (User.IsInRole(AppRoles.Admin) || User.IsInRole("Empleado"))
+        {
+            var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+            <!-- Socios -->
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="group relative">
+                    <a asp-controller="Usuarios" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-orange-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "Usuarios" ? "ring-2 ring-orange-500" : "")">
+                        <i data-lucide="users" class="h-5 w-5"></i>
+                    </a>
+                    <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Socios / Clientes</div>
+                </div>
+            }
+
+            <!-- Suscripciones (Flattened for this style) -->
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.MembresiasVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="group relative">
+                    <a asp-controller="Membresias" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-purple-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "Membresias" ? "ring-2 ring-purple-500" : "")">
+                        <i data-lucide="ticket" class="h-5 w-5"></i>
+                    </a>
+                    <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Planes Regulares</div>
+                </div>
+            }
+
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PasesDiariosVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="group relative">
+                    <a asp-controller="PasesDiarios" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-pink-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "PasesDiarios" ? "ring-2 ring-pink-500" : "")">
+                        <i data-lucide="zap" class="h-5 w-5"></i>
+                    </a>
+                    <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Pases Diarios</div>
+                </div>
+            }
+
+            <!-- Cajas -->
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.PagosVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="group relative">
+                    <a asp-controller="Pagos" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-green-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "Pagos" ? "ring-2 ring-green-500" : "")">
+                        <i data-lucide="wallet" class="h-5 w-5"></i>
+                    </a>
+                    <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Cajas / Pagos</div>
+                </div>
+            }
+
+            <!-- Ventas -->
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.VentasVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="group relative">
+                    <a asp-controller="Ventas" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-blue-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "Ventas" ? "ring-2 ring-blue-500" : "")">
+                        <i data-lucide="shopping-cart" class="h-5 w-5"></i>
+                    </a>
+                    <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Ventas</div>
+                </div>
+            }
+
+            <!-- Acceso -->
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.AccesoVer) || User.IsInRole(AppRoles.Admin))
+            {
+                <div class="group relative">
+                    <a asp-controller="Acceso" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-red-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "Acceso" ? "ring-2 ring-red-500" : "")">
+                        <i data-lucide="qr-code" class="h-5 w-5"></i>
+                    </a>
+                    <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Control de Acceso</div>
+                </div>
+            }
+
+            <!-- Divider -->
+            <div class="my-2 w-8 border-t border-gray-400"></div>
+
+            <!-- Reportes -->
+            @if (User.IsInRole(AppRoles.Admin))
+            {
+                <div class="group relative">
+                    <a asp-controller="Reportes" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-emerald-600 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "Reportes" ? "ring-2 ring-emerald-600" : "")">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5"></i>
+                    </a>
+                    <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Reportes</div>
+                </div>
+
+                <div class="group relative">
+                    <a asp-controller="Administracion" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-slate-700 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "Administracion" ? "ring-2 ring-slate-700" : "")">
+                        <i data-lucide="shield-check" class="h-5 w-5"></i>
+                    </a>
+                    <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Administración Personal</div>
+                </div>
+            }
+
+            <!-- Configuración -->
+            <div class="group relative">
+                <a asp-controller="Planes" asp-action="Index" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-gray-600 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90 @(currentController == "Planes" || currentController == "Turnos" || currentController == "Roles" ? "ring-2 ring-gray-600" : "")">
+                    <i data-lucide="settings" class="h-5 w-5"></i>
+                </a>
+                <div class="tooltip absolute left-14 top-1 z-50 w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Configuración Sistema</div>
+            </div>
+        }
+    </div>
+
+    <!-- Footer / Logout -->
+    <div class="mt-auto pb-4">
+        <div class="group relative">
+            <a asp-controller="Auth" asp-action="Logout" class="flex h-10 w-10 items-center justify-center rounded-full border bg-white text-rose-500 shadow duration-100 hover:translate-y-0.5 hover:shadow-lg active:scale-90">
+                <i data-lucide="log-out" class="h-5 w-5"></i>
+            </a>
+            <div class="tooltip absolute left-14 bottom-1 z-50 w-max rounded-md bg-rose-600 px-2 py-1 text-xs text-white opacity-0 shadow-md duration-200 group-hover:opacity-100 pointer-events-none">Cerrar Sesión</div>
+        </div>
+    </div>
+</nav>
