@@ -43,15 +43,19 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
   - [x] Crear acciones en el controlador para añadir o revocar una restricción directamente desde el perfil del usuario.
 
 ## Fase 4: Capa de Presentación (UI)
-- [ ] **Rediseño de Vista `Create.cshtml` & `Edit.cshtml`:**
-  - [ ] Reestructurar el formulario usando Tabs/Pestañas o Secciones colapsables (usando Tailwind CSS y Alpine.js).
-  - [ ] Sección 1: **Datos Personales** (NombreCompleto, ApellidoPaterno, ApellidoMaterno, Documento, etc.).
-  - [ ] Sección 2: **Demografía** (FechaNacimiento, Género, Estado Civil, Origen, Dirección, WhatsApp en lugar de Teléfono).
-  - [ ] Sección 3: **Otros** (Ocupación, Nota, PIN de Acceso).
-  - [ ] Para `Edit.cshtml`: Mostrar indicador de solo lectura con `FechaUltimaModificacion` y quién fue el último usuario en modificarlo.
-- [ ] **Rediseño de Vista `Details.cshtml`:**
-  - [ ] Adaptar el perfil para mostrar toda la nueva información demográfica de forma elegante y organizada.
-  - [ ] Crear un panel/historial de **Restricciones**, mostrando estado (activa/inactiva), motivo y quién la aplicó.
-  - [ ] Incluir un botón/modal para "Añadir Restricción".
-- [ ] **Ajustes en Listados (Opcional):**
-  - [ ] Actualizar `Index.cshtml` si se desea mostrar el ícono de WhatsApp, o un indicador visual si el usuario tiene una restricción activa.
+### Fase 4.1: Rediseño de Formularios (Crear/Editar)
+- [ ] **Estructura Base con Alpine.js:** Implementar sistema de pestañas (Tabs) en el modal de usuario.
+- [ ] **Sección 1: Datos Personales:** Organizar Nombres, Apellidos, DNI y Foto/Webcam.
+- [ ] **Sección 2: Demografía:** Implementar campos de WhatsApp, Dirección, Género, Estado Civil y Origen.
+- [ ] **Sección 3: Acceso y Otros:** Gestión de PIN, Usuario/Password, Notas y Estado.
+- [ ] **Integración AJAX:** Sincronizar el guardado y carga de datos con los nuevos campos del backend.
+
+### Fase 4.2: Perfil del Socio (Vista de Detalles)
+- [ ] **Layout CRM:** Diseño moderno de tarjetas para organizar la información demográfica y de contacto.
+- [ ] **Panel de Trazabilidad:** Mostrar última modificación y usuario responsable.
+- [ ] **Historial de Restricciones:** Tabla interactiva para visualizar limitaciones pasadas y presentes.
+- [ ] **Gestión Activa:** Modales para aplicar nuevas restricciones y funcionalidad para levantarlas.
+
+### Fase 4.3: Ajustes Globales y Validación
+- [ ] **Integración en Listados:** Mejoras visuales en el Index para reflejar estados o accesos rápidos.
+- [ ] **Validación Final:** Pruebas de flujo completo de usuario (Crear -> Editar -> Detalle -> Restringir).
