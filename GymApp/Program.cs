@@ -45,6 +45,7 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 
 builder.Services.AddScoped<IPaseDiarioRepository, PaseDiarioRepository>();
 builder.Services.AddScoped<IPaseDiarioService, PaseDiarioService>();
+builder.Services.AddScoped<IPeruApiService, PeruApiService>();
 
 // En Program.cs
 builder.Services.AddScoped<IReporteService, ReporteService>();

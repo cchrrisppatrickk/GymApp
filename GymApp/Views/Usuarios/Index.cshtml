@@ -336,9 +336,19 @@
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label for="Dni" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">DNI / Identificación</label>
-                                    <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" id="Dni" placeholder="Opcional" />
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="col-span-2">
+                                        <label for="Dni" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">DNI / Identificación</label>
+                                        <div class="flex gap-2">
+                                            <div class="relative flex-1">
+                                                <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" id="Dni" placeholder="8 dígitos" maxlength="8" />
+                                            </div>
+                                            <button type="button" id="btnConsultarDni" class="px-4 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-bold text-xs uppercase tracking-widest flex items-center gap-2 active:scale-95" onclick="consultarDniApi()">
+                                                <i data-lucide="search" class="w-4 h-4"></i>
+                                                <span class="hidden sm:inline">Consultar</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -950,6 +960,51 @@
             const img = document.getElementById('imgQR');
             img.src = `/Usuarios/ObtenerQR/${id}?t=${new Date().getTime()}`;
             modalQR.show();
+        }
+
+        function consultarDniApi() {
+            const dni = document.getElementById('Dni').value;
+            if (dni.length !== 8) {
+                Swal.fire('Atención', 'El DNI debe tener 8 dígitos', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btnConsultarDni');
+            const btnOriginalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="animate-spin" data-lucide="loader-2"></i>';
+            lucide.createIcons();
+
+            fetch(`/Usuarios/ConsultarDni?dni=${dni}`)
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        const d = res.data;
+                        document.getElementById('NombreCompleto').value = d.nombres;
+                        document.getElementById('ApellidoPaterno').value = d.apellido_paterno;
+                        document.getElementById('ApellidoMaterno').value = d.apellido_materno;
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Datos Encontrados',
+                            text: `Se cargaron los datos de ${d.nombres}`,
+                            timer: 2000,
+                            showConfirmButton: false,
+                            customClass: { popup: 'rounded-[2rem] border-0 shadow-2xl' }
+                        });
+                    } else {
+                        Swal.fire('No encontrado', res.message, 'info');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Error', 'Ocurrió un error al consultar el DNI', 'error');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = btnOriginalHtml;
+                    lucide.createIcons();
+                });
         }
 
         function regenerarPin() {

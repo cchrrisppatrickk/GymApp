@@ -63,7 +63,7 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 - [ ] **Validación Final:** Pruebas de flujo completo de usuario (Crear -> Editar -> Detalle -> Restringir).
 
 ### Fase 4.4: Integración API DNI (Autocompletado)
-- [ ] **Configuración Segura:** Almacenamiento de API Key de `peruapi.com` en entorno (`.env`).
-- [ ] **Servicio de Consulta:** Implementación de `PeruApiService` para consumo del endpoint REST.
-- [ ] **Endpoint Interno:** Crear proxy en `UsuariosController` para evitar exponer la key en el cliente.
-- [ ] **Interfaz de Usuario:** Botón de consulta rápida en el formulario de registro para autocompletar nombres y apellidos.
+- [x] **Configuración Segura:** Almacenamiento de API Key de `peruapi.com` en entorno (`.env`).
+- [x] **Servicio de Consulta:** Implementación de `PeruApiService` para consumo del endpoint REST.
+- [x] **Endpoint Interno:** Crear proxy en `UsuariosController` para evitar exponer la key en el cliente.
+- [x] **Interfaz de Usuario:** Botón de consulta rápida en el formulario de registro para autocompletar nombres y apellidos.

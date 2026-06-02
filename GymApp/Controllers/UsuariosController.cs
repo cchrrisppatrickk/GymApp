@@ -17,12 +17,14 @@ namespace GymApp.Controllers
         private readonly IUsuarioService _usuarioService;
         private readonly IGenericRepository<Role> _rolesRepository;
         private readonly IRestriccionService _restriccionService;
+        private readonly IPeruApiService _peruApiService;
 
-        public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository, IRestriccionService restriccionService)
+        public UsuariosController(IUsuarioService usuarioService, IGenericRepository<Role> rolesRepository, IRestriccionService restriccionService, IPeruApiService peruApiService)
         {
             _usuarioService = usuarioService;
             _rolesRepository = rolesRepository;
             _restriccionService = restriccionService;
+            _peruApiService = peruApiService;
         }
 
         // ==========================================
@@ -346,6 +348,27 @@ namespace GymApp.Controllers
             {
                 string nuevoPin = await _usuarioService.RegenerarPinAsync(id);
                 return Json(new { success = true, pin = nuevoPin, message = "PIN regenerado exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConsultarDni(string dni)
+        {
+            if (string.IsNullOrWhiteSpace(dni) || dni.Length != 8)
+                return Json(new { success = false, message = "DNI inválido" });
+
+            try
+            {
+                var data = await _peruApiService.ConsultarDniAsync(dni);
+                if (data != null && data.Code == "200")
+                {
+                    return Json(new { success = true, data = data });
+                }
+                return Json(new { success = false, message = "No se encontraron datos para el DNI ingresado." });
             }
             catch (Exception ex)
             {
