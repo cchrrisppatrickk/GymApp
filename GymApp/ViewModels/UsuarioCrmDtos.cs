@@ -108,6 +108,7 @@ namespace GymApp.ViewModels
 
         // Fidelización
         public int TotalAsistencias { get; set; }
+        public int DiasTranscurridos { get; set; }
         public decimal PorcentajeEfectividad { get; set; }
         public string NivelFidelidad { get; set; } = "N/A";
     }

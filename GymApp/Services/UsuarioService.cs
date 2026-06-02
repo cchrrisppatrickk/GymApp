@@ -194,6 +194,7 @@ namespace GymApp.Services
                 .FirstOrDefault();
 
             int totalAsistencias = 0;
+            int diasTranscurridos = 0;
             decimal porcentajeEfectividad = 0;
             string nivelFidelidad = "Sin Plan Activo";
 
@@ -209,7 +210,7 @@ namespace GymApp.Services
                     .CountAsync();
 
                 // 2. Calcular días transcurridos hasta hoy (mínimo 1 para evitar div/0)
-                int diasTranscurridos = (DateTime.Today - fechaInicioPlan.Date).Days + 1;
+                diasTranscurridos = (DateTime.Today - fechaInicioPlan.Date).Days + 1;
                 
                 if (diasTranscurridos > 0)
                 {
@@ -274,6 +275,7 @@ namespace GymApp.Services
                 
                 // Campos de Fidelización
                 TotalAsistencias = totalAsistencias,
+                DiasTranscurridos = diasTranscurridos,
                 PorcentajeEfectividad = porcentajeEfectividad,
                 NivelFidelidad = nivelFidelidad
             };
