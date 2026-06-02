@@ -187,6 +187,46 @@ namespace GymApp.Services
 
             var hoy = DateOnly.FromDateTime(DateTime.Today);
 
+            // --- CÁLCULO DE FIDELIZACIÓN (FASE 4.5) ---
+            var membresiaActual = u.Membresia
+                .Where(m => m.Estado == "Activa" && m.FechaVencimiento >= hoy)
+                .OrderByDescending(m => m.FechaVencimiento)
+                .FirstOrDefault();
+
+            int totalAsistencias = 0;
+            decimal porcentajeEfectividad = 0;
+            string nivelFidelidad = "Sin Plan Activo";
+
+            if (membresiaActual != null)
+            {
+                var fechaInicioPlan = membresiaActual.FechaInicio.ToDateTime(TimeOnly.MinValue);
+                
+                // 1. Contar días únicos de asistencia exitosa desde el inicio del plan
+                totalAsistencias = await _context.Asistencias
+                    .Where(a => a.UserId == id && a.AccesoPermitido && a.FechaHora >= fechaInicioPlan)
+                    .Select(a => a.FechaHora.Value.Date)
+                    .Distinct()
+                    .CountAsync();
+
+                // 2. Calcular días transcurridos hasta hoy (mínimo 1 para evitar div/0)
+                int diasTranscurridos = (DateTime.Today - fechaInicioPlan.Date).Days + 1;
+                
+                if (diasTranscurridos > 0)
+                {
+                    porcentajeEfectividad = Math.Min(100, Math.Round(((decimal)totalAsistencias / diasTranscurridos) * 100, 0));
+
+                    // 3. Mapear Nivel según rangos de la imagen de referencia
+                    nivelFidelidad = porcentajeEfectividad switch
+                    {
+                        <= 20 => "Muy bajo",
+                        <= 40 => "Bajo",
+                        <= 60 => "Regular",
+                        <= 80 => "Bueno",
+                        _ => "Excelente"
+                    };
+                }
+            }
+
             return new UsuarioDetailsDTO
             {
                 UserId = u.UserId,
@@ -230,7 +270,12 @@ namespace GymApp.Services
                     Estado = m.FechaVencimiento < hoy ? "Vencida" : "Activa",
                     DiasRestantes = Math.Max(0, m.FechaVencimiento.DayNumber - hoy.DayNumber),
                     DiasVencidos = Math.Max(0, hoy.DayNumber - m.FechaVencimiento.DayNumber)
-                }).OrderByDescending(m => m.FechaVencimiento).ToList()
+                }).OrderByDescending(m => m.FechaVencimiento).ToList(),
+                
+                // Campos de Fidelización
+                TotalAsistencias = totalAsistencias,
+                PorcentajeEfectividad = porcentajeEfectividad,
+                NivelFidelidad = nivelFidelidad
             };
         }
 

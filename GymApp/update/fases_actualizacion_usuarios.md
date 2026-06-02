@@ -70,5 +70,5 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 
 ### Fase 4.5: Métrica de Fidelización (Efectividad de Asistencia)
 - [x] **Paso 1: Capa de Datos:** Actualizar `UsuarioDetailsDTO` con los campos `TotalAsistencias`, `PorcentajeEfectividad` y `NivelFidelidad`.
-- [ ] **Paso 2: Lógica de Negocio:** Implementar algoritmo de cálculo en `UsuarioService` (Agrupación por fecha, conteo vs. días transcurridos desde el inicio del plan).
+- [x] **Paso 2: Lógica de Negocio:** Implementar algoritmo de cálculo en `UsuarioService` (Agrupación por fecha, conteo vs. días transcurridos desde el inicio del plan).
 - [ ] **Paso 3: Capa de Presentación:** Rediseño del grid superior en `Details.cshtml` para integrar el card de fidelización con leyenda de estados y colores dinámicos.
