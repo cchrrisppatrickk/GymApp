@@ -11,14 +11,14 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div class="flex items-center gap-4">
             <a asp-action="Index" class="flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm hover:bg-slate-50 transition-all">
-                <i data-lucide="arrow-left" class="w-4 h-4 text-slate-500"></i>
+                <i data-lucide="arrow-left" class="w-4 h-4 text-slate-600"></i>
             </a>
             <div>
                 <nav class="flex mb-0.5" aria-label="Breadcrumb">
-                    <ol class="flex items-center space-x-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                    <ol class="flex items-center space-x-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-500">
                         <li><a asp-action="Index" class="hover:text-indigo-600 transition-colors">Usuarios</a></li>
                         <li><i data-lucide="chevron-right" class="w-2.5 h-2.5"></i></li>
-                        <li class="text-slate-500">Expediente</li>
+                        <li class="text-slate-600">Expediente</li>
                     </ol>
                 </nav>
                 <h1 class="text-2xl font-display font-black text-slate-900 tracking-tight">Ficha Digital del Socio</h1>
@@ -40,11 +40,11 @@
         </div>
     </div>
 
-    <!-- Layout de Cards Superiores (Referencia Imagen) -->
+    <!-- Layout de Cards Superiores -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Card 1: Perfil Básico -->
         <div class="md:col-span-1 bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-6 shadow-sm">
-            <div class="relative w-24 h-24 rounded-2xl p-1 bg-slate-50 border border-slate-100 overflow-hidden shrink-0">
+            <div @@click="$dispatch('open-photo-viewer', { url: '@(string.IsNullOrEmpty(Model.FotoUrl) ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(Model.NombreCompleto) + "&background=f1f5f9&color=64748b&size=512" : (Model.FotoUrl.StartsWith("/") ? Model.FotoUrl : "/uploads/fotos/" + Model.FotoUrl))' })" 
+                 class="relative w-24 h-24 rounded-2xl p-1 bg-slate-100 border border-slate-200 overflow-hidden shrink-0 cursor-zoom-in group/avatar transition-all active:scale-95 hover:border-indigo-300">
                 @if (!string.IsNullOrEmpty(Model.FotoUrl))
                 {
                     <img src="@(Model.FotoUrl.StartsWith("/") ? Model.FotoUrl : "/uploads/fotos/" + Model.FotoUrl)" class="w-full h-full rounded-xl object-cover" alt="@Model.NombreCompleto" />
@@ -53,6 +53,9 @@
                 {
                     <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.NombreCompleto)&background=f1f5f9&color=64748b&size=128" class="w-full h-full rounded-xl object-cover" alt="Default" />
                 }
+                <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center">
+                    <i data-lucide="maximize-2" class="w-5 h-5 text-white drop-shadow-md"></i>
+                </div>
                 <!-- Género Badge -->
                 <div class="absolute bottom-1 right-1 w-6 h-6 rounded-lg bg-white shadow-sm flex items-center justify-center border border-slate-100">
                     @if (Model.Genero == "Masculino") { <i data-lucide="mars" class="w-3 h-3 text-blue-500"></i> }
@@ -63,12 +66,12 @@
             <div class="min-w-0">
                 <h2 class="text-xl font-display font-black text-slate-900 truncate leading-tight">@Model.NombreCompleto</h2>
                 <div class="flex flex-col gap-1 mt-2">
-                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                         <i data-lucide="id-card" class="w-3 h-3"></i>
                         <span>@(Model.Dni ?? "S/DNI")</span>
                     </div>
-                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        <i data-lucide="phone" class="w-3 h-3"></i>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        <i data-lucide="phone" class="w-3 h-3 text-slate-500"></i>
                         <span>@(Model.Telefono ?? "S/TEL")</span>
                     </div>
                 </div>
@@ -77,42 +80,42 @@
 
         <!-- Card 2: Plan Actual -->
         <div class="md:col-span-1 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col items-center justify-center text-center">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Plan Suscrito</p>
+            <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-3">Plan Suscrito</p>
             @{
                 var memActiva = Model.Membresias.FirstOrDefault(m => m.Estado == "Activa");
                 if (memActiva != null)
                 {
-                    <div class="flex items-center gap-3 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-100 mb-2">
+                    <div class="flex items-center gap-3 bg-emerald-50 text-emerald-800 px-4 py-2 rounded-xl border border-emerald-100 mb-2">
                         <i data-lucide="zap" class="w-4 h-4 fill-emerald-500"></i>
                         <span class="text-sm font-black uppercase">@memActiva.NombrePlan</span>
                     </div>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Vence el @memActiva.FechaVencimiento</p>
+                    <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Vence el @memActiva.FechaVencimiento</p>
                 }
                 else
                 {
-                    <div class="flex items-center gap-3 bg-slate-50 text-slate-400 px-4 py-2 rounded-xl border border-slate-200 mb-2">
+                    <div class="flex items-center gap-3 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl border border-slate-200 mb-2">
                         <i data-lucide="inbox" class="w-4 h-4"></i>
                         <span class="text-sm font-black uppercase tracking-widest">Sin Plan Activo</span>
                     </div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No registra suscripción vigente</p>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">No registra suscripción vigente</p>
                 }
             }
         </div>
 
         <!-- Card 3: Status / Acceso -->
         <div class="md:col-span-1 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col items-center justify-center text-center">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Estado de Acceso</p>
+            <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Estado de Acceso</p>
             <div class="flex items-center gap-4">
                 <div class="flex flex-col items-center gap-1">
                     <div class="w-12 h-12 rounded-full border-4 border-slate-50 flex items-center justify-center @(Model.Estado ? "bg-emerald-500" : "bg-rose-500") shadow-lg">
                         <i data-lucide="@(Model.Estado ? "check" : "x")" class="w-6 h-6 text-white font-bold"></i>
                     </div>
-                    <span class="text-[10px] font-black uppercase tracking-widest mt-1 @(Model.Estado ? "text-emerald-600" : "text-rose-600")">@(Model.Estado ? "Autorizado" : "Bloqueado")</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest mt-1 @(Model.Estado ? "text-emerald-700" : "text-rose-700")">@(Model.Estado ? "Autorizado" : "Bloqueado")</span>
                 </div>
-                <div class="h-10 w-px bg-slate-100"></div>
+                <div class="h-10 w-px bg-slate-200"></div>
                 <div class="text-left">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">PIN de Acceso</p>
-                    <p class="text-lg font-display font-black text-slate-900 tracking-[0.2em]">@(Model.PinAcceso ?? "----")</p>
+                    <p class="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-0.5">PIN de Acceso</p>
+                    <p class="text-lg font-display font-black text-slate-950 tracking-[0.2em]">@(Model.PinAcceso ?? "----")</p>
                 </div>
             </div>
         </div>
@@ -122,13 +125,13 @@
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <!-- Tabs Navigation Minimal -->
         <div class="flex items-center gap-6 px-8 border-b border-slate-100 bg-slate-50/30">
-            <button @@click="activeTab = 'perfil'" :class="activeTab === 'perfil' ? 'text-indigo-600 border-indigo-600' : 'text-slate-400 border-transparent hover:text-slate-600'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all">
+            <button @@click="activeTab = 'perfil'" :class="activeTab === 'perfil' ? 'text-indigo-600 border-indigo-600' : 'text-slate-500 border-transparent hover:text-slate-800'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all">
                 Detalles CRM
             </button>
-            <button @@click="activeTab = 'membresias'" :class="activeTab === 'membresias' ? 'text-indigo-600 border-indigo-600' : 'text-slate-400 border-transparent hover:text-slate-600'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all">
+            <button @@click="activeTab = 'membresias'" :class="activeTab === 'membresias' ? 'text-indigo-600 border-indigo-600' : 'text-slate-500 border-transparent hover:text-slate-800'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all">
                 Historial Membresías
             </button>
-            <button @@click="activeTab = 'restricciones'" :class="activeTab === 'restricciones' ? 'text-indigo-600 border-indigo-600' : 'text-slate-400 border-transparent hover:text-slate-600'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all relative">
+            <button @@click="activeTab = 'restricciones'" :class="activeTab === 'restricciones' ? 'text-indigo-600 border-indigo-600' : 'text-slate-500 border-transparent hover:text-slate-800'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all relative">
                 Trazabilidad
                 @if (Model.Restricciones.Any(r => r.EstadoActiva))
                 {
@@ -143,23 +146,23 @@
                 <!-- Datos demográficos -->
                 <div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-6">
                     <div class="flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-slate-400">
+                        <div class="flex items-center gap-2 text-slate-500">
                             <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                             <p class="text-[9px] font-black uppercase tracking-widest">Origen de Captación</p>
                         </div>
-                        <p class="text-xs font-black text-slate-800">@(Model.Origen ?? "No registrado")</p>
+                        <p class="text-xs font-black text-slate-900">@(Model.Origen ?? "No registrado")</p>
                     </div>
 
                     <div class="flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-slate-400">
+                        <div class="flex items-center gap-2 text-slate-500">
                             <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
                             <p class="text-[9px] font-black uppercase tracking-widest">WhatsApp / Celular</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <p class="text-xs font-black text-slate-800">@(Model.WhatsApp ?? "No registrado")</p>
+                            <p class="text-xs font-black text-slate-900">@(Model.WhatsApp ?? "No registrado")</p>
                             @if (!string.IsNullOrEmpty(Model.WhatsApp))
                             {
-                                <a href="https://wa.me/@Model.WhatsApp" target="_blank" class="text-emerald-500 hover:text-emerald-600 transition-colors">
+                                <a href="https://wa.me/@Model.WhatsApp" target="_blank" class="text-emerald-600 hover:text-emerald-700 transition-colors">
                                     <i data-lucide="external-link" class="w-3 h-3"></i>
                                 </a>
                             }
@@ -167,44 +170,44 @@
                     </div>
 
                     <div class="flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-slate-400">
+                        <div class="flex items-center gap-2 text-slate-500">
                             <i data-lucide="heart" class="w-3.5 h-3.5"></i>
                             <p class="text-[9px] font-black uppercase tracking-widest">Estado Civil</p>
                         </div>
-                        <p class="text-xs font-black text-slate-800">@(Model.EstadoCivil ?? "No especificado")</p>
+                        <p class="text-xs font-black text-slate-900">@(Model.EstadoCivil ?? "No especificado")</p>
                     </div>
 
                     <div class="flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-slate-400">
+                        <div class="flex items-center gap-2 text-slate-500">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                             <p class="text-[9px] font-black uppercase tracking-widest">Fecha Nacimiento</p>
                         </div>
-                        <p class="text-xs font-black text-slate-800">@(Model.FechaNacimiento?.ToString("dd 'de' MMMM, yyyy") ?? "No registrada")</p>
+                        <p class="text-xs font-black text-slate-900">@(Model.FechaNacimiento?.ToString("dd 'de' MMMM, yyyy") ?? "No registrada")</p>
                     </div>
 
                     <div class="flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-slate-400">
+                        <div class="flex items-center gap-2 text-slate-500">
                             <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
                             <p class="text-[9px] font-black uppercase tracking-widest">Ocupación</p>
                         </div>
-                        <p class="text-xs font-black text-slate-800">@(Model.Ocupacion ?? "No registrada")</p>
+                        <p class="text-xs font-black text-slate-900">@(Model.Ocupacion ?? "No registrada")</p>
                     </div>
 
                     <div class="flex flex-col gap-1.5">
-                        <div class="flex items-center gap-2 text-slate-400">
+                        <div class="flex items-center gap-2 text-slate-500">
                             <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
                             <p class="text-[9px] font-black uppercase tracking-widest">Dirección Residencia</p>
                         </div>
-                        <p class="text-xs font-black text-slate-800 truncate" title="@Model.Direccion">@(Model.Direccion ?? "No registrada")</p>
+                        <p class="text-xs font-black text-slate-950 truncate" title="@Model.Direccion">@(Model.Direccion ?? "No registrada")</p>
                     </div>
                 </div>
                 <!-- Notas -->
-                <div class="lg:col-span-4 bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <div class="lg:col-span-4 bg-slate-50 rounded-2xl p-6 border border-slate-200">
+                    <p class="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-3 flex items-center gap-2">
                         <i data-lucide="sticky-note" class="w-3 h-3"></i>
                         Notas Administrativas
                     </p>
-                    <p class="text-xs font-medium text-slate-600 leading-relaxed italic">
+                    <p class="text-xs font-medium text-slate-800 leading-relaxed italic">
                         @(string.IsNullOrEmpty(Model.Nota) ? "Sin anotaciones en este expediente." : Model.Nota)
                     </p>
                 </div>
@@ -216,10 +219,10 @@
             <table class="w-full border-collapse text-left">
                 <thead>
                     <tr class="bg-slate-50/50 border-b border-slate-100">
-                        <th class="px-8 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Plan Suscrito</th>
-                        <th class="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Vigencia</th>
-                        <th class="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Estado</th>
-                        <th class="px-8 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Acción</th>
+                        <th class="px-8 py-3 text-[9px] font-black text-slate-600 uppercase tracking-widest">Plan Suscrito</th>
+                        <th class="px-6 py-3 text-[9px] font-black text-slate-600 uppercase tracking-widest">Vigencia</th>
+                        <th class="px-6 py-3 text-[9px] font-black text-slate-600 uppercase tracking-widest text-center">Estado</th>
+                        <th class="px-8 py-3 text-right text-[9px] font-black text-slate-600 uppercase tracking-widest">Acción</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -230,26 +233,26 @@
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-8 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+                                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500">
                                             <i data-lucide="zap" class="w-4 h-4"></i>
                                         </div>
                                         <div>
                                             <p class="text-xs font-black text-slate-900">@mem.NombrePlan</p>
-                                            <p class="text-[9px] font-bold text-slate-500 uppercase">@mem.NombreTurno</p>
+                                            <p class="text-[9px] font-bold text-slate-600 uppercase">@mem.NombreTurno</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <p class="text-xs font-black text-slate-700">@mem.FechaInicio — @mem.FechaVencimiento</p>
-                                    @if (mem.Estado == "Activa") { <p class="text-[9px] font-bold text-emerald-600 uppercase">Quedan @mem.DiasRestantes días</p> }
+                                    <p class="text-xs font-black text-slate-800">@mem.FechaInicio — @mem.FechaVencimiento</p>
+                                    @if (mem.Estado == "Activa") { <p class="text-[9px] font-bold text-emerald-700 uppercase">Quedan @mem.DiasRestantes días</p> }
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest @(mem.Estado == "Activa" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-slate-100 text-slate-400")">
+                                    <span class="inline-flex px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest @(mem.Estado == "Activa" ? "bg-emerald-50 text-emerald-800 border border-emerald-100" : "bg-slate-100 text-slate-500")">
                                         @mem.Estado
                                     </span>
                                 </td>
                                 <td class="px-8 py-4 text-right">
-                                    <a asp-controller="Membresias" asp-action="Details" asp-route-id="@mem.MembresiaId" class="inline-flex w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 items-center justify-center transition-all shadow-sm active:scale-90">
+                                    <a asp-controller="Membresias" asp-action="Details" asp-route-id="@mem.MembresiaId" class="inline-flex w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 items-center justify-center transition-all shadow-sm active:scale-90">
                                         <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                     </a>
                                 </td>
@@ -258,7 +261,7 @@
                     }
                     else
                     {
-                        <tr><td colspan="4" class="px-8 py-20 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sin registros</td></tr>
+                        <tr><td colspan="4" class="px-8 py-20 text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sin registros</td></tr>
                     }
                 </tbody>
             </table>
@@ -269,10 +272,10 @@
              <table class="w-full border-collapse text-left">
                 <thead>
                     <tr class="bg-slate-50/50 border-b border-slate-100">
-                        <th class="px-8 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Motivo / Tipo</th>
-                        <th class="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Responsable</th>
-                        <th class="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Fecha</th>
-                        <th class="px-8 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Estado</th>
+                        <th class="px-8 py-3 text-[9px] font-black text-slate-600 uppercase tracking-widest">Motivo / Tipo</th>
+                        <th class="px-6 py-3 text-[9px] font-black text-slate-600 uppercase tracking-widest">Responsable</th>
+                        <th class="px-6 py-3 text-[9px] font-black text-slate-600 uppercase tracking-widest">Fecha</th>
+                        <th class="px-8 py-3 text-right text-[9px] font-black text-slate-600 uppercase tracking-widest">Estado</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -283,10 +286,10 @@
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="px-8 py-4">
                                     <p class="text-xs font-black text-slate-900">@res.TipoRestriccion</p>
-                                    <p class="text-[10px] font-medium text-slate-500">@res.Descripcion</p>
+                                    <p class="text-[10px] font-medium text-slate-600">@res.Descripcion</p>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <p class="text-xs font-black text-slate-700">@res.UsuarioAplicadorNombre</p>
+                                    <p class="text-xs font-black text-slate-800">@res.UsuarioAplicadorNombre</p>
                                 </td>
                                 <td class="px-6 py-4">
                                     <p class="text-xs font-black text-slate-900">@res.FechaAplicacion.ToString("dd/MM/yyyy")</p>
@@ -295,15 +298,15 @@
                                     @if (res.EstadoActiva) {
                                         @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEditar) || User.IsInRole(AppRoles.Admin)) {
                                             <button onclick="levantarRestriccion(@res.Id)" class="px-3 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-100 text-[9px] font-black uppercase tracking-widest">Levantar</button>
-                                        } else { <span class="text-[9px] font-black text-rose-600 uppercase">Activo</span> }
-                                    } else { <span class="text-[9px] font-black text-slate-300 uppercase italic">Inactivo</span> }
+                                        } else { <span class="text-[9px] font-black text-rose-700 uppercase">Activo</span> }
+                                    } else { <span class="text-[9px] font-black text-slate-400 uppercase italic">Inactivo</span> }
                                 </td>
                             </tr>
                         }
                     }
                     else
                     {
-                        <tr><td colspan="4" class="px-8 py-20 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sin restricciones</td></tr>
+                        <tr><td colspan="4" class="px-8 py-20 text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sin restricciones</td></tr>
                     }
                 </tbody>
             </table>
@@ -312,6 +315,37 @@
 </div>
 
 @section Modales {
+<!-- Visor de Foto a Detalle -->
+<div x-data="{ open: false, url: '' }"
+     @@open-photo-viewer.window="open = true; url = $event.detail.url; setTimeout(() => lucide.createIcons(), 50)"
+     x-show="open" 
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0 scale-95"
+     x-transition:enter-end="opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100 scale-100"
+     x-transition:leave-end="opacity-0 scale-95"
+     class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md" 
+     @@click="open = false"
+     @@keydown.escape.window="open = false"
+     x-cloak>
+    
+    <div class="relative max-w-2xl w-full" @@click.stop>
+        <button @@click="open = false" class="absolute -top-12 right-0 text-white/70 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        
+        <div class="bg-white p-2 rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20">
+            <img :src="url" class="w-full h-auto rounded-[2.2rem] shadow-sm" alt="Detalle Socio" />
+            
+            <div class="p-6 text-center">
+                <p class="text-lg font-display font-black text-slate-900">@Model.NombreCompleto</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Socio #@Model.UserId.ToString("D5")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Aplicar Restricción -->
 <div x-data="{ open: false, userId: 0 }" 
      @@open-modal-restriccion.window="open = true; userId = $event.detail.userId"
