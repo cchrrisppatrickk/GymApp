@@ -51,10 +51,11 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 - [x] **Integración AJAX:** Sincronizar el guardado y carga de datos con los nuevos campos del backend.
 
 ### Fase 4.2: Perfil del Socio (Vista de Detalles)
-- [ ] **Layout CRM:** Diseño moderno de tarjetas para organizar la información demográfica y de contacto.
-- [ ] **Panel de Trazabilidad:** Mostrar última modificación y usuario responsable.
-- [ ] **Historial de Restricciones:** Tabla interactiva para visualizar limitaciones pasadas y presentes.
-- [ ] **Gestión Activa:** Modales para aplicar nuevas restricciones y funcionalidad para levantarlas.
+- [x] **Layout CRM:** Diseño moderno de tarjetas para organizar la información demográfica y de contacto.
+- [x] **Panel de Trazabilidad:** Mostrar última modificación y usuario responsable.
+- [x] **Historial de Restricciones:** Tabla interactiva para visualizar limitaciones pasadas y presentes.
+- [x] **Gestión Activa:** Modales para aplicar nuevas restricciones y funcionalidad para levantarlas.
+- [x] **Integración de Membresías:** Visualización del historial de planes del socio directamente en el expediente.
 
 ### Fase 4.3: Ajustes Globales y Validación
 - [x] **Integración en Listados:** Mejoras visuales en el Index para reflejar estados o accesos rápidos.

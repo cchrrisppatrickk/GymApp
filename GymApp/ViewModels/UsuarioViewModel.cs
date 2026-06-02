@@ -48,6 +48,8 @@ namespace GymApp.ViewModels
         public string? Nota { get; set; }
         public string? PinAcceso { get; set; }
 
+        public string? ModificadoPorNombre { get; set; }
+
         public string[]? PermisosSeleccionados { get; set; }
     }
 }

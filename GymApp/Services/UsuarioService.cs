@@ -74,15 +74,23 @@ namespace GymApp.Services
                 {
                     UserId = u.UserId,
                     NombreCompleto = u.NombreCompleto,
+                    ApellidoPaterno = u.ApellidoPaterno,
+                    ApellidoMaterno = u.ApellidoMaterno,
                     Dni = u.Dni,
                     NombreRol = u.Role.Nombre,
                     Email = u.Email,
                     Telefono = u.Telefono,
                     Estado = u.Estado ?? false,
                     NombreUsuario = u.NombreUsuario,
-                    FotoBase64 = u.FotoUrl, // Usamos FotoBase64 para la URL de la foto en el listado si existe
+                    FotoBase64 = u.FotoUrl,
                     WhatsApp = u.WhatsApp,
-                    Origen = u.Origen
+                    Origen = u.Origen,
+                    Genero = u.Genero,
+                    PinAcceso = u.PinAcceso,
+                    ModificadoPorNombre = _context.Usuarios
+                        .Where(ua => ua.UserId == u.ModificadoPorId)
+                        .Select(ua => ua.NombreCompleto)
+                        .FirstOrDefault() ?? "SISTEMA"
                 })
                 .ToListAsync();
 
@@ -119,15 +127,23 @@ namespace GymApp.Services
                 {
                     UserId = u.UserId,
                     NombreCompleto = u.NombreCompleto,
+                    ApellidoPaterno = u.ApellidoPaterno,
+                    ApellidoMaterno = u.ApellidoMaterno,
                     Dni = u.Dni,
                     NombreRol = u.Role.Nombre,
                     Email = u.Email,
                     Telefono = u.Telefono,
                     Estado = u.Estado ?? false,
                     NombreUsuario = u.NombreUsuario,
-                    FotoBase64 = u.FotoUrl, // Usamos FotoBase64 para la URL de la foto en el listado si existe
+                    FotoBase64 = u.FotoUrl,
                     WhatsApp = u.WhatsApp,
-                    Origen = u.Origen
+                    Origen = u.Origen,
+                    Genero = u.Genero,
+                    PinAcceso = u.PinAcceso,
+                    ModificadoPorNombre = _context.Usuarios
+                        .Where(ua => ua.UserId == u.ModificadoPorId)
+                        .Select(ua => ua.NombreCompleto)
+                        .FirstOrDefault() ?? "SISTEMA"
                 })
                 .ToListAsync();
 
@@ -151,7 +167,10 @@ namespace GymApp.Services
             var u = await _context.Usuarios
                 .Include(u => u.Role)
                 .Include(u => u.Restricciones)
-                .ThenInclude(r => _context.Usuarios.Where(ua => ua.UserId == r.UsuarioAplicadorId).Select(ua => ua.NombreCompleto).FirstOrDefault()) // Nota: Esto es complejo en EF, lo manejaremos abajo
+                .Include(u => u.Membresia)
+                    .ThenInclude(m => m.Plan)
+                .Include(u => u.Membresia)
+                    .ThenInclude(m => m.Turno)
                 .FirstOrDefaultAsync(u => u.UserId == id);
 
             if (u == null) return null;
@@ -165,6 +184,8 @@ namespace GymApp.Services
             var modificadoPorNombre = u.ModificadoPorId.HasValue 
                 ? (await _context.Usuarios.Where(ua => ua.UserId == u.ModificadoPorId.Value).Select(ua => ua.NombreCompleto).FirstOrDefaultAsync())
                 : null;
+
+            var hoy = DateOnly.FromDateTime(DateTime.Today);
 
             return new UsuarioDetailsDTO
             {
@@ -198,7 +219,18 @@ namespace GymApp.Services
                     FechaAplicacion = r.FechaAplicacion,
                     EstadoActiva = r.EstadoActiva,
                     UsuarioAplicadorNombre = nombresAplicadores.ContainsKey(r.UsuarioAplicadorId) ? nombresAplicadores[r.UsuarioAplicadorId] : "Sistema"
-                }).ToList()
+                }).OrderByDescending(r => r.FechaAplicacion).ToList(),
+                Membresias = u.Membresia.Select(m => new MembresiaListDTO
+                {
+                    MembresiaId = m.MembresiaId,
+                    NombrePlan = m.Plan?.Nombre ?? "Plan Eliminado",
+                    NombreTurno = m.Turno?.Nombre ?? "Sin Turno",
+                    FechaInicio = m.FechaInicio.ToString("dd/MM/yyyy"),
+                    FechaVencimiento = m.FechaVencimiento.ToString("dd/MM/yyyy"),
+                    Estado = m.FechaVencimiento < hoy ? "Vencida" : "Activa",
+                    DiasRestantes = Math.Max(0, m.FechaVencimiento.DayNumber - hoy.DayNumber),
+                    DiasVencidos = Math.Max(0, hoy.DayNumber - m.FechaVencimiento.DayNumber)
+                }).OrderByDescending(m => m.FechaVencimiento).ToList()
             };
         }
 

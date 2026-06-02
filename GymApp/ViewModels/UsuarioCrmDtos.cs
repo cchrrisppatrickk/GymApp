@@ -104,6 +104,7 @@ namespace GymApp.ViewModels
         public string? ModificadoPorNombre { get; set; }
 
         public List<RestriccionDTO> Restricciones { get; set; } = new();
+        public List<MembresiaListDTO> Membresias { get; set; } = new();
     }
 
     public class RestriccionDTO

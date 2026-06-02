@@ -1,217 +1,344 @@
-@model GymApp.Models.Usuario
+@model GymApp.ViewModels.UsuarioDetailsDTO
 @using GymApp.Constants
 
 @{
-    ViewData["Title"] = "Detalles del Socio";
+    ViewData["Title"] = "Expediente del Socio";
+    var hoy = DateOnly.FromDateTime(DateTime.Today);
 }
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-    <!-- Encabezado -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <div class="flex items-center gap-4 mb-1">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-sm">
-                    <i data-lucide="contact-2" class="w-8 h-8"></i>
-                </div>
-                <h1 class="text-3xl font-display font-extrabold text-slate-950 tracking-tight m-0">Ficha de Socio</h1>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" x-data="{ activeTab: 'perfil' }">
+    <!-- Header Minimalista -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div class="flex items-center gap-4">
+            <a asp-action="Index" class="flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm hover:bg-slate-50 transition-all">
+                <i data-lucide="arrow-left" class="w-4 h-4 text-slate-500"></i>
+            </a>
+            <div>
+                <nav class="flex mb-0.5" aria-label="Breadcrumb">
+                    <ol class="flex items-center space-x-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                        <li><a asp-action="Index" class="hover:text-indigo-600 transition-colors">Usuarios</a></li>
+                        <li><i data-lucide="chevron-right" class="w-2.5 h-2.5"></i></li>
+                        <li class="text-slate-500">Expediente</li>
+                    </ol>
+                </nav>
+                <h1 class="text-2xl font-display font-black text-slate-900 tracking-tight">Ficha Digital del Socio</h1>
             </div>
-            <p class="text-slate-600 text-sm font-medium ml-1">Consulta y gestiona el historial completo del usuario</p>
         </div>
-        
-        <a asp-action="Index" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-xl border border-slate-200 transition-all active:scale-95">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            <span>Volver a Usuarios</span>
-        </a>
+
+        <div class="flex items-center gap-2">
+            @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEditar) || User.IsInRole(AppRoles.Admin))
+            {
+                <button @@click="$dispatch('open-modal-restriccion', { userId: @Model.UserId })" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-50 text-rose-700 border border-rose-100 hover:bg-rose-100 transition-all font-bold text-xs shadow-sm">
+                    <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+                    <span>Restringir</span>
+                </button>
+                <button onclick="editarUsuario(@Model.UserId)" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all font-bold text-xs shadow-md shadow-indigo-100">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <span>Editar Perfil</span>
+                </button>
+            }
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Columna Izquierda: Perfil -->
-        <aside class="lg:col-span-1 space-y-8">
-            <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden relative group">
-                <!-- Decoración superior -->
-                <div class="h-24 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-emerald-500/10"></div>
-                
-                <div class="px-6 pb-8 text-center -mt-12">
-                    <!-- Foto de Perfil -->
-                    <div class="relative inline-block mb-4">
-                        <div class="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        @if (!string.IsNullOrEmpty(Model.FotoUrl))
-                        {
-                            var fotoSrc = Model.FotoUrl.StartsWith("/") || Model.FotoUrl.Contains("/") 
-                                ? Url.Content("~" + Model.FotoUrl) 
-                                : Url.Content("~/uploads/fotos/" + Model.FotoUrl);
-                            <img src="@fotoSrc" class="relative w-32 h-32 rounded-[2rem] border-4 border-white shadow-xl object-cover transition-transform duration-500 group-hover:scale-105" alt="Foto de Perfil" />
-                        }
-                        else
-                        {
-                            <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.NombreCompleto)&background=4f46e5&color=fff&size=128" class="relative w-32 h-32 rounded-[2rem] border-4 border-white shadow-xl object-cover transition-transform duration-500 group-hover:scale-105" alt="Default User" />
-                        }
-                        
-                        <!-- Badge Estado -->
-                        <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl border-4 border-white flex items-center justify-center shadow-lg @(Model.Estado == true ? "bg-emerald-500" : "bg-rose-500")" title="@(Model.Estado == true ? "Activo" : "Inactivo")">
-                            <i data-lucide="@(Model.Estado == true ? "check" : "x")" class="text-white w-4 h-4 font-bold"></i>
-                        </div>
+    <!-- Layout de Cards Superiores (Referencia Imagen) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Card 1: Perfil Básico -->
+        <div class="md:col-span-1 bg-white rounded-2xl border border-slate-200 p-6 flex items-center gap-6 shadow-sm">
+            <div class="relative w-24 h-24 rounded-2xl p-1 bg-slate-50 border border-slate-100 overflow-hidden shrink-0">
+                @if (!string.IsNullOrEmpty(Model.FotoUrl))
+                {
+                    <img src="@(Model.FotoUrl.StartsWith("/") ? Model.FotoUrl : "/uploads/fotos/" + Model.FotoUrl)" class="w-full h-full rounded-xl object-cover" alt="@Model.NombreCompleto" />
+                }
+                else
+                {
+                    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.NombreCompleto)&background=f1f5f9&color=64748b&size=128" class="w-full h-full rounded-xl object-cover" alt="Default" />
+                }
+                <!-- Género Badge -->
+                <div class="absolute bottom-1 right-1 w-6 h-6 rounded-lg bg-white shadow-sm flex items-center justify-center border border-slate-100">
+                    @if (Model.Genero == "Masculino") { <i data-lucide="mars" class="w-3 h-3 text-blue-500"></i> }
+                    else if (Model.Genero == "Femenino") { <i data-lucide="venus" class="w-3 h-3 text-pink-500"></i> }
+                    else { <i data-lucide="user" class="w-3 h-3 text-slate-400"></i> }
+                </div>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xl font-display font-black text-slate-900 truncate leading-tight">@Model.NombreCompleto</h2>
+                <div class="flex flex-col gap-1 mt-2">
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <i data-lucide="id-card" class="w-3 h-3"></i>
+                        <span>@(Model.Dni ?? "S/DNI")</span>
                     </div>
-
-                    <h2 class="text-2xl font-display font-bold text-slate-950 tracking-tight mb-2">@Model.NombreCompleto</h2>
-                    
-                    <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
-                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest @(Model.Role?.Nombre == AppRoles.Admin ? "bg-rose-50 text-rose-700 border border-rose-100" : Model.Role?.Nombre == "Empleado" ? "bg-amber-50 text-amber-700 border border-amber-100" : "bg-indigo-50 text-indigo-700 border border-indigo-100")">
-                            @Model.Role?.Nombre
-                        </span>
-                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest @(Model.Estado == true ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-rose-50 text-rose-700 border border-rose-100")">
-                            @(Model.Estado == true ? "Socio Activo" : "Socio Inactivo")
-                        </span>
-                    </div>
-
-                    <!-- Datos Detallados -->
-                    <div class="space-y-4 text-left bg-slate-50/80 rounded-3xl p-6 border border-slate-100">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 shadow-sm">
-                                <i data-lucide="id-card" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">DNI / Identificación</p>
-                                <p class="text-sm font-bold text-slate-900 font-mono">@(Model.Dni ?? "No registrado")</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 shadow-sm">
-                                <i data-lucide="phone" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Teléfono Movil</p>
-                                <p class="text-sm font-bold text-slate-900">@(Model.Telefono ?? "No registrado")</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 shadow-sm">
-                                <i data-lucide="mail" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Email de Contacto</p>
-                                <p class="text-sm font-bold text-slate-900 truncate max-w-[180px]">@(Model.Email ?? "No registrado")</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center border border-slate-200 shadow-sm">
-                                <i data-lucide="calendar" class="w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Fecha de Registro</p>
-                                <p class="text-sm font-bold text-slate-900">@(Model.FechaRegistro?.ToString("dd 'de' MMMM, yyyy") ?? "Desconocida")</p>
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <i data-lucide="phone" class="w-3 h-3"></i>
+                        <span>@(Model.Telefono ?? "S/TEL")</span>
                     </div>
                 </div>
             </div>
-        </aside>
+        </div>
 
-        <!-- Columna Derecha: Membresías -->
-        <main class="lg:col-span-2 space-y-8">
-            <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
-                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-sm">
-                            <i data-lucide="clipboard-list" class="w-6 h-6"></i>
-                        </div>
-                        <h2 class="text-xl font-display font-bold text-slate-950 tracking-tight m-0">Historial de Membresías</h2>
+        <!-- Card 2: Plan Actual -->
+        <div class="md:col-span-1 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col items-center justify-center text-center">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Plan Suscrito</p>
+            @{
+                var memActiva = Model.Membresias.FirstOrDefault(m => m.Estado == "Activa");
+                if (memActiva != null)
+                {
+                    <div class="flex items-center gap-3 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-100 mb-2">
+                        <i data-lucide="zap" class="w-4 h-4 fill-emerald-500"></i>
+                        <span class="text-sm font-black uppercase">@memActiva.NombrePlan</span>
                     </div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">@((Model.Membresia?.Count ?? 0)) registros</span>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Vence el @memActiva.FechaVencimiento</p>
+                }
+                else
+                {
+                    <div class="flex items-center gap-3 bg-slate-50 text-slate-400 px-4 py-2 rounded-xl border border-slate-200 mb-2">
+                        <i data-lucide="inbox" class="w-4 h-4"></i>
+                        <span class="text-sm font-black uppercase tracking-widest">Sin Plan Activo</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No registra suscripción vigente</p>
+                }
+            }
+        </div>
+
+        <!-- Card 3: Status / Acceso -->
+        <div class="md:col-span-1 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col items-center justify-center text-center">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Estado de Acceso</p>
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col items-center gap-1">
+                    <div class="w-12 h-12 rounded-full border-4 border-slate-50 flex items-center justify-center @(Model.Estado ? "bg-emerald-500" : "bg-rose-500") shadow-lg">
+                        <i data-lucide="@(Model.Estado ? "check" : "x")" class="w-6 h-6 text-white font-bold"></i>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-widest mt-1 @(Model.Estado ? "text-emerald-600" : "text-rose-600")">@(Model.Estado ? "Autorizado" : "Bloqueado")</span>
                 </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50/50 border-b border-slate-100">
-                                <th class="px-8 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Plan Suscrito</th>
-                                <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Inicio / Fin</th>
-                                <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Estado</th>
-                                <th class="px-8 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Detalles</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100/80">
-                            @if (Model.Membresia != null && Model.Membresia.Any())
-                            {
-                                @foreach (var membership in Model.Membresia.OrderByDescending(m => m.FechaVencimiento))
-                                {
-                                    bool isExpired = membership.FechaVencimiento < DateOnly.FromDateTime(DateTime.Today);
-                                    <tr class="group hover:bg-slate-50/50 transition-colors">
-                                        <td class="px-8 py-4">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center border border-slate-200 group-hover:bg-white group-hover:text-indigo-600 group-hover:border-indigo-100 transition-all">
-                                                    <i data-lucide="zap" class="w-5 h-5"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="text-sm font-bold text-slate-900">@membership.Plan?.Nombre</div>
-                                                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Membresía</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex flex-col gap-0.5">
-                                                <div class="text-xs font-bold text-slate-700">@membership.FechaInicio.ToString("dd/MM/yyyy") - @membership.FechaVencimiento.ToString("dd/MM/yyyy")</div>
-                                                @if (!isExpired)
-                                                {
-                                                    var dias = membership.FechaVencimiento.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber;
-                                                    <div class="flex items-center gap-1 @(dias <= 3 ? "text-rose-500" : dias <= 7 ? "text-amber-500" : "text-emerald-500")">
-                                                        <i data-lucide="history" class="w-3 h-3"></i>
-                                                        <span class="text-[10px] font-bold uppercase tracking-wider">Restan @dias días</span>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="text-rose-500 flex items-center gap-1 opacity-60">
-                                                        <i data-lucide="calendar-x" class="w-3 h-3"></i>
-                                                        <span class="text-[10px] font-bold uppercase tracking-wider">Venció hace @(DateOnly.FromDateTime(DateTime.Today).DayNumber - membership.FechaVencimiento.DayNumber) días</span>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            @if (!isExpired)
-                                            {
-                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                    Activa
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">
-                                                    Vencida
-                                                </span>
-                                            }
-                                        </td>
-                                        <td class="px-8 py-4 text-right">
-                                            <button class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
-                                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="4" class="px-8 py-20 text-center">
-                                        <div class="max-w-xs mx-auto">
-                                            <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                                                <i data-lucide="inbox" class="text-slate-300 w-8 h-8"></i>
-                                            </div>
-                                            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-2">Sin Historial</h3>
-                                            <p class="text-xs text-slate-500 leading-relaxed font-medium">Este socio aún no cuenta con registros de membresías vinculadas a su cuenta.</p>
+                <div class="h-10 w-px bg-slate-100"></div>
+                <div class="text-left">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">PIN de Acceso</p>
+                    <p class="text-lg font-display font-black text-slate-900 tracking-[0.2em]">@(Model.PinAcceso ?? "----")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido Inferior (Tabs y Listado) -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- Tabs Navigation Minimal -->
+        <div class="flex items-center gap-6 px-8 border-b border-slate-100 bg-slate-50/30">
+            <button @@click="activeTab = 'perfil'" :class="activeTab === 'perfil' ? 'text-indigo-600 border-indigo-600' : 'text-slate-400 border-transparent hover:text-slate-600'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all">
+                Detalles CRM
+            </button>
+            <button @@click="activeTab = 'membresias'" :class="activeTab === 'membresias' ? 'text-indigo-600 border-indigo-600' : 'text-slate-400 border-transparent hover:text-slate-600'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all">
+                Historial Membresías
+            </button>
+            <button @@click="activeTab = 'restricciones'" :class="activeTab === 'restricciones' ? 'text-indigo-600 border-indigo-600' : 'text-slate-400 border-transparent hover:text-slate-600'" class="py-4 border-b-2 font-black text-[10px] uppercase tracking-widest transition-all relative">
+                Trazabilidad
+                @if (Model.Restricciones.Any(r => r.EstadoActiva))
+                {
+                    <span class="absolute top-3 -right-2 w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
+                }
+            </button>
+        </div>
+
+        <!-- TAB: PERFIL / CRM -->
+        <div x-show="activeTab === 'perfil'" class="p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <!-- Datos demográficos -->
+                <div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-6">
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Origen</p>
+                        <p class="text-xs font-black text-slate-700">@(Model.Origen ?? "N/A")</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">WhatsApp</p>
+                        <p class="text-xs font-black text-slate-700">@(Model.WhatsApp ?? "N/A")</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Estado Civil</p>
+                        <p class="text-xs font-black text-slate-700">@(Model.EstadoCivil ?? "N/A")</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Nacimiento</p>
+                        <p class="text-xs font-black text-slate-700">@(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Ocupación</p>
+                        <p class="text-xs font-black text-slate-700">@(Model.Ocupacion ?? "N/A")</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Dirección</p>
+                        <p class="text-xs font-black text-slate-700 truncate" title="@Model.Direccion">@(Model.Direccion ?? "N/A")</p>
+                    </div>
+                </div>
+                <!-- Notas -->
+                <div class="lg:col-span-4 bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="sticky-note" class="w-3 h-3"></i>
+                        Notas Administrativas
+                    </p>
+                    <p class="text-xs font-medium text-slate-600 leading-relaxed italic">
+                        @(string.IsNullOrEmpty(Model.Nota) ? "Sin anotaciones en este expediente." : Model.Nota)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: MEMBRESIAS -->
+        <div x-show="activeTab === 'membresias'" class="overflow-x-auto">
+            <table class="w-full border-collapse text-left">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-8 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Plan Suscrito</th>
+                        <th class="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Vigencia</th>
+                        <th class="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Estado</th>
+                        <th class="px-8 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @if (Model.Membresias.Any())
+                    {
+                        @foreach (var mem in Model.Membresias)
+                        {
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-8 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+                                            <i data-lucide="zap" class="w-4 h-4"></i>
                                         </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+                                        <div>
+                                            <p class="text-xs font-black text-slate-900">@mem.NombrePlan</p>
+                                            <p class="text-[9px] font-bold text-slate-500 uppercase">@mem.NombreTurno</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-xs font-black text-slate-700">@mem.FechaInicio — @mem.FechaVencimiento</p>
+                                    @if (mem.Estado == "Activa") { <p class="text-[9px] font-bold text-emerald-600 uppercase">Quedan @mem.DiasRestantes días</p> }
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest @(mem.Estado == "Activa" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-slate-100 text-slate-400")">
+                                        @mem.Estado
+                                    </span>
+                                </td>
+                                <td class="px-8 py-4 text-right">
+                                    <button class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 transition-all shadow-sm">
+                                        <i data-lucide="eye" class="w-3.5 h-3.5 mx-auto"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="px-8 py-20 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sin registros</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TAB: RESTRICCIONES -->
+        <div x-show="activeTab === 'restricciones'" class="overflow-x-auto">
+             <table class="w-full border-collapse text-left">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-8 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Motivo / Tipo</th>
+                        <th class="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Responsable</th>
+                        <th class="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Fecha</th>
+                        <th class="px-8 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @if (Model.Restricciones.Any())
+                    {
+                        @foreach (var res in Model.Restricciones)
+                        {
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-8 py-4">
+                                    <p class="text-xs font-black text-slate-900">@res.TipoRestriccion</p>
+                                    <p class="text-[10px] font-medium text-slate-500">@res.Descripcion</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-xs font-black text-slate-700">@res.UsuarioAplicadorNombre</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-xs font-black text-slate-900">@res.FechaAplicacion.ToString("dd/MM/yyyy")</p>
+                                </td>
+                                <td class="px-8 py-4 text-right">
+                                    @if (res.EstadoActiva) {
+                                        @if (User.HasClaim(TipoClaim.Permiso, AppPermisos.UsuariosEditar) || User.IsInRole(AppRoles.Admin)) {
+                                            <button onclick="levantarRestriccion(@res.Id)" class="px-3 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-100 text-[9px] font-black uppercase tracking-widest">Levantar</button>
+                                        } else { <span class="text-[9px] font-black text-rose-600 uppercase">Activo</span> }
+                                    } else { <span class="text-[9px] font-black text-slate-300 uppercase italic">Inactivo</span> }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="px-8 py-20 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sin restricciones</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+<!-- Modal: Aplicar Restricción -->
+<div x-data="{ open: false, userId: 0 }" 
+     @@open-modal-restriccion.window="open = true; userId = $event.detail.userId"
+     x-show="open" 
+     class="fixed inset-0 z-[100] overflow-y-auto" 
+     style="display: none;">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm transition-opacity" @@click="open = false"></div>
+        <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" class="relative bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200">
+            <div class="p-8 text-left">
+                <h3 class="text-xl font-display font-black text-slate-900 mb-6 uppercase tracking-tight">Aplicar Restricción</h3>
+                <form onsubmit="submitRestriccion(event)">
+                    <input type="hidden" name="userId" :value="userId" />
+                    <div class="space-y-4">
+                        <select name="tipo" required class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-[10px] font-black uppercase tracking-widest">
+                            <option value="Conducta">Conducta</option>
+                            <option value="Higiene">Higiene</option>
+                            <option value="Pago">Deuda</option>
+                            <option value="Seguridad">Seguridad</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                        <textarea name="descripcion" required rows="3" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium" placeholder="Motivo del bloqueo..."></textarea>
+                    </div>
+                    <div class="mt-8 flex gap-3">
+                        <button type="button" @@click="open = false" class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest">Cancelar</button>
+                        <button type="submit" class="flex-1 py-3 rounded-xl bg-rose-600 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-rose-100">Bloquear</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function submitRestriccion(e) {
+            e.preventDefault();
+            fetch('@Url.Action("AplicarRestriccion", "Usuarios")', { method: 'POST', body: new FormData(e.target) })
+            .then(res => res.json()).then(data => {
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Bloqueado', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-2xl border-0 shadow-2xl' } })
+                    .then(() => window.location.reload());
+                } else Swal.fire('Error', data.message, 'error');
+            });
+        }
+        function levantarRestriccion(id) {
+            Swal.fire({ title: '¿Levantar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#10b981', cancelButtonColor: '#f43f5e', customClass: { popup: 'rounded-2xl border-0 shadow-2xl' } })
+            .then((result) => {
+                if (result.isConfirmed) {
+                    fetch('@Url.Action("LevantarRestriccion", "Usuarios")/' + id, { method: 'POST' })
+                    .then(res => res.json()).then(data => { if (data.success) window.location.reload(); });
+                }
+            });
+        }
+        function editarUsuario(id) { window.location.href = '@Url.Action("Index", "Usuarios")?id=' + id + '&openEdit=true'; }
+    </script>
+}
+
+<style>
+    [x-cloak] { display: none !important; }
+    .font-display { font-family: 'Outfit', sans-serif; }
+</style>
