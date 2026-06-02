@@ -368,7 +368,10 @@ namespace GymApp.Controllers
                 {
                     return Json(new { success = true, data = data });
                 }
-                return Json(new { success = false, message = "No se encontraron datos para el DNI ingresado." });
+                
+                // Mostrar el mensaje real de error de la API (ej: "API Key inválida")
+                var errorMsg = data?.Mensaje ?? "No se encontraron datos para el DNI ingresado.";
+                return Json(new { success = false, message = errorMsg });
             }
             catch (Exception ex)
             {

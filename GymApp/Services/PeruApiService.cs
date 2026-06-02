@@ -18,14 +18,13 @@ namespace GymApp.Services
         {
             try
             {
+                dni = dni.Trim();
                 var apiKey = Environment.GetEnvironmentVariable("PERU_API_KEY") ?? _configuration["PeruApi:ApiKey"];
                 if (string.IsNullOrEmpty(apiKey))
                 {
-                    throw new Exception("API Key de PeruAPI no configurada.");
+                    return new PeruApiDniResponse { Mensaje = "API Key no configurada", Code = "401" };
                 }
 
-                // Usamos la variante por query string para mayor simplicidad en el HttpClient si se prefiere,
-                // pero la documentación recomienda cabecera.
                 var request = new HttpRequestMessage(HttpMethod.Get, $"https://peruapi.com/api/dni/{dni}");
                 request.Headers.Add("X-API-KEY", apiKey);
 
@@ -35,12 +34,18 @@ namespace GymApp.Services
                 {
                     return await response.Content.ReadFromJsonAsync<PeruApiDniResponse>();
                 }
-
-                return null;
+                
+                // Intentar leer el error si existe
+                var errorContent = await response.Content.ReadAsStringAsync();
+                return new PeruApiDniResponse 
+                { 
+                    Mensaje = $"Error API: {response.StatusCode} - {errorContent}", 
+                    Code = ((int)response.StatusCode).ToString() 
+                };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return null;
+                return new PeruApiDniResponse { Mensaje = $"Excepción: {ex.Message}", Code = "500" };
             }
         }
     }

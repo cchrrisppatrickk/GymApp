@@ -11,6 +11,29 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- CARGAR VARIABLES DESDE .ENV (MANUAL) ---
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(envPath))
+{
+    foreach (var line in File.ReadAllLines(envPath))
+    {
+        var trimmedLine = line.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedLine) || trimmedLine.StartsWith("#")) continue;
+        
+        // Soportar tanto '=' como ':' por si el usuario copió de documentación
+        char[] separators = { '=', ':' };
+        var parts = trimmedLine.Split(separators, 2);
+        
+        if (parts.Length == 2)
+        {
+            var key = parts[0].Trim();
+            var value = parts[1].Trim();
+            Environment.SetEnvironmentVariable(key, value);
+        }
+    }
+}
+// --------------------------------------------
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
