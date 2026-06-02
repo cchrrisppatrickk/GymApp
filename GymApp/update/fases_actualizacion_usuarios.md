@@ -61,3 +61,9 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 ### Fase 4.3: Ajustes Globales y Validación
 - [x] **Integración en Listados:** Mejoras visuales en el Index para reflejar estados o accesos rápidos.
 - [ ] **Validación Final:** Pruebas de flujo completo de usuario (Crear -> Editar -> Detalle -> Restringir).
+
+### Fase 4.4: Integración API DNI (Autocompletado)
+- [ ] **Configuración Segura:** Almacenamiento de API Key de `peruapi.com` en entorno (`.env`).
+- [ ] **Servicio de Consulta:** Implementación de `PeruApiService` para consumo del endpoint REST.
+- [ ] **Endpoint Interno:** Crear proxy en `UsuariosController` para evitar exponer la key en el cliente.
+- [ ] **Interfaz de Usuario:** Botón de consulta rápida en el formulario de registro para autocompletar nombres y apellidos.
