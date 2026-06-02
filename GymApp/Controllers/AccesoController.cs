@@ -38,10 +38,35 @@ namespace GymApp.Controllers
             var usuario = await _context.Usuarios
                 .Include(u => u.Membresia)
                 .ThenInclude(m => m.Plan)
+                .Include(u => u.Restricciones)
                 .FirstOrDefaultAsync(u => u.CodigoQr == qrGuid);
 
             if (usuario == null)
                 return Json(new { success = false, message = "Usuario no encontrado" });
+
+            // 1.5 Verificar Restricciones de Seguridad
+            var restriccionActiva = usuario.Restricciones.FirstOrDefault(r => r.EstadoActiva);
+            if (restriccionActiva != null)
+            {
+                // Registrar intento fallido por restricción
+                var asistenciaFallo = new Asistencia
+                {
+                    UserId = usuario.UserId,
+                    FechaHora = DateTime.Now,
+                    AccesoPermitido = false,
+                    MotivoDenegacion = $"BLOQUEADO: {restriccionActiva.TipoRestriccion}"
+                };
+                _context.Asistencias.Add(asistenciaFallo);
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = false,
+                    nombre = usuario.NombreCompleto,
+                    mensaje = $"ACCESO DENEGADO: {restriccionActiva.TipoRestriccion}",
+                    motivo = restriccionActiva.Descripcion
+                });
+            }
 
             // 2. Buscar Membresía Activa (La que vence en el futuro)
             var membresia = usuario.Membresia

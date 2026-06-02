@@ -253,7 +253,7 @@ namespace GymApp.Services
                 Origen = dto.Origen,
                 Ocupacion = dto.Ocupacion,
                 Nota = dto.Nota,
-                PinAcceso = string.IsNullOrWhiteSpace(dto.PinAcceso) ? await GenerarPinAccesoAsync() : dto.PinAcceso,
+                PinAcceso = await GenerarPinAccesoAsync(), // Siempre generado automáticamente
                 NombreUsuario = dto.NombreUsuario,
                 Estado = true
             };
@@ -281,7 +281,7 @@ namespace GymApp.Services
             usuario.Origen = dto.Origen;
             usuario.Ocupacion = dto.Ocupacion;
             usuario.Nota = dto.Nota;
-            usuario.PinAcceso = dto.PinAcceso;
+            // usuario.PinAcceso = dto.PinAcceso; // Se elimina la actualización manual del PIN
             usuario.Estado = dto.Estado;
             usuario.NombreUsuario = dto.NombreUsuario;
 
@@ -310,6 +310,18 @@ namespace GymApp.Services
             } while (existe);
 
             return pin;
+        }
+
+        public async Task<string> RegenerarPinAsync(int userId)
+        {
+            var usuario = await _context.Usuarios.FindAsync(userId);
+            if (usuario == null) throw new Exception("Usuario no encontrado");
+
+            usuario.PinAcceso = await GenerarPinAccesoAsync();
+            await _usuarioRepository.UpdateAsync(usuario);
+            await _usuarioRepository.SaveAsync();
+
+            return usuario.PinAcceso;
         }
 
         public async Task<Usuario> CrearUsuarioAsync(Usuario usuario, string? passwordRaw, IFormFile? fotoArchivo = null, string? fotoBase64 = null)
@@ -355,6 +367,12 @@ namespace GymApp.Services
                 passwordFinal = !string.IsNullOrWhiteSpace(usuario.Dni) 
                                 ? usuario.Dni 
                                 : usuario.NombreUsuario;
+            }
+
+            // C. Generar PIN si no existe
+            if (string.IsNullOrWhiteSpace(usuario.PinAcceso))
+            {
+                usuario.PinAcceso = await GenerarPinAccesoAsync();
             }
             // ------------------------------------------
 

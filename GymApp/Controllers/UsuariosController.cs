@@ -223,7 +223,7 @@ namespace GymApp.Controllers
                         FechaNacimiento = model.FechaNacimiento,
                         Ocupacion = model.Ocupacion,
                         Nota = model.Nota,
-                        PinAcceso = model.PinAcceso,
+                        // PinAcceso = model.PinAcceso, // Se generará automáticamente en el Service
                         Estado = true,
                         NombreUsuario = model.NombreUsuario
                     };
@@ -264,7 +264,7 @@ namespace GymApp.Controllers
                     usuarioExistente.FechaNacimiento = model.FechaNacimiento;
                     usuarioExistente.Ocupacion = model.Ocupacion;
                     usuarioExistente.Nota = model.Nota;
-                    usuarioExistente.PinAcceso = model.PinAcceso;
+                    // usuarioExistente.PinAcceso = model.PinAcceso; // El PIN se gestiona automáticamente
                     usuarioExistente.Estado = model.Estado;
 
                     // Auditoría
@@ -334,6 +334,23 @@ namespace GymApp.Controllers
 
             byte[] imagenBytes = _usuarioService.GenerarImagenQR(usuario.CodigoQr.Value);
             return File(imagenBytes, "image/png");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegenerarPin(int id)
+        {
+            if (!TienePermiso(AppPermisos.UsuariosEditar))
+                return Json(new { success = false, message = "No tienes permiso para esta acción." });
+
+            try
+            {
+                string nuevoPin = await _usuarioService.RegenerarPinAsync(id);
+                return Json(new { success = true, pin = nuevoPin, message = "PIN regenerado exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

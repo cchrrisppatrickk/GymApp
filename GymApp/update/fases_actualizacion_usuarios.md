@@ -47,7 +47,7 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 - [x] **Estructura Base con Alpine.js:** Implementar sistema de pestañas (Tabs) en el modal de usuario.
 - [x] **Sección 1: Datos Personales:** Organizar Nombres, Apellidos, DNI y Foto/Webcam.
 - [x] **Sección 2: Demografía:** Implementar campos de WhatsApp, Dirección, Género, Estado Civil y Origen.
-- [x] **Sección 3: Acceso y Otros:** Gestión de PIN, Usuario/Password, Notas y Estado.
+- [x] **Sección 3: Acceso y Otros:** Gestión de PIN (Automatizado), Usuario/Password, Notas y Estado.
 - [x] **Integración AJAX:** Sincronizar el guardado y carga de datos con los nuevos campos del backend.
 
 ### Fase 4.2: Perfil del Socio (Vista de Detalles)
@@ -56,6 +56,7 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 - [x] **Historial de Restricciones:** Tabla interactiva para visualizar limitaciones pasadas y presentes.
 - [x] **Gestión Activa:** Modales para aplicar nuevas restricciones y funcionalidad para levantarlas.
 - [x] **Integración de Membresías:** Visualización del historial de planes del socio directamente en el expediente.
+- [x] **PIN Automático:** Generación única y aleatoria de PIN al registrar socios (Eliminación de entrada manual).
 
 ### Fase 4.3: Ajustes Globales y Validación
 - [x] **Integración en Listados:** Mejoras visuales en el Index para reflejar estados o accesos rápidos.

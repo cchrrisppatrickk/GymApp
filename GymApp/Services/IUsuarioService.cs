@@ -34,6 +34,7 @@ namespace GymApp.Services
         Task<List<string>> ObtenerPermisosUsuarioAsync(int userId);
         Task ActualizarPermisosUsuarioAsync(int userId, string[] permisos);
         Task<string> GenerarPinAccesoAsync();
+        Task<string> RegenerarPinAsync(int userId);
 
         // Funciones Extra
         byte[] GenerarImagenQR(Guid codigoQR); // Devuelve la imagen en bytes

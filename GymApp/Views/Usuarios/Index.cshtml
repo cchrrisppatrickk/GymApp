@@ -490,13 +490,24 @@
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label for="PinAcceso" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">PIN de Acceso Rápido (4-6 dígitos)</label>
-                                    <div class="relative">
-                                        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
                                             <i data-lucide="hash" class="w-4 h-4"></i>
                                         </div>
-                                        <input type="text" maxlength="6" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl pl-11 pr-4 py-3 text-sm font-bold tracking-[0.5em] text-slate-900 transition-all" id="PinAcceso" placeholder="****" />
+                                        <span class="text-[10px] font-bold text-slate-950 uppercase tracking-widest">PIN de Acceso</span>
+                                    </div>
+                                    <p class="text-[10px] font-medium text-slate-500 leading-relaxed">
+                                        El PIN se genera automáticamente al crear el usuario. Se utiliza para el registro rápido en la entrada.
+                                    </p>
+                                    <div id="displayPinContenedor" class="mt-3 hidden">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">PIN Actual:</p>
+                                            <button type="button" onclick="regenerarPin()" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest">
+                                                Regenerar Nuevo
+                                            </button>
+                                        </div>
+                                        <p id="displayPin" class="text-xl font-display font-black text-indigo-600 tracking-[0.3em]"></p>
                                     </div>
                                 </div>
                             </div>
@@ -552,7 +563,6 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         var modalUsuario, modalQR;
         let webcamStream = null;
@@ -750,9 +760,10 @@
             document.getElementById('formUsuario').reset();
             document.getElementById('UserId').value = "0";
             
-            // Resetear tab de Alpine.js si es necesario (vía dispatch o directamente si el scope lo permite)
-            // En este caso, al ser un modal de BS que se muestra, Alpine lo reiniciará si el componente se monta/desmonta, 
-            // pero como persiste en el DOM, forzamos el estado si es posible.
+            // Ocultar PIN en creación (se genera en el server)
+            document.getElementById('displayPinContenedor').classList.add('hidden');
+            
+            // Resetear tab de Alpine.js si es necesario
             const modalEl = document.querySelector('[x-data]');
             if (modalEl && modalEl.__x) {
                 modalEl.__x.$data.tab = 'personales';
@@ -795,10 +806,19 @@
                         document.getElementById('EstadoCivil').value = d.estadoCivil || "";
                         document.getElementById('Ocupacion').value = d.ocupacion || "";
                         document.getElementById('Nota').value = d.nota || "";
-                        document.getElementById('PinAcceso').value = d.pinAcceso || "";
                         document.getElementById('NombreUsuario').value = d.nombreUsuario || "";
                         document.getElementById('Password').value = ""; // No mostrar contraseña actual
                         document.getElementById('Estado').checked = d.estado;
+
+                        // Mostrar PIN (Solo lectura)
+                        const pinContenedor = document.getElementById('displayPinContenedor');
+                        const pinLabel = document.getElementById('displayPin');
+                        if (d.pinAcceso) {
+                            pinLabel.innerText = d.pinAcceso;
+                            pinContenedor.classList.remove('hidden');
+                        } else {
+                            pinContenedor.classList.add('hidden');
+                        }
 
                         // Manejo de fecha (DateOnly viene como YYYY-MM-DD)
                         if (d.fechaNacimiento) {
@@ -848,7 +868,7 @@
             formData.append("FechaNacimiento", document.getElementById("FechaNacimiento").value);
             formData.append("Ocupacion", document.getElementById("Ocupacion").value);
             formData.append("Nota", document.getElementById("Nota").value);
-            formData.append("PinAcceso", document.getElementById("PinAcceso").value);
+            // El PIN ya no se envía desde el cliente
             formData.append("NombreUsuario", document.getElementById("NombreUsuario").value);
             formData.append("Password", document.getElementById("Password").value);
             formData.append("Estado", document.getElementById("Estado").checked);
@@ -930,6 +950,37 @@
             const img = document.getElementById('imgQR');
             img.src = `/Usuarios/ObtenerQR/${id}?t=${new Date().getTime()}`;
             modalQR.show();
+        }
+
+        function regenerarPin() {
+            const userId = document.getElementById('UserId').value;
+            if (userId === "0") return;
+
+            Swal.fire({
+                title: '¿Regenerar PIN?',
+                text: "Se anulará el PIN actual y se creará uno nuevo.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, generar nuevo',
+                customClass: { popup: 'rounded-[2rem] border-0 shadow-2xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Usuarios/RegenerarPin', { id: userId }, function(res) {
+                        if (res.success) {
+                            document.getElementById('displayPin').innerText = res.pin;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡PIN Actualizado!',
+                                text: 'El nuevo PIN es: ' + res.pin,
+                                timer: 3000,
+                                customClass: { popup: 'rounded-[2rem] border-0 shadow-2xl' }
+                            });
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    });
+                }
+            });
         }
     </script>
 }
