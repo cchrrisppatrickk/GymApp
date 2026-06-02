@@ -44,11 +44,11 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 
 ## Fase 4: Capa de Presentación (UI)
 ### Fase 4.1: Rediseño de Formularios (Crear/Editar)
-- [ ] **Estructura Base con Alpine.js:** Implementar sistema de pestañas (Tabs) en el modal de usuario.
-- [ ] **Sección 1: Datos Personales:** Organizar Nombres, Apellidos, DNI y Foto/Webcam.
-- [ ] **Sección 2: Demografía:** Implementar campos de WhatsApp, Dirección, Género, Estado Civil y Origen.
-- [ ] **Sección 3: Acceso y Otros:** Gestión de PIN, Usuario/Password, Notas y Estado.
-- [ ] **Integración AJAX:** Sincronizar el guardado y carga de datos con los nuevos campos del backend.
+- [x] **Estructura Base con Alpine.js:** Implementar sistema de pestañas (Tabs) en el modal de usuario.
+- [x] **Sección 1: Datos Personales:** Organizar Nombres, Apellidos, DNI y Foto/Webcam.
+- [x] **Sección 2: Demografía:** Implementar campos de WhatsApp, Dirección, Género, Estado Civil y Origen.
+- [x] **Sección 3: Acceso y Otros:** Gestión de PIN, Usuario/Password, Notas y Estado.
+- [x] **Integración AJAX:** Sincronizar el guardado y carga de datos con los nuevos campos del backend.
 
 ### Fase 4.2: Perfil del Socio (Vista de Detalles)
 - [ ] **Layout CRM:** Diseño moderno de tarjetas para organizar la información demográfica y de contacto.
@@ -57,5 +57,5 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 - [ ] **Gestión Activa:** Modales para aplicar nuevas restricciones y funcionalidad para levantarlas.
 
 ### Fase 4.3: Ajustes Globales y Validación
-- [ ] **Integración en Listados:** Mejoras visuales en el Index para reflejar estados o accesos rápidos.
+- [x] **Integración en Listados:** Mejoras visuales en el Index para reflejar estados o accesos rápidos.
 - [ ] **Validación Final:** Pruebas de flujo completo de usuario (Crear -> Editar -> Detalle -> Restringir).

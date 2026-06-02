@@ -106,8 +106,9 @@
                 <thead>
                     <tr class="bg-slate-50/50 border-b border-slate-100">
                         <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Socio / Cliente</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Rol</th>
-                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">DNI</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Contacto</th>
+                        <th class="px-6 py-4 text-left text-[10px] font-bold text-slate-600 uppercase tracking-widest">Rol / Origen</th>
+                        <th class="px-6 py-4 text-center text-[10px] font-bold text-slate-600 uppercase tracking-widest">Estado</th>
                         <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">Acciones</th>
                     </tr>
                 </thead>
@@ -117,28 +118,83 @@
                         <tr class="group hover:bg-slate-50/50 transition-colors">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm border border-indigo-100/50 transition-transform group-hover:scale-110">
-                                        @item.NombreCompleto.Substring(0, 1).ToUpper()
+                                    <div class="relative">
+                                        @if (!string.IsNullOrEmpty(item.FotoBase64))
+                                        {
+                                            <img src="/gym_data/fotos_usuarios/@item.FotoBase64" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm transition-transform group-hover:scale-110" alt="Avatar" />
+                                        }
+                                        else
+                                        {
+                                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm border border-indigo-100/50 transition-transform group-hover:scale-110">
+                                                @item.NombreCompleto.Substring(0, 1).ToUpper()
+                                            </div>
+                                        }
+                                        @if (item.Estado)
+                                        {
+                                            <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full shadow-sm"></div>
+                                        }
                                     </div>
                                     <div>
                                         <div class="text-sm font-bold text-slate-950 tracking-tight">@item.NombreCompleto</div>
-                                        <div class="text-[10px] font-medium text-slate-600 uppercase tracking-wider">Gym Member</div>
+                                        <div class="text-[10px] font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                                            <i data-lucide="credit-card" class="w-3 h-3"></i>
+                                            @(string.IsNullOrEmpty(item.Dni) ? "S/DNI" : item.Dni)
+                                        </div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-100/50">
-                                    @item.NombreRol
-                                </span>
+                                <div class="flex flex-col gap-1">
+                                    @if (!string.IsNullOrEmpty(item.Email))
+                                    {
+                                        <div class="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                                            <i data-lucide="mail" class="w-3 h-3 text-slate-400"></i>
+                                            @item.Email
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.WhatsApp))
+                                    {
+                                        <a href="https://wa.me/@item.WhatsApp.Replace(" ", "").Replace("+", "")" target="_blank" class="flex items-center gap-1.5 text-xs text-emerald-600 font-bold hover:underline">
+                                            <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                            @item.WhatsApp
+                                        </a>
+                                    }
+                                    else if (!string.IsNullOrEmpty(item.Telefono))
+                                    {
+                                        <div class="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                                            <i data-lucide="phone" class="w-3 h-3 text-slate-400"></i>
+                                            @item.Telefono
+                                        </div>
+                                    }
+                                </div>
                             </td>
                             <td class="px-6 py-4">
-                                @if (string.IsNullOrEmpty(item.Dni))
+                                <div class="flex flex-col gap-1">
+                                    <span class="inline-flex items-center w-fit px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-100/50">
+                                        @item.NombreRol
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(item.Origen))
+                                    {
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">
+                                            via @item.Origen
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                @if (item.Estado)
                                 {
-                                    <span class="text-xs font-medium text-slate-500 italic">No registrado</span>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/50">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Activo
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="text-xs font-bold text-slate-600 font-mono">@item.Dni</span>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100/50">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                        Inactivo
+                                    </span>
                                 }
                             </td>
                             <td class="px-6 py-4 text-right">
@@ -237,120 +293,269 @@
 <!-- MODAL DE GESTIÓN (UPSERT) -->
 <!-- ========================= -->
 <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden">
-            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                    <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight" id="tituloModal">Usuario</h5>
-                    <p class="text-slate-700 text-xs font-medium uppercase tracking-widest mt-1">Gestión de datos personales</p>
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-white rounded-[2rem] border-0 shadow-2xl overflow-hidden" x-data="{ tab: 'personales' }">
+            <!-- Header con Tabs -->
+            <div class="px-8 pt-6 border-b border-slate-100 bg-white sticky top-0 z-10">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h5 class="text-xl font-display font-bold text-slate-950 tracking-tight" id="tituloModal">Usuario</h5>
+                        <p class="text-slate-700 text-xs font-medium uppercase tracking-widest mt-1">Gestión de datos de cliente y acceso</p>
+                    </div>
+                    <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-600 transition-colors" data-bs-dismiss="modal" aria-label="Close">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
                 </div>
-                <button type="button" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-600 transition-colors" data-bs-dismiss="modal" aria-label="Close">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
+
+                <!-- Navegación de Pestañas -->
+                <div class="flex gap-8 overflow-x-auto no-scrollbar">
+                    <button @@click="tab = 'personales'" :class="tab === 'personales' ? 'text-indigo-600 border-indigo-600' : 'text-slate-500 border-transparent hover:text-slate-700'" class="pb-4 border-b-2 font-bold text-xs uppercase tracking-widest transition-all whitespace-nowrap">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                            Datos Personales
+                        </span>
+                    </button>
+                    <button @@click="tab = 'demografia'" :class="tab === 'demografia' ? 'text-indigo-600 border-indigo-600' : 'text-slate-500 border-transparent hover:text-slate-700'" class="pb-4 border-b-2 font-bold text-xs uppercase tracking-widest transition-all whitespace-nowrap">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            Contacto y Demografía
+                        </span>
+                    </button>
+                    <button @@click="tab = 'acceso'" :class="tab === 'acceso' ? 'text-indigo-600 border-indigo-600' : 'text-slate-500 border-transparent hover:text-slate-700'" class="pb-4 border-b-2 font-bold text-xs uppercase tracking-widest transition-all whitespace-nowrap">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i>
+                            Acceso y Configuración
+                        </span>
+                    </button>
+                </div>
             </div>
-            <div class="p-8">
+
+            <div class="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                 <form id="formUsuario" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <input type="hidden" id="UserId" value="0" />
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Columna Izquierda -->
-                        <div class="space-y-5">
-                            <div>
-                                <label for="RoleId" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Rol del Usuario</label>
-                                <div class="relative">
-                                    <select id="RoleId" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" asp-items="rolesSelectList" required>
-                                        <option value="">-- Seleccione Rol --</option>
-                                    </select>
-                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600">
-                                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    <!-- Tab 1: Datos Personales -->
+                    <div x-show="tab === 'personales'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-5">
+                                <div>
+                                    <label for="RoleId" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Rol del Usuario</label>
+                                    <div class="relative">
+                                        <select id="RoleId" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" asp-items="rolesSelectList" required>
+                                            <option value="">-- Seleccione Rol --</option>
+                                        </select>
+                                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600">
+                                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                        </div>
                                     </div>
+                                </div>
+
+                                <div>
+                                    <label for="NombreCompleto" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Nombres (Nombre Completo)</label>
+                                    <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" id="NombreCompleto" required placeholder="Ej. Juan Manuel" />
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="ApellidoPaterno" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Apellido Paterno</label>
+                                        <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="ApellidoPaterno" placeholder="Ej. Pérez" />
+                                    </div>
+                                    <div>
+                                        <label for="ApellidoMaterno" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Apellido Materno</label>
+                                        <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="ApellidoMaterno" placeholder="Ej. Quispe" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="Dni" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">DNI / Identificación</label>
+                                    <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" id="Dni" placeholder="Opcional" />
                                 </div>
                             </div>
 
-                            <div>
-                                <label for="NombreCompleto" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Nombre Completo</label>
-                                <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" id="NombreCompleto" required placeholder="Ej. Juan Pérez" />
-                            </div>
+                            <div class="space-y-5">
+                                <!-- Webcam Capture Area -->
+                                <div class="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                                <i data-lucide="video" class="w-4 h-4"></i>
+                                            </div>
+                                            <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Foto de Perfil</span>
+                                        </div>
+                                        <input type="file" id="FotoArchivo" name="FotoArchivo" class="hidden" accept="image/*" />
+                                        <label for="FotoArchivo" class="cursor-pointer text-[10px] font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest">
+                                            Subir Archivo
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="relative bg-slate-900 rounded-xl overflow-hidden mb-4 shadow-inner aspect-[4/3] flex items-center justify-center">
+                                        <div id="camaraPlaceholder" class="text-center p-6 text-slate-700">
+                                            <i data-lucide="camera" class="w-10 h-10 mx-auto mb-2 opacity-20"></i>
+                                            <p class="text-[10px] font-bold uppercase tracking-widest">Cámara Desactivada</p>
+                                        </div>
+                                        <video id="videoWebcam" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
+                                        <img id="imgPrevisualizacion" src="" alt="Previsualización" class="absolute inset-0 w-full h-full object-cover hidden" />
+                                    </div>
 
-                            <div>
-                                <label for="Dni" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">DNI / Identificación</label>
-                                <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" id="Dni" placeholder="Opcional" />
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Foto de Perfil</label>
-                                <div class="relative group">
-                                    <input type="file" id="FotoArchivo" name="FotoArchivo" class="block w-full text-xs text-slate-700 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 transition-all cursor-pointer" accept="image/*" />
+                                    <div class="flex gap-2">
+                                        <button type="button" id="btnActivarCamara" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors text-[10px] font-bold uppercase tracking-widest" onclick="activarWebcam()">
+                                            <i data-lucide="video" class="w-3.5 h-3.5"></i> Activar
+                                        </button>
+                                        <button type="button" id="btnDesactivarCamara" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors text-[10px] font-bold uppercase tracking-widest hidden" onclick="desactivarWebcamManualmente()">
+                                            <i data-lucide="video-off" class="w-3.5 h-3.5"></i> Apagar
+                                        </button>
+                                        <button type="button" id="btnTomarFoto" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors text-[10px] font-bold uppercase tracking-widest hidden" onclick="tomarFotoWebcam()">
+                                            <i data-lucide="camera" class="w-3.5 h-3.5"></i> Capturar
+                                        </button>
+                                    </div>
+                                    <canvas id="canvasFoto" class="hidden"></canvas>
+                                    <input type="hidden" id="FotoBase64" name="FotoBase64" />
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Columna Derecha -->
-                        <div class="space-y-5">
-                            <div>
-                                <label for="Email" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Correo Electrónico</label>
-                                <input type="email" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" id="Email" placeholder="ejemplo@gym.com" />
-                            </div>
-
-                            <div>
-                                <label for="Telefono" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Teléfono</label>
-                                <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all placeholder:text-slate-600" id="Telefono" placeholder="+51 987..." />
-                            </div>
-
-                            <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                <label class="text-xs font-bold text-slate-600 uppercase tracking-widest" for="Estado">Usuario Activo</label>
-                                <div class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="Estado" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                                </div>
-                            </div>
-
-                            <!-- Webcam Capture Area -->
-                            <div class="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-4">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                                        <i data-lucide="video" class="w-4 h-4"></i>
+                    <!-- Tab 2: Contacto y Demografía -->
+                    <div x-show="tab === 'demografia'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-5">
+                                <div>
+                                    <label for="Email" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Correo Electrónico</label>
+                                    <div class="relative">
+                                        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                            <i data-lucide="mail" class="w-4 h-4"></i>
+                                        </div>
+                                        <input type="email" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-slate-900 transition-all" id="Email" placeholder="ejemplo@gym.com" />
                                     </div>
-                                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Capturar desde Webcam</span>
-                                </div>
-                                
-                                <!-- Viewport Container -->
-                                <div class="relative bg-slate-900 rounded-xl overflow-hidden mb-4 shadow-inner aspect-[4/3] flex items-center justify-center">
-                                    <!-- Placeholders -->
-                                    <div id="camaraPlaceholder" class="text-center p-6 transition-all duration-300 text-slate-700">
-                                        <i data-lucide="camera-off" class="w-10 h-10 mx-auto mb-2 opacity-20"></i>
-                                        <p class="text-[10px] font-bold uppercase tracking-widest">Cámara Desactivada</p>
-                                    </div>
-                                    
-                                    <!-- Video Stream (WebRTC) -->
-                                    <video id="videoWebcam" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
-                                    
-                                    <!-- Image Preview -->
-                                    <img id="imgPrevisualizacion" src="" alt="Previsualización" class="absolute inset-0 w-full h-full object-cover hidden" />
                                 </div>
 
-                                <!-- Controls -->
-                                <div class="flex gap-2">
-                                    <button type="button" id="btnActivarCamara" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors text-[10px] font-bold uppercase tracking-widest" onclick="activarWebcam()">
-                                        <i data-lucide="video" class="w-3.5 h-3.5"></i> Activar
-                                    </button>
-                                    <button type="button" id="btnDesactivarCamara" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors text-[10px] font-bold uppercase tracking-widest hidden" onclick="desactivarWebcamManualmente()">
-                                        <i data-lucide="video-off" class="w-3.5 h-3.5"></i> Apagar
-                                    </button>
-                                    <button type="button" id="btnTomarFoto" class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors text-[10px] font-bold uppercase tracking-widest hidden" onclick="tomarFotoWebcam()">
-                                        <i data-lucide="camera" class="w-3.5 h-3.5"></i> Capturar
-                                    </button>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="Telefono" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Teléfono</label>
+                                        <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="Telefono" placeholder="987654321" />
+                                    </div>
+                                    <div>
+                                        <label for="WhatsApp" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">WhatsApp</label>
+                                        <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="WhatsApp" placeholder="Opcional" />
+                                    </div>
                                 </div>
-                                
-                                <canvas id="canvasFoto" class="hidden"></canvas>
-                                <input type="hidden" id="FotoBase64" name="FotoBase64" />
+
+                                <div>
+                                    <label for="Direccion" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Dirección de Domicilio</label>
+                                    <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="Direccion" placeholder="Av. Principal 123..." />
+                                </div>
+
+                                <div>
+                                    <label for="FechaNacimiento" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Fecha de Nacimiento</label>
+                                    <input type="date" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="FechaNacimiento" />
+                                </div>
+                            </div>
+
+                            <div class="space-y-5">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="Genero" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Género</label>
+                                        <div class="relative">
+                                            <select id="Genero" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" asp-items="ViewBag.Generos">
+                                                <option value="">Seleccione</option>
+                                            </select>
+                                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600">
+                                                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="EstadoCivil" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Estado Civil</label>
+                                        <div class="relative">
+                                            <select id="EstadoCivil" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" asp-items="ViewBag.EstadosCiviles">
+                                                <option value="">Seleccione</option>
+                                            </select>
+                                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600">
+                                                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="Origen" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Origen / ¿Cómo nos conoció?</label>
+                                    <div class="relative">
+                                        <select id="Origen" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 appearance-none transition-all" asp-items="ViewBag.Origenes">
+                                            <option value="">Seleccione Origen</option>
+                                        </select>
+                                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-600">
+                                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="Ocupacion" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Ocupación / Profesión</label>
+                                    <input type="text" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="Ocupacion" placeholder="Ej. Estudiante, Ingeniero..." />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Acceso y Configuración -->
+                    <div x-show="tab === 'acceso'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-5">
+                                <div class="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 border-dashed">
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                                            <i data-lucide="key" class="w-4 h-4"></i>
+                                        </div>
+                                        <span class="text-[10px] font-bold text-indigo-950 uppercase tracking-widest">Credenciales de Acceso</span>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label for="NombreUsuario" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Nombre de Usuario</label>
+                                            <input type="text" class="w-full bg-white border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="NombreUsuario" placeholder="juan.perez" />
+                                        </div>
+                                        <div>
+                                            <label for="Password" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Contraseña</label>
+                                            <input type="password" class="w-full bg-white border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all" id="Password" placeholder="Dejar en blanco para no cambiar" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="PinAcceso" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">PIN de Acceso Rápido (4-6 dígitos)</label>
+                                    <div class="relative">
+                                        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                            <i data-lucide="hash" class="w-4 h-4"></i>
+                                        </div>
+                                        <input type="text" maxlength="6" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl pl-11 pr-4 py-3 text-sm font-bold tracking-[0.5em] text-slate-900 transition-all" id="PinAcceso" placeholder="****" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-5">
+                                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                            <i data-lucide="activity" class="w-4 h-4"></i>
+                                        </div>
+                                        <label class="text-xs font-bold text-slate-600 uppercase tracking-widest" for="Estado">Usuario Activo</label>
+                                    </div>
+                                    <div class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="Estado" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="Nota" class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">Notas Adicionales / Observaciones</label>
+                                    <textarea id="Nota" rows="4" class="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 transition-all resize-none" placeholder="Cualquier información relevante..."></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+            <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sticky bottom-0">
                 <button type="button" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold text-xs uppercase tracking-widest" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-600/20 transition-all active:scale-95 font-bold text-xs uppercase tracking-widest" onclick="guardarUsuario()">Guardar Datos</button>
             </div>
@@ -569,6 +774,14 @@
             document.getElementById('tituloModal').innerText = "Nuevo Usuario";
             document.getElementById('formUsuario').reset();
             document.getElementById('UserId').value = "0";
+            
+            // Resetear tab de Alpine.js si es necesario (vía dispatch o directamente si el scope lo permite)
+            // En este caso, al ser un modal de BS que se muestra, Alpine lo reiniciará si el componente se monta/desmonta, 
+            // pero como persiste en el DOM, forzamos el estado si es posible.
+            const modalEl = document.querySelector('[x-data]');
+            if (modalEl && modalEl.__x) {
+                modalEl.__x.$data.tab = 'personales';
+            }
 
             // Limpiar permisos
             document.querySelectorAll('.permiso-checkbox').forEach(cb => cb.checked = false);
@@ -582,6 +795,11 @@
             document.getElementById('tituloModal').innerText = "Editar Usuario";
             resetearEstadoCapturador();
 
+            const modalEl = document.querySelector('[x-data]');
+            if (modalEl && modalEl.__x) {
+                modalEl.__x.$data.tab = 'personales';
+            }
+
             fetch(`/Usuarios/GetUsuario/${id}`)
                 .then(res => res.json())
                 .then(response => {
@@ -590,10 +808,29 @@
                         document.getElementById('UserId').value = d.userId;
                         document.getElementById('RoleId').value = d.roleId;
                         document.getElementById('NombreCompleto').value = d.nombreCompleto;
-                        document.getElementById('Dni').value = d.dni;
-                        document.getElementById('Email').value = d.email;
-                        document.getElementById('Telefono').value = d.telefono;
+                        document.getElementById('ApellidoPaterno').value = d.apellidoPaterno || "";
+                        document.getElementById('ApellidoMaterno').value = d.apellidoMaterno || "";
+                        document.getElementById('Dni').value = d.dni || "";
+                        document.getElementById('Email').value = d.email || "";
+                        document.getElementById('Telefono').value = d.telefono || "";
+                        document.getElementById('WhatsApp').value = d.whatsApp || "";
+                        document.getElementById('Direccion').value = d.direccion || "";
+                        document.getElementById('Origen').value = d.origen || "";
+                        document.getElementById('Genero').value = d.genero || "";
+                        document.getElementById('EstadoCivil').value = d.estadoCivil || "";
+                        document.getElementById('Ocupacion').value = d.ocupacion || "";
+                        document.getElementById('Nota').value = d.nota || "";
+                        document.getElementById('PinAcceso').value = d.pinAcceso || "";
+                        document.getElementById('NombreUsuario').value = d.nombreUsuario || "";
+                        document.getElementById('Password').value = ""; // No mostrar contraseña actual
                         document.getElementById('Estado').checked = d.estado;
+
+                        // Manejo de fecha (DateOnly viene como YYYY-MM-DD)
+                        if (d.fechaNacimiento) {
+                            document.getElementById('FechaNacimiento').value = d.fechaNacimiento;
+                        } else {
+                            document.getElementById('FechaNacimiento').value = "";
+                        }
 
                         // Cargar permisos
                         document.querySelectorAll('.permiso-checkbox').forEach(cb => cb.checked = false);
@@ -623,9 +860,22 @@
             formData.append("UserId", document.getElementById("UserId").value);
             formData.append("RoleId", rolId);
             formData.append("NombreCompleto", document.getElementById("NombreCompleto").value);
+            formData.append("ApellidoPaterno", document.getElementById("ApellidoPaterno").value);
+            formData.append("ApellidoMaterno", document.getElementById("ApellidoMaterno").value);
             formData.append("Dni", document.getElementById("Dni").value);
             formData.append("Email", document.getElementById("Email").value);
             formData.append("Telefono", document.getElementById("Telefono").value);
+            formData.append("WhatsApp", document.getElementById("WhatsApp").value);
+            formData.append("Direccion", document.getElementById("Direccion").value);
+            formData.append("Origen", document.getElementById("Origen").value);
+            formData.append("Genero", document.getElementById("Genero").value);
+            formData.append("EstadoCivil", document.getElementById("EstadoCivil").value);
+            formData.append("FechaNacimiento", document.getElementById("FechaNacimiento").value);
+            formData.append("Ocupacion", document.getElementById("Ocupacion").value);
+            formData.append("Nota", document.getElementById("Nota").value);
+            formData.append("PinAcceso", document.getElementById("PinAcceso").value);
+            formData.append("NombreUsuario", document.getElementById("NombreUsuario").value);
+            formData.append("Password", document.getElementById("Password").value);
             formData.append("Estado", document.getElementById("Estado").checked);
 
             // Permisos

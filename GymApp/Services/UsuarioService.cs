@@ -79,7 +79,10 @@ namespace GymApp.Services
                     Email = u.Email,
                     Telefono = u.Telefono,
                     Estado = u.Estado ?? false,
-                    NombreUsuario = u.NombreUsuario
+                    NombreUsuario = u.NombreUsuario,
+                    FotoBase64 = u.FotoUrl, // Usamos FotoBase64 para la URL de la foto en el listado si existe
+                    WhatsApp = u.WhatsApp,
+                    Origen = u.Origen
                 })
                 .ToListAsync();
 
@@ -121,7 +124,10 @@ namespace GymApp.Services
                     Email = u.Email,
                     Telefono = u.Telefono,
                     Estado = u.Estado ?? false,
-                    NombreUsuario = u.NombreUsuario
+                    NombreUsuario = u.NombreUsuario,
+                    FotoBase64 = u.FotoUrl, // Usamos FotoBase64 para la URL de la foto en el listado si existe
+                    WhatsApp = u.WhatsApp,
+                    Origen = u.Origen
                 })
                 .ToListAsync();
 
