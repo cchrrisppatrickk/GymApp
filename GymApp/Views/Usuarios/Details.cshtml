@@ -40,127 +40,139 @@
         </div>
     </div>
 
-    <!-- Layout de Cards Superiores -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Card 1: Perfil Básico -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm">
-            <div @@click="$dispatch('open-photo-viewer', { url: '@(string.IsNullOrEmpty(Model.FotoUrl) ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(Model.NombreCompleto) + "&background=f1f5f9&color=64748b&size=512" : (Model.FotoUrl.StartsWith("/") ? Model.FotoUrl : "/uploads/fotos/" + Model.FotoUrl))' })" 
-                 class="relative w-20 h-20 rounded-2xl p-1 bg-slate-100 border border-slate-200 overflow-hidden shrink-0 cursor-zoom-in group/avatar transition-all active:scale-95 hover:border-indigo-300">
-                @if (!string.IsNullOrEmpty(Model.FotoUrl))
-                {
-                    <img src="@(Model.FotoUrl.StartsWith("/") ? Model.FotoUrl : "/uploads/fotos/" + Model.FotoUrl)" class="w-full h-full rounded-xl object-cover" alt="@Model.NombreCompleto" />
-                }
-                else
-                {
-                    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.NombreCompleto)&background=f1f5f9&color=64748b&size=128" class="w-full h-full rounded-xl object-cover" alt="Default" />
-                }
-                <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center">
-                    <i data-lucide="maximize-2" class="w-4 h-4 text-white drop-shadow-md"></i>
+    <!-- Layout de Cards Superiores Optimizado (3 Columnas) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 mb-8">
+        <!-- Card 1: Perfil y Acceso Integrado (40% de ancho en LG) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
+            <div class="flex items-center gap-5 relative z-10">
+                <div @@click="$dispatch('open-photo-viewer', { url: '@(string.IsNullOrEmpty(Model.FotoUrl) ? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(Model.NombreCompleto) + "&background=f1f5f9&color=64748b&size=512" : (Model.FotoUrl.StartsWith("/") ? Model.FotoUrl : "/uploads/fotos/" + Model.FotoUrl))' })" 
+                     class="relative w-24 h-24 rounded-2xl p-1 bg-slate-100 border border-slate-200 overflow-hidden shrink-0 cursor-zoom-in group/avatar transition-all active:scale-95 hover:border-indigo-300 shadow-inner">
+                    @if (!string.IsNullOrEmpty(Model.FotoUrl))
+                    {
+                        <img src="@(Model.FotoUrl.StartsWith("/") ? Model.FotoUrl : "/uploads/fotos/" + Model.FotoUrl)" class="w-full h-full rounded-xl object-cover" alt="@Model.NombreCompleto" />
+                    }
+                    else
+                    {
+                        <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.NombreCompleto)&background=f1f5f9&color=64748b&size=128" class="w-full h-full rounded-xl object-cover" alt="Default" />
+                    }
+                    <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center">
+                        <i data-lucide="maximize-2" class="w-5 h-5 text-white drop-shadow-md"></i>
+                    </div>
                 </div>
-                <!-- Género Badge -->
-                <div class="absolute bottom-1 right-1 w-5 h-5 rounded-lg bg-white shadow-sm flex items-center justify-center border border-slate-100">
-                    @if (Model.Genero == "Masculino") { <i data-lucide="mars" class="w-2.5 h-2.5 text-blue-500"></i> }
-                    else if (Model.Genero == "Femenino") { <i data-lucide="venus" class="w-2.5 h-2.5 text-pink-500"></i> }
-                    else { <i data-lucide="user" class="w-2.5 h-2.5 text-slate-400"></i> }
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest @(Model.Estado ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200") border">
+                            @(Model.Estado ? "Habilitado" : "Bloqueado")
+                        </span>
+                        @if (Model.Genero == "Masculino") { <i data-lucide="mars" class="w-3 h-3 text-blue-500"></i> }
+                        else if (Model.Genero == "Femenino") { <i data-lucide="venus" class="w-3 h-3 text-pink-500"></i> }
+                    </div>
+                    <h2 class="text-xl font-display font-black text-slate-900 truncate leading-tight mb-3">@Model.NombreCompleto</h2>
+                    
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            <i data-lucide="id-card" class="w-3 h-3 text-slate-400"></i>
+                            <span>@(Model.Dni ?? "S/DNI")</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            <i data-lucide="phone" class="w-3 h-3 text-slate-400"></i>
+                            <span>@(Model.Telefono ?? "S/TEL")</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="min-w-0">
-                <h2 class="text-lg font-display font-black text-slate-900 truncate leading-tight">@Model.NombreCompleto</h2>
-                <div class="flex flex-col gap-0.5 mt-1.5">
-                    <div class="flex items-center gap-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                        <i data-lucide="id-card" class="w-2.5 h-2.5"></i>
-                        <span>@(Model.Dni ?? "S/DNI")</span>
+
+            <!-- PIN Section at bottom of profile card -->
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+                        <i data-lucide="hash" class="w-4 h-4"></i>
                     </div>
-                    <div class="flex items-center gap-2 text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                        <i data-lucide="phone" class="w-2.5 h-2.5 text-slate-500"></i>
-                        <span>@(Model.Telefono ?? "S/TEL")</span>
+                    <div>
+                        <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">PIN Acceso</p>
+                        <p class="text-sm font-display font-black text-slate-900 tracking-[0.2em]">@(Model.PinAcceso ?? "----")</p>
                     </div>
+                </div>
+                <div class="text-right">
+                     <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">ID Socio</p>
+                     <p class="text-xs font-black text-slate-400">#@Model.UserId.ToString("D5")</p>
                 </div>
             </div>
         </div>
 
-        <!-- Card 2: Plan Actual -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col items-center justify-center text-center">
-            <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-2.5">Plan Suscrito</p>
+        <!-- Card 2: Plan Actual (35% de ancho en LG) -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-center items-center text-center">
+            <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-slate-100">
+                <i data-lucide="award" class="w-5 h-5 text-slate-400"></i>
+            </div>
+            <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-3">Suscripción Vigente</p>
             @{
                 var memActiva = Model.Membresias.FirstOrDefault(m => m.Estado == "Activa");
                 if (memActiva != null)
                 {
-                    <div class="flex items-center gap-2.5 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-100 mb-1.5">
-                        <i data-lucide="zap" class="w-3.5 h-3.5 fill-emerald-500"></i>
-                        <span class="text-xs font-black uppercase">@memActiva.NombrePlan</span>
+                    <div class="bg-emerald-50 text-emerald-800 px-5 py-2.5 rounded-2xl border border-emerald-100 mb-3 shadow-sm shadow-emerald-50">
+                        <div class="flex items-center justify-center gap-2 mb-0.5">
+                            <i data-lucide="zap" class="w-4 h-4 fill-emerald-500 text-emerald-500"></i>
+                            <span class="text-sm font-black uppercase tracking-tight">@memActiva.NombrePlan</span>
+                        </div>
+                        <p class="text-[9px] font-bold opacity-80 uppercase">Turno: @memActiva.NombreTurno</p>
                     </div>
-                    <p class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Vence el @memActiva.FechaVencimiento</p>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        <i data-lucide="calendar" class="w-3 h-3"></i>
+                        <span>Vence el @memActiva.FechaVencimiento</span>
+                    </div>
                 }
                 else
                 {
-                    <div class="flex items-center gap-2.5 bg-slate-100 text-slate-600 px-3 py-1.5 rounded-xl border border-slate-200 mb-1.5">
-                        <i data-lucide="inbox" class="w-3.5 h-3.5"></i>
-                        <span class="text-xs font-black uppercase tracking-widest">Sin Plan Activo</span>
+                    <div class="bg-slate-50 text-slate-500 px-5 py-2.5 rounded-2xl border border-slate-200 mb-3 grayscale opacity-60">
+                         <div class="flex items-center justify-center gap-2">
+                            <i data-lucide="inbox" class="w-4 h-4"></i>
+                            <span class="text-sm font-black uppercase tracking-tight">Sin Plan Activo</span>
+                        </div>
                     </div>
-                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">No registra suscripción</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">No registra servicios vigentes</p>
                 }
             }
         </div>
 
-        <!-- Card 3: Status / Acceso -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col items-center justify-center text-center">
-            <p class="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-3">Estado de Acceso</p>
-            <div class="flex items-center gap-4">
-                <div class="flex flex-col items-center gap-0.5">
-                    <div class="w-10 h-10 rounded-full border-4 border-slate-50 flex items-center justify-center @(Model.Estado ? "bg-emerald-500" : "bg-rose-500") shadow-lg">
-                        <i data-lucide="@(Model.Estado ? "check" : "x")" class="w-5 h-5 text-white font-bold"></i>
+        <!-- Card 3: Efectividad (35% de ancho en LG) -->
+        <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Fidelización</p>
+                <div class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+                    <i data-lucide="trending-up" class="w-3 h-3"></i>
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center py-1">
+                <div class="relative inline-flex items-center justify-center">
+                    <h3 class="text-4xl font-display font-black tracking-tighter @(Model.PorcentajeEfectividad <= 40 ? "text-rose-600" : Model.PorcentajeEfectividad <= 60 ? "text-amber-500" : "text-indigo-600")">
+                        @Model.PorcentajeEfectividad.ToString("0")%
+                    </h3>
+                    <div class="absolute -top-1 -right-4">
+                         <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full @(Model.PorcentajeEfectividad >= 80 ? "bg-emerald-400" : "bg-indigo-400") opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 @(Model.PorcentajeEfectividad >= 80 ? "bg-emerald-500" : "bg-indigo-500")"></span>
+                        </span>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest mt-1 @(Model.Estado ? "text-emerald-700" : "text-rose-700")">@(Model.Estado ? "Habilitado" : "Bloqueado")</span>
                 </div>
-                <div class="h-8 w-px bg-slate-200"></div>
-                <div class="text-left">
-                    <p class="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-0.5">PIN Actual</p>
-                    <p class="text-base font-display font-black text-slate-950 tracking-[0.2em]">@(Model.PinAcceso ?? "----")</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 4: Efectividad (Referencia Imagen) -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col">
-            <div class="flex items-center gap-3 mb-1">
-                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                    <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-900 uppercase tracking-tight">Efectividad Asistencias</p>
-                    <p class="text-[9px] font-bold text-slate-500">@Model.TotalAsistencias asistencias</p>
-                </div>
-            </div>
-
-            <div class="flex-1 flex flex-col items-center justify-center py-2">
-                <h3 class="text-4xl font-display font-black tracking-tighter @(Model.PorcentajeEfectividad <= 40 ? "text-rose-600" : Model.PorcentajeEfectividad <= 60 ? "text-amber-500" : "text-slate-900")">
-                    @Model.PorcentajeEfectividad.ToString("0")%
-                </h3>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">@Model.TotalAsistencias Asistencias reales</p>
                 
-                <!-- Leyenda de Estados -->
-                <div class="mt-4 flex flex-wrap justify-center gap-x-3 gap-y-1">
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full @(Model.NivelFidelidad == "Muy bajo" ? "bg-rose-500 ring-4 ring-rose-100" : "bg-rose-500/30")"></span>
-                        <span class="text-[8px] font-bold @(Model.NivelFidelidad == "Muy bajo" ? "text-slate-900" : "text-slate-400") uppercase">M. Bajo</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full @(Model.NivelFidelidad == "Bajo" ? "bg-orange-500 ring-4 ring-orange-100" : "bg-orange-500/30")"></span>
-                        <span class="text-[8px] font-bold @(Model.NivelFidelidad == "Bajo" ? "text-slate-900" : "text-slate-400") uppercase">Bajo</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full @(Model.NivelFidelidad == "Regular" ? "bg-yellow-400 ring-4 ring-yellow-100" : "bg-yellow-400/30")"></span>
-                        <span class="text-[8px] font-bold @(Model.NivelFidelidad == "Regular" ? "text-slate-900" : "text-slate-400") uppercase">Regular</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full @(Model.NivelFidelidad == "Bueno" ? "bg-emerald-500 ring-4 ring-emerald-100" : "bg-emerald-500/30")"></span>
-                        <span class="text-[8px] font-bold @(Model.NivelFidelidad == "Bueno" ? "text-slate-900" : "text-slate-400") uppercase">Bueno</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full @(Model.NivelFidelidad == "Excelente" ? "bg-indigo-500 ring-4 ring-indigo-100" : "bg-indigo-500/30")"></span>
-                        <span class="text-[8px] font-bold @(Model.NivelFidelidad == "Excelente" ? "text-slate-900" : "text-slate-400") uppercase">Exc.</span>
-                    </div>
+                <!-- Compact Status Scale -->
+                <div class="mt-5 flex justify-center items-center gap-1.5 w-full">
+                    @{
+                        string[] niveles = { "Muy bajo", "Bajo", "Regular", "Bueno", "Excelente" };
+                        string[] colores = { "bg-rose-500", "bg-orange-500", "bg-yellow-400", "bg-emerald-500", "bg-indigo-500" };
+                    }
+                    @for (int i = 0; i < niveles.Length; i++)
+                    {
+                        <div class="group relative">
+                            <div class="w-2.5 h-2.5 rounded-full @(Model.NivelFidelidad == niveles[i] ? colores[i] + " ring-4 ring-offset-2 " + colores[i].Replace("bg-", "ring-") + "/20 scale-125" : colores[i] + "/20 transition-all hover:scale-110")"></div>
+                            <!-- Tooltip simple on hover (optional) -->
+                        </div>
+                    }
                 </div>
+                <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] mt-3">Estado: <span class="text-slate-900">@Model.NivelFidelidad</span></p>
             </div>
         </div>
     </div>
