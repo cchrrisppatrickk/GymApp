@@ -69,6 +69,6 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 - [x] **Interfaz de Usuario:** Botón de consulta rápida en el formulario de registro para autocompletar nombres y apellidos.
 
 ### Fase 4.5: Métrica de Fidelización (Efectividad de Asistencia)
-- [ ] **Backend de Estadísticas:** Implementar conteo de asistencias filtrado por el periodo de la membresía activa.
-- [ ] **Lógica de Cálculo:** Desarrollar algoritmo para determinar el % de efectividad vs. días transcurridos.
-- [ ] **UI de Fidelización:** Crear card visual con leyenda de estados (Muy Bajo a Excelente) y visualización de porcentaje en alto contraste.
+- [x] **Paso 1: Capa de Datos:** Actualizar `UsuarioDetailsDTO` con los campos `TotalAsistencias`, `PorcentajeEfectividad` y `NivelFidelidad`.
+- [ ] **Paso 2: Lógica de Negocio:** Implementar algoritmo de cálculo en `UsuarioService` (Agrupación por fecha, conteo vs. días transcurridos desde el inicio del plan).
+- [ ] **Paso 3: Capa de Presentación:** Rediseño del grid superior en `Details.cshtml` para integrar el card de fidelización con leyenda de estados y colores dinámicos.

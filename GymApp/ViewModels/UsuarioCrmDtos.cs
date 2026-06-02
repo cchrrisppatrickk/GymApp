@@ -105,6 +105,11 @@ namespace GymApp.ViewModels
 
         public List<RestriccionDTO> Restricciones { get; set; } = new();
         public List<MembresiaListDTO> Membresias { get; set; } = new();
+
+        // Fidelización
+        public int TotalAsistencias { get; set; }
+        public decimal PorcentajeEfectividad { get; set; }
+        public string NivelFidelidad { get; set; } = "N/A";
     }
 
     public class RestriccionDTO
