@@ -67,3 +67,8 @@ Este documento sirve como archivo de seguimiento para la actualización masiva d
 - [x] **Servicio de Consulta:** Implementación de `PeruApiService` para consumo del endpoint REST.
 - [x] **Endpoint Interno:** Crear proxy en `UsuariosController` para evitar exponer la key en el cliente.
 - [x] **Interfaz de Usuario:** Botón de consulta rápida en el formulario de registro para autocompletar nombres y apellidos.
+
+### Fase 4.5: Métrica de Fidelización (Efectividad de Asistencia)
+- [ ] **Backend de Estadísticas:** Implementar conteo de asistencias filtrado por el periodo de la membresía activa.
+- [ ] **Lógica de Cálculo:** Desarrollar algoritmo para determinar el % de efectividad vs. días transcurridos.
+- [ ] **UI de Fidelización:** Crear card visual con leyenda de estados (Muy Bajo a Excelente) y visualización de porcentaje en alto contraste.
