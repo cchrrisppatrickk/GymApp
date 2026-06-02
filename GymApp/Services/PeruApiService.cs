@@ -25,10 +25,9 @@ namespace GymApp.Services
                     return new PeruApiDniResponse { Mensaje = "API Key no configurada", Code = "401" };
                 }
 
-                var request = new HttpRequestMessage(HttpMethod.Get, $"https://peruapi.com/api/dni/{dni}");
-                request.Headers.Add("X-API-KEY", apiKey);
-
-                var response = await _httpClient.SendAsync(request);
+                // Usamos la variante por query string (?api_token=) que es más robusta en algunos entornos
+                var url = $"https://peruapi.com/api/dni/{dni}?api_token={apiKey}";
+                var response = await _httpClient.GetAsync(url);
                 
                 if (response.IsSuccessStatusCode)
                 {
